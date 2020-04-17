@@ -46,6 +46,7 @@
     "!*/__tests__"
   ],
   "dependencies": {
+    "@jacquesparis/objects-model": "file:../objects-model",
     "@loopback/boot": "^2.0.0",
     "@loopback/context": "^3.0.0",
     "@loopback/core": "^2.0.0",

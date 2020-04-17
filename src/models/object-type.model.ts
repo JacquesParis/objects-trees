@@ -1,9 +1,10 @@
+import {IObjectType} from '@jacquesparis/objects-model';
 import {hasMany, model, property} from '@loopback/repository';
 import {ObjectSubType, ObjectSubTypeWithRelations} from './object-sub-type.model';
 import {RestEntity} from './rest-entity.model';
 
 @model({settings: {strict: false}})
-export class ObjectType extends RestEntity {
+export class ObjectType extends RestEntity implements IObjectType {
 
   @property({
     type: 'string',

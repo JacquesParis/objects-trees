@@ -1,9 +1,10 @@
+import {IObjectSubType} from '@jacquesparis/objects-model';
 import {belongsTo, model, property} from '@loopback/repository';
 import {DataEntity} from './data-entity.model';
 import {ObjectType, ObjectTypeRelations} from './object-type.model';
 
 @model({settings: {strict: false}})
-export class ObjectSubType extends DataEntity {
+export class ObjectSubType extends DataEntity implements IObjectSubType {
 
   @property({
     type: 'string',
