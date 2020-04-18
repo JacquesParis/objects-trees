@@ -3,7 +3,6 @@ import {DataEntity} from './data-entity.model';
 
 @model({settings: {strict: false}})
 export class RestEntity extends DataEntity {
-
   @property({
     type: 'string',
   })
