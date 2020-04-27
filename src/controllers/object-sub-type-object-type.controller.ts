@@ -1,22 +1,19 @@
+import {repository} from '@loopback/repository';
 import {
-  repository,
-} from '@loopback/repository';
-import {
-  param,
   get,
   getModelSchemaRef,
+  param,
+  patch,
+  requestBody,
 } from '@loopback/rest';
-import {
-  ObjectSubType,
-  ObjectType,
-} from '../models';
+import {ObjectSubType, ObjectType} from '../models';
 import {ObjectSubTypeRepository} from '../repositories';
 
 export class ObjectSubTypeObjectTypeController {
   constructor(
     @repository(ObjectSubTypeRepository)
     public objectSubTypeRepository: ObjectSubTypeRepository,
-  ) { }
+  ) {}
 
   @get('/object-sub-types/{id}/object-type', {
     responses: {
@@ -34,5 +31,26 @@ export class ObjectSubTypeObjectTypeController {
     @param.path.string('id') id: typeof ObjectSubType.prototype.id,
   ): Promise<ObjectType> {
     return this.objectSubTypeRepository.objectType(id);
+  }
+
+  @patch('object-sub-types/{id}', {
+    responses: {
+      '204': {
+        description: 'ObjectSubType PATCH success',
+      },
+    },
+  })
+  async updateById(
+    @param.path.string('id') id: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(ObjectSubType, {partial: true}),
+        },
+      },
+    })
+    objectSubType: ObjectSubType,
+  ): Promise<void> {
+    await this.objectSubTypeRepository.updateById(id, objectSubType);
   }
 }

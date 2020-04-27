@@ -1,5 +1,21 @@
-import {Count, CountSchema, Filter, FilterExcludingWhere, repository, Where} from '@loopback/repository';
-import {del, get, getModelSchemaRef, param, patch, post, put, requestBody} from '@loopback/rest';
+import {
+  Count,
+  CountSchema,
+  Filter,
+  FilterExcludingWhere,
+  repository,
+  Where,
+} from '@loopback/repository';
+import {
+  del,
+  get,
+  getModelSchemaRef,
+  param,
+  patch,
+  post,
+  put,
+  requestBody,
+} from '@loopback/rest';
 import {ObjectType} from '../models';
 import {ObjectTypeRepository} from '../repositories';
 
@@ -104,7 +120,8 @@ export class ObjectTypeController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(ObjectType, {exclude: 'where'}) filter?: FilterExcludingWhere<ObjectType>
+    @param.filter(ObjectType, {exclude: 'where'})
+    filter?: FilterExcludingWhere<ObjectType>,
   ): Promise<ObjectType> {
     return this.objectTypeRepository.findById(id, filter);
   }
