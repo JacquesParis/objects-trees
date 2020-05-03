@@ -81,6 +81,35 @@ export class ObjectTypeController {
   async find(
     @param.filter(ObjectType) filter?: Filter<ObjectType>,
   ): Promise<ObjectType[]> {
+    const defaultFilter = {
+      order: ['name'],
+      fields: {
+        definition: true,
+        id: true,
+        name: true,
+        type: true,
+        uri: true,
+      },
+      include: [
+        {
+          relation: 'objectSubTypes',
+          scope: {
+            order: ['index'],
+          },
+        },
+      ],
+    };
+    if (!filter) {
+      filter = {};
+    }
+    if (!filter.order) {
+      filter.order = defaultFilter.order;
+    }
+    if (!filter.fields) {
+      filter.fields = defaultFilter.fields;
+    }
+    filter.include = defaultFilter.include;
+
     return this.objectTypeRepository.find(filter);
   }
 

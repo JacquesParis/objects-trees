@@ -68,7 +68,7 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
         this.addUri(
           result,
           protocol + '://' + host + ':' + port + baseUrl,
-          path + '/',
+          path + (path?.endsWith('/') ? '' : '/'),
         );
       }
     } catch (error) {}
@@ -112,19 +112,20 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
           this.addUri(
             (result as EntityType)[key],
             baseUri,
-            '/' + this.getEntityUri(key) + '/',
+            `${objectUri}${(result as EntityType).id}/${this.getEntityUri(
+              key,
+            )}/`,
             deep + 1,
           );
         } else if (
           _.isString((result as EntityType)[key]) &&
           key.endsWith('Id')
         ) {
-          (result as EntityType)[key.substr(0, key.length - 2) + 'Uri'] =
-            baseUri +
-            '/' +
-            this.getEntityUri(key.substr(0, key.length - 2)) +
-            '/' +
-            (result as EntityType)[key];
+          (result as EntityType)[
+            key.substr(0, key.length - 2) + 'Uri'
+          ] = `${baseUri}/${this.getEntityUri(key.substr(0, key.length - 2))}/${
+            (result as EntityType)[key]
+          }`;
         }
       });
     }

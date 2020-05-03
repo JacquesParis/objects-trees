@@ -1,11 +1,27 @@
-import {Count, CountSchema, Filter, repository, Where} from '@loopback/repository';
-import {del, get, getModelSchemaRef, getWhereSchemaFor, param, patch, post, requestBody} from '@loopback/rest';
+import {
+  Count,
+  CountSchema,
+  Filter,
+  repository,
+  Where,
+} from '@loopback/repository';
+import {
+  del,
+  get,
+  getModelSchemaRef,
+  getWhereSchemaFor,
+  param,
+  patch,
+  post,
+  requestBody,
+} from '@loopback/rest';
 import {ObjectSubType, ObjectType} from '../models';
 import {ObjectTypeRepository} from '../repositories';
 
 export class ObjectTypeObjectSubTypeController {
   constructor(
-    @repository(ObjectTypeRepository) protected objectTypeRepository: ObjectTypeRepository,
+    @repository(ObjectTypeRepository)
+    protected objectTypeRepository: ObjectTypeRepository,
   ) {}
 
   @get('/object-types/{id}/object-sub-types', {
@@ -31,7 +47,9 @@ export class ObjectTypeObjectSubTypeController {
     responses: {
       '200': {
         description: 'ObjectType model instance',
-        content: {'application/json': {schema: getModelSchemaRef(ObjectSubType)}},
+        content: {
+          'application/json': {schema: getModelSchemaRef(ObjectSubType)},
+        },
       },
     },
   })
@@ -43,11 +61,12 @@ export class ObjectTypeObjectSubTypeController {
           schema: getModelSchemaRef(ObjectSubType, {
             title: 'NewObjectSubTypeInObjectType',
             exclude: ['id', 'uri', 'objectTypeId'],
-            optional: ['objectTypeId']
+            optional: ['objectTypeId'],
           }),
         },
       },
-    }) objectSubType: Omit<Omit<ObjectSubType, 'id'>, 'uri'>,
+    })
+    objectSubType: Omit<Omit<ObjectSubType, 'id'>, 'uri'>,
   ): Promise<ObjectSubType> {
     return this.objectTypeRepository.objectSubTypes(id).create(objectSubType);
   }
@@ -70,9 +89,39 @@ export class ObjectTypeObjectSubTypeController {
       },
     })
     objectSubType: Partial<ObjectSubType>,
-    @param.query.object('where', getWhereSchemaFor(ObjectSubType)) where?: Where<ObjectSubType>,
+    @param.query.object('where', getWhereSchemaFor(ObjectSubType))
+    where?: Where<ObjectSubType>,
   ): Promise<Count> {
-    return this.objectTypeRepository.objectSubTypes(id).patch(objectSubType, where);
+    return this.objectTypeRepository
+      .objectSubTypes(id)
+      .patch(objectSubType, where);
+  }
+
+  @patch('/object-types/{objectTypeId}/object-sub-types/{id}', {
+    responses: {
+      '204': {
+        description: 'ObjectSubType PATCH success',
+      },
+    },
+  })
+  async updateById(
+    @param.path.string('objectTypeId') objectTypeId: string,
+    @param.path.string('id') id: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(ObjectSubType, {partial: true}),
+        },
+      },
+    })
+    objectSubType: ObjectSubType,
+  ): Promise<void> {
+    const where = {
+      id: id,
+    };
+    await this.objectTypeRepository
+      .objectSubTypes(objectTypeId)
+      .patch(objectSubType, where);
   }
 
   @del('/object-types/{id}/object-sub-types', {
@@ -85,8 +134,26 @@ export class ObjectTypeObjectSubTypeController {
   })
   async delete(
     @param.path.string('id') id: string,
-    @param.query.object('where', getWhereSchemaFor(ObjectSubType)) where?: Where<ObjectSubType>,
+    @param.query.object('where', getWhereSchemaFor(ObjectSubType))
+    where?: Where<ObjectSubType>,
   ): Promise<Count> {
     return this.objectTypeRepository.objectSubTypes(id).delete(where);
+  }
+
+  @del('/object-types/{objectTypeId}/object-sub-types/{id}', {
+    responses: {
+      '204': {
+        description: 'ObjectSubType DELETE success',
+      },
+    },
+  })
+  async deleteById(
+    @param.path.string('objectTypeId') objectTypeId: string,
+    @param.path.string('id') id: string,
+  ): Promise<void> {
+    const where = {
+      id: id,
+    };
+    await this.objectTypeRepository.objectSubTypes(objectTypeId).delete(where);
   }
 }

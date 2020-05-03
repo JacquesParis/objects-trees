@@ -1,11 +1,5 @@
 import {repository} from '@loopback/repository';
-import {
-  get,
-  getModelSchemaRef,
-  param,
-  patch,
-  requestBody,
-} from '@loopback/rest';
+import {get, getModelSchemaRef, param} from '@loopback/rest';
 import {ObjectSubType, ObjectType} from '../models';
 import {ObjectSubTypeRepository} from '../repositories';
 
@@ -33,6 +27,8 @@ export class ObjectSubTypeObjectTypeController {
     return this.objectSubTypeRepository.objectType(id);
   }
 
+  /*
+
   @patch('object-sub-types/{id}', {
     responses: {
       '204': {
@@ -53,4 +49,5 @@ export class ObjectSubTypeObjectTypeController {
   ): Promise<void> {
     await this.objectSubTypeRepository.updateById(id, objectSubType);
   }
+  */
 }
