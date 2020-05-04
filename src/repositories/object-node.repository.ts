@@ -23,6 +23,16 @@ export class ObjectNodeRepository extends DefaultCrudRepository<
     typeof ObjectNode.prototype.id
   >;
 
+  public readonly parentOwner: BelongsToAccessor<
+    ObjectNode,
+    typeof ObjectNode.prototype.id
+  >;
+
+  public readonly parentACL: BelongsToAccessor<
+    ObjectNode,
+    typeof ObjectNode.prototype.id
+  >;
+
   constructor(
     @inject('datasources.db') dataSource: DbDataSource,
     @repository.getter('ObjectTypeRepository')
@@ -38,6 +48,22 @@ export class ObjectNodeRepository extends DefaultCrudRepository<
     this.registerInclusionResolver(
       'parentNode',
       this.parentNode.inclusionResolver,
+    );
+    this.parentOwner = this.createBelongsToAccessorFor(
+      'parentOwner',
+      objectNodeRepositoryGetter,
+    );
+    this.registerInclusionResolver(
+      'parentOwner',
+      this.parentOwner.inclusionResolver,
+    );
+    this.parentACL = this.createBelongsToAccessorFor(
+      'parentACL',
+      objectNodeRepositoryGetter,
+    );
+    this.registerInclusionResolver(
+      'parentACL',
+      this.parentACL.inclusionResolver,
     );
     this.objectType = this.createBelongsToAccessorFor(
       'objectType',
