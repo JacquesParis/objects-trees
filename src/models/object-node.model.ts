@@ -1,9 +1,15 @@
 import {IObjectNode, IObjectType} from '@jacquesparis/objects-model';
-import {belongsTo, model} from '@loopback/repository';
+import {belongsTo, model, property} from '@loopback/repository';
 import {RestEntity} from '.';
 import {ObjectType, ObjectTypeRelations} from './object-type.model';
 @model({settings: {strict: false}})
 export class ObjectNode extends RestEntity implements IObjectNode {
+  @property({
+    type: 'string',
+    required: true,
+  })
+  name: string;
+
   @belongsTo(() => ObjectType)
   objectTypeId: string;
 
