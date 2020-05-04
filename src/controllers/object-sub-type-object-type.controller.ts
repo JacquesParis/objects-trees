@@ -15,7 +15,10 @@ export class ObjectSubTypeObjectTypeController {
         description: 'ObjectType belonging to ObjectSubType',
         content: {
           'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(ObjectType)},
+            schema: {
+              contentType: 'array',
+              items: getModelSchemaRef(ObjectType),
+            },
           },
         },
       },

@@ -87,7 +87,7 @@ export class ObjectTypeController {
         definition: true,
         id: true,
         name: true,
-        type: true,
+        contentType: true,
         uri: true,
       },
       include: [

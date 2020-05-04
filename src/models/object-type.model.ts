@@ -1,11 +1,13 @@
-import {IObjectType} from '@jacquesparis/objects-model';
+import {IObjectType, ObjectContentType} from '@jacquesparis/objects-model';
 import {hasMany, model, property} from '@loopback/repository';
-import {ObjectSubType, ObjectSubTypeWithRelations} from './object-sub-type.model';
+import {
+  ObjectSubType,
+  ObjectSubTypeWithRelations,
+} from './object-sub-type.model';
 import {RestEntity} from './rest-entity.model';
 
 @model({settings: {strict: false}})
 export class ObjectType extends RestEntity implements IObjectType {
-
   @property({
     type: 'string',
     required: true,
@@ -16,12 +18,12 @@ export class ObjectType extends RestEntity implements IObjectType {
     type: 'string',
     required: true,
   })
-  type: string;
+  contentType: ObjectContentType;
 
   @property({
     required: false,
   })
-  definition: any;
+  definition: unknown;
 
   @hasMany(() => ObjectSubType)
   objectSubTypes: ObjectSubType[];
