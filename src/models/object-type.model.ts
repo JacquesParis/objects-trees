@@ -1,4 +1,4 @@
-import {IObjectType, ObjectContentType} from '@jacquesparis/objects-model';
+import {IObjectType} from '@jacquesparis/objects-model';
 import {hasMany, model, property} from '@loopback/repository';
 import {
   ObjectSubType,
@@ -18,7 +18,7 @@ export class ObjectType extends RestEntity implements IObjectType {
     type: 'string',
     required: true,
   })
-  contentType: ObjectContentType;
+  contentType: string;
 
   @property({
     required: false,
