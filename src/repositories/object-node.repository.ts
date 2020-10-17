@@ -28,6 +28,16 @@ export class ObjectNodeRepository extends DefaultCrudRepository<
     typeof ObjectNode.prototype.id
   >;
 
+  public readonly parentTree: BelongsToAccessor<
+    ObjectNode,
+    typeof ObjectNode.prototype.id
+  >;
+
+  public readonly parentNamespace: BelongsToAccessor<
+    ObjectNode,
+    typeof ObjectNode.prototype.id
+  >;
+
   public readonly parentACL: BelongsToAccessor<
     ObjectNode,
     typeof ObjectNode.prototype.id
@@ -56,6 +66,22 @@ export class ObjectNodeRepository extends DefaultCrudRepository<
     this.registerInclusionResolver(
       'parentOwner',
       this.parentOwner.inclusionResolver,
+    );
+    this.parentTree = this.createBelongsToAccessorFor(
+      'parentTree',
+      objectNodeRepositoryGetter,
+    );
+    this.registerInclusionResolver(
+      'parentTree',
+      this.parentTree.inclusionResolver,
+    );
+    this.parentNamespace = this.createBelongsToAccessorFor(
+      'parentNamespace',
+      objectNodeRepositoryGetter,
+    );
+    this.registerInclusionResolver(
+      'parentNamespace',
+      this.parentNamespace.inclusionResolver,
     );
     this.parentACL = this.createBelongsToAccessorFor(
       'parentACL',

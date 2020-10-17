@@ -6,8 +6,15 @@ import {
 } from './object-sub-type.model';
 import {RestEntity} from './rest-entity.model';
 
+export type ObjectContentType =
+  | ''
+  | 'ContentFile'
+  | 'ContentFiles'
+  | 'ContentText';
+
 @model({settings: {strict: false}})
 export class ObjectType extends RestEntity implements IObjectType {
+  public baseObjectUri: string = RestEntity.getBaseObjectUri('ObjectType');
   @property({
     type: 'string',
     required: true,
@@ -16,9 +23,9 @@ export class ObjectType extends RestEntity implements IObjectType {
 
   @property({
     type: 'string',
-    required: true,
+    required: false,
   })
-  contentType: string;
+  contentType: ObjectContentType;
 
   @property({
     required: false,

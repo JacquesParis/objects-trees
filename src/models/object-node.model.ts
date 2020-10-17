@@ -4,11 +4,36 @@ import {RestEntity} from '.';
 import {ObjectType, ObjectTypeRelations} from './object-type.model';
 @model({settings: {strict: false}})
 export class ObjectNode extends RestEntity implements IObjectNode {
+  public baseObjectUri: string = RestEntity.getBaseObjectUri('ObjectNode');
   @property({
     type: 'string',
     required: true,
   })
   name: string;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  owner?: boolean;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  acl?: boolean;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  tree?: boolean;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  namespace?: boolean;
 
   @belongsTo(() => ObjectType)
   objectTypeId: string;
@@ -18,6 +43,12 @@ export class ObjectNode extends RestEntity implements IObjectNode {
 
   @belongsTo(() => ObjectNode)
   parentOwnerId: string;
+
+  @belongsTo(() => ObjectNode)
+  parentTreeId: string;
+
+  @belongsTo(() => ObjectNode)
+  parentNamespaceId: string;
 
   @belongsTo(() => ObjectNode)
   parentACLId: string;
@@ -33,6 +64,8 @@ export class ObjectNode extends RestEntity implements IObjectNode {
   objectType: IObjectType;
   parentNode: IObjectNode;
   parentOwner: IObjectNode;
+  parentTree: IObjectNode;
+  parentNamespace: IObjectNode;
   parentACL: IObjectNode;
 }
 
@@ -41,6 +74,8 @@ export interface ObjectNodeRelations {
   objectType: ObjectTypeRelations;
   parentNode: ObjectNodeWithRelations;
   parentOwner: ObjectNodeWithRelations;
+  parentTree: ObjectNodeWithRelations;
+  parentNamespace: ObjectNodeWithRelations;
   parentACL: ObjectNodeWithRelations;
 }
 

@@ -15,6 +15,7 @@ import {camelToKebabCase} from '../helper/utils';
 type EntityType = {
   id?: string;
   uri?: string;
+  baseObjectUri?: string;
   [key: string]: any;
 };
 
@@ -100,6 +101,9 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
         this.addUri(item, baseUri, objectUri, deep);
       });
     } else if (_.isObject(result)) {
+      if ('baseObjectUri' in result && (result as EntityType).baseObjectUri) {
+        objectUri = <string>(result as EntityType).baseObjectUri;
+      }
       if ('id' in result) {
         (result as EntityType).uri =
           baseUri + objectUri + (result as EntityType).id;

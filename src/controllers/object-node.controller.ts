@@ -1,30 +1,28 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
-  repository,
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getFilterSchemaFor,
-  getModelSchemaRef,
-  getWhereSchemaFor,
-  patch,
-  put,
   del,
+  get,
+  getModelSchemaRef,
+  param,
+  patch,
+  post,
+  put,
   requestBody,
 } from '@loopback/rest';
 import {ObjectNode} from '../models';
-import {ObjectNodeRepository} from '../repositories';
+import {ObjectNodeService} from './../services/object-node.service';
 
 export class ObjectNodeController {
   constructor(
-    @repository(ObjectNodeRepository)
-    public objectNodeRepository : ObjectNodeRepository,
+    @service(ObjectNodeService)
+    public objectNodeService: ObjectNodeService,
   ) {}
 
   @post('/object-nodes', {
@@ -35,7 +33,7 @@ export class ObjectNodeController {
       },
     },
   })
-  async create(
+  create(
     @requestBody({
       content: {
         'application/json': {
@@ -48,7 +46,7 @@ export class ObjectNodeController {
     })
     objectNode: Omit<ObjectNode, 'id'>,
   ): Promise<ObjectNode> {
-    return this.objectNodeRepository.create(objectNode);
+    return this.objectNodeService.add(objectNode);
   }
 
   @get('/object-nodes/count', {
@@ -62,7 +60,7 @@ export class ObjectNodeController {
   async count(
     @param.where(ObjectNode) where?: Where<ObjectNode>,
   ): Promise<Count> {
-    return this.objectNodeRepository.count(where);
+    return this.objectNodeService.count(where);
   }
 
   @get('/object-nodes', {
@@ -83,7 +81,7 @@ export class ObjectNodeController {
   async find(
     @param.filter(ObjectNode) filter?: Filter<ObjectNode>,
   ): Promise<ObjectNode[]> {
-    return this.objectNodeRepository.find(filter);
+    return this.objectNodeService.find(filter);
   }
 
   @patch('/object-nodes', {
@@ -105,7 +103,7 @@ export class ObjectNodeController {
     objectNode: ObjectNode,
     @param.where(ObjectNode) where?: Where<ObjectNode>,
   ): Promise<Count> {
-    return this.objectNodeRepository.updateAll(objectNode, where);
+    return this.objectNodeService.updateAll(objectNode, where);
   }
 
   @get('/object-nodes/{id}', {
@@ -122,9 +120,10 @@ export class ObjectNodeController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(ObjectNode, {exclude: 'where'}) filter?: FilterExcludingWhere<ObjectNode>
+    @param.filter(ObjectNode, {exclude: 'where'})
+    filter?: FilterExcludingWhere<ObjectNode>,
   ): Promise<ObjectNode> {
-    return this.objectNodeRepository.findById(id, filter);
+    return this.objectNodeService.findById(id, filter);
   }
 
   @patch('/object-nodes/{id}', {
@@ -134,7 +133,7 @@ export class ObjectNodeController {
       },
     },
   })
-  async updateById(
+  updateById(
     @param.path.string('id') id: string,
     @requestBody({
       content: {
@@ -145,7 +144,7 @@ export class ObjectNodeController {
     })
     objectNode: ObjectNode,
   ): Promise<void> {
-    await this.objectNodeRepository.updateById(id, objectNode);
+    return this.objectNodeService.modifyById(id, objectNode);
   }
 
   @put('/object-nodes/{id}', {
@@ -155,11 +154,11 @@ export class ObjectNodeController {
       },
     },
   })
-  async replaceById(
+  replaceById(
     @param.path.string('id') id: string,
     @requestBody() objectNode: ObjectNode,
   ): Promise<void> {
-    await this.objectNodeRepository.replaceById(id, objectNode);
+    return this.objectNodeService.replaceById(id, objectNode);
   }
 
   @del('/object-nodes/{id}', {
@@ -170,6 +169,6 @@ export class ObjectNodeController {
     },
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.objectNodeRepository.deleteById(id);
+    await this.objectNodeService.removeById(id);
   }
 }

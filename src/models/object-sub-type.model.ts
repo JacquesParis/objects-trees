@@ -5,7 +5,6 @@ import {ObjectType, ObjectTypeRelations} from './object-type.model';
 
 @model({settings: {strict: false}})
 export class ObjectSubType extends DataEntity implements IObjectSubType {
-
   @property({
     type: 'string',
   })
@@ -16,7 +15,6 @@ export class ObjectSubType extends DataEntity implements IObjectSubType {
     default: 10,
   })
   index?: number;
-
 
   @property({
     type: 'number',
@@ -29,6 +27,30 @@ export class ObjectSubType extends DataEntity implements IObjectSubType {
     default: Number.MAX_SAFE_INTEGER,
   })
   max?: number;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  owner?: boolean;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  acl?: boolean;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  tree?: boolean;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  namespace?: boolean;
 
   @property({
     type: 'array',

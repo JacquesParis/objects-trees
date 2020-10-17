@@ -1,9 +1,9 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
-  repository,
   Where,
 } from '@loopback/repository';
 import {
@@ -17,12 +17,12 @@ import {
   requestBody,
 } from '@loopback/rest';
 import {ObjectType} from '../models';
-import {ObjectTypeRepository} from '../repositories';
+import {ObjectTypeService} from './../services/object-type.service';
 
 export class ObjectTypeController {
   constructor(
-    @repository(ObjectTypeRepository)
-    public objectTypeRepository: ObjectTypeRepository,
+    @service(ObjectTypeService)
+    public objectTypeService: ObjectTypeService,
   ) {}
 
   @post('/object-types', {
@@ -46,7 +46,7 @@ export class ObjectTypeController {
     })
     objectType: Omit<ObjectType, 'id'>,
   ): Promise<ObjectType> {
-    return this.objectTypeRepository.create(objectType);
+    return this.objectTypeService.add(objectType);
   }
 
   @get('/object-types/count', {
@@ -60,7 +60,7 @@ export class ObjectTypeController {
   async count(
     @param.where(ObjectType) where?: Where<ObjectType>,
   ): Promise<Count> {
-    return this.objectTypeRepository.count(where);
+    return this.objectTypeService.count(where);
   }
 
   @get('/object-types', {
@@ -81,36 +81,7 @@ export class ObjectTypeController {
   async find(
     @param.filter(ObjectType) filter?: Filter<ObjectType>,
   ): Promise<ObjectType[]> {
-    const defaultFilter = {
-      order: ['name'],
-      fields: {
-        definition: true,
-        id: true,
-        name: true,
-        contentType: true,
-        uri: true,
-      },
-      include: [
-        {
-          relation: 'objectSubTypes',
-          scope: {
-            order: ['index'],
-          },
-        },
-      ],
-    };
-    if (!filter) {
-      filter = {};
-    }
-    if (!filter.order) {
-      filter.order = defaultFilter.order;
-    }
-    if (!filter.fields) {
-      filter.fields = defaultFilter.fields;
-    }
-    filter.include = defaultFilter.include;
-
-    return this.objectTypeRepository.find(filter);
+    return this.objectTypeService.search(filter);
   }
 
   @patch('/object-types', {
@@ -132,7 +103,7 @@ export class ObjectTypeController {
     objectType: ObjectType,
     @param.where(ObjectType) where?: Where<ObjectType>,
   ): Promise<Count> {
-    return this.objectTypeRepository.updateAll(objectType, where);
+    return this.objectTypeService.updateAll(objectType, where);
   }
 
   @get('/object-types/{id}', {
@@ -147,12 +118,12 @@ export class ObjectTypeController {
       },
     },
   })
-  async findById(
+  findById(
     @param.path.string('id') id: string,
     @param.filter(ObjectType, {exclude: 'where'})
     filter?: FilterExcludingWhere<ObjectType>,
   ): Promise<ObjectType> {
-    return this.objectTypeRepository.findById(id, filter);
+    return this.objectTypeService.findById(id, filter);
   }
 
   @patch('/object-types/{id}', {
@@ -162,7 +133,7 @@ export class ObjectTypeController {
       },
     },
   })
-  async updateById(
+  updateById(
     @param.path.string('id') id: string,
     @requestBody({
       content: {
@@ -173,7 +144,7 @@ export class ObjectTypeController {
     })
     objectType: ObjectType,
   ): Promise<void> {
-    await this.objectTypeRepository.updateById(id, objectType);
+    return this.objectTypeService.modifyById(id, objectType);
   }
 
   @put('/object-types/{id}', {
@@ -183,11 +154,11 @@ export class ObjectTypeController {
       },
     },
   })
-  async replaceById(
+  replaceById(
     @param.path.string('id') id: string,
     @requestBody() objectType: ObjectType,
   ): Promise<void> {
-    await this.objectTypeRepository.replaceById(id, objectType);
+    return this.objectTypeService.replaceById(id, objectType);
   }
 
   @del('/object-types/{id}', {
@@ -197,7 +168,7 @@ export class ObjectTypeController {
       },
     },
   })
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.objectTypeRepository.deleteById(id);
+  deleteById(@param.path.string('id') id: string): Promise<void> {
+    return this.objectTypeService.removeById(id);
   }
 }

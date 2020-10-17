@@ -4,3 +4,4 @@ export * from './object-type-object-sub-type.controller';
 export * from './object-type.controller';
 export * from './ping.controller';
 export * from './object-node.controller';
+export * from './object-tree.controller';
