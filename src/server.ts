@@ -24,7 +24,9 @@ export class ExpressServer {
   public async start() {
     await this.lbApp.start();
     const port = this.lbApp.restServer.config.port || 3000;
-    const host = this.lbApp.restServer.config.host ?? '127.0.0.1';
+    const host = this.lbApp.restServer.config.host
+      ? this.lbApp.restServer.config.host
+      : '127.0.0.1';
     this.server = this.app.listen(port, host);
     console.log('listening', host, port);
     await pEvent(this.server, 'listening');
@@ -36,6 +38,6 @@ export class ExpressServer {
     await this.lbApp.stop();
     this.server.close();
     await pEvent(this.server, 'close');
-    this.server = <any>null;
+    this.server = (null as unknown) as Server;
   }
 }

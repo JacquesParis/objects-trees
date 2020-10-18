@@ -87,19 +87,14 @@ export class ObjectTreeController {
     @param.path.string('treeName') treeName: string,
     @param.filter(ObjectNode) filter?: Filter<ObjectNode>,
   ): Promise<ObjectNode[]> {
-    return this.objectTreeService
-      .getTreeNodes(
-        ownerType,
-        ownerName,
-        namespaceType,
-        namespaceName,
-        treeType,
-        treeName,
-      )
-      .then(
-        data => data,
-        error => error,
-      );
+    return this.objectTreeService.getTreeNodes(
+      ownerType,
+      ownerName,
+      namespaceType,
+      namespaceName,
+      treeType,
+      treeName,
+    );
   }
 
   @get(
@@ -127,12 +122,12 @@ export class ObjectTreeController {
     @param.path.string('namespaceName') namespaceName: string,
     @param.filter(ObjectNode) filter?: Filter<ObjectNode>,
   ): Promise<ObjectNode[]> {
-    return this.objectTreeService
-      .getNamespaceNodes(ownerType, ownerName, namespaceType, namespaceName)
-      .then(
-        data => data,
-        error => error,
-      );
+    return this.objectTreeService.getNamespaceNodes(
+      ownerType,
+      ownerName,
+      namespaceType,
+      namespaceName,
+    );
   }
   /*
   @post('/object-trees/{ownerType}/{ownerName}', {

@@ -111,7 +111,7 @@ export class ObjectTypeService {
    */
 
   replaceById(id: string, objectType: ObjectType): Promise<void> {
-    throw new HttpErrors.MethodNotAllowed('Method not implemented.');
+    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
   findById(
     id: string,
@@ -122,7 +122,7 @@ export class ObjectTypeService {
         >
       | undefined,
   ): Promise<ObjectType & ObjectTypeRelations> {
-    throw new HttpErrors.MethodNotAllowed('Method not implemented.');
+    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
   updateAll(
     objectType: ObjectType,
@@ -134,7 +134,7 @@ export class ObjectTypeService {
   ):
     | import('@loopback/repository').Count
     | PromiseLike<import('@loopback/repository').Count> {
-    throw new HttpErrors.MethodNotAllowed('Method not implemented.');
+    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
   count(
     where:
@@ -145,6 +145,6 @@ export class ObjectTypeService {
   ):
     | import('@loopback/repository').Count
     | PromiseLike<import('@loopback/repository').Count> {
-    throw new HttpErrors.MethodNotAllowed('Method not implemented.');
+    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
 }

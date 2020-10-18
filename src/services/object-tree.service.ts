@@ -32,7 +32,7 @@ export class ObjectTreeService {
     if (!rootType) {
       rootType = await this.objectTypeService.add({
         name: 'root',
-        definition: {},
+        definition: {properties: {}},
         contentType: '',
       });
     }
@@ -96,7 +96,7 @@ export class ObjectTreeService {
       treeName,
     );
     if (!tree) {
-      throw new Error(
+      throw new HttpErrors.NotFound(
         'no tree ' +
           treeType +
           ' ' +
@@ -132,7 +132,7 @@ export class ObjectTreeService {
       namespaceName,
     );
     if (!namespace) {
-      throw new Error(
+      throw new HttpErrors.NotFound(
         'no namespace ' +
           namespaceType +
           ' ' +

@@ -1,10 +1,11 @@
 import {IObjectNode, IObjectType} from '@jacquesparis/objects-model';
 import {belongsTo, model, property} from '@loopback/repository';
 import {RestEntity} from '.';
+import {EntityName} from './entity-name';
 import {ObjectType, ObjectTypeRelations} from './object-type.model';
 @model({settings: {strict: false}})
 export class ObjectNode extends RestEntity implements IObjectNode {
-  public baseObjectUri: string = RestEntity.getBaseObjectUri('ObjectNode');
+  public entityName: EntityName = EntityName.objectNode;
   @property({
     type: 'string',
     required: true,

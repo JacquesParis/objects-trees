@@ -1,5 +1,6 @@
-import {IObjectType} from '@jacquesparis/objects-model';
+import {IJsonSchema, IObjectType} from '@jacquesparis/objects-model';
 import {hasMany, model, property} from '@loopback/repository';
+import {EntityName} from './entity-name';
 import {
   ObjectSubType,
   ObjectSubTypeWithRelations,
@@ -14,7 +15,7 @@ export type ObjectContentType =
 
 @model({settings: {strict: false}})
 export class ObjectType extends RestEntity implements IObjectType {
-  public baseObjectUri: string = RestEntity.getBaseObjectUri('ObjectType');
+  public entityName: EntityName = EntityName.objectType;
   @property({
     type: 'string',
     required: true,
@@ -30,7 +31,7 @@ export class ObjectType extends RestEntity implements IObjectType {
   @property({
     required: false,
   })
-  definition: unknown;
+  definition: IJsonSchema;
 
   @hasMany(() => ObjectSubType)
   objectSubTypes: ObjectSubType[];

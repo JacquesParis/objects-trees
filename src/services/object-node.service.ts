@@ -37,7 +37,7 @@ export class ObjectNodeService {
         >
       | undefined,
   ): ObjectNode | PromiseLike<ObjectNode> {
-    throw new HttpErrors.MethodNotAllowed('Method not implemented.');
+    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
   constructor(
     @repository(ObjectNodeRepository)
@@ -103,7 +103,7 @@ export class ObjectNodeService {
       },
     });
     if (1 < nodes.length) {
-      throw new Error(
+      throw new HttpErrors.ExpectationFailed(
         'Too many ' +
           namespaceType +
           ' ' +
@@ -150,7 +150,7 @@ export class ObjectNodeService {
       },
     });
     if (1 < nodes.length) {
-      throw new Error(
+      throw new HttpErrors.ExpectationFailed(
         'Too many ' +
           namespaceType +
           ' ' +
@@ -189,7 +189,7 @@ export class ObjectNodeService {
         },
       });
       if (otherTrees && 0 < otherTrees.length) {
-        throw new HttpErrors.PreconditionFailed('Duplicate name ' + name);
+        throw new HttpErrors.Conflict('Duplicate name ' + name);
       }
     }
     if (objectNode.namespace) {
@@ -204,7 +204,7 @@ export class ObjectNodeService {
         },
       );
       if (otherNamespaces && 0 < otherNamespaces.length) {
-        throw new HttpErrors.PreconditionFailed('Duplicate name ' + name);
+        throw new HttpErrors.Conflict('Duplicate name ' + name);
       }
     }
     if (objectNode.owner) {
@@ -216,7 +216,7 @@ export class ObjectNodeService {
         },
       });
       if (otherOwners && 0 < otherOwners.length) {
-        throw new HttpErrors.PreconditionFailed('Duplicate name ' + name);
+        throw new HttpErrors.Conflict('Duplicate name ' + name);
       }
     }
   }
@@ -234,9 +234,6 @@ export class ObjectNodeService {
       }
       if (!objectNode.parentNodeId) {
         throw new HttpErrors.PreconditionFailed('parentNodeId mandatory');
-      }
-      if (objectNode.id) {
-        delete objectNode.id;
       }
 
       const parent = await this.searchById(objectNode.parentNodeId);
@@ -270,6 +267,15 @@ export class ObjectNodeService {
       }
       //TODO : check objectType.objectSubTypes.min
 
+      objectNode = _.pick(
+        objectNode,
+        this.getPropertiesKeys(objectType, [
+          'name',
+          'objectTypeId',
+          'parentNodeId',
+        ]),
+      );
+
       objectNode.parentACLId =
         !parent.acl && parent.parentACLId ? parent.parentACLId : parent.id;
 
@@ -287,13 +293,26 @@ export class ObjectNodeService {
           : parent.id;
 
       objectNode.owner = objectSubType.owner;
-      objectNode.acl = objectNode.owner ?? objectSubType.acl;
-      objectNode.namespace = objectNode.owner ?? objectSubType.namespace;
-      objectNode.tree = objectNode.namespace ?? objectSubType.tree;
+      objectNode.acl = !!objectNode.owner || !!objectSubType.acl;
+      objectNode.namespace = !!objectNode.owner || !!objectSubType.namespace;
+      objectNode.tree = !!objectNode.namespace || !!objectSubType.tree;
 
-      await this.checkNameAvailibility(objectNode, objectNode.name);
+      await this.checkNameAvailibility(objectNode, <string>objectNode.name);
     }
     return this.objectNodeRepository.create(objectNode);
+  }
+
+  protected getPropertiesKeys(
+    objectType: ObjectType,
+    objectKeys = ['name'],
+  ): string[] {
+    let finalObjectKeys = objectKeys;
+    if (objectType.definition && objectType.definition.properties) {
+      finalObjectKeys = objectKeys.concat(
+        Object.keys(objectType.definition.properties),
+      );
+    }
+    return finalObjectKeys;
   }
 
   async modifyById(
@@ -303,15 +322,26 @@ export class ObjectNodeService {
   ): Promise<void> {
     const node = await this.objectNodeRepository.findById(id);
     if (!node) {
-      throw new HttpErrors.NotFound('Unknwon node ' + id);
+      throw new HttpErrors.NotFound('Unknwon object ' + id);
     }
     if ('name' in objectNode && node.name !== objectNode.name) {
+      if (!objectNode.name) {
+        throw new HttpErrors.PreconditionFailed('name mandatory');
+      }
       await this.checkNameAvailibility(node, <string>objectNode.name);
+    }
+    const objectType = await this.objectTypeService.searchById(
+      node.objectTypeId,
+    );
+    if (!objectType) {
+      throw new HttpErrors.ExpectationFailed(
+        'Unknwon object type ' + node.objectTypeId,
+      );
     }
 
     return this.objectNodeRepository.updateById(
       id,
-      _.pick(objectNode, ['name']),
+      _.pick(objectNode, this.getPropertiesKeys(objectType)),
       options,
     );
   }
@@ -323,7 +353,7 @@ export class ObjectNodeService {
     id: string,
     objectNode: DataObject<ObjectNode>,
   ): Promise<void> {
-    throw new HttpErrors.MethodNotAllowed('Method not implemented.');
+    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
 
   protected getParentIdKey(parentType: ParentNodeType) {
@@ -374,10 +404,10 @@ export class ObjectNodeService {
   }
 
   deleteById(id: string): Promise<void> {
-    throw new HttpErrors.MethodNotAllowed('Method not implemented.');
+    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
   replaceById(id: string, objectNode: ObjectNode): Promise<void> {
-    throw new HttpErrors.MethodNotAllowed('Method not implemented.');
+    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
   updateAll(
     objectNode: ObjectNode,
@@ -387,12 +417,12 @@ export class ObjectNodeService {
       | OrClause<ObjectNode>
       | undefined,
   ): Count | PromiseLike<Count> {
-    throw new HttpErrors.MethodNotAllowed('Method not implemented.');
+    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
   find(
     filter: Filter<ObjectNode> | undefined,
   ): ObjectNode[] | PromiseLike<ObjectNode[]> {
-    throw new HttpErrors.MethodNotAllowed('Method not implemented.');
+    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
   count(
     where:
@@ -401,6 +431,6 @@ export class ObjectNodeService {
       | OrClause<ObjectNode>
       | undefined,
   ): Count | PromiseLike<Count> {
-    throw new HttpErrors.MethodNotAllowed('Method not implemented.');
+    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
 }

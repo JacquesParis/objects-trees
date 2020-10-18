@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-empty */
 import {
   globalInterceptor,
   Interceptor,
@@ -11,11 +10,12 @@ import {
 import {RestBindings} from '@loopback/rest';
 import * as _ from 'lodash';
 import {camelToKebabCase} from '../helper/utils';
+import {EntityName} from './../models/entity-name';
 
 type EntityType = {
   id?: string;
   uri?: string;
-  baseObjectUri?: string;
+  entityName?: EntityName;
   [key: string]: any;
 };
 
@@ -72,15 +72,23 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
           path + (path?.endsWith('/') ? '' : '/'),
         );
       }
+      // eslint-disable-next-line no-empty
     } catch (error) {}
     return result;
   }
 
-  protected getEntityUri(entityName: string): string {
+  protected getEntityUri(entityName: EntityName | string): string {
     switch (entityName) {
-      case 'objectType':
+      case EntityName.objectType:
       case 'subObjectType':
         return 'object-types';
+      case EntityName.objectNode:
+      case 'parentNode':
+      case 'parentAcl':
+      case 'parentOwner':
+      case 'parentNamespace':
+      case 'parentTree':
+        return 'object-nodes';
       default:
         return camelToKebabCase(entityName);
     }
@@ -101,8 +109,11 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
         this.addUri(item, baseUri, objectUri, deep);
       });
     } else if (_.isObject(result)) {
-      if ('baseObjectUri' in result && (result as EntityType).baseObjectUri) {
-        objectUri = <string>(result as EntityType).baseObjectUri;
+      if ('entityName' in result) {
+        objectUri =
+          '/' +
+          this.getEntityUri(<string>(result as EntityType).entityName) +
+          '/';
       }
       if ('id' in result) {
         (result as EntityType).uri =
@@ -125,9 +136,10 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
           _.isString((result as EntityType)[key]) &&
           key.endsWith('Id')
         ) {
-          (result as EntityType)[
-            key.substr(0, key.length - 2) + 'Uri'
-          ] = `${baseUri}/${this.getEntityUri(key.substr(0, key.length - 2))}/${
+          const field = key.substr(0, key.length - 2);
+          const entityUri: string = this.getEntityUri(field);
+
+          (result as EntityType)[field + 'Uri'] = `${baseUri}/${entityUri}/${
             (result as EntityType)[key]
           }`;
         }
