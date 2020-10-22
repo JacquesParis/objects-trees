@@ -50,7 +50,7 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
   ) {
     const result = await next();
     try {
-      const httpReq = await invocationCtx.get(RestBindings.Http.REQUEST, {
+      const httpReq: any = await invocationCtx.get(RestBindings.Http.REQUEST, {
         optional: true,
       });
       const method = httpReq?.method;
