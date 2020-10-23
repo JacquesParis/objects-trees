@@ -2,15 +2,15 @@ import {inject, service} from '@loopback/core';
 import {get, oas, param, post, Response, RestBindings} from '@loopback/rest';
 import {ObjectNode} from './../models/object-node.model';
 import {FileUploadService} from './../services/file-upload.service';
-import {ObjectNodeService} from './../services/object-node.service';
+import {ObjectNodeContentService} from './../services/object-node-content.service';
 
 /**
  * A controller to handle file uploads using multipart/form-data media type
  */
 export class FileUploadController {
   constructor(
-    @service(ObjectNodeService)
-    public objectNodeService: ObjectNodeService,
+    @service(ObjectNodeContentService)
+    public objectNodeContentService: ObjectNodeContentService,
     @service(FileUploadService) public fileUploadService: FileUploadService,
     @inject(RestBindings.Http.REQUEST) private request: never,
     @inject(RestBindings.Http.RESPONSE) private response: Response,
@@ -36,9 +36,8 @@ export class FileUploadController {
       this.response as never,
     );
 
-    const result = await this.objectNodeService.add(
+    const result = await this.objectNodeContentService.add(
       filesAndFields.fields,
-      false,
       filesAndFields.files,
     );
     return result;
@@ -53,8 +52,8 @@ export class FileUploadController {
     const file: {
       filePath: string;
       fileName: string;
-    } = await this.objectNodeService.getContent(id, 'contentFile', {
-      filename: fileName,
+    } = await this.objectNodeContentService.getContent(id,'contentFile', 'ContentFile', {
+      fileName: fileName
     });
     this.response.download(file.filePath, file.fileName);
     return this.response;

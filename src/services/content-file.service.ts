@@ -7,7 +7,7 @@ import {STORAGE_DIRECTORY} from './../constants';
 import {
   ContentEntityService,
   ContentEntityServiceInterface,
-  EntityWithContent,
+  EntityWithContent
 } from './content-entity.service';
 import {MemoryFile} from './file-upload.service';
 
@@ -54,5 +54,19 @@ export class ContentFileService implements ContentEntityServiceInterface {
     };
 
     return true;
+  }
+
+
+  public async  getContent(entity: EntityWithContent, fieldName:string, args: {[key:string]:any;}):Promise<{
+    filePath: string;
+    fileName: string;
+  }> {
+    const dirPath = path.join(
+      this.storageDirectory,
+      './' + entity.entityName + '/' + entity.id,
+    );
+    return {
+      filePath: path.join(dirPath, './' + fieldName), fileName: args.fileName
+    }
   }
 }

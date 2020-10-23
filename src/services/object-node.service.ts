@@ -8,7 +8,7 @@ import {
   FilterExcludingWhere,
   Options,
   OrClause,
-  repository,
+  repository
 } from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import _ from 'lodash';
@@ -18,7 +18,6 @@ import {ObjectNodeRelations} from './../models/object-node.model';
 import {ObjectSubType} from './../models/object-sub-type.model';
 import {ObjectType} from './../models/object-type.model';
 import {ContentEntityService} from './content-entity.service';
-import {MemoryFile} from './file-upload.service';
 import {ObjectTypeService} from './object-type.service';
 
 export enum ParentNodeType {
@@ -27,6 +26,8 @@ export enum ParentNodeType {
   owner = 'owner',
   namespace = 'namespace',
 }
+
+export class NodeContext {objectType?: ObjectType;parent?:ObjectNode; parentType?:ObjectType; objectSubType?: ObjectSubType}
 
 @bind({scope: BindingScope.SINGLETON})
 export class ObjectNodeService {
@@ -38,17 +39,6 @@ export class ObjectNodeService {
     @service(ContentEntityService)
     public contentEntityService: ContentEntityService,
   ) {}
-  findById(
-    id: string,
-    filter:
-      | Pick<
-          Filter<ObjectNode>,
-          'fields' | 'order' | 'limit' | 'skip' | 'offset' | 'include'
-        >
-      | undefined,
-  ): ObjectNode | PromiseLike<ObjectNode> {
-    throw new HttpErrors.NotImplemented('Method not implemented.');
-  }
 
   public searchByTreeId(treeId: string): Promise<ObjectNode[]> {
     return this.objectNodeRepository.find({
@@ -228,9 +218,8 @@ export class ObjectNodeService {
   public async add(
     objectNode: DataObject<ObjectNode>,
     byPassCheck = false,
-    files?: MemoryFile[],
+    nodeContext:NodeContext ={},
   ): Promise<ObjectNode> {
-    let objectType: ObjectType = (undefined as unknown) as ObjectType;
     if (!byPassCheck) {
       if (!objectNode.name) {
         throw new HttpErrors.PreconditionFailed('name mandatory');
@@ -242,40 +231,40 @@ export class ObjectNodeService {
         throw new HttpErrors.PreconditionFailed('parentNodeId mandatory');
       }
 
-      const parent = await this.searchById(objectNode.parentNodeId);
-      if (!parent) {
+      nodeContext.parent = await this.searchById(objectNode.parentNodeId);
+      if (!nodeContext.parent) {
         throw new HttpErrors.PreconditionFailed('unknown parent');
       }
-      const parentType = await this.objectTypeService.searchById(
-        parent.objectTypeId,
+      nodeContext.parentType = await this.objectTypeService.searchById(
+        nodeContext.parent.objectTypeId,
       );
-      if (!parentType) {
+      if (!nodeContext.parentType) {
         throw new HttpErrors.PreconditionFailed('unknown parentType');
       }
-      const objectSubType: ObjectSubType = <ObjectSubType>_.find(
-        parentType.objectSubTypes,
+      nodeContext.objectSubType = _.find(
+        nodeContext.parentType.objectSubTypes,
         subType => {
           return subType.subObjectTypeId === objectNode.objectTypeId;
         },
       );
-      if (!objectSubType) {
+      if (!nodeContext.objectSubType) {
         throw new HttpErrors.PreconditionFailed('Not authorized objectType');
       }
       //TODO : check objectSubType.mandatories
       //TODO : check objectSubType.exclusions
       //TODO : check objectSubType.max
 
-      objectType = await this.objectTypeService.searchById(
+      nodeContext.objectType = await this.objectTypeService.searchById(
         objectNode.objectTypeId,
       );
-      if (!objectType) {
+      if (!nodeContext.objectType) {
         throw new HttpErrors.PreconditionFailed('Unknown objectType');
       }
       //TODO : check objectType.objectSubTypes.min
 
       objectNode = _.pick(
         objectNode,
-        this.getPropertiesKeys(objectType, [
+        this.getPropertiesKeys(nodeContext.objectType, [
           'name',
           'objectTypeId',
           'parentNodeId',
@@ -283,38 +272,29 @@ export class ObjectNodeService {
       );
 
       objectNode.parentACLId =
-        !parent.acl && parent.parentACLId ? parent.parentACLId : parent.id;
+        !nodeContext.parent.acl && nodeContext.parent.parentACLId ? nodeContext.parent.parentACLId : nodeContext.parent.id;
 
       objectNode.parentOwnerId =
-        !parent.owner && parent.parentOwnerId
-          ? parent.parentOwnerId
-          : parent.id;
+        !nodeContext.parent.owner && nodeContext.parent.parentOwnerId
+          ? nodeContext.parent.parentOwnerId
+          : nodeContext.parent.id;
 
       objectNode.parentTreeId =
-        !parent.tree && parent.parentTreeId ? parent.parentTreeId : parent.id;
+        !nodeContext.parent.tree && nodeContext.parent.parentTreeId ? nodeContext.parent.parentTreeId : nodeContext.parent.id;
 
       objectNode.parentNamespaceId =
-        !parent.namespace && parent.parentNamespaceId
-          ? parent.parentNamespaceId
-          : parent.id;
+        !nodeContext.parent.namespace && nodeContext.parent.parentNamespaceId
+          ? nodeContext.parent.parentNamespaceId
+          : nodeContext.parent.id;
 
-      objectNode.owner = objectSubType.owner;
-      objectNode.acl = !!objectNode.owner || !!objectSubType.acl;
-      objectNode.namespace = !!objectNode.owner || !!objectSubType.namespace;
-      objectNode.tree = !!objectNode.namespace || !!objectSubType.tree;
+      objectNode.owner = nodeContext.objectSubType.owner;
+      objectNode.acl = !!objectNode.owner || !!nodeContext.objectSubType.acl;
+      objectNode.namespace = !!objectNode.owner || !!nodeContext.objectSubType.namespace;
+      objectNode.tree = !!objectNode.namespace || !!nodeContext.objectSubType.tree;
 
       await this.checkNameAvailibility(objectNode, <string>objectNode.name);
     }
     const result = await this.objectNodeRepository.create(objectNode);
-
-    const changes = await this.contentEntityService.manageContent(
-      objectType.contentType,
-      result,
-      files,
-    );
-    if (changes) {
-      await this.objectNodeRepository.updateById(result.id, result);
-    }
 
     return result;
   }
@@ -448,6 +428,20 @@ export class ObjectNodeService {
       | OrClause<ObjectNode>
       | undefined,
   ): Count | PromiseLike<Count> {
+    throw new HttpErrors.NotImplemented('Method not implemented.');
+  }
+
+
+
+  findById(
+    id: string,
+    filter:
+      | Pick<
+          Filter<ObjectNode>,
+          'fields' | 'order' | 'limit' | 'skip' | 'offset' | 'include'
+        >
+      | undefined,
+  ): ObjectNode | PromiseLike<ObjectNode> {
     throw new HttpErrors.NotImplemented('Method not implemented.');
   }
 }

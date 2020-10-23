@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {bind, /*inject, */ BindingScope} from '@loopback/core';
 import {Entity} from '@loopback/repository';
+import {HttpErrors} from '@loopback/rest';
 import {MemoryFile} from './file-upload.service';
 
 export interface EntityWithContent {
@@ -10,6 +11,10 @@ export interface EntityWithContent {
 }
 
 export interface ContentEntityServiceInterface {
+  getContent(entity: EntityWithContent, fieldName:string, args: {filename?: string | undefined;}):Promise<{
+    filePath: string;
+    fileName: string;
+  }|any>;
   manageContent(
     entity: EntityWithContent,
     loadedFiles: MemoryFile[],
@@ -18,7 +23,7 @@ export interface ContentEntityServiceInterface {
 
 @bind({scope: BindingScope.SINGLETON})
 export class ContentEntityService {
-  public hasContentManager(contentType: string) {
+  public hasContentManager(contentType: string | undefined) {
     return contentType && contentType in this.contentTypes;
   }
   protected contentTypes: {
@@ -34,16 +39,29 @@ export class ContentEntityService {
   }
 
   public manageContent(
-    contentType: string,
+    contentType: string | undefined,
     entity: Entity,
     loadedFiles?: MemoryFile[],
   ): Promise<boolean> {
-    if (this.hasContentManager(contentType)) {
+    if (contentType && this.hasContentManager(contentType)) {
       return this.contentTypes[contentType].manageContent(
         entity as EntityWithContent,
         loadedFiles ? loadedFiles : [],
       );
     }
     return Promise.resolve(false);
+  }
+
+ public getContent(
+  contentType: string | undefined,
+  entity: Entity, fieldName:string, args: {[key:string]:any;}): any {
+
+  if (contentType && this.hasContentManager(contentType)) {
+    return this.contentTypes[contentType].getContent(
+      entity as EntityWithContent, fieldName,
+      args,
+    );
+  }
+  throw new HttpErrors.NotImplemented('No content '+contentType+' to load');
   }
 }
