@@ -49,14 +49,14 @@ export class FileUploadController {
   async downloadFile(
     @param.path.string('id') id: string,
     @param.path.string('filename') fileName: string,
-  ): Promise<ObjectNode> {
+  ): Promise<Response> {
     const file: {
-      filePathe: string;
-      filename: string;
+      filePath: string;
+      fileName: string;
     } = await this.objectNodeService.getContent(id, 'contentFile', {
       filename: fileName,
     });
-    this.response.download(file, fileName);
-    return this.objectNodeService.findById(id, filter);
+    this.response.download(file.filePath, file.fileName);
+    return this.response;
   }
 }
