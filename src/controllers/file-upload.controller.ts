@@ -1,20 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {inject} from '@loopback/core';
-import {post, requestBody, RestBindings} from '@loopback/rest';
-import {FILE_UPLOAD_SERVICE} from '../keys';
-import {FileUploadHandler} from '../types';
+import {inject, service} from '@loopback/core';
+import {get, oas, param, post, Response, RestBindings} from '@loopback/rest';
+import {ObjectNode} from './../models/object-node.model';
+import {FileUploadService} from './../services/file-upload.service';
+import {ObjectNodeService} from './../services/object-node.service';
 
 /**
  * A controller to handle file uploads using multipart/form-data media type
  */
 export class FileUploadController {
-  /**
-   * Constructor
-   * @param handler - Inject an express request handler to deal with the request
-   */
   constructor(
-    @inject(FILE_UPLOAD_SERVICE) private handler: FileUploadHandler,
+    @service(ObjectNodeService)
+    public objectNodeService: ObjectNodeService,
+    @service(FileUploadService) public fileUploadService: FileUploadService,
+    @inject(RestBindings.Http.REQUEST) private request: never,
+    @inject(RestBindings.Http.RESPONSE) private response: Response,
   ) {}
+
   @post('/object-nodes/multipart', {
     responses: {
       200: {
@@ -29,42 +30,33 @@ export class FileUploadController {
       },
     },
   })
-  async fileUpload(
-    @requestBody.file()
-    request: unknown,
-    @inject(RestBindings.Http.RESPONSE) response: any,
-  ): Promise<object> {
-    return new Promise<object>((resolve, reject) => {
-      this.handler(request as never, response as never, (err: unknown) => {
-        if (err) reject(err);
-        else {
-          resolve(FileUploadController.getFilesAndFields(request as never));
-        }
-      });
-    });
+  async fileUpload(): Promise<ObjectNode> {
+    const filesAndFields = await this.fileUploadService.getFilesAndFields(
+      this.request,
+      this.response as never,
+    );
+
+    const result = await this.objectNodeService.add(
+      filesAndFields.fields,
+      false,
+      filesAndFields.files,
+    );
+    return result;
   }
 
-  /**
-   * Get files and fields for the request
-   * @param request - Http request
-   */
-  private static getFilesAndFields(request: Request) {
-    const uploadedFiles = (request as any).files;
-    const mapper = (f: globalThis.Express.Multer.File) => ({
-      fieldname: f.fieldname,
-      originalname: f.originalname,
-      encoding: f.encoding,
-      mimetype: f.mimetype,
-      size: f.size,
+  @get('/object-nodes/{id}/contentFile/{filename}')
+  @oas.response.file()
+  async downloadFile(
+    @param.path.string('id') id: string,
+    @param.path.string('filename') fileName: string,
+  ): Promise<ObjectNode> {
+    const file: {
+      filePathe: string;
+      filename: string;
+    } = await this.objectNodeService.getContent(id, 'contentFile', {
+      filename: fileName,
     });
-    let files: object[] = [];
-    if (Array.isArray(uploadedFiles)) {
-      files = uploadedFiles.map(mapper);
-    } else {
-      for (const filename in uploadedFiles) {
-        files.push(...uploadedFiles[filename].map(mapper));
-      }
-    }
-    return {files, fields: request.body};
+    this.response.download(file, fileName);
+    return this.objectNodeService.findById(id, filter);
   }
 }

@@ -17,12 +17,14 @@ import {
   requestBody,
 } from '@loopback/rest';
 import {ObjectNode} from '../models';
+import {FileUploadService} from './../services/file-upload.service';
 import {ObjectNodeService} from './../services/object-node.service';
 
 export class ObjectNodeController {
   constructor(
     @service(ObjectNodeService)
     public objectNodeService: ObjectNodeService,
+    @service(FileUploadService) public fileUploadService: FileUploadService,
   ) {}
 
   @post('/object-nodes', {

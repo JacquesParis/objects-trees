@@ -1,9 +1,9 @@
-import {ObjectstreesApplication} from '../..';
 import {
+  Client,
   createRestAppClient,
   givenHttpServerConfig,
-  Client,
 } from '@loopback/testlab';
+import {ObjectstreesApplication} from '../..';
 
 export async function setupApplication(): Promise<AppWithClient> {
   const restConfig = givenHttpServerConfig({
@@ -13,7 +13,6 @@ export async function setupApplication(): Promise<AppWithClient> {
     // host: process.env.HOST,
     // port: +process.env.PORT,
   });
-
   const app = new ObjectstreesApplication({
     rest: restConfig,
   });

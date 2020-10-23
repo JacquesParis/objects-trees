@@ -5,7 +5,7 @@ import {ObjectNode} from '../models';
 import {ObjectNodeService} from './object-node.service';
 import {ObjectTypeService} from './object-type.service';
 
-@bind({scope: BindingScope.TRANSIENT})
+@bind({scope: BindingScope.SINGLETON})
 export class ObjectTreeService {
   public ready: Promise<void>;
   constructor(

@@ -1,5 +1,3 @@
-export * from './file-download.controller';
-export * from './file-upload.controller';
 export * from './object-node-object-type.controller';
 export * from './object-node.controller';
 export * from './object-sub-type-object-type.controller';

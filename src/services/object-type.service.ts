@@ -30,7 +30,7 @@ const defaultObjectTypeFilter = {
   ],
 };
 
-@bind({scope: BindingScope.TRANSIENT})
+@bind({scope: BindingScope.SINGLETON})
 export class ObjectTypeService {
   constructor(
     @repository(ObjectTypeRepository)

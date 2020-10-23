@@ -17,6 +17,8 @@ import {ObjectNodeRepository} from '../repositories';
 import {ObjectNodeRelations} from './../models/object-node.model';
 import {ObjectSubType} from './../models/object-sub-type.model';
 import {ObjectType} from './../models/object-type.model';
+import {ContentEntityService} from './content-entity.service';
+import {MemoryFile} from './file-upload.service';
 import {ObjectTypeService} from './object-type.service';
 
 export enum ParentNodeType {
@@ -26,8 +28,16 @@ export enum ParentNodeType {
   namespace = 'namespace',
 }
 
-@bind({scope: BindingScope.TRANSIENT})
+@bind({scope: BindingScope.SINGLETON})
 export class ObjectNodeService {
+  constructor(
+    @repository(ObjectNodeRepository)
+    public objectNodeRepository: ObjectNodeRepository,
+    @service(ObjectTypeService)
+    public objectTypeService: ObjectTypeService,
+    @service(ContentEntityService)
+    public contentEntityService: ContentEntityService,
+  ) {}
   findById(
     id: string,
     filter:
@@ -39,12 +49,6 @@ export class ObjectNodeService {
   ): ObjectNode | PromiseLike<ObjectNode> {
     throw new HttpErrors.NotImplemented('Method not implemented.');
   }
-  constructor(
-    @repository(ObjectNodeRepository)
-    public objectNodeRepository: ObjectNodeRepository,
-    @service(ObjectTypeService)
-    public objectTypeService: ObjectTypeService,
-  ) {}
 
   public searchByTreeId(treeId: string): Promise<ObjectNode[]> {
     return this.objectNodeRepository.find({
@@ -224,7 +228,9 @@ export class ObjectNodeService {
   public async add(
     objectNode: DataObject<ObjectNode>,
     byPassCheck = false,
+    files?: MemoryFile[],
   ): Promise<ObjectNode> {
+    let objectType: ObjectType = (undefined as unknown) as ObjectType;
     if (!byPassCheck) {
       if (!objectNode.name) {
         throw new HttpErrors.PreconditionFailed('name mandatory');
@@ -259,7 +265,7 @@ export class ObjectNodeService {
       //TODO : check objectSubType.exclusions
       //TODO : check objectSubType.max
 
-      const objectType: ObjectType = await this.objectTypeService.searchById(
+      objectType = await this.objectTypeService.searchById(
         objectNode.objectTypeId,
       );
       if (!objectType) {
@@ -299,7 +305,18 @@ export class ObjectNodeService {
 
       await this.checkNameAvailibility(objectNode, <string>objectNode.name);
     }
-    return this.objectNodeRepository.create(objectNode);
+    const result = await this.objectNodeRepository.create(objectNode);
+
+    const changes = await this.contentEntityService.manageContent(
+      objectType.contentType,
+      result,
+      files,
+    );
+    if (changes) {
+      await this.objectNodeRepository.updateById(result.id, result);
+    }
+
+    return result;
   }
 
   protected getPropertiesKeys(
