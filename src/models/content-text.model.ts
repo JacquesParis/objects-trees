@@ -1,5 +1,6 @@
-import {model, property} from '@loopback/repository';
+import {belongsTo, model, property} from '@loopback/repository';
 import {ContentEntity} from '.';
+import {ObjectNode, ObjectNodeRelations} from './object-node.model';
 
 @model({settings: {strict: false}})
 export class ContentText extends ContentEntity {
@@ -8,6 +9,8 @@ export class ContentText extends ContentEntity {
   })
   text?: string;
 
+  @belongsTo(() => ObjectNode)
+  objectNodeId: string;
   // Define well-known properties here
 
   // Indexer property to allow additional data
@@ -21,6 +24,7 @@ export class ContentText extends ContentEntity {
 
 export interface ContentTextRelations {
   // describe navigational properties here
+  objectNode: ObjectNodeRelations;
 }
 
 export type ContentTextWithRelations = ContentText & ContentTextRelations;

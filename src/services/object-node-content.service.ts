@@ -1,11 +1,9 @@
-import { /* inject, */ BindingScope, injectable, service} from '@loopback/core';
-import {DataObject, repository} from '@loopback/repository';
+import {/* inject, */ BindingScope, injectable, service} from '@loopback/core';
+import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
-import {ObjectNode} from './../models/object-node.model';
 import {ObjectNodeRepository} from './../repositories/object-node.repository';
 import {ContentEntityService} from './content-entity.service';
-import {MemoryFile} from './file-upload.service';
-import {NodeContext, ObjectNodeService} from './object-node.service';
+import {ObjectNodeService} from './object-node.service';
 import {ObjectTypeService} from './object-type.service';
 
 @injectable({scope: BindingScope.TRANSIENT})
@@ -20,6 +18,7 @@ export class ObjectNodeContentService {
     public objectNodeRepository: ObjectNodeRepository,
   ) {}
 
+  /*
   public async add(
     objectNode: DataObject<ObjectNode>,
     content?: MemoryFile[],
@@ -35,22 +34,34 @@ export class ObjectNodeContentService {
       await this.objectNodeRepository.updateById(result.id, result);
     }
     return result;
-  }
+  }*/
 
-
- public async getContent(nodeId: string, fieldName:string, contentType: string, args: {[key:string]:any;}): Promise<{filePath: string; fileName: string;} | any> {
-    let objectNode = await this.objectNodeService.searchById(nodeId);
+  public async getContent(
+    nodeId: string,
+    fieldName: string,
+    contentType: string,
+    args: {contentId?: string},
+  ): Promise<{filePath: string; fileName: string} | unknown> {
+    const objectNode = await this.objectNodeService.searchById(nodeId);
     if (!objectNode) {
-      return new HttpErrors.NotFound('no node '+nodeId);
+      return new HttpErrors.NotFound('no node ' + nodeId);
     }
-    let ObjectType = await this.objectTypeService.searchById(objectNode.objectTypeId);
+    const ObjectType = await this.objectTypeService.searchById(
+      objectNode.objectTypeId,
+    );
     if (!ObjectType) {
-      return new HttpErrors.NotFound('no node '+nodeId);
+      return new HttpErrors.NotFound('no node ' + nodeId);
     }
     if (ObjectType.contentType !== contentType) {
-      return new HttpErrors.ExpectationFailed('node '+nodeId+' is not of type '+contentType)
+      return new HttpErrors.ExpectationFailed(
+        'node ' + nodeId + ' is not of type ' + contentType,
+      );
     }
-    return this.contentEntityService.getContent(contentType,objectNode,fieldName,args);
-
+    return this.contentEntityService.getContent(
+      contentType,
+      objectNode,
+      fieldName,
+      args,
+    );
   }
 }

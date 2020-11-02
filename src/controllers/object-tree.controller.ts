@@ -6,6 +6,7 @@ import {ObjectNode} from '../models';
 import {ObjectNodeRepository} from '../repositories/object-node.repository';
 // import {inject} from '@loopback/context';
 import {ObjectTreeService} from '../services/object-tree.service';
+import {ObjectTree} from './../models/object-tree.model';
 
 export class ObjectTreeController {
   constructor(
@@ -15,7 +16,7 @@ export class ObjectTreeController {
     public objectNodeRepository: ObjectNodeRepository,
   ) {}
 
-  @get('/object-trees/id/{treeId}/nodes', {
+  @get('/object-trees/{treeId}/nodes', {
     responses: {
       '200': {
         description: 'Array of ObjectNode model instances',
@@ -30,11 +31,31 @@ export class ObjectTreeController {
       },
     },
   })
-  async findChildsNodes(
+  async findChildrenNodes(
     @param.path.string('treeId') treeId: string,
     @param.filter(ObjectNode) filter?: Filter<ObjectNode>,
   ): Promise<ObjectNode[]> {
-    return this.objectTreeService.loadChilds(treeId);
+    return this.objectTreeService.loadChildrenNodes(treeId);
+  }
+
+  @get('/object-trees/{treeId}', {
+    responses: {
+      '200': {
+        description: 'Array of ObjectNode model instances',
+        content: {
+          'application/json': {
+            schema: {
+              items: getModelSchemaRef(ObjectTree),
+            },
+          },
+        },
+      },
+    },
+  })
+  async findChildren(
+    @param.path.string('treeId') treeId: string,
+  ): Promise<ObjectTree> {
+    return this.objectTreeService.loadTree(treeId);
   }
 
   @get('/object-trees/owner/{ownerType}/{ownerName}/nodes', {
@@ -60,6 +81,27 @@ export class ObjectTreeController {
     return this.objectTreeService.getOwnerTreeNodes(ownerType, ownerName);
   }
 
+  @get('/object-trees/owner/{ownerType}/{ownerName}', {
+    responses: {
+      '200': {
+        description: 'ObjectTree model',
+        content: {
+          'application/json': {
+            schema: {
+              items: getModelSchemaRef(ObjectTree),
+            },
+          },
+        },
+      },
+    },
+  })
+  async findOwnerTree(
+    @param.path.string('ownerType') ownerType: string,
+    @param.path.string('ownerName') ownerName: string,
+  ): Promise<ObjectTree> {
+    return this.objectTreeService.getOwnerTree(ownerType, ownerName);
+  }
+
   @get(
     '/object-trees/tree/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/{treeType}/{treeName}/nodes',
     {
@@ -78,7 +120,7 @@ export class ObjectTreeController {
       },
     },
   )
-  async findTree(
+  async findTreeNodes(
     @param.path.string('ownerType') ownerType: string,
     @param.path.string('ownerName') ownerName: string,
     @param.path.string('namespaceType') namespaceType: string,
@@ -88,6 +130,41 @@ export class ObjectTreeController {
     @param.filter(ObjectNode) filter?: Filter<ObjectNode>,
   ): Promise<ObjectNode[]> {
     return this.objectTreeService.getTreeNodes(
+      ownerType,
+      ownerName,
+      namespaceType,
+      namespaceName,
+      treeType,
+      treeName,
+    );
+  }
+
+  @get(
+    '/object-trees/tree/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/{treeType}/{treeName}',
+    {
+      responses: {
+        '200': {
+          description: 'ObjectTree model',
+          content: {
+            'application/json': {
+              schema: {
+                items: getModelSchemaRef(ObjectTree),
+              },
+            },
+          },
+        },
+      },
+    },
+  )
+  async findTree(
+    @param.path.string('ownerType') ownerType: string,
+    @param.path.string('ownerName') ownerName: string,
+    @param.path.string('namespaceType') namespaceType: string,
+    @param.path.string('namespaceName') namespaceName: string,
+    @param.path.string('treeType') treeType: string,
+    @param.path.string('treeName') treeName: string,
+  ): Promise<ObjectTree> {
+    return this.objectTreeService.getTree(
       ownerType,
       ownerName,
       namespaceType,
@@ -115,7 +192,7 @@ export class ObjectTreeController {
       },
     },
   )
-  async findNamespaceTree(
+  async findNamespaceNodes(
     @param.path.string('ownerType') ownerType: string,
     @param.path.string('ownerName') ownerName: string,
     @param.path.string('namespaceType') namespaceType: string,
@@ -129,6 +206,38 @@ export class ObjectTreeController {
       namespaceName,
     );
   }
+
+  @get(
+    '/object-trees/namespace/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}',
+    {
+      responses: {
+        '200': {
+          description: 'ObjectTree model',
+          content: {
+            'application/json': {
+              schema: {
+                items: getModelSchemaRef(ObjectTree),
+              },
+            },
+          },
+        },
+      },
+    },
+  )
+  async findNamespaceTree(
+    @param.path.string('ownerType') ownerType: string,
+    @param.path.string('ownerName') ownerName: string,
+    @param.path.string('namespaceType') namespaceType: string,
+    @param.path.string('namespaceName') namespaceName: string,
+  ): Promise<ObjectTree> {
+    return this.objectTreeService.gettNamespaceTree(
+      ownerType,
+      ownerName,
+      namespaceType,
+      namespaceName,
+    );
+  }
+
   /*
   @post('/object-trees/{ownerType}/{ownerName}', {
     responses: {

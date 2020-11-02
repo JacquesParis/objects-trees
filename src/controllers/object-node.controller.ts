@@ -1,11 +1,5 @@
 import {service} from '@loopback/core';
-import {
-  Count,
-  CountSchema,
-  Filter,
-  FilterExcludingWhere,
-  Where,
-} from '@loopback/repository';
+import {Filter, FilterExcludingWhere} from '@loopback/repository';
 import {
   del,
   get,
@@ -13,18 +7,15 @@ import {
   param,
   patch,
   post,
-  put,
   requestBody,
 } from '@loopback/rest';
 import {ObjectNode} from '../models';
-import {FileUploadService} from './../services/file-upload.service';
 import {ObjectNodeService} from './../services/object-node.service';
 
 export class ObjectNodeController {
   constructor(
     @service(ObjectNodeService)
     public objectNodeService: ObjectNodeService,
-    @service(FileUploadService) public fileUploadService: FileUploadService,
   ) {}
 
   @post('/object-nodes', {
@@ -51,20 +42,6 @@ export class ObjectNodeController {
     return this.objectNodeService.add(objectNode);
   }
 
-  @get('/object-nodes/count', {
-    responses: {
-      '200': {
-        description: 'ObjectNode model count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async count(
-    @param.where(ObjectNode) where?: Where<ObjectNode>,
-  ): Promise<Count> {
-    return this.objectNodeService.count(where);
-  }
-
   @get('/object-nodes', {
     responses: {
       '200': {
@@ -85,29 +62,6 @@ export class ObjectNodeController {
   ): Promise<ObjectNode[]> {
     return this.objectNodeService.find(filter);
   }
-
-  @patch('/object-nodes', {
-    responses: {
-      '200': {
-        description: 'ObjectNode PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(ObjectNode, {partial: true}),
-        },
-      },
-    })
-    objectNode: ObjectNode,
-    @param.where(ObjectNode) where?: Where<ObjectNode>,
-  ): Promise<Count> {
-    return this.objectNodeService.updateAll(objectNode, where);
-  }
-
   @get('/object-nodes/{id}', {
     responses: {
       '200': {
@@ -132,6 +86,7 @@ export class ObjectNodeController {
     responses: {
       '204': {
         description: 'ObjectNode PATCH success',
+        content: {'application/json': {schema: getModelSchemaRef(ObjectNode)}},
       },
     },
   })
@@ -145,10 +100,21 @@ export class ObjectNodeController {
       },
     })
     objectNode: ObjectNode,
-  ): Promise<void> {
+  ): Promise<ObjectNode> {
     return this.objectNodeService.modifyById(id, objectNode);
   }
 
+  @del('/object-nodes/{id}', {
+    responses: {
+      '204': {
+        description: 'ObjectNode DELETE success',
+      },
+    },
+  })
+  async deleteById(@param.path.string('id') id: string): Promise<void> {
+    await this.objectNodeService.removeById(id);
+  }
+  /*
   @put('/object-nodes/{id}', {
     responses: {
       '204': {
@@ -162,15 +128,48 @@ export class ObjectNodeController {
   ): Promise<void> {
     return this.objectNodeService.replaceById(id, objectNode);
   }
+*/
+  /*
+@get('/object-nodes/{id}/object-type', {
+  responses: {
+    '200': {
+      description: 'ObjectType belonging to ObjectNode',
+      content: {
+        'application/json': {
+          schema: {type: 'array', items: getModelSchemaRef(ObjectType)},
+        },
+      },
+    },
+  },
+})
+async getObjectType(
+  @param.path.string('id') id: typeof ObjectNode.prototype.id,
+): Promise<ObjectType> {
+  return this.objectNodeRepository.objectType(id);
+}
+*/
 
-  @del('/object-nodes/{id}', {
+  /*
+  @patch('/object-nodes', {
     responses: {
-      '204': {
-        description: 'ObjectNode DELETE success',
+      '200': {
+        description: 'ObjectNode PATCH success count',
+        content: {'application/json': {schema: CountSchema}},
       },
     },
   })
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.objectNodeService.removeById(id);
+  async updateAll(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(ObjectNode, {partial: true}),
+        },
+      },
+    })
+    objectNode: ObjectNode,
+    @param.where(ObjectNode) where?: Where<ObjectNode>,
+  ): Promise<Count> {
+    return this.objectNodeService.updateAll(objectNode, where);
   }
+*/
 }

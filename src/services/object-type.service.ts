@@ -1,4 +1,4 @@
-import {bind, /* inject, */ BindingScope} from '@loopback/core';
+import {bind, /* inject, */ BindingScope, service} from '@loopback/core';
 import {
   DataObject,
   Filter,
@@ -10,6 +10,7 @@ import {HttpErrors} from '@loopback/rest';
 import _ from 'lodash';
 import {ObjectTypeRepository} from '../repositories';
 import {ObjectType, ObjectTypeRelations} from './../models/object-type.model';
+import {ContentEntityService} from './content-entity.service';
 
 const defaultObjectTypeFilter = {
   order: ['name'],
@@ -35,9 +36,12 @@ export class ObjectTypeService {
   constructor(
     @repository(ObjectTypeRepository)
     public objectTypeRepository: ObjectTypeRepository,
+    @service(ContentEntityService)
+    public contentEntityService: ContentEntityService,
   ) {}
 
   add(objectType: DataObject<ObjectType>): Promise<ObjectType> {
+    delete objectType.contentDefinition;
     return this.objectTypeRepository.create(objectType);
   }
 
@@ -48,9 +52,16 @@ export class ObjectTypeService {
     if (1 < objectTypes.length) {
       throw new HttpErrors.PreconditionFailed('too many ' + name + ' type');
     }
-    return !!objectTypes && 0 < objectTypes.length
-      ? objectTypes[0]
-      : <ObjectType>(<unknown>null);
+    if (!!objectTypes && 0 < objectTypes.length) {
+      const objectType = objectTypes[0];
+      if (objectType) {
+        objectType.contentDefinition = await this.contentEntityService.getContentDefinition(
+          objectType.contentType,
+        );
+      }
+      return objectType;
+    }
+    return (null as unknown) as ObjectType;
   }
   private get filterOrder() {
     return _.cloneDeep(defaultObjectTypeFilter.order);
@@ -63,7 +74,7 @@ export class ObjectTypeService {
     return _.cloneDeep(defaultObjectTypeFilter.include);
   }
 
-  searchById(
+  public async searchById(
     id: string,
     filter?: FilterExcludingWhere<ObjectType>,
     options?: Options,
@@ -75,10 +86,20 @@ export class ObjectTypeService {
       filter.fields = this.filterFields;
     }
     filter.include = this.filterInclude;
-    return this.objectTypeRepository.findById(id, filter, options);
+    const objectType = await this.objectTypeRepository.findById(
+      id,
+      filter,
+      options,
+    );
+    if (objectType) {
+      objectType.contentDefinition = await this.contentEntityService.getContentDefinition(
+        objectType.contentType,
+      );
+    }
+    return objectType;
   }
 
-  search(
+  public async search(
     filter?: Filter<ObjectType>,
     options?: Options,
   ): Promise<(ObjectType & ObjectTypeRelations)[]> {
@@ -92,18 +113,36 @@ export class ObjectTypeService {
       filter.fields = this.filterFields;
     }
     filter.include = this.filterInclude;
-    return this.objectTypeRepository.find(filter, options);
+    const objectTypes = await this.objectTypeRepository.find(filter, options);
+    for (const objectType of objectTypes) {
+      objectType.contentDefinition = await this.contentEntityService.getContentDefinition(
+        objectType.contentType,
+      );
+    }
+    return objectTypes;
+  }
+
+  public async getAll(): Promise<{[id: string]: ObjectType}> {
+    return _.mapKeys(
+      await this.objectTypeRepository.find(),
+      (objectType: ObjectType, index) => {
+        return objectType.id;
+      },
+    );
   }
 
   removeById(id: string, options?: Options): Promise<void> {
     return this.objectTypeRepository.deleteById(id, options);
   }
-  modifyById(
+
+  async modifyById(
     id: string,
     objectType: DataObject<ObjectType>,
     options?: Options,
-  ): Promise<void> {
-    return this.objectTypeRepository.updateById(id, objectType, options);
+  ): Promise<ObjectType> {
+    delete objectType.contentDefinition;
+    await this.objectTypeRepository.updateById(id, objectType, options);
+    return this.objectTypeRepository.findById(id);
   }
 
   /*

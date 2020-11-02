@@ -33,6 +33,8 @@ export class ObjectType extends RestEntity implements IObjectType {
   })
   definition: IJsonSchema;
 
+  contentDefinition?: IJsonSchema;
+
   @hasMany(() => ObjectSubType)
   objectSubTypes: ObjectSubType[];
 

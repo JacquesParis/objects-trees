@@ -54,7 +54,7 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
         optional: true,
       });
       const method = httpReq?.method;
-      if ('GET' === method || 'POST' === method) {
+      if ('GET' === method || 'POST' === method || 'PATCH' === method) {
         const protocol = await invocationCtx.get(RestBindings.PROTOCOL, {
           optional: true,
         });
@@ -90,6 +90,9 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
       case 'parentTree':
         return 'object-nodes';
       default:
+        if (entityName in EntityName) {
+          return camelToKebabCase(entityName) + 's';
+        }
         return camelToKebabCase(entityName);
     }
   }
@@ -105,21 +108,23 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
       return;
     }
     if (_.isArray(result)) {
-      result.forEach(item => {
+      result.forEach((item) => {
         this.addUri(item, baseUri, objectUri, deep);
       });
     } else if (_.isObject(result)) {
       if ('entityName' in result) {
+        deep = 0;
         objectUri =
           '/' +
-          this.getEntityUri(<string>(result as EntityType).entityName) +
+          this.getEntityUri((result as EntityType).entityName as string) +
           '/';
+        delete (result as EntityType).entityName;
       }
       if ('id' in result) {
         (result as EntityType).uri =
           baseUri + objectUri + (result as EntityType).id;
       }
-      Object.keys(result).forEach(key => {
+      Object.keys(result).forEach((key) => {
         if (
           _.isObject((result as EntityType)[key]) ||
           _.isArray((result as EntityType)[key])
@@ -138,10 +143,15 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
         ) {
           const field = key.substr(0, key.length - 2);
           const entityUri: string = this.getEntityUri(field);
-
-          (result as EntityType)[field + 'Uri'] = `${baseUri}/${entityUri}/${
-            (result as EntityType)[key]
-          }`;
+          if (entityUri === camelToKebabCase(field)) {
+            (result as EntityType)[field + 'Uri'] = `${baseUri}/${objectUri}${
+              (result as EntityType).id
+            }/${entityUri}/${(result as EntityType)[key]}`;
+          } else {
+            (result as EntityType)[field + 'Uri'] = `${baseUri}/${entityUri}/${
+              (result as EntityType)[key]
+            }`;
+          }
         }
       });
     }

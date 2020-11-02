@@ -1,7 +1,7 @@
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
 import {RepositoryMixin} from '@loopback/repository';
-import {RestApplication} from '@loopback/rest';
+import {RestApplication, RestBindings} from '@loopback/rest';
 import {
   RestExplorerBindings,
   RestExplorerComponent,
@@ -36,6 +36,8 @@ export class ObjectstreesApplication extends BootMixin(
 
     const destination = path.join(__dirname, '../.storage');
     this.bind(STORAGE_DIRECTORY).to(destination);
+
+    this.bind(RestBindings.REQUEST_BODY_PARSER_OPTIONS).to({limit: '50mb'});
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here

@@ -4,11 +4,12 @@ import {
   Condition,
   Count,
   DataObject,
+  Entity,
   Filter,
   FilterExcludingWhere,
   Options,
   OrClause,
-  repository
+  repository,
 } from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import _ from 'lodash';
@@ -27,7 +28,12 @@ export enum ParentNodeType {
   namespace = 'namespace',
 }
 
-export class NodeContext {objectType?: ObjectType;parent?:ObjectNode; parentType?:ObjectType; objectSubType?: ObjectSubType}
+export class NodeContext {
+  objectType?: ObjectType;
+  parent?: ObjectNode;
+  parentType?: ObjectType;
+  objectSubType?: ObjectSubType;
+}
 
 @bind({scope: BindingScope.SINGLETON})
 export class ObjectNodeService {
@@ -218,8 +224,10 @@ export class ObjectNodeService {
   public async add(
     objectNode: DataObject<ObjectNode>,
     byPassCheck = false,
-    nodeContext:NodeContext ={},
+    nodeContext: NodeContext = {},
   ): Promise<ObjectNode> {
+    //let objectNode = _.clone(objectNodePosted);
+    let objectNodeForUpdate = objectNode;
     if (!byPassCheck) {
       if (!objectNode.name) {
         throw new HttpErrors.PreconditionFailed('name mandatory');
@@ -243,7 +251,7 @@ export class ObjectNodeService {
       }
       nodeContext.objectSubType = _.find(
         nodeContext.parentType.objectSubTypes,
-        subType => {
+        (subType) => {
           return subType.subObjectTypeId === objectNode.objectTypeId;
         },
       );
@@ -262,17 +270,10 @@ export class ObjectNodeService {
       }
       //TODO : check objectType.objectSubTypes.min
 
-      objectNode = _.pick(
-        objectNode,
-        this.getPropertiesKeys(nodeContext.objectType, [
-          'name',
-          'objectTypeId',
-          'parentNodeId',
-        ]),
-      );
-
       objectNode.parentACLId =
-        !nodeContext.parent.acl && nodeContext.parent.parentACLId ? nodeContext.parent.parentACLId : nodeContext.parent.id;
+        !nodeContext.parent.acl && nodeContext.parent.parentACLId
+          ? nodeContext.parent.parentACLId
+          : nodeContext.parent.id;
 
       objectNode.parentOwnerId =
         !nodeContext.parent.owner && nodeContext.parent.parentOwnerId
@@ -280,7 +281,9 @@ export class ObjectNodeService {
           : nodeContext.parent.id;
 
       objectNode.parentTreeId =
-        !nodeContext.parent.tree && nodeContext.parent.parentTreeId ? nodeContext.parent.parentTreeId : nodeContext.parent.id;
+        !nodeContext.parent.tree && nodeContext.parent.parentTreeId
+          ? nodeContext.parent.parentTreeId
+          : nodeContext.parent.id;
 
       objectNode.parentNamespaceId =
         !nodeContext.parent.namespace && nodeContext.parent.parentNamespaceId
@@ -289,12 +292,45 @@ export class ObjectNodeService {
 
       objectNode.owner = nodeContext.objectSubType.owner;
       objectNode.acl = !!objectNode.owner || !!nodeContext.objectSubType.acl;
-      objectNode.namespace = !!objectNode.owner || !!nodeContext.objectSubType.namespace;
-      objectNode.tree = !!objectNode.namespace || !!nodeContext.objectSubType.tree;
+      objectNode.namespace =
+        !!objectNode.owner || !!nodeContext.objectSubType.namespace;
+      objectNode.tree =
+        !!objectNode.namespace || !!nodeContext.objectSubType.tree;
 
       await this.checkNameAvailibility(objectNode, <string>objectNode.name);
+
+      objectNodeForUpdate = _.pick(
+        objectNode,
+        this.getPropertiesKeys(nodeContext.objectType, [
+          'name',
+          'objectTypeId',
+          'parentNodeId',
+          'parentACLId',
+          'parentOwnerId',
+          'parentTreeId',
+          'parentNamespaceId',
+          'owner',
+          'acl',
+          'namespace',
+          'tree',
+        ]),
+      );
     }
-    const result = await this.objectNodeRepository.create(objectNode);
+    const result = await this.objectNodeRepository.create(objectNodeForUpdate);
+
+    const changes = await this.contentEntityService.manageContent(
+      nodeContext.objectType?.contentType,
+      result,
+      objectNode as Entity,
+    );
+    if (changes) {
+      await this.objectNodeRepository.updateById(result.id, result);
+    }
+
+    await this.contentEntityService.addTransientContent(
+      nodeContext.objectType?.contentType,
+      result,
+    );
 
     return result;
   }
@@ -304,7 +340,7 @@ export class ObjectNodeService {
     objectKeys = ['name'],
   ): string[] {
     let finalObjectKeys = objectKeys;
-    if (objectType.definition && objectType.definition.properties) {
+    if (objectType.definition?.properties) {
       finalObjectKeys = objectKeys.concat(
         Object.keys(objectType.definition.properties),
       );
@@ -316,7 +352,7 @@ export class ObjectNodeService {
     id: string,
     objectNode: DataObject<ObjectNode>,
     options?: Options,
-  ): Promise<void> {
+  ): Promise<ObjectNode> {
     const node = await this.objectNodeRepository.findById(id);
     if (!node) {
       throw new HttpErrors.NotFound('Unknwon object ' + id);
@@ -336,11 +372,29 @@ export class ObjectNodeService {
       );
     }
 
-    return this.objectNodeRepository.updateById(
+    await this.objectNodeRepository.updateById(
       id,
       _.pick(objectNode, this.getPropertiesKeys(objectType)),
       options,
     );
+
+    const result = await this.objectNodeRepository.findById(id);
+
+    const changes = await this.contentEntityService.manageContent(
+      objectType?.contentType,
+      result,
+      objectNode as Entity,
+    );
+    if (changes) {
+      await this.objectNodeRepository.updateById(result.id, result);
+    }
+
+    await this.contentEntityService.addTransientContent(
+      objectType?.contentType,
+      result,
+    );
+
+    return result;
   }
   /*
    * Add service methods here
@@ -430,8 +484,6 @@ export class ObjectNodeService {
   ): Count | PromiseLike<Count> {
     throw new HttpErrors.NotImplemented('Method not implemented.');
   }
-
-
 
   findById(
     id: string,
