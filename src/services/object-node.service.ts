@@ -1,14 +1,9 @@
 import {bind, /*inject, */ BindingScope, service} from '@loopback/core';
 import {
-  AndClause,
-  Condition,
-  Count,
   DataObject,
   Entity,
-  Filter,
   FilterExcludingWhere,
   Options,
-  OrClause,
   repository,
 } from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
@@ -16,8 +11,8 @@ import _ from 'lodash';
 import {ObjectNode} from '../models';
 import {ObjectNodeRepository} from '../repositories';
 import {ObjectNodeRelations} from './../models/object-node.model';
-import {ObjectSubType} from './../models/object-sub-type.model';
 import {ObjectType} from './../models/object-type.model';
+import {CurrentContext, NodeContext} from './application.service';
 import {ContentEntityService} from './content-entity.service';
 import {ObjectTypeService} from './object-type.service';
 
@@ -26,13 +21,6 @@ export enum ParentNodeType {
   tree = 'tree',
   owner = 'owner',
   namespace = 'namespace',
-}
-
-export class NodeContext {
-  objectType?: ObjectType;
-  parent?: ObjectNode;
-  parentType?: ObjectType;
-  objectSubType?: ObjectSubType;
 }
 
 @bind({scope: BindingScope.SINGLETON})
@@ -49,6 +37,15 @@ export class ObjectNodeService {
   public searchByTreeId(treeId: string): Promise<ObjectNode[]> {
     return this.objectNodeRepository.find({
       where: {parentTreeId: treeId},
+    });
+  }
+
+  public searchByParentIdAndObjectTypeId(
+    parentNodeId: string,
+    objectTypeId: string,
+  ): Promise<ObjectNode[]> {
+    return this.objectNodeRepository.find({
+      where: {parentNodeId, objectTypeId},
     });
   }
 
@@ -117,7 +114,33 @@ export class ObjectNodeService {
     return 1 === nodes.length ? nodes[0] : <ObjectNode>(<unknown>null);
   }
 
-  public async searchTree(
+  public async getOrCreateChildren(
+    parentId: string,
+    objectTypeId: string,
+    defaultValue?: DataObject<ObjectNode>,
+    min = 1,
+  ): Promise<ObjectNode[]> {
+    const children = await this.searchByParentIdAndObjectTypeId(
+      parentId,
+      objectTypeId,
+    );
+    if (defaultValue && children.length < min) {
+      while (children.length < min) {
+        children.push(
+          await this.add(
+            _.merge({}, defaultValue, {
+              parentNodeId: parentId,
+              objectTypeId: objectTypeId,
+            }),
+            new CurrentContext(),
+          ),
+        );
+      }
+    }
+    return children;
+  }
+
+  public async searchTreeNodes(
     ownerType: string,
     ownerName: string,
     namespaceType: string,
@@ -221,11 +244,97 @@ export class ObjectNodeService {
     }
   }
 
+  private async checkBrothersCondition(
+    objectNode: DataObject<ObjectNode>,
+    nodeContext: NodeContext,
+  ): Promise<void> {
+    if (nodeContext.objectSubType?.mandatories) {
+      for (const brotherTypeId of nodeContext.objectSubType.mandatories) {
+        if (
+          0 ===
+          (
+            await this.searchByParentIdAndObjectTypeId(
+              objectNode.parentNodeId as string,
+              brotherTypeId,
+            )
+          ).length
+        ) {
+          throw new HttpErrors.PreconditionRequired(
+            'Need a brother node of type ' + brotherTypeId,
+          );
+        }
+      }
+    }
+    if (nodeContext.objectSubType?.exclusions) {
+      for (const brotherTypeId of nodeContext.objectSubType.exclusions) {
+        if (
+          0 <
+          (
+            await this.searchByParentIdAndObjectTypeId(
+              objectNode.parentNodeId as string,
+              brotherTypeId,
+            )
+          ).length
+        ) {
+          throw new HttpErrors.PreconditionFailed(
+            'Incompatible with a brother node of type ' + brotherTypeId,
+          );
+        }
+      }
+    }
+    if (
+      nodeContext.objectSubType?.max &&
+      (
+        await this.searchByParentIdAndObjectTypeId(
+          objectNode.parentNodeId as string,
+          objectNode.objectTypeId as string,
+        )
+      ).length >= nodeContext.objectSubType.max
+    ) {
+      throw new HttpErrors.PreconditionFailed(
+        'Too many node of type ' + objectNode.objectTypeId,
+      );
+    }
+  }
+
+  private async checkSubTypesCondition(
+    objectNode: ObjectNode,
+    nodeContext: NodeContext,
+  ) {
+    if (nodeContext.objectType?.objectSubTypes) {
+      for (const objectSubType of nodeContext.objectType.objectSubTypes) {
+        if (objectSubType.min && 0 < objectSubType.min) {
+          for (let i = 0; i < objectSubType.min; i++) {
+            try {
+              await this.add(
+                {
+                  name: objectSubType.name,
+                  objectTypeId: objectSubType.subObjectTypeId,
+                  parentNodeId: objectNode.id,
+                },
+                CurrentContext.get({
+                  nodeContext: {
+                    parentType: nodeContext.objectType,
+                    parent: objectNode,
+                    objectSubType: objectSubType,
+                  },
+                }),
+              );
+            } catch (error) {
+              console.log(error);
+            }
+          }
+        }
+      }
+    }
+  }
+
   public async add(
     objectNode: DataObject<ObjectNode>,
+    ctx: CurrentContext,
     byPassCheck = false,
-    nodeContext: NodeContext = {},
   ): Promise<ObjectNode> {
+    const nodeContext = ctx.nodeContext;
     //let objectNode = _.clone(objectNodePosted);
     let objectNodeForUpdate = objectNode;
     if (!byPassCheck) {
@@ -239,28 +348,29 @@ export class ObjectNodeService {
         throw new HttpErrors.PreconditionFailed('parentNodeId mandatory');
       }
 
-      nodeContext.parent = await this.searchById(objectNode.parentNodeId);
+      nodeContext.parent = nodeContext.parent
+        ? nodeContext.parent
+        : await this.searchById(objectNode.parentNodeId);
       if (!nodeContext.parent) {
         throw new HttpErrors.PreconditionFailed('unknown parent');
       }
-      nodeContext.parentType = await this.objectTypeService.searchById(
-        nodeContext.parent.objectTypeId,
-      );
+      nodeContext.parentType = nodeContext.parentType
+        ? nodeContext.parentType
+        : await this.objectTypeService.searchById(
+            nodeContext.parent.objectTypeId,
+          );
       if (!nodeContext.parentType) {
         throw new HttpErrors.PreconditionFailed('unknown parentType');
       }
-      nodeContext.objectSubType = _.find(
-        nodeContext.parentType.objectSubTypes,
-        (subType) => {
-          return subType.subObjectTypeId === objectNode.objectTypeId;
-        },
-      );
+      nodeContext.objectSubType = nodeContext.objectSubType
+        ? nodeContext.objectSubType
+        : _.find(nodeContext.parentType.objectSubTypes, (subType) => {
+            return subType.subObjectTypeId === objectNode.objectTypeId;
+          });
       if (!nodeContext.objectSubType) {
         throw new HttpErrors.PreconditionFailed('Not authorized objectType');
       }
-      //TODO : check objectSubType.mandatories
-      //TODO : check objectSubType.exclusions
-      //TODO : check objectSubType.max
+      await this.checkBrothersCondition(objectNode, nodeContext);
 
       nodeContext.objectType = await this.objectTypeService.searchById(
         objectNode.objectTypeId,
@@ -268,12 +378,16 @@ export class ObjectNodeService {
       if (!nodeContext.objectType) {
         throw new HttpErrors.PreconditionFailed('Unknown objectType');
       }
-      //TODO : check objectType.objectSubTypes.min
 
       objectNode.parentACLId =
         !nodeContext.parent.acl && nodeContext.parent.parentACLId
           ? nodeContext.parent.parentACLId
           : nodeContext.parent.id;
+      objectNode.aclList = !nodeContext.parent.aclList
+        ? [nodeContext.parent.id]
+        : objectNode.parentACLId === nodeContext.parent.id
+        ? _.concat(nodeContext.parent.aclList, [objectNode.parentACLId])
+        : nodeContext.parent.aclList;
 
       objectNode.parentOwnerId =
         !nodeContext.parent.owner && nodeContext.parent.parentOwnerId
@@ -327,6 +441,8 @@ export class ObjectNodeService {
       await this.objectNodeRepository.updateById(result.id, result);
     }
 
+    await this.checkSubTypesCondition(result, nodeContext);
+
     await this.contentEntityService.addTransientContent(
       nodeContext.objectType?.contentType,
       result,
@@ -351,7 +467,7 @@ export class ObjectNodeService {
   async modifyById(
     id: string,
     objectNode: DataObject<ObjectNode>,
-    options?: Options,
+    ctx: CurrentContext,
   ): Promise<ObjectNode> {
     const node = await this.objectNodeRepository.findById(id);
     if (!node) {
@@ -375,7 +491,6 @@ export class ObjectNodeService {
     await this.objectNodeRepository.updateById(
       id,
       _.pick(objectNode, this.getPropertiesKeys(objectType)),
-      options,
     );
 
     const result = await this.objectNodeRepository.findById(id);
@@ -436,11 +551,12 @@ export class ObjectNodeService {
     });
   }
 
-  async removeById(id: string): Promise<void> {
+  async removeById(id: string, ctx: CurrentContext): Promise<void> {
     const node = await this.objectNodeRepository.findById(id);
     if (!node) {
       throw new HttpErrors.NotFound('Unknwon node ' + id);
     }
+
     if (node.owner) {
       await this.removeByParent(ParentNodeType.owner, <string>node.id);
     } else if (node.namespace) {
@@ -452,48 +568,5 @@ export class ObjectNodeService {
     }
     await this.objectNodeRepository.deleteById(id);
     return;
-  }
-
-  deleteById(id: string): Promise<void> {
-    throw new HttpErrors.NotImplemented('Method not implemented.');
-  }
-  replaceById(id: string, objectNode: ObjectNode): Promise<void> {
-    throw new HttpErrors.NotImplemented('Method not implemented.');
-  }
-  updateAll(
-    objectNode: ObjectNode,
-    where:
-      | Condition<ObjectNode>
-      | AndClause<ObjectNode>
-      | OrClause<ObjectNode>
-      | undefined,
-  ): Count | PromiseLike<Count> {
-    throw new HttpErrors.NotImplemented('Method not implemented.');
-  }
-  find(
-    filter: Filter<ObjectNode> | undefined,
-  ): ObjectNode[] | PromiseLike<ObjectNode[]> {
-    throw new HttpErrors.NotImplemented('Method not implemented.');
-  }
-  count(
-    where:
-      | Condition<ObjectNode>
-      | AndClause<ObjectNode>
-      | OrClause<ObjectNode>
-      | undefined,
-  ): Count | PromiseLike<Count> {
-    throw new HttpErrors.NotImplemented('Method not implemented.');
-  }
-
-  findById(
-    id: string,
-    filter:
-      | Pick<
-          Filter<ObjectNode>,
-          'fields' | 'order' | 'limit' | 'skip' | 'offset' | 'include'
-        >
-      | undefined,
-  ): ObjectNode | PromiseLike<ObjectNode> {
-    throw new HttpErrors.NotImplemented('Method not implemented.');
   }
 }

@@ -1,0 +1,4 @@
+export const CONTEXT_INTERCEPTOR = 'constext';
+export const URI_INTERCEPTOR = 'uri';
+
+export const INTERCEPTORS_ORDER = [CONTEXT_INTERCEPTOR, URI_INTERCEPTOR];

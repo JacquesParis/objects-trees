@@ -47,6 +47,9 @@
   ],
   "dependencies": {
     "@jacquesparis/objects-model": "file:../objects-model",
+    "@loopback/authentication": "^7.0.2",
+    "@loopback/authentication-jwt": "^0.7.2",
+    "@loopback/authorization": "^0.7.2",
     "@loopback/boot": "^3.0.2",
     "@loopback/context": "^3.12.0",
     "@loopback/core": "^2.11.0",

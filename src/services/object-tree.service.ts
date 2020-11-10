@@ -3,6 +3,8 @@ import {HttpErrors} from '@loopback/rest';
 import * as _ from 'lodash';
 import {ObjectNode} from '../models';
 import {ObjectTree} from './../models/object-tree.model';
+import {ObjectType} from './../models/object-type.model';
+import {ApplicationService, CurrentContext} from './application.service';
 import {ContentEntityService} from './content-entity.service';
 import {ObjectNodeService} from './object-node.service';
 import {ObjectTypeService} from './object-type.service';
@@ -12,14 +14,16 @@ export class ObjectTreeService {
   public ready: Promise<void>;
   constructor(
     @service(ObjectNodeService)
-    public objectNodeService: ObjectNodeService,
+    private objectNodeService: ObjectNodeService,
     @service(ObjectTypeService)
-    public objectTypeService: ObjectTypeService,
+    private objectTypeService: ObjectTypeService,
     @service(ContentEntityService)
-    public contentEntityService: ContentEntityService,
+    private contentEntityService: ContentEntityService,
+    @service(ApplicationService)
+    private appCtx: ApplicationService,
   ) {
     this.ready = new Promise<void>((resolve, reject) => {
-      this.initTree().then(
+      this.init().then(
         () => {
           resolve();
         },
@@ -30,31 +34,118 @@ export class ObjectTreeService {
     });
   }
 
-  async initTree() {
-    let rootType = await this.objectTypeService.searchByName('root');
+  async init() {
+    const rootType: ObjectType = await this.appCtx.rootType.getOrSetValue(
+      async (): Promise<ObjectType> => {
+        let newRootType = await this.objectTypeService.searchByName(
+          ApplicationService.OBJECT_TYPE_NAMES.ROOT,
+        );
 
-    if (!rootType) {
-      rootType = await this.objectTypeService.add({
-        name: 'root',
-        definition: {properties: {}},
-        contentType: '',
-      });
-    }
+        if (!newRootType) {
+          newRootType = await this.objectTypeService.add(
+            {
+              name: ApplicationService.OBJECT_TYPE_NAMES.ROOT,
+              definition: {properties: {}},
+              contentType: '',
+            },
+            new CurrentContext(),
+          );
+        }
+        return newRootType;
+      },
+    );
 
-    const root = await this.objectNodeService.searchOwner('root', 'root');
-    if (!root) {
-      await this.objectNodeService.add(
-        {
-          name: 'root',
-          objectTypeId: rootType.id,
-          owner: true,
-          tree: true,
-          namesapce: true,
-          acl: true,
-        },
-        true,
-      );
-    }
+    const tenantType: ObjectType = await this.appCtx.tenantType.getOrSetValue(
+      async (): Promise<ObjectType> => {
+        let newType = await this.objectTypeService.searchByName(
+          ApplicationService.OBJECT_TYPE_NAMES.TENANT,
+        );
+
+        if (!newType) {
+          newType = await this.objectTypeService.add(
+            {
+              name: ApplicationService.OBJECT_TYPE_NAMES.TENANT,
+              definition: {
+                properties: {
+                  firstname: {
+                    type: 'string',
+                    title: 'Firstname',
+                    default: '',
+                    minLength: 2,
+                    required: true,
+                  },
+                  lastname: {
+                    type: 'string',
+                    title: 'Lastname',
+                    default: '',
+                    minLength: 2,
+                    required: true,
+                  },
+                  email: {
+                    type: 'string',
+                    title: 'Email',
+                    default: '',
+                    minLength: 2,
+                    required: true,
+                  },
+                  address: {
+                    type: 'string',
+                    title: 'Address',
+                    default: '',
+                    minLength: 2,
+                    required: false,
+                  },
+                },
+              },
+              contentType: '',
+            },
+            new CurrentContext(),
+          );
+        }
+        return newType;
+      },
+    );
+
+    await this.objectTypeService.getOrCreateObjectSubType(
+      rootType.id as string,
+      tenantType.id as string,
+      {
+        acl: true,
+        name: ApplicationService.OBJECT_TYPE_NAMES.TENANT,
+        namespace: true,
+        owner: true,
+        tree: true,
+      },
+    );
+
+    await this.appCtx.rooteNode.getOrSetValue(
+      async (): Promise<ObjectNode> => {
+        let newRoot = await this.objectNodeService.searchOwner(
+          ApplicationService.OBJECT_TYPE_NAMES.ROOT,
+          ApplicationService.OBJECT_NODE_NAMES[
+            ApplicationService.OBJECT_TYPE_NAMES.ROOT
+          ],
+        );
+        if (!newRoot) {
+          newRoot = await this.objectNodeService.add(
+            {
+              name:
+                ApplicationService.OBJECT_NODE_NAMES[
+                  ApplicationService.OBJECT_TYPE_NAMES.ROOT
+                ],
+              objectTypeId: rootType.id,
+              owner: true,
+              tree: true,
+              namesapce: true,
+              acl: true,
+            },
+            new CurrentContext(),
+            true,
+          );
+        }
+        return newRoot;
+      },
+    );
   }
 
   /*
@@ -64,6 +155,7 @@ export class ObjectTreeService {
   async getOwnerTreeNodes(
     ownerType: string,
     ownerName: string,
+    ctx: CurrentContext,
   ): Promise<ObjectNode[]> {
     await this.ready;
     const tree: ObjectNode = await this.objectNodeService.searchOwner(
@@ -85,8 +177,9 @@ export class ObjectTreeService {
   async getOwnerTree(
     ownerType: string,
     ownerName: string,
+    ctx: CurrentContext,
   ): Promise<ObjectTree> {
-    const objectNodes = await this.getOwnerTreeNodes(ownerType, ownerName);
+    const objectNodes = await this.getOwnerTreeNodes(ownerType, ownerName, ctx);
     return new ObjectTree(objectNodes[0]).init(
       objectNodes,
       this.contentEntityService,
@@ -101,9 +194,10 @@ export class ObjectTreeService {
     namespaceName: string,
     treeType: string,
     treeName: string,
+    ctx: CurrentContext,
   ): Promise<ObjectNode[]> {
     await this.ready;
-    const tree: ObjectNode = await this.objectNodeService.searchTree(
+    const tree: ObjectNode = await this.objectNodeService.searchTreeNodes(
       ownerType,
       ownerName,
       namespaceType,
@@ -141,6 +235,7 @@ export class ObjectTreeService {
     namespaceName: string,
     treeType: string,
     treeName: string,
+    ctx: CurrentContext,
   ): Promise<ObjectTree> {
     const objectNodes = await this.getTreeNodes(
       ownerType,
@@ -149,6 +244,7 @@ export class ObjectTreeService {
       namespaceName,
       treeType,
       treeName,
+      ctx,
     );
     return new ObjectTree(objectNodes[0]).init(
       objectNodes,
@@ -162,6 +258,7 @@ export class ObjectTreeService {
     ownerName: string,
     namespaceType: string,
     namespaceName: string,
+    ctx: CurrentContext,
   ): Promise<ObjectNode[]> {
     await this.ready;
     const namespace: ObjectNode = await this.objectNodeService.searchNamespace(
@@ -194,12 +291,14 @@ export class ObjectTreeService {
     ownerName: string,
     namespaceType: string,
     namespaceName: string,
+    ctx: CurrentContext,
   ): Promise<ObjectTree> {
     const objectNodes = await this.getNamespaceNodes(
       ownerType,
       ownerName,
       namespaceType,
       namespaceName,
+      ctx,
     );
     return new ObjectTree(objectNodes[0]).init(
       objectNodes,
@@ -208,7 +307,10 @@ export class ObjectTreeService {
     );
   }
 
-  async loadChildrenNodes(treeId: string): Promise<ObjectNode[]> {
+  async loadChildrenNodes(
+    treeId: string,
+    ctx: CurrentContext,
+  ): Promise<ObjectNode[]> {
     const root = await this.objectNodeService.searchById(treeId);
     if (!root) {
       throw new HttpErrors.NotFound('No tree ' + treeId);
@@ -216,8 +318,8 @@ export class ObjectTreeService {
     return _.concat(root, await this.objectNodeService.searchByTreeId(treeId));
   }
 
-  async loadTree(treeId: string): Promise<ObjectTree> {
-    const objectNodes = await this.loadChildrenNodes(treeId);
+  async loadTree(treeId: string, ctx: CurrentContext): Promise<ObjectTree> {
+    const objectNodes = await this.loadChildrenNodes(treeId, ctx);
     return new ObjectTree(objectNodes[0]).init(
       objectNodes,
       this.contentEntityService,

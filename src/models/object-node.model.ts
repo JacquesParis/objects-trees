@@ -1,8 +1,8 @@
 import {IObjectNode, IObjectType} from '@jacquesparis/objects-model';
 import {belongsTo, model, property} from '@loopback/repository';
-import {RestEntity} from '.';
 import {EntityName} from './entity-name';
 import {ObjectType, ObjectTypeRelations} from './object-type.model';
+import {RestEntity} from './rest-entity.model';
 @model({settings: {strict: false}})
 export class ObjectNode extends RestEntity implements IObjectNode {
   public entityName: EntityName = EntityName.objectNode;
@@ -35,6 +35,9 @@ export class ObjectNode extends RestEntity implements IObjectNode {
     default: false,
   })
   namespace?: boolean;
+
+  @property({type: 'array', default: [], itemType: 'string'})
+  aclList?: string[];
 
   @belongsTo(() => ObjectType)
   objectTypeId: string;

@@ -1,5 +1,6 @@
-import {service} from '@loopback/core';
-import {Filter, repository} from '@loopback/repository';
+import {authenticate} from '@loopback/authentication';
+import {authorize} from '@loopback/authorization';
+import {inject, service} from '@loopback/core';
 import {
   del,
   get,
@@ -10,21 +11,25 @@ import {
   requestBody,
 } from '@loopback/rest';
 import {ObjectType} from '../models';
+import {CurrentContext, CURRENT_CONTEXT} from '../services/application.service';
 import {ObjectSubType} from './../models/object-sub-type.model';
-import {ObjectSubTypeRepository} from './../repositories/object-sub-type.repository';
-import {ObjectTypeRepository} from './../repositories/object-type.repository';
+import {
+  AccessRightsEntity,
+  AccessRightsScope,
+} from './../services/access-rights.service';
 import {ObjectTypeService} from './../services/object-type.service';
 
 export class ObjectTypeController {
   constructor(
     @service(ObjectTypeService)
     public objectTypeService: ObjectTypeService,
-    @repository(ObjectTypeRepository)
-    public objectTypeRepository: ObjectTypeRepository,
-    @repository(ObjectSubTypeRepository)
-    public objectSubTypeRepository: ObjectSubTypeRepository,
   ) {}
 
+  @authenticate('jwt')
+  @authorize({
+    resource: AccessRightsEntity.objectType,
+    scopes: [AccessRightsScope.create],
+  })
   @post('/object-types', {
     responses: {
       '200': {
@@ -45,10 +50,15 @@ export class ObjectTypeController {
       },
     })
     objectType: Omit<ObjectType, 'id'>,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectType> {
-    return this.objectTypeService.add(objectType);
+    return this.objectTypeService.add(objectType, ctx);
   }
 
+  @authorize({
+    resource: AccessRightsEntity.objectType,
+    scopes: [AccessRightsScope.read],
+  })
   @get('/object-types', {
     responses: {
       '200': {
@@ -65,11 +75,16 @@ export class ObjectTypeController {
     },
   })
   async find(
-    @param.filter(ObjectType) filter?: Filter<ObjectType>,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectType[]> {
-    return this.objectTypeService.search(filter);
+    return this.objectTypeService.search(ctx);
   }
 
+  @authenticate('jwt')
+  @authorize({
+    resource: AccessRightsEntity.objectType,
+    scopes: [AccessRightsScope.update],
+  })
   @patch('/object-types/{id}', {
     responses: {
       '204': {
@@ -88,10 +103,16 @@ export class ObjectTypeController {
       },
     })
     objectType: ObjectType,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectType> {
-    return this.objectTypeService.modifyById(id, objectType);
+    return this.objectTypeService.modifyById(id, objectType, ctx);
   }
 
+  @authenticate('jwt')
+  @authorize({
+    resource: AccessRightsEntity.objectType,
+    scopes: [AccessRightsScope.delete],
+  })
   @del('/object-types/{id}', {
     responses: {
       '204': {
@@ -99,10 +120,18 @@ export class ObjectTypeController {
       },
     },
   })
-  deleteById(@param.path.string('id') id: string): Promise<void> {
-    return this.objectTypeService.removeById(id);
+  deleteById(
+    @param.path.string('id') id: string,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<void> {
+    return this.objectTypeService.removeById(id, ctx);
   }
 
+  @authenticate('jwt')
+  @authorize({
+    resource: AccessRightsEntity.objectSubType,
+    scopes: [AccessRightsScope.create],
+  })
   @post('/object-types/{id}/object-sub-types', {
     responses: {
       '200': {
@@ -127,10 +156,16 @@ export class ObjectTypeController {
       },
     })
     objectSubType: Omit<Omit<ObjectSubType, 'id'>, 'uri'>,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectSubType> {
-    return this.objectTypeRepository.objectSubTypes(id).create(objectSubType);
+    return this.objectTypeService.createSubType(id as string, objectSubType);
   }
 
+  @authenticate('jwt')
+  @authorize({
+    resource: AccessRightsEntity.objectSubType,
+    scopes: [AccessRightsScope.update],
+  })
   @patch('/object-types/{objectTypeId}/object-sub-types/{id}', {
     responses: {
       '204': {
@@ -152,16 +187,20 @@ export class ObjectTypeController {
       },
     })
     objectSubType: ObjectSubType,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectSubType> {
-    const where = {
-      id: id,
-    };
-    await this.objectTypeRepository
-      .objectSubTypes(objectTypeId)
-      .patch(objectSubType, where);
-    return this.objectSubTypeRepository.findById(id);
+    return this.objectTypeService.modifySubTypeById(
+      objectTypeId,
+      id,
+      objectSubType,
+    );
   }
 
+  @authenticate('jwt')
+  @authorize({
+    resource: AccessRightsEntity.objectSubType,
+    scopes: [AccessRightsScope.delete],
+  })
   @del('/object-types/{objectTypeId}/object-sub-types/{id}', {
     responses: {
       '204': {
@@ -172,11 +211,9 @@ export class ObjectTypeController {
   async deleteSubTypeById(
     @param.path.string('objectTypeId') objectTypeId: string,
     @param.path.string('id') id: string,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<void> {
-    const where = {
-      id: id,
-    };
-    await this.objectTypeRepository.objectSubTypes(objectTypeId).delete(where);
+    await this.objectTypeService.removeSubTypeById(objectTypeId, id);
   }
 
   /*

@@ -2,11 +2,12 @@ import {/* inject, */ BindingScope, injectable, service} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {ObjectNodeRepository} from './../repositories/object-node.repository';
+import {CurrentContext} from './application.service';
 import {ContentEntityService} from './content-entity.service';
 import {ObjectNodeService} from './object-node.service';
 import {ObjectTypeService} from './object-type.service';
 
-@injectable({scope: BindingScope.TRANSIENT})
+@injectable({scope: BindingScope.SINGLETON})
 export class ObjectNodeContentService {
   constructor(
     @service(ObjectNodeService) protected objectNodeService: ObjectNodeService,
@@ -41,6 +42,7 @@ export class ObjectNodeContentService {
     fieldName: string,
     contentType: string,
     args: {contentId?: string},
+    ctx: CurrentContext,
   ): Promise<{filePath: string; fileName: string} | unknown> {
     const objectNode = await this.objectNodeService.searchById(nodeId);
     if (!objectNode) {

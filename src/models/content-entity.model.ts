@@ -1,5 +1,5 @@
 import {model} from '@loopback/repository';
-import {DataEntity} from '.';
+import {DataEntity} from './data-entity.model';
 
 @model({settings: {strict: false}})
 export class ContentEntity extends DataEntity {

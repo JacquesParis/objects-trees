@@ -1,12 +1,19 @@
+import {authenticate} from '@loopback/authentication';
+import {authorize} from '@loopback/authorization';
 // Uncomment these imports to begin using these cool features!
-import {service} from '@loopback/core';
-import {Filter, repository} from '@loopback/repository';
+import {inject, service} from '@loopback/core';
+import {repository} from '@loopback/repository';
 import {get, getModelSchemaRef, param} from '@loopback/rest';
 import {ObjectNode} from '../models';
 import {ObjectNodeRepository} from '../repositories/object-node.repository';
+import {CurrentContext, CURRENT_CONTEXT} from '../services/application.service';
 // import {inject} from '@loopback/context';
 import {ObjectTreeService} from '../services/object-tree.service';
 import {ObjectTree} from './../models/object-tree.model';
+import {
+  AccessRightsEntity,
+  AccessRightsScope,
+} from './../services/access-rights.service';
 
 export class ObjectTreeController {
   constructor(
@@ -16,6 +23,11 @@ export class ObjectTreeController {
     public objectNodeRepository: ObjectNodeRepository,
   ) {}
 
+  @authenticate('jwt')
+  @authorize({
+    resource: AccessRightsEntity.objectTree,
+    scopes: [AccessRightsScope.read],
+  })
   @get('/object-trees/{treeId}/nodes', {
     responses: {
       '200': {
@@ -33,11 +45,15 @@ export class ObjectTreeController {
   })
   async findChildrenNodes(
     @param.path.string('treeId') treeId: string,
-    @param.filter(ObjectNode) filter?: Filter<ObjectNode>,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectNode[]> {
-    return this.objectTreeService.loadChildrenNodes(treeId);
+    return this.objectTreeService.loadChildrenNodes(treeId, ctx);
   }
 
+  @authorize({
+    resource: AccessRightsEntity.objectTree,
+    scopes: [AccessRightsScope.read],
+  })
   @get('/object-trees/{treeId}', {
     responses: {
       '200': {
@@ -54,10 +70,15 @@ export class ObjectTreeController {
   })
   async findChildren(
     @param.path.string('treeId') treeId: string,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectTree> {
-    return this.objectTreeService.loadTree(treeId);
+    return this.objectTreeService.loadTree(treeId, ctx);
   }
 
+  @authorize({
+    resource: AccessRightsEntity.objectTree,
+    scopes: [AccessRightsScope.read],
+  })
   @get('/object-trees/owner/{ownerType}/{ownerName}/nodes', {
     responses: {
       '200': {
@@ -76,11 +97,15 @@ export class ObjectTreeController {
   async findOwnerNodes(
     @param.path.string('ownerType') ownerType: string,
     @param.path.string('ownerName') ownerName: string,
-    @param.filter(ObjectNode) filter?: Filter<ObjectNode>,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectNode[]> {
-    return this.objectTreeService.getOwnerTreeNodes(ownerType, ownerName);
+    return this.objectTreeService.getOwnerTreeNodes(ownerType, ownerName, ctx);
   }
 
+  @authorize({
+    resource: AccessRightsEntity.objectTree,
+    scopes: [AccessRightsScope.read],
+  })
   @get('/object-trees/owner/{ownerType}/{ownerName}', {
     responses: {
       '200': {
@@ -98,10 +123,15 @@ export class ObjectTreeController {
   async findOwnerTree(
     @param.path.string('ownerType') ownerType: string,
     @param.path.string('ownerName') ownerName: string,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectTree> {
-    return this.objectTreeService.getOwnerTree(ownerType, ownerName);
+    return this.objectTreeService.getOwnerTree(ownerType, ownerName, ctx);
   }
 
+  @authorize({
+    resource: AccessRightsEntity.objectTree,
+    scopes: [AccessRightsScope.read],
+  })
   @get(
     '/object-trees/tree/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/{treeType}/{treeName}/nodes',
     {
@@ -127,7 +157,7 @@ export class ObjectTreeController {
     @param.path.string('namespaceName') namespaceName: string,
     @param.path.string('treeType') treeType: string,
     @param.path.string('treeName') treeName: string,
-    @param.filter(ObjectNode) filter?: Filter<ObjectNode>,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectNode[]> {
     return this.objectTreeService.getTreeNodes(
       ownerType,
@@ -136,9 +166,14 @@ export class ObjectTreeController {
       namespaceName,
       treeType,
       treeName,
+      ctx,
     );
   }
 
+  @authorize({
+    resource: AccessRightsEntity.objectTree,
+    scopes: [AccessRightsScope.read],
+  })
   @get(
     '/object-trees/tree/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/{treeType}/{treeName}',
     {
@@ -163,6 +198,7 @@ export class ObjectTreeController {
     @param.path.string('namespaceName') namespaceName: string,
     @param.path.string('treeType') treeType: string,
     @param.path.string('treeName') treeName: string,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectTree> {
     return this.objectTreeService.getTree(
       ownerType,
@@ -171,9 +207,14 @@ export class ObjectTreeController {
       namespaceName,
       treeType,
       treeName,
+      ctx,
     );
   }
 
+  @authorize({
+    resource: AccessRightsEntity.objectTree,
+    scopes: [AccessRightsScope.read],
+  })
   @get(
     '/object-trees/namespace/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/nodes',
     {
@@ -197,16 +238,21 @@ export class ObjectTreeController {
     @param.path.string('ownerName') ownerName: string,
     @param.path.string('namespaceType') namespaceType: string,
     @param.path.string('namespaceName') namespaceName: string,
-    @param.filter(ObjectNode) filter?: Filter<ObjectNode>,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectNode[]> {
     return this.objectTreeService.getNamespaceNodes(
       ownerType,
       ownerName,
       namespaceType,
       namespaceName,
+      ctx,
     );
   }
 
+  @authorize({
+    resource: AccessRightsEntity.objectTree,
+    scopes: [AccessRightsScope.read],
+  })
   @get(
     '/object-trees/namespace/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}',
     {
@@ -229,12 +275,14 @@ export class ObjectTreeController {
     @param.path.string('ownerName') ownerName: string,
     @param.path.string('namespaceType') namespaceType: string,
     @param.path.string('namespaceName') namespaceName: string,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectTree> {
     return this.objectTreeService.gettNamespaceTree(
       ownerType,
       ownerName,
       namespaceType,
       namespaceName,
+      ctx,
     );
   }
 

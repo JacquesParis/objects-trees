@@ -8,8 +8,11 @@ import {
 } from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import _ from 'lodash';
+import {ObjectSubType} from '../models';
 import {ObjectTypeRepository} from '../repositories';
 import {ObjectType, ObjectTypeRelations} from './../models/object-type.model';
+import {ObjectSubTypeRepository} from './../repositories/object-sub-type.repository';
+import {ApplicationService, CurrentContext} from './application.service';
 import {ContentEntityService} from './content-entity.service';
 
 const defaultObjectTypeFilter = {
@@ -35,14 +38,23 @@ const defaultObjectTypeFilter = {
 export class ObjectTypeService {
   constructor(
     @repository(ObjectTypeRepository)
-    public objectTypeRepository: ObjectTypeRepository,
+    private objectTypeRepository: ObjectTypeRepository,
+    @repository(ObjectSubTypeRepository)
+    private objectSubTypeRepository: ObjectSubTypeRepository,
     @service(ContentEntityService)
-    public contentEntityService: ContentEntityService,
+    private contentEntityService: ContentEntityService,
+    @service(ApplicationService) private appCtx: ApplicationService,
   ) {}
 
-  add(objectType: DataObject<ObjectType>): Promise<ObjectType> {
+  async add(
+    objectType: DataObject<ObjectType>,
+    ctx: CurrentContext,
+  ): Promise<ObjectType> {
     delete objectType.contentDefinition;
-    return this.objectTypeRepository.create(objectType);
+
+    const newType = await this.objectTypeRepository.create(objectType);
+
+    return newType;
   }
 
   async searchByName(name: string): Promise<ObjectType> {
@@ -100,20 +112,14 @@ export class ObjectTypeService {
   }
 
   public async search(
-    filter?: Filter<ObjectType>,
-    options?: Options,
+    ctx: CurrentContext,
   ): Promise<(ObjectType & ObjectTypeRelations)[]> {
-    if (!filter) {
-      filter = {};
-    }
-    if (!filter.order) {
-      filter.order = this.filterOrder;
-    }
-    if (!filter.fields) {
-      filter.fields = this.filterFields;
-    }
-    filter.include = this.filterInclude;
-    const objectTypes = await this.objectTypeRepository.find(filter, options);
+    const filter = {
+      order: this.filterOrder,
+      fields: this.filterFields,
+      include: this.filterInclude,
+    };
+    const objectTypes = await this.objectTypeRepository.find(filter);
     for (const objectType of objectTypes) {
       objectType.contentDefinition = await this.contentEntityService.getContentDefinition(
         objectType.contentType,
@@ -131,20 +137,85 @@ export class ObjectTypeService {
     );
   }
 
-  removeById(id: string, options?: Options): Promise<void> {
-    return this.objectTypeRepository.deleteById(id, options);
+  removeById(id: string, ctx: CurrentContext): Promise<void> {
+    return this.objectTypeRepository.deleteById(id);
   }
 
   async modifyById(
     id: string,
     objectType: DataObject<ObjectType>,
-    options?: Options,
+    ctx: CurrentContext,
   ): Promise<ObjectType> {
     delete objectType.contentDefinition;
-    await this.objectTypeRepository.updateById(id, objectType, options);
+    await this.objectTypeRepository.updateById(id, objectType);
     return this.objectTypeRepository.findById(id);
   }
 
+  public async createSubType(
+    id: string,
+    objectSubType: DataObject<ObjectSubType>,
+  ): Promise<ObjectSubType> {
+    return this.objectTypeRepository.objectSubTypes(id).create(objectSubType);
+  }
+
+  public async modifySubTypeById(
+    objectTypeId: string,
+    id: string,
+    objectSubType: DataObject<ObjectSubType>,
+  ): Promise<ObjectSubType> {
+    const where = {
+      id: id,
+    };
+    await this.objectTypeRepository
+      .objectSubTypes(objectTypeId)
+      .patch(objectSubType, where);
+    return this.objectSubTypeRepository.findById(id);
+  }
+
+  public async removeSubTypeById(objectTypeId: string, id: string) {
+    const where = {
+      id: id,
+    };
+    return this.objectTypeRepository.objectSubTypes(objectTypeId).delete(where);
+  }
+
+  public async getOrCreateObjectSubType(
+    objectTypeId: string,
+    subObjectTypeId: string,
+    defaultValue?: {
+      name: string;
+      acl: boolean;
+      owner: boolean;
+      namespace: boolean;
+      tree: boolean;
+      min?: number;
+      max?: number;
+      exclusions?: string[];
+      mandatories?: string[];
+    },
+  ): Promise<ObjectSubType> {
+    const where = {
+      subObjectTypeId: subObjectTypeId,
+    };
+    const subTypes = await this.objectTypeRepository
+      .objectSubTypes(objectTypeId)
+      .find({where});
+    if (!subTypes || 0 === subTypes.length) {
+      if (!defaultValue) {
+        return (null as unknown) as ObjectSubType;
+      }
+      return this.createSubType(
+        objectTypeId,
+        _.merge({}, defaultValue, {subObjectTypeId}),
+      );
+    }
+    if (1 < subTypes.length) {
+      throw new HttpErrors.FailedDependency(
+        'too many subType ' + subObjectTypeId + ' in ' + objectTypeId,
+      );
+    }
+    return subTypes[0];
+  }
   /*
    * Add service methods here
    */

@@ -7,11 +7,7 @@ import {
 } from './object-sub-type.model';
 import {RestEntity} from './rest-entity.model';
 
-export type ObjectContentType =
-  | ''
-  | 'ContentFile'
-  | 'ContentFiles'
-  | 'ContentText';
+export type ObjectContentType = string;
 
 @model({settings: {strict: false}})
 export class ObjectType extends RestEntity implements IObjectType {

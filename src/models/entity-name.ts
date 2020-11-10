@@ -3,4 +3,6 @@ export enum EntityName {
   objectSubType = 'objectSubType',
   objectNode = 'objectNode',
   objectTree = 'objectTree',
+  objectNodeContent = 'objectNodeContent',
+  user = 'user',
 }

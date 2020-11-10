@@ -11,6 +11,7 @@ import {RestBindings} from '@loopback/rest';
 import * as _ from 'lodash';
 import {camelToKebabCase} from '../helper/utils';
 import {EntityName} from './../models/entity-name';
+import {URI_INTERCEPTOR} from './constants';
 
 type EntityType = {
   id?: string;
@@ -23,7 +24,9 @@ type EntityType = {
  * This class will be bound to the application as an `Interceptor` during
  * `boot`
  */
-@globalInterceptor('uri', {tags: {name: UriCompleteInterceptor.BINDING_KEY}})
+@globalInterceptor(URI_INTERCEPTOR, {
+  tags: {name: UriCompleteInterceptor.BINDING_KEY},
+})
 export class UriCompleteInterceptor implements Provider<Interceptor> {
   static readonly BINDING_KEY = `interceptors.${UriCompleteInterceptor.name}`;
   /*
