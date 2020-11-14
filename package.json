@@ -31,7 +31,7 @@
     "prestart": "npm run build",
     "start": "node -r source-map-support/register .",
     "update": "npm uninstall @jacquesparis/objects-model && npm install --save @jacquesparis/objects-model",
-    "lib": "npm update && npm run build && git add -A && git commit -m \"lib\" && git push && npm publish --access=public"
+    "lib": "npm update && npm run build && git add -A && git commit -m \"lib\" && git push origin HEAD && npm publish --access=public"
   },
   "repository": {
     "type": "git"
