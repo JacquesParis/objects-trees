@@ -1,6 +1,6 @@
 {
-  "name": "objectstrees",
-  "version": "1.0.0",
+  "name": "@jacquesparis/objects-trees",
+  "version": "0.0.1-SNAPSHOT.2",
   "description": "mangage tree of objects",
   "keywords": [
     "loopback-application",
@@ -30,7 +30,8 @@
     "migrate": "node ./dist/migrate",
     "prestart": "npm run build",
     "start": "node -r source-map-support/register .",
-    "prepublishOnly": "npm run test"
+    "update": "npm uninstall @jacquesparis/objects-model && npm install --save @jacquesparis/objects-model",
+    "lib": "npm update && npm run build && npm publish --access=public"
   },
   "repository": {
     "type": "git"
@@ -46,7 +47,7 @@
     "!*/__tests__"
   ],
   "dependencies": {
-    "@jacquesparis/objects-model": "file:../objects-model",
+    "@jacquesparis/objects-model": "0.0.1-SNAPSHOT.2",
     "@loopback/authentication": "^7.0.2",
     "@loopback/authentication-jwt": "^0.7.2",
     "@loopback/authorization": "^0.7.2",
