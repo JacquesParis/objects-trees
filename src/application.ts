@@ -52,9 +52,6 @@ export class ObjectsTreesApplication extends BootMixin(
     // Set up the custom sequence
     app.sequence(MySequence);
 
-    // Set up default home page
-    app.static('/', path.join(__dirname, '../public'));
-
     // Customize @loopback/rest-explorer configuration here
     app.configure(RestExplorerBindings.COMPONENT).to({
       path: '/explorer',
@@ -63,12 +60,8 @@ export class ObjectsTreesApplication extends BootMixin(
 
     //    app.configureFileUpload(options.fileStorageDirectory);
 
-    const destination = path.join(__dirname, '../.storage');
-    app.bind(STORAGE_DIRECTORY).to(destination);
-
     app.bind(RestBindings.REQUEST_BODY_PARSER_OPTIONS).to({limit: '50mb'});
 
-    app.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
     app.bootOptions = {
       controllers: {
@@ -142,8 +135,14 @@ export class ObjectsTreesApplication extends BootMixin(
 
   constructor(options: ApplicationConfig = {}) {
     super(options);
-
-    ObjectsTreesApplication.initApplication(this);
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const app = this;
+    ObjectsTreesApplication.initApplication(app);
+    // Set up default home page
+    app.static('/', path.join(__dirname, '../public'));
+    const destination = path.join(__dirname, '../.storage');
+    app.bind(STORAGE_DIRECTORY).to(destination);
+    app.projectRoot = __dirname;
   }
   async boot(): Promise<void> {
     await super.boot();
