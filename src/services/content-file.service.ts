@@ -2,10 +2,10 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {bind, BindingScope, inject, service} from '@loopback/core';
-import {HttpErrors} from '@loopback/rest';
 import fs from 'fs';
 import path from 'path';
 import {STORAGE_DIRECTORY} from './../constants';
+import {ApplicationError} from './../helper/application-error';
 import {
   ContentEntityService,
   ContentEntityServiceInterface,
@@ -105,7 +105,7 @@ export class ContentFileService implements ContentEntityServiceInterface {
     fileName: string;
   }> {
     if (entity?.contentFile?.name !== args.contentId) {
-      throw new HttpErrors.NotFound('No file ' + args.contentId);
+      throw ApplicationError.notFound({file: args.contentId});
     }
     const dirPath = path.join(
       this.storageDirectory,

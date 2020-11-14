@@ -1,15 +1,14 @@
 import {bind, /* inject, */ BindingScope, service} from '@loopback/core';
 import {
   DataObject,
-  Filter,
   FilterExcludingWhere,
   Options,
   repository,
 } from '@loopback/repository';
-import {HttpErrors} from '@loopback/rest';
 import _ from 'lodash';
 import {ObjectSubType} from '../models';
 import {ObjectTypeRepository} from '../repositories';
+import {ApplicationError} from './../helper/application-error';
 import {ObjectType, ObjectTypeRelations} from './../models/object-type.model';
 import {ObjectSubTypeRepository} from './../repositories/object-sub-type.repository';
 import {ApplicationService, CurrentContext} from './application.service';
@@ -62,7 +61,7 @@ export class ObjectTypeService {
       where: {name: name},
     });
     if (1 < objectTypes.length) {
-      throw new HttpErrors.PreconditionFailed('too many ' + name + ' type');
+      throw ApplicationError.tooMany({objectType: name});
     }
     if (!!objectTypes && 0 < objectTypes.length) {
       const objectType = objectTypes[0];
@@ -128,13 +127,17 @@ export class ObjectTypeService {
     return objectTypes;
   }
 
-  public async getAll(): Promise<{[id: string]: ObjectType}> {
-    return _.mapKeys(
-      await this.objectTypeRepository.find(),
-      (objectType: ObjectType, index) => {
-        return objectType.id;
-      },
-    );
+  public async getAll(
+    ctx: CurrentContext,
+  ): Promise<{[id: string]: ObjectType}> {
+    return ctx.typeContext.types.getOrSetValue(async () => {
+      return _.mapKeys(
+        await this.objectTypeRepository.find(),
+        (objectType: ObjectType, index) => {
+          return objectType.id;
+        },
+      );
+    });
   }
 
   removeById(id: string, ctx: CurrentContext): Promise<void> {
@@ -210,51 +213,14 @@ export class ObjectTypeService {
       );
     }
     if (1 < subTypes.length) {
-      throw new HttpErrors.FailedDependency(
-        'too many subType ' + subObjectTypeId + ' in ' + objectTypeId,
-      );
+      throw ApplicationError.tooMany({
+        objectType: objectTypeId,
+        subObjectType: subObjectTypeId,
+      });
     }
     return subTypes[0];
   }
   /*
    * Add service methods here
    */
-
-  replaceById(id: string, objectType: ObjectType): Promise<void> {
-    throw new HttpErrors.NotImplemented('Method not implemented.');
-  }
-  findById(
-    id: string,
-    filter:
-      | Pick<
-          Filter<ObjectType>,
-          'fields' | 'order' | 'limit' | 'skip' | 'offset' | 'include'
-        >
-      | undefined,
-  ): Promise<ObjectType & ObjectTypeRelations> {
-    throw new HttpErrors.NotImplemented('Method not implemented.');
-  }
-  updateAll(
-    objectType: ObjectType,
-    where:
-      | import('@loopback/repository').Condition<ObjectType>
-      | import('@loopback/repository').AndClause<ObjectType>
-      | import('@loopback/repository').OrClause<ObjectType>
-      | undefined,
-  ):
-    | import('@loopback/repository').Count
-    | PromiseLike<import('@loopback/repository').Count> {
-    throw new HttpErrors.NotImplemented('Method not implemented.');
-  }
-  count(
-    where:
-      | import('@loopback/repository').Condition<ObjectType>
-      | import('@loopback/repository').AndClause<ObjectType>
-      | import('@loopback/repository').OrClause<ObjectType>
-      | undefined,
-  ):
-    | import('@loopback/repository').Count
-    | PromiseLike<import('@loopback/repository').Count> {
-    throw new HttpErrors.NotImplemented('Method not implemented.');
-  }
 }

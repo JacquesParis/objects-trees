@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   globalInterceptor,
-  Interceptor,
   InvocationContext,
   InvocationResult,
-  Provider,
   ValueOrPromise,
 } from '@loopback/context';
 import {RestBindings} from '@loopback/rest';
 import * as _ from 'lodash';
-import {camelToKebabCase} from '../helper/utils';
+import {toKebabCase} from '../helper/utils';
 import {EntityName} from './../models/entity-name';
+import {AbstractInterceptor} from './abstract.interceptor';
 import {URI_INTERCEPTOR} from './constants';
 
 type EntityType = {
@@ -27,7 +26,7 @@ type EntityType = {
 @globalInterceptor(URI_INTERCEPTOR, {
   tags: {name: UriCompleteInterceptor.BINDING_KEY},
 })
-export class UriCompleteInterceptor implements Provider<Interceptor> {
+export class UriCompleteInterceptor extends AbstractInterceptor {
   static readonly BINDING_KEY = `interceptors.${UriCompleteInterceptor.name}`;
   /*
   constructor() {}
@@ -50,7 +49,7 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
   async intercept(
     invocationCtx: InvocationContext,
     next: () => ValueOrPromise<InvocationResult>,
-  ) {
+  ): Promise<ValueOrPromise<InvocationResult>> {
     const result = await next();
     try {
       const httpReq: any = await invocationCtx.get(RestBindings.Http.REQUEST, {
@@ -58,46 +57,13 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
       });
       const method = httpReq?.method;
       if ('GET' === method || 'POST' === method || 'PATCH' === method) {
-        const protocol = await invocationCtx.get(RestBindings.PROTOCOL, {
-          optional: true,
-        });
-        const host = await invocationCtx.get(RestBindings.HOST, {
-          optional: true,
-        });
-        const port = await invocationCtx.get(RestBindings.PORT, {
-          optional: true,
-        });
-        const baseUrl = httpReq?.baseUrl;
-        const path = httpReq?.path;
-        this.addUri(
-          result,
-          protocol + '://' + host + ':' + port + baseUrl,
-          path + (path?.endsWith('/') ? '' : '/'),
-        );
+        const uriParts = await this.getUriParts(invocationCtx);
+
+        this.addUri(result, uriParts.baseUri, uriParts.objectUri);
       }
       // eslint-disable-next-line no-empty
     } catch (error) {}
     return result;
-  }
-
-  protected getEntityUri(entityName: EntityName | string): string {
-    switch (entityName) {
-      case EntityName.objectType:
-      case 'subObjectType':
-        return 'object-types';
-      case EntityName.objectNode:
-      case 'parentNode':
-      case 'parentAcl':
-      case 'parentOwner':
-      case 'parentNamespace':
-      case 'parentTree':
-        return 'object-nodes';
-      default:
-        if (entityName in EntityName) {
-          return camelToKebabCase(entityName) + 's';
-        }
-        return camelToKebabCase(entityName);
-    }
   }
 
   protected addUri(
@@ -146,7 +112,7 @@ export class UriCompleteInterceptor implements Provider<Interceptor> {
         ) {
           const field = key.substr(0, key.length - 2);
           const entityUri: string = this.getEntityUri(field);
-          if (entityUri === camelToKebabCase(field)) {
+          if (entityUri === toKebabCase(field)) {
             (result as EntityType)[field + 'Uri'] = `${baseUri}/${objectUri}${
               (result as EntityType).id
             }/${entityUri}/${(result as EntityType)[key]}`;

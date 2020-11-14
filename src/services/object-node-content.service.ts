@@ -1,6 +1,6 @@
 import {/* inject, */ BindingScope, injectable, service} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {HttpErrors} from '@loopback/rest';
+import {ApplicationError} from './../helper/application-error';
 import {ObjectNodeRepository} from './../repositories/object-node.repository';
 import {CurrentContext} from './application.service';
 import {ContentEntityService} from './content-entity.service';
@@ -46,18 +46,22 @@ export class ObjectNodeContentService {
   ): Promise<{filePath: string; fileName: string} | unknown> {
     const objectNode = await this.objectNodeService.searchById(nodeId);
     if (!objectNode) {
-      return new HttpErrors.NotFound('no node ' + nodeId);
+      return ApplicationError.notFound({object: nodeId});
     }
     const ObjectType = await this.objectTypeService.searchById(
       objectNode.objectTypeId,
     );
     if (!ObjectType) {
-      return new HttpErrors.NotFound('no node ' + nodeId);
+      return ApplicationError.notFound({
+        object: nodeId,
+        objectType: objectNode.objectTypeId,
+      });
     }
     if (ObjectType.contentType !== contentType) {
-      return new HttpErrors.ExpectationFailed(
-        'node ' + nodeId + ' is not of type ' + contentType,
-      );
+      return ApplicationError.wrongValue({
+        object: nodeId,
+        contentType: contentType,
+      });
     }
     return this.contentEntityService.getContent(
       contentType,

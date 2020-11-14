@@ -2,7 +2,7 @@ import {IJsonSchema} from '@jacquesparis/objects-model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {bind, /*inject, */ BindingScope} from '@loopback/core';
 import {Entity} from '@loopback/repository';
-import {HttpErrors} from '@loopback/rest';
+import {ApplicationError} from './../helper/application-error';
 
 export interface EntityWithContent {
   id?: string;
@@ -95,8 +95,6 @@ export class ContentEntityService {
         args,
       );
     }
-    throw new HttpErrors.NotImplemented(
-      'No content ' + contentType + ' to load',
-    );
+    throw ApplicationError.notFound({contentType: contentType});
   }
 }

@@ -22,7 +22,7 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {ApplicationComponent} from './application.component';
 import {BootComponent} from './boot.component';
-import {STORAGE_DIRECTORY} from './constants';
+import {AUTHORIZATION_SERVICE, STORAGE_DIRECTORY} from './constants';
 import {DbDataSource} from './datasources/db.datasource';
 import {INTERCEPTORS_ORDER} from './interceptors/constants';
 import {MySequence} from './sequence';
@@ -91,7 +91,7 @@ export class ObjectstreesApplication extends BootMixin(
     this.configure(AuthorizationBindings.COMPONENT).to(authorizationOptions);
     this.component(AuthorizationComponent);
 
-    this.bind('authorizationProviders.appAuthorization')
+    this.bind(AUTHORIZATION_SERVICE)
       .toProvider(AppAuthorizationProvider)
       .tag(AuthorizationTags.AUTHORIZER);
 

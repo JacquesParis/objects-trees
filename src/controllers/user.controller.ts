@@ -24,7 +24,7 @@ import {AppUser, NewUserRequest} from './../models/new-user.model';
 import {
   AccessRightsEntity,
   AccessRightsScope,
-} from './../services/access-rights.service';
+} from './../services/access-rights/access-rights.const';
 import {UserAuthenticationService} from './../services/user-authentication.service';
 
 const CredentialsSchema: SchemaObject = {

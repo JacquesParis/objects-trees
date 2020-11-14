@@ -18,7 +18,7 @@ import {CurrentContext, CURRENT_CONTEXT} from '../services/application.service';
 import {
   AccessRightsEntity,
   AccessRightsScope,
-} from './../services/access-rights.service';
+} from './../services/access-rights/access-rights.const';
 import {ObjectNodeContentService} from './../services/object-node-content.service';
 import {ObjectNodeService} from './../services/object-node.service';
 

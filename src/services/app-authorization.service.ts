@@ -1,3 +1,8 @@
+import {TokenService} from '@loopback/authentication';
+import {
+  JWTAuthenticationStrategy,
+  TokenServiceBindings,
+} from '@loopback/authentication-jwt';
 import {
   AuthorizationContext,
   AuthorizationDecision,
@@ -6,7 +11,8 @@ import {
 } from '@loopback/authorization';
 import {inject, Provider, service} from '@loopback/core';
 import {Request, RestBindings} from '@loopback/rest';
-import {AccessRightsService} from './access-rights.service';
+import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
+import {AccessRightsService} from './access-rights/access-rights.service';
 import {CurrentContext, CURRENT_CONTEXT} from './application.service';
 
 /*
@@ -19,9 +25,13 @@ import {CurrentContext, CURRENT_CONTEXT} from './application.service';
 export class AppAuthorizationProvider implements Provider<Authorizer> {
   constructor(
     @inject(CURRENT_CONTEXT) public ctx: CurrentContext,
-    @inject(RestBindings.Http.REQUEST) private request: Request,
     @service(AccessRightsService)
     private accessRightsService: AccessRightsService,
+    @inject(SecurityBindings.USER, {optional: true})
+    private user: UserProfile,
+    @inject(RestBindings.Http.REQUEST) private request: Request,
+    @inject(TokenServiceBindings.TOKEN_SERVICE)
+    public jwtService: TokenService,
   ) {}
 
   value(): Authorizer {
@@ -31,15 +41,20 @@ export class AppAuthorizationProvider implements Provider<Authorizer> {
   async authorize(
     context: AuthorizationContext,
     metadata: AuthorizationMetadata,
-  ) {
-    await this.accessRightsService.ready;
-    if (
-      context.resource === 'OrderController.prototype.cancelOrder' &&
-      context.principals[0].name === 'user-01'
-    ) {
-      return AuthorizationDecision.DENY;
+  ): Promise<AuthorizationDecision> {
+    if (!this.user) {
+      try {
+        this.user = (await new JWTAuthenticationStrategy(
+          this.jwtService,
+        ).authenticate(this.request)) as UserProfile;
+        context.principals[0] = {
+          ...this.user,
+          name: this.user.name ?? this.user[securityId],
+          type: 'USER',
+        };
+        // eslint-disable-next-line no-empty
+      } catch (error) {}
     }
-
-    return AuthorizationDecision.ALLOW;
+    return this.accessRightsService.authorize(this.ctx, context, metadata);
   }
 }

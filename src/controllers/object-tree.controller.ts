@@ -1,4 +1,3 @@
-import {authenticate} from '@loopback/authentication';
 import {authorize} from '@loopback/authorization';
 // Uncomment these imports to begin using these cool features!
 import {inject, service} from '@loopback/core';
@@ -8,12 +7,13 @@ import {ObjectNode} from '../models';
 import {ObjectNodeRepository} from '../repositories/object-node.repository';
 import {CurrentContext, CURRENT_CONTEXT} from '../services/application.service';
 // import {inject} from '@loopback/context';
-import {ObjectTreeService} from '../services/object-tree.service';
+import {ObjectTreeService} from '../services/object-tree/object-tree.service';
 import {ObjectTree} from './../models/object-tree.model';
+import {AccessRightsTreeScope} from './../services/access-rights/access-rights-tree.const';
 import {
   AccessRightsEntity,
   AccessRightsScope,
-} from './../services/access-rights.service';
+} from './../services/access-rights/access-rights.const';
 
 export class ObjectTreeController {
   constructor(
@@ -23,7 +23,6 @@ export class ObjectTreeController {
     public objectNodeRepository: ObjectNodeRepository,
   ) {}
 
-  @authenticate('jwt')
   @authorize({
     resource: AccessRightsEntity.objectTree,
     scopes: [AccessRightsScope.read],
@@ -77,7 +76,7 @@ export class ObjectTreeController {
 
   @authorize({
     resource: AccessRightsEntity.objectTree,
-    scopes: [AccessRightsScope.read],
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchOwner],
   })
   @get('/object-trees/owner/{ownerType}/{ownerName}/nodes', {
     responses: {
@@ -104,7 +103,7 @@ export class ObjectTreeController {
 
   @authorize({
     resource: AccessRightsEntity.objectTree,
-    scopes: [AccessRightsScope.read],
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchOwner],
   })
   @get('/object-trees/owner/{ownerType}/{ownerName}', {
     responses: {

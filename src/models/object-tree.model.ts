@@ -1,5 +1,6 @@
 import {IObjectTree} from '@jacquesparis/objects-model';
 import {ContentEntityService} from './../services/content-entity.service';
+import {AclCtx} from './acl-ctx.model';
 import {EntityName} from './entity-name';
 import {ObjectNode} from './object-node.model';
 import {ObjectType} from './object-type.model';
@@ -11,8 +12,20 @@ export class ObjectTree implements IObjectTree {
   parentTreeId: string;
   parentTreeUri: string;
   entityName: EntityName = EntityName.objectTree;
+  aclCtx: AclCtx = new AclCtx();
+
   constructor(public treeNode: ObjectNode) {}
 
+  public get childrenByObjectTypeId(): {[objectTypeId: string]: ObjectTree[]} {
+    const result: {[objectTypeId: string]: ObjectTree[]} = {};
+    for (const child of this.children) {
+      if (!(child.treeNode.objectTypeId in result)) {
+        result[child.treeNode.objectTypeId as string] = [];
+      }
+      result[child.treeNode.objectTypeId as string].push(child);
+    }
+    return result;
+  }
   async init(
     allNodes: ObjectNode[],
     contentEntityService: ContentEntityService,

@@ -16,7 +16,7 @@ import {ObjectSubType} from './../models/object-sub-type.model';
 import {
   AccessRightsEntity,
   AccessRightsScope,
-} from './../services/access-rights.service';
+} from './../services/access-rights/access-rights.const';
 import {ObjectTypeService} from './../services/object-type.service';
 
 export class ObjectTypeController {

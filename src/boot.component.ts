@@ -1,9 +1,13 @@
 import {Component, service} from '@loopback/core';
 import {ContentTextService} from './services';
-import {AccessRightsService} from './services/access-rights.service';
+import {AccessRightNodeService} from './services/access-rights/access-rights-node.service';
+import {AccessRightTreeService} from './services/access-rights/access-rights-tree.service';
+import {AccessRightTypeService} from './services/access-rights/access-rights-type.service';
+import {AccessRightUserService} from './services/access-rights/access-rights-user.service';
+import {AccessRightsService} from './services/access-rights/access-rights.service';
 import {ContentFileService} from './services/content-file.service';
 import {ContentUserService} from './services/content-user.service';
-import {ObjectTreeService} from './services/object-tree.service';
+import {ObjectTreeService} from './services/object-tree/object-tree.service';
 
 export class BootComponent implements Component {
   constructor(
@@ -12,5 +16,13 @@ export class BootComponent implements Component {
     @service(ContentUserService) contentUserService: ContentUserService,
     @service(ObjectTreeService) objectTreeService: ObjectTreeService,
     @service(AccessRightsService) accessRightsService: AccessRightsService,
+    @service(AccessRightTreeService)
+    accessRightTreeService: AccessRightTreeService,
+    @service(AccessRightNodeService)
+    accessRightNodeService: AccessRightNodeService,
+    @service(AccessRightTypeService)
+    accessRightTypeService: AccessRightTypeService,
+    @service(AccessRightUserService)
+    accessRightUserService: AccessRightUserService,
   ) {}
 }

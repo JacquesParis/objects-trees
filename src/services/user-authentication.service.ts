@@ -1,7 +1,6 @@
 import {UserService} from '@loopback/authentication';
 import {Credentials, User, UserRepository} from '@loopback/authentication-jwt';
 import {repository} from '@loopback/repository';
-import {HttpErrors} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
 import {compare, genSalt, hash} from 'bcryptjs';
 import {ApplicationError} from './../helper/application-error';
@@ -23,7 +22,7 @@ export class UserAuthenticationService
       name: newUserRequest.name,
     };
     if (!newUser.email) {
-      throw new HttpErrors.BadRequest('Missing email');
+      throw ApplicationError.missingParameter('email');
     }
 
     let savedUser = await this.userRepository.findOne({
@@ -34,7 +33,7 @@ export class UserAuthenticationService
         savedUser.id,
       );
       if (credentialsFound) {
-        throw new HttpErrors.Conflict('User already exist');
+        throw ApplicationError.conflict({email: newUser.email});
       }
       await this.userRepository.updateById(savedUser.id, newUser);
     } else {
@@ -105,7 +104,7 @@ export class UserAuthenticationService
     });
 
     if (!foundUser) {
-      throw new HttpErrors.Forbidden(userNotfound);
+      throw ApplicationError.notFound({user: id});
     }
     return foundUser;
   }
