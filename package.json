@@ -1,6 +1,6 @@
 {
   "name": "@jacquesparis/objects-trees",
-  "version": "0.0.1-SNAPSHOT.2",
+  "version": "0.0.1-SNAPSHOT.3",
   "description": "mangage tree of objects",
   "keywords": [
     "loopback-application",
@@ -31,7 +31,7 @@
     "prestart": "npm run build",
     "start": "node -r source-map-support/register .",
     "update": "npm uninstall @jacquesparis/objects-model && npm install --save @jacquesparis/objects-model",
-    "lib": "npm update && npm run build && npm publish --access=public"
+    "lib": "npm update && npm run build && git add -A && git commit -m \"lib\" && git push && npm publish --access=public"
   },
   "repository": {
     "type": "git"
@@ -48,18 +48,18 @@
   ],
   "dependencies": {
     "@jacquesparis/objects-model": "0.0.1-SNAPSHOT.2",
-    "@loopback/authentication": "^7.0.2",
-    "@loopback/authentication-jwt": "^0.7.2",
-    "@loopback/authorization": "^0.7.2",
-    "@loopback/boot": "^3.0.2",
-    "@loopback/context": "^3.12.0",
-    "@loopback/core": "^2.11.0",
-    "@loopback/openapi-v3": "^5.0.0",
-    "@loopback/repository": "^3.1.0",
+    "@loopback/authentication": "^7.0.3",
+    "@loopback/authentication-jwt": "^0.7.3",
+    "@loopback/authorization": "^0.7.3",
+    "@loopback/boot": "^3.1.0",
+    "@loopback/context": "^3.13.0",
+    "@loopback/core": "^2.12.0",
+    "@loopback/openapi-v3": "^5.1.0",
+    "@loopback/repository": "^3.2.0",
     "@loopback/rest": "^8.0.0",
-    "@loopback/rest-explorer": "^3.0.2",
-    "@loopback/service-proxy": "^3.0.2",
-    "@types/lodash": "^4.14.162",
+    "@loopback/rest-explorer": "^3.0.3",
+    "@loopback/service-proxy": "^3.0.3",
+    "@types/lodash": "^4.14.165",
     "@types/uuid": "^7.0.4",
     "express": "^4.17.1",
     "lodash": "^4.17.20",
@@ -68,19 +68,19 @@
     "tslib": "^2.0.0"
   },
   "devDependencies": {
-    "@loopback/build": "^6.2.5",
-    "@loopback/eslint-config": "^10.0.1",
-    "@loopback/testlab": "^3.2.7",
-    "@types/express": "^4.17.8",
+    "@loopback/build": "^6.2.6",
+    "@loopback/eslint-config": "^10.0.2",
+    "@loopback/testlab": "^3.2.8",
+    "@types/express": "^4.17.9",
     "@types/express-serve-static-core": "^4.17.13",
-    "@types/node": "^10.17.37",
-    "@typescript-eslint/eslint-plugin": "^4.4.0",
-    "@typescript-eslint/parser": "^4.4.0",
-    "eslint": "^7.10.0",
-    "eslint-config-prettier": "^6.12.0",
+    "@types/node": "^10.17.44",
+    "@typescript-eslint/eslint-plugin": "^4.7.0",
+    "@typescript-eslint/parser": "^4.7.0",
+    "eslint": "^7.13.0",
+    "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-eslint-plugin": "^2.3.0",
     "eslint-plugin-mocha": "^8.0.0",
     "source-map-support": "^0.5.19",
-    "typescript": "~4.0.3"
+    "typescript": "^4.0.5"
   }
 }
