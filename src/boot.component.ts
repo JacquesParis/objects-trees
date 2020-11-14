@@ -9,7 +9,7 @@ import {ContentFileService} from './services/content-file.service';
 import {ContentUserService} from './services/content-user.service';
 import {ObjectTreeService} from './services/object-tree/object-tree.service';
 
-export class BootComponent implements Component {
+export class ObjectsTreesBootComponent implements Component {
   constructor(
     @service(ContentFileService) contentFileService: ContentFileService,
     @service(ContentTextService) contentTextService: ContentTextService,
