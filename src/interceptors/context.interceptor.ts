@@ -82,10 +82,10 @@ export class ContextInterceptor extends AbstractInterceptor {
             this.ctx,
           );
         } else {
-          throw ApplicationError.forbiden();
-        }
-        if (!entity.aclCtx?.rights?.read) {
-          throw ApplicationError.forbiden();
+          const uriParts = await this.getUriParts(invocationCtx);
+          if (-1 === ['/explorer/openapi.json/'].indexOf(uriParts.objectUri)) {
+            throw ApplicationError.forbiden();
+          }
         }
       }
 

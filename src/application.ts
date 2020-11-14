@@ -29,7 +29,7 @@ import {MySequence} from './sequence';
 import {AppAuthorizationProvider} from './services/app-authorization.service';
 import {UserAuthenticationService} from './services/user-authentication.service';
 
-export class ObjectstreesApplication extends BootMixin(
+export class ObjectsTreesApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
 ) {
   public static serverBase = 'http://127.0.0.1:3000/api';

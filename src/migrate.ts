@@ -1,10 +1,10 @@
-import {ObjectstreesApplication} from './application';
+import {ObjectsTreesApplication} from './application';
 
 export async function migrate(args: string[]) {
   const existingSchema = args.includes('--rebuild') ? 'drop' : 'alter';
   console.log('Migrating schemas (%s existing schema)', existingSchema);
 
-  const app = new ObjectstreesApplication({});
+  const app = new ObjectsTreesApplication({});
   await app.boot();
   await app.migrateSchema({existingSchema});
 
@@ -14,7 +14,7 @@ export async function migrate(args: string[]) {
   process.exit(0);
 }
 
-migrate(process.argv).catch(err => {
+migrate(process.argv).catch((err) => {
   console.error('Cannot migrate database schema', err);
   process.exit(1);
 });

@@ -262,8 +262,10 @@ export class AccessRightsService {
           );
           reset.treeChildrenNodes = nodeRightSet.reset;
           rights.treeChildrenNodes = nodeRightSet.rights;
-          rights.treeRootNode.read ||= rights.treeChildrenNodes.read;
-          rights.treeRootNode.create ||= rights.treeChildrenNodes.create;
+          rights.treeRootNode.read =
+            rights.treeRootNode.read || rights.treeChildrenNodes.read;
+          rights.treeRootNode.create =
+            rights.treeRootNode.create || rights.treeChildrenNodes.create;
         }
         let aclId = acl.pop();
         while (
@@ -311,7 +313,8 @@ export class AccessRightsService {
     addedResets: AccessRightSet,
   ) {
     for (const permission in actualResets) {
-      actualResets[permission as AccessRightPermission] ||=
+      actualResets[permission as AccessRightPermission] =
+        actualResets[permission as AccessRightPermission] ||
         addedResets[permission as AccessRightPermission];
     }
   }
@@ -323,7 +326,8 @@ export class AccessRightsService {
     for (const right in resetedRights) {
       for (const permission in resetedRights) {
         if (!resetedRights[permission as AccessRightPermission]) {
-          actualRights[permission as AccessRightPermission] ||=
+          actualRights[permission as AccessRightPermission] =
+            actualRights[permission as AccessRightPermission] ||
             addedRights[permission as AccessRightPermission];
         }
       }
@@ -408,14 +412,19 @@ export class AccessRightsService {
             continue;
           }
           if (this.findMatchingUser(group.children, principal)) {
-            computedTree.rights.create ||= group.treeNode.grantCreate;
-            computedTree.rights.read ||= group.treeNode.grantRead;
-            computedTree.rights.update ||= group.treeNode.grantUpdate;
-            computedTree.rights.delete ||= group.treeNode.grantDelete;
+            computedTree.rights.create =
+              computedTree.rights.create || group.treeNode.grantCreate;
+            computedTree.rights.read =
+              computedTree.rights.read || group.treeNode.grantRead;
+            computedTree.rights.update =
+              computedTree.rights.update || group.treeNode.grantUpdate;
+            computedTree.rights.delete =
+              computedTree.rights.delete || group.treeNode.grantDelete;
           }
         }
       }
-      computedTree.rights.read ||=
+      computedTree.rights.read =
+        computedTree.rights.read ||
         computedTree.rights.create ||
         computedTree.rights.update ||
         computedTree.rights.delete;

@@ -2,16 +2,16 @@ import {ApplicationConfig} from '@loopback/core';
 import express from 'express';
 import {Server} from 'http';
 import pEvent from 'p-event';
-import {ObjectstreesApplication} from './application';
+import {ObjectsTreesApplication} from './application';
 
 export class ExpressServer {
   private app: express.Application;
-  private lbApp: ObjectstreesApplication;
+  private lbApp: ObjectsTreesApplication;
   private server: Server;
 
   constructor(options: ApplicationConfig = {}) {
     this.app = express();
-    this.lbApp = new ObjectstreesApplication(options);
+    this.lbApp = new ObjectsTreesApplication(options);
     this.app.use('/api', this.lbApp.requestHandler);
 
     // Serve static files in the public folder
