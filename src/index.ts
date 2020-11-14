@@ -9,6 +9,7 @@ export * from './interceptors';
 export * from './main';
 export * from './migrate';
 export * from './models';
+export * from './repositories';
 export * from './sequence';
 export * from './server';
 export * from './services';
