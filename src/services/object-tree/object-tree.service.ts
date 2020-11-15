@@ -1,4 +1,4 @@
-import {bind, /*inject, */ BindingScope, service} from '@loopback/core';
+import {service} from '@loopback/core';
 import * as _ from 'lodash';
 import {ObjectNode} from '../../models';
 import {ObjectTree} from '../../models/object-tree.model';
@@ -9,7 +9,6 @@ import {ObjectTypeService} from '../object-type.service';
 import {ApplicationError} from './../../helper/application-error';
 import {ObjectTreeInit} from './object-tree.init';
 
-@bind({scope: BindingScope.SINGLETON})
 export class ObjectTreeService {
   public get ready(): Promise<void> {
     return this.init.ready;

@@ -1,10 +1,10 @@
-import {bind, /*inject, */ BindingScope, service} from '@loopback/core';
+import {service} from '@loopback/core';
 import {
   DataObject,
   Entity,
   FilterExcludingWhere,
   Options,
-  repository
+  repository,
 } from '@loopback/repository';
 import _ from 'lodash';
 import {ObjectNode} from '../models';
@@ -16,7 +16,7 @@ import {ObjectType} from './../models/object-type.model';
 import {
   CurrentContext,
   ExpectedValue,
-  NodeContext
+  NodeContext,
 } from './application.service';
 import {ContentEntityService} from './content-entity.service';
 import {ObjectTypeService} from './object-type.service';
@@ -28,7 +28,6 @@ export enum ParentNodeType {
   namespace = 'namespace',
 }
 
-@bind({scope: BindingScope.SINGLETON})
 export class ObjectNodeService {
   constructor(
     @repository(ObjectNodeRepository)

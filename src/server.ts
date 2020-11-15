@@ -46,6 +46,7 @@ import {AccessRightTypeService} from './services/access-rights/access-rights-typ
 import {AccessRightUserService} from './services/access-rights/access-rights-user.service';
 import {AccessRightsService} from './services/access-rights/access-rights.service';
 import {AppAuthorizationProvider} from './services/app-authorization.service';
+import {ApplicationService} from './services/application.service';
 import {ContentEntityService} from './services/content-entity.service';
 import {ContentFileService} from './services/content-file.service';
 import {ContentTextService} from './services/content-text.service';
@@ -99,6 +100,7 @@ export class ExpressServer {
     console.log('Boot application...');
     await app.boot();
 
+    app.service(ApplicationService, {defaultScope: BindingScope.SINGLETON});
     app.service(ObjectNodeService, {defaultScope: BindingScope.SINGLETON});
     app.service(ObjectTypeService, {defaultScope: BindingScope.SINGLETON});
     app.service(ContentEntityService, {defaultScope: BindingScope.SINGLETON});

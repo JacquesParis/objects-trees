@@ -1,4 +1,3 @@
-import {bind, BindingScope} from '@loopback/core';
 import {DataObject} from '@loopback/repository';
 import {Principal} from '@loopback/security';
 import {ObjectNode} from '../models/object-node.model';
@@ -100,7 +99,6 @@ export enum ObjectTypeName {
   TENANT = 'Tenant',
 }
 
-@bind({scope: BindingScope.SINGLETON})
 export class ApplicationService {
   public static OBJECT_TYPE_NAMES = ObjectTypeName;
   public static OBJECT_NODE_NAMES: {

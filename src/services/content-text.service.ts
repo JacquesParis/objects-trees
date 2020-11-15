@@ -1,6 +1,6 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {bind, /*inject, */ BindingScope, service} from '@loopback/core';
+import {service} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {ContentTextRepository} from './../repositories/content-text.repository';
 import {
@@ -9,7 +9,6 @@ import {
   EntityWithContent,
 } from './content-entity.service';
 
-@bind({scope: BindingScope.SINGLETON})
 export class ContentTextService implements ContentEntityServiceInterface {
   constructor(
     @service(ContentEntityService)

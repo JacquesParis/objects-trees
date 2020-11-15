@@ -1,4 +1,4 @@
-import {bind, /* inject, */ BindingScope, service} from '@loopback/core';
+import {service} from '@loopback/core';
 import {
   DataObject,
   FilterExcludingWhere,
@@ -33,7 +33,6 @@ const defaultObjectTypeFilter = {
   ],
 };
 
-@bind({scope: BindingScope.SINGLETON})
 export class ObjectTypeService {
   constructor(
     @repository(ObjectTypeRepository)

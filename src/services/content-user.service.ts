@@ -1,7 +1,7 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
 import {UserRepository} from '@loopback/authentication-jwt';
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {bind, /*inject, */ BindingScope, service} from '@loopback/core';
+import {service} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {ApplicationService} from './application.service';
 import {
@@ -12,7 +12,6 @@ import {
 
 const FIELD_NAME = 'contentUser';
 
-@bind({scope: BindingScope.SINGLETON})
 export class ContentUserService implements ContentEntityServiceInterface {
   constructor(
     @service(ContentEntityService)

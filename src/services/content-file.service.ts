@@ -1,7 +1,7 @@
 /* eslint-disable no-empty */
 import {IJsonSchema} from '@jacquesparis/objects-model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {bind, BindingScope, inject, service} from '@loopback/core';
+import {inject, service} from '@loopback/core';
 import fs from 'fs';
 import path from 'path';
 import {STORAGE_DIRECTORY} from './../constants';
@@ -21,7 +21,6 @@ export interface ContentFileEntity {
   uri?: string;
 }
 
-@bind({scope: BindingScope.SINGLETON})
 export class ContentFileService implements ContentEntityServiceInterface {
   constructor(
     @service(ContentEntityService)

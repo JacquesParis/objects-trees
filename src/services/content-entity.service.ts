@@ -1,6 +1,4 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {bind, /*inject, */ BindingScope} from '@loopback/core';
 import {Entity} from '@loopback/repository';
 import {ApplicationError} from './../helper/application-error';
 
@@ -31,7 +29,6 @@ export interface ContentEntityServiceInterface {
   addTransientContent(entity: EntityWithContent): Promise<void>;
 }
 
-@bind({scope: BindingScope.SINGLETON})
 export class ContentEntityService {
   async getContentDefinition(
     contentType: string | undefined,
