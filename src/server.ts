@@ -53,6 +53,7 @@ import {ContentUserService} from './services/content-user.service';
 import {ObjectNodeContentService} from './services/object-node-content.service';
 import {ObjectNodeService} from './services/object-node.service';
 import {ObjectTreeService} from './services/object-tree/object-tree.service';
+import {ObjectTypeService} from './services/object-type.service';
 import {UserAuthenticationService} from './services/user-authentication.service';
 
 export class ExpressServer {
@@ -99,6 +100,7 @@ export class ExpressServer {
     await app.boot();
 
     app.service(ObjectNodeService, {defaultScope: BindingScope.SINGLETON});
+    app.service(ObjectTypeService, {defaultScope: BindingScope.SINGLETON});
     app.service(ContentEntityService, {defaultScope: BindingScope.SINGLETON});
     app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
     app.service(ContentTextService, {defaultScope: BindingScope.SINGLETON});
