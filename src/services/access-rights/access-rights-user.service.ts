@@ -33,8 +33,8 @@ export class AccessRightUserService
     const user: User & RestEntity = entity as User & RestEntity;
     if (!user?.aclCtx) {
       user.aclCtx = new AclCtx();
-      user.aclCtx.rights.read = true;
     }
+    user.aclCtx.rights.read = true;
     // TODO: clean the object here;
   }
   protected async authorizeRead(

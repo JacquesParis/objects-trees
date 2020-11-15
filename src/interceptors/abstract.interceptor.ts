@@ -25,18 +25,15 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
         optional: true,
       },
     )) as Request;
+    // httpReq.headers.host  ='127.0.0.1:3000'
+    const host = httpReq.headers.host;
     const protocol = await invocationCtx.get(RestBindings.PROTOCOL, {
       optional: true,
     });
-    const host = await invocationCtx.get(RestBindings.HOST, {
-      optional: true,
-    });
-    const port = await invocationCtx.get(RestBindings.PORT, {
-      optional: true,
-    });
+
     const baseUrl = httpReq?.baseUrl;
     const path = httpReq?.path;
-    const baseUri = protocol + '://' + host + ':' + port + baseUrl;
+    const baseUri = protocol + '://' + host + baseUrl;
     const objectUri = path + (path?.endsWith('/') ? '' : '/');
     return {
       baseUri: baseUri,

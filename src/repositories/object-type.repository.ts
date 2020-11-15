@@ -6,6 +6,7 @@ import {
 } from '@loopback/repository';
 import {DbDataSource} from '../datasources';
 import {ObjectSubType, ObjectType, ObjectTypeRelations} from '../models';
+import {DATASTORE_DB} from './../constants';
 import {ObjectSubTypeRepository} from './object-sub-type.repository';
 
 export class ObjectTypeRepository extends DefaultCrudRepository<
@@ -19,7 +20,7 @@ export class ObjectTypeRepository extends DefaultCrudRepository<
   >;
 
   constructor(
-    @inject('datasources.db') dataSource: DbDataSource,
+    @inject(DATASTORE_DB) dataSource: DbDataSource,
     @repository.getter('ObjectSubTypeRepository')
     protected objectSubTypeRepositoryGetter: Getter<ObjectSubTypeRepository>,
   ) {

@@ -1,6 +1,6 @@
 {
   "name": "@jacquesparis/objects-trees",
-  "version": "0.0.1-SNAPSHOT.6",
+  "version": "0.0.1-SNAPSHOT.14",
   "description": "mangage tree of objects",
   "keywords": [
     "loopback-application",
@@ -28,8 +28,8 @@
     "docker:build": "docker build -t objectstrees .",
     "docker:run": "docker run -p 3000:3000 -d objectstrees",
     "migrate": "node ./dist/migrate",
-    "prestart": "npm run build",
-    "start": "node -r source-map-support/register .",
+    "prestart": "npm run clean && npm run build",
+    "start": "node .",
     "update": "npm uninstall @jacquesparis/objects-model && npm install --save @jacquesparis/objects-model",
     "lib": "npm update && npm run build && git add -A && git commit -m \"lib\" && git push origin HEAD && npm publish --access=public"
   },
@@ -47,7 +47,10 @@
     "!*/__tests__"
   ],
   "dependencies": {
-    "@jacquesparis/objects-model": "0.0.1-SNAPSHOT.2",
+    "@jacquesparis/objects-model": "0.0.1-SNAPSHOT.2"
+  },
+  "devDependencies": {
+
     "@loopback/authentication": "^7.0.3",
     "@loopback/authentication-jwt": "^0.7.3",
     "@loopback/authorization": "^0.7.3",
@@ -56,7 +59,7 @@
     "@loopback/core": "^2.12.0",
     "@loopback/openapi-v3": "^5.1.0",
     "@loopback/repository": "^3.2.0",
-    "@loopback/rest": "^8.0.0",
+    "@loopback/rest": "^9.0.0",
     "@loopback/rest-explorer": "^3.0.3",
     "@loopback/service-proxy": "^3.0.3",
     "@types/lodash": "^4.14.165",
@@ -64,10 +67,11 @@
     "express": "^4.17.1",
     "lodash": "^4.17.20",
     "loopback-connector-mongodb": "^4.2.0",
+    "loopback-connector-rest": "^4.0.1",
     "p-event": "^4.2.0",
-    "tslib": "^2.0.0"
-  },
-  "devDependencies": {
+    "tslib": "^2.0.0",
+
+
     "@loopback/build": "^6.2.6",
     "@loopback/eslint-config": "^10.0.2",
     "@loopback/testlab": "^3.2.8",

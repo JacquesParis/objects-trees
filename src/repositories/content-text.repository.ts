@@ -6,6 +6,7 @@ import {
 } from '@loopback/repository';
 import {DbDataSource} from '../datasources';
 import {ContentText, ContentTextRelations} from '../models';
+import {DATASTORE_DB} from './../constants';
 import {ObjectNode} from './../models/object-node.model';
 import {ObjectNodeRepository} from './object-node.repository';
 
@@ -20,7 +21,7 @@ export class ContentTextRepository extends DefaultCrudRepository<
   >;
 
   constructor(
-    @inject('datasources.db') dataSource: DbDataSource,
+    @inject(DATASTORE_DB) dataSource: DbDataSource,
     @repository.getter('ObjectNodeRepository')
     protected objectNodeRepositoryGetter: Getter<ObjectNodeRepository>,
   ) {

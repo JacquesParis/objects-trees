@@ -1,4 +1,3 @@
-export * from './application';
 export * from './application.component';
 export * from './boot.component';
 export * from './constants';
@@ -6,8 +5,8 @@ export * from './controllers';
 export * from './datasources';
 export * from './helper';
 export * from './interceptors';
+export * from './local';
 export * from './main';
-export * from './migrate';
 export * from './models';
 export * from './repositories';
 export * from './sequence';

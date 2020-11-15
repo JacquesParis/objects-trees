@@ -32,9 +32,9 @@ export class AccessRightTypeService
     const user: ObjectType = entity as ObjectType;
     if (!user?.aclCtx) {
       user.aclCtx = new AclCtx();
-      user.aclCtx.rights.read = true;
-      // TODO: check admin and registered objects during boot for CRUD
     }
+    user.aclCtx.rights.read = true;
+    // TODO: check admin and registered objects during boot for CRUD
     // TODO: remove subTypes for non admin;
   }
   protected async authorizeRead(

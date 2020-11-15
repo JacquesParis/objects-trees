@@ -1,10 +1,10 @@
-import {ObjectsTreesApplication} from './application';
+import {LocalDeployApplication} from './local';
 
 export async function migrate(args: string[]) {
   const existingSchema = args.includes('--rebuild') ? 'drop' : 'alter';
   console.log('Migrating schemas (%s existing schema)', existingSchema);
 
-  const app = new ObjectsTreesApplication({});
+  const app = new LocalDeployApplication({});
   await app.boot();
   await app.migrateSchema({existingSchema});
 
