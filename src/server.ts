@@ -160,7 +160,9 @@ export class ExpressServer {
 
     // Bind datasource
     app.dataSource(DbDataSource, UserServiceBindings.DATASOURCE_NAME);
-    app.dataSource(DbDataSource, DATASTORE_DB).inScope(BindingScope.SINGLETON);
+    app
+      .dataSource(DbDataSource, DATASTORE_DB.replace('datasources.', ''))
+      .inScope(BindingScope.SINGLETON);
 
     app.model(ContentText);
     app.model(ObjectNode);
