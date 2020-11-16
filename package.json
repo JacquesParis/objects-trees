@@ -30,6 +30,7 @@
     "migrate": "node ./dist/migrate",
     "prestart": "npm run clean && npm run build",
     "start": "node .",
+    "dev": "npm uninstall @jacquesparis/objects-model && npm install --save ../objects-model",
     "update": "npm uninstall @jacquesparis/objects-model && npm install --save @jacquesparis/objects-model",
     "lib": "npm update && npm run build && git add -A && git commit -m \"lib\" && git push origin HEAD && npm publish --access=public"
   },
@@ -47,10 +48,9 @@
     "!*/__tests__"
   ],
   "dependencies": {
-    "@jacquesparis/objects-model": "0.0.1-SNAPSHOT.2"
+    "@jacquesparis/objects-model": "file:../objects-model"
   },
   "devDependencies": {
-
     "@loopback/authentication": "^7.0.3",
     "@loopback/authentication-jwt": "^0.7.3",
     "@loopback/authorization": "^0.7.3",
@@ -70,8 +70,6 @@
     "loopback-connector-rest": "^4.0.1",
     "p-event": "^4.2.0",
     "tslib": "^2.0.0",
-
-
     "@loopback/build": "^6.2.6",
     "@loopback/eslint-config": "^10.0.2",
     "@loopback/testlab": "^3.2.8",
