@@ -1,15 +1,17 @@
 import {BootMixin} from '@loopback/boot';
-import {ApplicationConfig} from '@loopback/core';
 import {RepositoryMixin} from '@loopback/repository';
-import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
+import {ObjectTreesApplication} from './application';
 import {STORAGE_DIRECTORY} from './constants';
+import {TravelStoryTypeProvider} from './externals/object-types/travel-story/travel-story-type.provider';
+import {ObjectTreesApplicationConfig} from './integration/object-trees-application.config';
 
 export class LocalDeployApplication extends BootMixin(
-  ServiceMixin(RepositoryMixin(RestApplication)),
+  ServiceMixin(RepositoryMixin(ObjectTreesApplication)),
 ) {
-  constructor(options: ApplicationConfig = {}) {
+  constructor(options: ObjectTreesApplicationConfig = {}) {
+    options.objectTypes = [TravelStoryTypeProvider];
     super(options);
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const app = this;

@@ -10,7 +10,7 @@ import {
   AuthorizationOptions,
   AuthorizationTags,
 } from '@loopback/authorization';
-import {ApplicationConfig, BindingScope, ContextBindings} from '@loopback/core';
+import {BindingScope, ContextBindings} from '@loopback/core';
 import {ObjectType} from '@loopback/repository';
 import {RestApplication, RestBindings} from '@loopback/rest';
 import {
@@ -20,7 +20,7 @@ import {
 import express from 'express';
 import {Server} from 'http';
 import pEvent from 'p-event';
-import {ObjectTreesApplication} from './application';
+import {ObjectTreesApplicationInterface} from './application';
 import {ApplicationComponent} from './application.component';
 import {ObjectTreesBootComponent} from './boot.component';
 import {AUTHORIZATION_SERVICE, DATASTORE_DB} from './constants';
@@ -59,12 +59,12 @@ import {UserAuthenticationService} from './services/user-authentication.service'
 
 export class ExpressServer {
   private app: express.Application;
-  private lbApp: ObjectTreesApplication;
+  private lbApp: ObjectTreesApplicationInterface;
   private server: Server;
 
-  constructor(restApp: RestApplication, options: ApplicationConfig = {}) {
+  constructor(restApp: RestApplication) {
     this.app = express();
-    this.lbApp = (restApp as unknown) as ObjectTreesApplication;
+    this.lbApp = (restApp as unknown) as ObjectTreesApplicationInterface;
     this.app.use('/api', this.lbApp.requestHandler);
 
     this.initApplication(this.lbApp);
@@ -73,6 +73,8 @@ export class ExpressServer {
     this.app.use(express.static('public'));
   }
   async boot() {
+    await this.lbApp.boot();
+    await this.lbApp.bootObjectTrees();
     await this.bootApplication(this.lbApp);
   }
 
@@ -96,33 +98,8 @@ export class ExpressServer {
     this.server = (null as unknown) as Server;
   }
 
-  protected async bootApplication(app: ObjectTreesApplication) {
-    console.log('Boot application...');
-    await app.boot();
-
-    app.service(ApplicationService, {defaultScope: BindingScope.SINGLETON});
-    app.service(ObjectNodeService, {defaultScope: BindingScope.SINGLETON});
-    app.service(ObjectTypeService, {defaultScope: BindingScope.SINGLETON});
-    app.service(ContentEntityService, {defaultScope: BindingScope.SINGLETON});
-    app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
-    app.service(ContentTextService, {defaultScope: BindingScope.SINGLETON});
-    app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
-    app.service(ContentUserService, {defaultScope: BindingScope.SINGLETON});
-    app.service(ObjectNodeContentService, {
-      defaultScope: BindingScope.SINGLETON,
-    });
-    app.service(ObjectTreeService, {defaultScope: BindingScope.SINGLETON});
-    app.service(AccessRightsService, {defaultScope: BindingScope.SINGLETON});
-    app.service(AccessRightTreeService, {defaultScope: BindingScope.SINGLETON});
-    app.service(AccessRightNodeService, {defaultScope: BindingScope.SINGLETON});
-    app.service(AccessRightTypeService, {defaultScope: BindingScope.SINGLETON});
-    app.service(AccessRightUserService, {defaultScope: BindingScope.SINGLETON});
-
-    app.component(ObjectTreesBootComponent);
-    console.log('Boot up !');
-  }
-
-  protected initApplication(app: ObjectTreesApplication) {
+  protected initApplication(app: ObjectTreesApplicationInterface) {
+    return;
     console.log('Init application...');
     // Set up the custom sequence
     app.sequence(MySequence);
@@ -209,6 +186,39 @@ export class ExpressServer {
     });
 
     app.component(ApplicationComponent);
+
+    if (this.lbApp.options.objectTypes?.length) {
+      for (const objectTypeProvider of this.lbApp.options.objectTypes) {
+        new objectTypeProvider(this.lbApp);
+      }
+    }
     console.log('Application initialized !');
+  }
+
+  protected async bootApplication(app: ObjectTreesApplicationInterface) {
+    return;
+    console.log('Boot application...');
+    await app.boot();
+
+    app.service(ApplicationService, {defaultScope: BindingScope.SINGLETON});
+    app.service(ObjectNodeService, {defaultScope: BindingScope.SINGLETON});
+    app.service(ObjectTypeService, {defaultScope: BindingScope.SINGLETON});
+    app.service(ContentEntityService, {defaultScope: BindingScope.SINGLETON});
+    app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
+    app.service(ContentTextService, {defaultScope: BindingScope.SINGLETON});
+    app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
+    app.service(ContentUserService, {defaultScope: BindingScope.SINGLETON});
+    app.service(ObjectNodeContentService, {
+      defaultScope: BindingScope.SINGLETON,
+    });
+    app.service(ObjectTreeService, {defaultScope: BindingScope.SINGLETON});
+    app.service(AccessRightsService, {defaultScope: BindingScope.SINGLETON});
+    app.service(AccessRightTreeService, {defaultScope: BindingScope.SINGLETON});
+    app.service(AccessRightNodeService, {defaultScope: BindingScope.SINGLETON});
+    app.service(AccessRightTypeService, {defaultScope: BindingScope.SINGLETON});
+    app.service(AccessRightUserService, {defaultScope: BindingScope.SINGLETON});
+
+    app.component(ObjectTreesBootComponent);
+    console.log('Boot up !');
   }
 }
