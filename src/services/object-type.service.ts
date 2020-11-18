@@ -49,6 +49,7 @@ export class ObjectTypeService {
     ctx: CurrentContext,
   ): Promise<ObjectType> {
     delete objectType.contentDefinition;
+    objectType.id = objectType.name;
 
     const newType = await this.objectTypeRepository.create(objectType);
 

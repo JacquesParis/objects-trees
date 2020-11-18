@@ -89,7 +89,7 @@ export class ExpectedValue<T> {
 }
 
 export enum ObjectTypeName {
-  ROOT = 'root',
+  ROOT = 'Root',
   USER = 'User',
   ANONYMOUS_USER = 'AnonymousUser',
   ACCESS_RIGHT_DEFINITION = 'AccessRightDefinition',
@@ -97,6 +97,10 @@ export enum ObjectTypeName {
   ACCESS_RIGHT_OWNERS = 'AccessRightOwners',
   ACCESS_RIGHT_ACCESS_MANAGERS = 'AccessRightAccessManagers',
   TENANT = 'Tenant',
+}
+
+export class ApplicationExtensionContext {
+  [key: string]: ExpectedValue<ObjectType>;
 }
 
 export class ApplicationService {
@@ -152,4 +156,17 @@ export class ApplicationService {
     this.accessRightsOwnersType.waitForValue,
     this.accessRightsAccessManagersType.waitForValue,
   ]);
+  private extensions: {
+    [key: string]: ExpectedValue<ApplicationExtensionContext>;
+  } = {};
+  public getExtensionContext<T extends ApplicationExtensionContext>(
+    extensionName: string,
+  ): ExpectedValue<T> {
+    if (!(extensionName in this.extensions)) {
+      this.extensions[extensionName] = (new ExpectedValue<
+        T
+      >() as unknown) as ExpectedValue<ApplicationExtensionContext>;
+    }
+    return (this.extensions[extensionName] as unknown) as ExpectedValue<T>;
+  }
 }
