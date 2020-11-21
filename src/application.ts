@@ -187,6 +187,13 @@ export class ObjectTreesApplication extends RestApplication {
     await app.getService<ContentEntityService>(ContentEntityService);
     app.service(ObjectTypeService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ObjectTypeService>(ObjectTypeService);
+
+    const appCtx = await app.getService<ApplicationService>(ApplicationService);
+    const objectTypeService = await app.getService<ObjectTypeService>(
+      ObjectTypeService,
+    );
+    await objectTypeService.cleanWhenReboot();
+
     app.service(ObjectNodeService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ObjectNodeService>(ObjectNodeService);
     app.service(ContentUserService, {defaultScope: BindingScope.SINGLETON});
@@ -215,10 +222,6 @@ export class ObjectTreesApplication extends RestApplication {
     app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ContentFileService>(ContentFileService);
 
-    const appCtx = await app.getService<ApplicationService>(ApplicationService);
-    const objectTypeService = await app.getService<ObjectTypeService>(
-      ObjectTypeService,
-    );
     const objectTreeService = await app.getService<ObjectTreeService>(
       ObjectTreeService,
     );
@@ -229,11 +232,7 @@ export class ObjectTreesApplication extends RestApplication {
     await accessRightsService.ready;
 
     for (const providerName in this.extensionProviders) {
-      await this.extensionProviders[providerName].beforeBoot(
-        app,
-        appCtx,
-        objectTypeService,
-      );
+      await this.extensionProviders[providerName].beforeBoot(appCtx);
     }
 
     for (const providerName in this.extensionProviders) {

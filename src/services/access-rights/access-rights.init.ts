@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {ObjectType} from './../../models/object-type.model';
-import {ApplicationService, CurrentContext} from './../application.service';
+import {ApplicationService} from './../application.service';
 import {ObjectNodeService} from './../object-node.service';
 import {ObjectTypeService} from './../object-type.service';
 import {
@@ -32,101 +32,55 @@ export class AccessRightsInit {
   private async init(): Promise<void> {
     const userType: ObjectType = await this.appCtx.userType.getOrSetValue(
       async (): Promise<ObjectType> => {
-        let type: ObjectType = await this.objectTypeService.searchByName(
-          ApplicationService.OBJECT_TYPE_NAMES.USER,
-        );
-        if (!type) {
-          type = await this.objectTypeService.add(
-            {
-              name: ApplicationService.OBJECT_TYPE_NAMES.USER,
-              contentType: ApplicationService.CONTENT_TYPE.USER,
-            },
-            new CurrentContext(),
-          );
-        }
-        return type;
+        return this.objectTypeService.registerApplicationType({
+          name: ApplicationService.OBJECT_TYPE_NAMES.USER,
+          contentType: ApplicationService.CONTENT_TYPE.USER,
+        });
       },
     );
 
     const anonymousUserType: ObjectType = await this.appCtx.anonymousUserType.getOrSetValue(
       async (): Promise<ObjectType> => {
-        let type: ObjectType = await this.objectTypeService.searchByName(
-          ApplicationService.OBJECT_TYPE_NAMES.ANONYMOUS_USER,
-        );
-        if (!type) {
-          type = await this.objectTypeService.add(
-            {
-              name: ApplicationService.OBJECT_TYPE_NAMES.ANONYMOUS_USER,
-            },
-            new CurrentContext(),
-          );
-        }
-        return type;
+        return this.objectTypeService.registerApplicationType({
+          name: ApplicationService.OBJECT_TYPE_NAMES.ANONYMOUS_USER,
+        });
       },
     );
 
     const accessRightsDefinition: ObjectType = await this.appCtx.accessRightsDefinitionType.getOrSetValue(
       async (): Promise<ObjectType> => {
-        let type: ObjectType = await this.objectTypeService.searchByName(
-          ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_DEFINITION,
+        return this.objectTypeService.registerApplicationType(
+          ACCESS_RIGHTS_DEFINITION_TYPE,
         );
-        if (!type) {
-          type = await this.objectTypeService.add(
-            ACCESS_RIGHTS_DEFINITION_TYPE,
-            new CurrentContext(),
-          );
-        }
-        return type;
       },
     );
 
     const accessRightsGroup: ObjectType = await this.appCtx.accessRightsGroupType.getOrSetValue(
       async (): Promise<ObjectType> => {
-        let type: ObjectType = await this.objectTypeService.searchByName(
-          ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_GROUP,
+        return this.objectTypeService.registerApplicationType(
+          ACCESS_RIGHTS_GROUP_TYPE,
         );
-        if (!type) {
-          type = await this.objectTypeService.add(
-            ACCESS_RIGHTS_GROUP_TYPE,
-            new CurrentContext(),
-          );
-        }
-        return type;
       },
     );
 
     const accessRightsOwners: ObjectType = await this.appCtx.accessRightsOwnersType.getOrSetValue(
       async (): Promise<ObjectType> => {
-        let type: ObjectType = await this.objectTypeService.searchByName(
-          ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_OWNERS,
+        return this.objectTypeService.registerApplicationType(
+          ACCESS_RIGHTS_OWNERS_TYPE,
         );
-        if (!type) {
-          type = await this.objectTypeService.add(
-            ACCESS_RIGHTS_OWNERS_TYPE,
-            new CurrentContext(),
-          );
-        }
-        return type;
       },
     );
 
     const accessRightsAccessManagers: ObjectType = await this.appCtx.accessRightsAccessManagersType.getOrSetValue(
       async (): Promise<ObjectType> => {
-        let type: ObjectType = await this.objectTypeService.searchByName(
-          ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_ACCESS_MANAGERS,
+        return this.objectTypeService.registerApplicationType(
+          ACCESS_RIGHTS_ACCESS_MANAGERS_TYPE,
         );
-        if (!type) {
-          type = await this.objectTypeService.add(
-            ACCESS_RIGHTS_ACCESS_MANAGERS_TYPE,
-            new CurrentContext(),
-          );
-        }
-        return type;
       },
     );
 
     await this.objectTypeService.getOrCreateObjectSubType(
-      (await this.appCtx.rootType.waitForValue).id as string,
+      (await this.appCtx.repositoryType.waitForValue).id as string,
       accessRightsDefinition.id as string,
       ACCESS_RIGHT_SUBTYPE,
     );
@@ -156,7 +110,7 @@ export class AccessRightsInit {
       accessRightsGroup.id as string,
       anonymousUserType.id as string,
       {
-        name: ApplicationService.OBJECT_TYPE_NAMES.USER,
+        name: ApplicationService.OBJECT_TYPE_NAMES.ANONYMOUS_USER,
         acl: false,
         namespace: false,
         owner: false,
@@ -220,7 +174,7 @@ export class AccessRightsInit {
 
     const rootACL = (
       await this.objectNodeService.getOrCreateChildren(
-        (await this.appCtx.rooteNode.waitForValue).id as string,
+        (await this.appCtx.rootNode.waitForValue).id as string,
         accessRightsDefinition.id as string,
         {name: ApplicationService.OBJECT_NODE_NAMES.AccessRightDefinition},
       )

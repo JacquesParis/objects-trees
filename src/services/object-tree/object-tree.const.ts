@@ -1,7 +1,7 @@
 import {ApplicationService} from './../application.service';
 
-export const ROOT_TYPE = {
-  name: ApplicationService.OBJECT_TYPE_NAMES.ROOT,
+export const REPOSITORY_TYPE = {
+  name: ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY,
   definition: {properties: {}},
   contentType: '',
 };
@@ -40,5 +40,11 @@ export const TENANT_TYPE = {
       },
     },
   },
+  contentType: '',
+};
+
+export const CATEGORY_TYPE = {
+  name: ApplicationService.OBJECT_TYPE_NAMES.CATEGORY,
+  definition: {properties: {}},
   contentType: '',
 };

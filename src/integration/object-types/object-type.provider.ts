@@ -11,24 +11,52 @@ import {
 import * as _ from 'lodash';
 import {ObjectTreesApplicationInterface} from '../../application';
 import {ObjectSubType} from '../../models';
+import {ApplicationError} from './../../helper/application-error';
+import {ObjectNode} from './../../models/object-node.model';
 import {ObjectType} from './../../models/object-type.model';
 import {
   ApplicationExtensionContext,
   ApplicationService,
-  CurrentContext,
   ExpectedValue,
 } from './../../services/application.service';
+import {ObjectNodeService} from './../../services/object-node.service';
+import {ObjectTreeService} from './../../services/object-tree/object-tree.service';
 import {ObjectTypeService} from './../../services/object-type.service';
 
 export type ObjectTypeProviderClass = new (
   app: ObjectTreesApplicationInterface,
 ) => ObjectTypeProvider;
 
-export type ObjectSubTypeDefintion = ObjectSubType & {
+export type ObjectTypeDefinition = Partial<ObjectType> & {name: string};
+
+export type ObjectSubTypeDefintion = Partial<ObjectSubType> & {
   typeName: string;
   subTypeName: string;
 };
+
+export interface ObjectTreeDefinition {
+  treeNode: Partial<ObjectNode>;
+  children: {
+    [objectTypeId: string]: {
+      [name: string]: ObjectTreeDefinition[];
+    };
+  };
+}
+
+export type CalculatedString = string | (() => string);
+export type CalculatedNode =
+  | {
+      ownerTypeId: string;
+      ownerName: string;
+      namespaceTypeId: string;
+      namespaceName: string;
+    }
+  | (() => Promise<ObjectNode>);
 export abstract class ObjectTypeProvider {
+  protected appCtx: ApplicationService;
+  protected objectTypeService: ObjectTypeService;
+  protected objectNodeService: ObjectNodeService;
+  protected objectTreeService: ObjectTreeService;
   constructor(
     public name: string,
     protected app: ObjectTreesApplicationInterface,
@@ -39,9 +67,17 @@ export abstract class ObjectTypeProvider {
     console.log('Booting ' + this.name + '.');
   }
   objectTypes: {
-    types: {[typeField: string]: Partial<ObjectType>};
-    subTypes: Partial<ObjectSubTypeDefintion>[];
+    types: {[typeField: string]: ObjectTypeDefinition};
+    subTypes: ObjectSubTypeDefintion[];
   } = {types: {}, subTypes: []};
+  objectTrees: {
+    [nodeField: string]: {
+      parentNode: CalculatedNode;
+      treeNodeTypeId: string;
+      treeNodeName: string;
+      tree: ObjectTreeDefinition;
+    };
+  } = {};
   contentEntities: {
     contentType: string;
     cls: ServiceOrProviderClass;
@@ -80,11 +116,18 @@ export abstract class ObjectTypeProvider {
     controllers: [],
   };
 
-  public async beforeBoot(
-    app: ObjectTreesApplicationInterface,
-    appCtx: ApplicationService,
-    objectTypeService: ObjectTypeService,
-  ): Promise<void> {
+  public async beforeBoot(appCtx: ApplicationService): Promise<void> {
+    this.appCtx = appCtx;
+    this.objectTreeService = await this.app.getService<ObjectTreeService>(
+      ObjectTreeService,
+    );
+    this.objectNodeService = await this.app.getService<ObjectNodeService>(
+      ObjectNodeService,
+    );
+    this.objectTypeService = await this.app.getService<ObjectTypeService>(
+      ObjectTypeService,
+    );
+
     const ctx: ApplicationExtensionContext = await appCtx
       .getExtensionContext<ApplicationExtensionContext>(this.name)
       .getOrSetValue(async () => {
@@ -92,34 +135,26 @@ export abstract class ObjectTypeProvider {
       });
     // provider.objectTypes
     for (const typeField in this.objectTypes.types) {
-      if (!ctx[typeField]) {
-        ctx[typeField] = new ExpectedValue<ObjectType>();
+      if (!ctx.types[typeField]) {
+        ctx.types[typeField] = new ExpectedValue<ObjectType>();
       }
-      await ctx[typeField].getOrSetValue(
+      await ctx.types[typeField].getOrSetValue(
         async (): Promise<ObjectType> => {
-          let newType = await objectTypeService.searchByName(
-            this.objectTypes.types[typeField].name as string,
+          return this.objectTypeService.registerApplicationType(
+            this.objectTypes.types[typeField],
           );
-
-          if (!newType) {
-            newType = await objectTypeService.add(
-              this.objectTypes.types[typeField],
-              new CurrentContext(),
-            );
-          }
-          return newType;
         },
       );
     }
 
     for (const subType of this.objectTypes.subTypes) {
-      const parentType = await objectTypeService.searchByName(
+      const parentType = await this.objectTypeService.searchByName(
         subType.typeName as string,
       );
-      const childType = await objectTypeService.searchByName(
+      const childType = await this.objectTypeService.searchByName(
         subType.subTypeName as string,
       );
-      await objectTypeService.getOrCreateObjectSubType(
+      await this.objectTypeService.getOrCreateObjectSubType(
         parentType.id as string,
         childType.id as string,
         _.pick(subType, [
@@ -138,7 +173,36 @@ export abstract class ObjectTypeProvider {
     }
     // provider.contentEntities
     // TODO : add new contentEntities management
+
     // provider.entities
     // TODO : add new entities management
+
+    //provider.objetTrees
+
+    for (const nodeField in this.objectTrees) {
+      if (!ctx.nodes[nodeField]) {
+        ctx.nodes[nodeField] = new ExpectedValue<ObjectNode>();
+      }
+      await ctx.nodes[nodeField].getOrSetValue(
+        async (): Promise<ObjectNode> => {
+          let parentNode: ObjectNode;
+          if (_.isFunction(this.objectTrees[nodeField].parentNode)) {
+            parentNode = await (this.objectTrees[nodeField]
+              .parentNode as () => Promise<ObjectNode>)();
+          } else {
+            throw ApplicationError.notImplemented({
+              method: 'ObjectTypeProvider.objectTrees',
+              parentNodeId: 'using namespace',
+            });
+          }
+          return this.objectTreeService.registerApplicationTree(
+            parentNode,
+            this.objectTrees[nodeField].treeNodeName,
+            this.objectTrees[nodeField].treeNodeTypeId,
+            this.objectTrees[nodeField].tree,
+          );
+        },
+      );
+    }
   }
 }

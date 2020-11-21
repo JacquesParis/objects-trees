@@ -4,6 +4,7 @@ import {ObjectNode} from '../models/object-node.model';
 import {ObjectSubType} from '../models/object-sub-type.model';
 import {ObjectType} from '../models/object-type.model';
 import {ObjectTree} from './../models/object-tree.model';
+import {ObjectTypeRelations} from './../models/object-type.model';
 import {AccessRightPermissions} from './access-rights/access-rights.const';
 
 export class NodeContext {
@@ -89,7 +90,7 @@ export class ExpectedValue<T> {
 }
 
 export enum ObjectTypeName {
-  ROOT = 'Root',
+  REPOSITORY = 'Repository',
   USER = 'User',
   ANONYMOUS_USER = 'AnonymousUser',
   ACCESS_RIGHT_DEFINITION = 'AccessRightDefinition',
@@ -97,10 +98,16 @@ export enum ObjectTypeName {
   ACCESS_RIGHT_OWNERS = 'AccessRightOwners',
   ACCESS_RIGHT_ACCESS_MANAGERS = 'AccessRightAccessManagers',
   TENANT = 'Tenant',
+  CATEGORY = 'RepositoryCategory',
 }
 
 export class ApplicationExtensionContext {
-  [key: string]: ExpectedValue<ObjectType>;
+  types: {
+    [key: string]: ExpectedValue<ObjectType>;
+  } = {};
+  nodes: {
+    [key: string]: ExpectedValue<ObjectNode>;
+  } = {};
 }
 
 export class ApplicationService {
@@ -108,7 +115,7 @@ export class ApplicationService {
   public static OBJECT_NODE_NAMES: {
     [objectType in ObjectTypeName]: string;
   } = {
-    [ApplicationService.OBJECT_TYPE_NAMES.ROOT]: 'root',
+    [ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY]: 'root',
     [ApplicationService.OBJECT_TYPE_NAMES.USER]: 'Admin',
     [ApplicationService.OBJECT_TYPE_NAMES.ANONYMOUS_USER]: 'Anonymous User',
     [ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_DEFINITION]:
@@ -118,17 +125,29 @@ export class ApplicationService {
     [ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_ACCESS_MANAGERS]:
       'Access Managers group',
     [ApplicationService.OBJECT_TYPE_NAMES.TENANT]: 'Tenant',
+    [ApplicationService.OBJECT_TYPE_NAMES.CATEGORY]: 'Category',
   };
   public static CONTENT_TYPE = {
     USER: 'ContentUser',
     JSON: '',
   };
 
-  public rootType: ExpectedValue<ObjectType> = new ExpectedValue<ObjectType>();
+  public repositoryType: ExpectedValue<ObjectType> = new ExpectedValue<
+    ObjectType
+  >();
+  public categoryType: ExpectedValue<ObjectType> = new ExpectedValue<
+    ObjectType
+  >();
   public tenantType: ExpectedValue<ObjectType> = new ExpectedValue<
     ObjectType
   >();
-  public rooteNode: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
+  public rootNode: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
+  public publicNode: ExpectedValue<ObjectNode> = new ExpectedValue<
+    ObjectNode
+  >();
+  public publicTemplatesNode: ExpectedValue<ObjectNode> = new ExpectedValue<
+    ObjectNode
+  >();
   public userType: ExpectedValue<ObjectType> = new ExpectedValue<ObjectType>();
   public anonymousUserType: ExpectedValue<ObjectType> = new ExpectedValue<
     ObjectType
@@ -147,8 +166,8 @@ export class ApplicationService {
   > = new ExpectedValue<ObjectType>();
   public ready: Promise<unknown> = Promise.all([
     this.tenantType.waitForValue,
-    this.rootType.waitForValue,
-    this.rooteNode.waitForValue,
+    this.repositoryType.waitForValue,
+    this.rootNode.waitForValue,
     this.userType.waitForValue,
     this.anonymousUserType.waitForValue,
     this.accessRightsDefinitionType.waitForValue,
@@ -156,6 +175,11 @@ export class ApplicationService {
     this.accessRightsOwnersType.waitForValue,
     this.accessRightsAccessManagersType.waitForValue,
   ]);
+  public allTypes: ExpectedValue<{
+    [nameId: string]: ObjectType & ObjectTypeRelations;
+  }> = new ExpectedValue<{
+    [nameId: string]: ObjectType & ObjectTypeRelations;
+  }>();
   private extensions: {
     [key: string]: ExpectedValue<ApplicationExtensionContext>;
   } = {};

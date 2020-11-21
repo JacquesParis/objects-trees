@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectType} from './../../models/object-type.model';
 import {ApplicationService, CurrentContext} from './../application.service';
 import {ContentEntityService} from './../content-entity.service';
 import {ObjectNodeService} from './../object-node.service';
 import {ObjectTypeService} from './../object-type.service';
-import {ROOT_TYPE, TENANT_TYPE} from './object-tree.const';
+import {CATEGORY_TYPE, REPOSITORY_TYPE, TENANT_TYPE} from './object-tree.const';
 export class ObjectTreeInit {
   public ready: Promise<void>;
   constructor(
@@ -26,40 +27,49 @@ export class ObjectTreeInit {
   }
 
   async init() {
-    const rootType: ObjectType = await this.appCtx.rootType.getOrSetValue(
+    const repositoryType: ObjectType = await this.appCtx.repositoryType.getOrSetValue(
       async (): Promise<ObjectType> => {
-        let newRootType = await this.objectTypeService.searchByName(
-          ApplicationService.OBJECT_TYPE_NAMES.ROOT,
-        );
-
-        if (!newRootType) {
-          newRootType = await this.objectTypeService.add(
-            ROOT_TYPE,
-            new CurrentContext(),
-          );
-        }
-        return newRootType;
+        return this.objectTypeService.registerApplicationType(REPOSITORY_TYPE);
       },
     );
 
     const tenantType: ObjectType = await this.appCtx.tenantType.getOrSetValue(
       async (): Promise<ObjectType> => {
-        let newType = await this.objectTypeService.searchByName(
-          ApplicationService.OBJECT_TYPE_NAMES.TENANT,
-        );
+        return this.objectTypeService.registerApplicationType(TENANT_TYPE);
+      },
+    );
 
-        if (!newType) {
-          newType = await this.objectTypeService.add(
-            TENANT_TYPE,
-            new CurrentContext(),
-          );
-        }
-        return newType;
+    const categoryType: ObjectType = await this.appCtx.categoryType.getOrSetValue(
+      async (): Promise<ObjectType> => {
+        return this.objectTypeService.registerApplicationType(CATEGORY_TYPE);
       },
     );
 
     await this.objectTypeService.getOrCreateObjectSubType(
-      rootType.id as string,
+      repositoryType.id as string,
+      repositoryType.id as string,
+      {
+        acl: true,
+        name: ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY,
+        namespace: true,
+        owner: true,
+        tree: true,
+      },
+    );
+    await this.objectTypeService.getOrCreateObjectSubType(
+      repositoryType.id as string,
+      categoryType.id as string,
+      {
+        acl: true,
+        name: ApplicationService.OBJECT_TYPE_NAMES.CATEGORY,
+        namespace: true,
+        owner: false,
+        tree: true,
+      },
+    );
+
+    await this.objectTypeService.getOrCreateObjectSubType(
+      repositoryType.id as string,
       tenantType.id as string,
       {
         acl: true,
@@ -70,12 +80,12 @@ export class ObjectTreeInit {
       },
     );
 
-    await this.appCtx.rooteNode.getOrSetValue(
+    await this.appCtx.rootNode.getOrSetValue(
       async (): Promise<ObjectNode> => {
         let newRoot = await this.objectNodeService.searchOwner(
-          ApplicationService.OBJECT_TYPE_NAMES.ROOT,
+          ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY,
           ApplicationService.OBJECT_NODE_NAMES[
-            ApplicationService.OBJECT_TYPE_NAMES.ROOT
+            ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY
           ],
         );
         if (!newRoot) {
@@ -83,9 +93,9 @@ export class ObjectTreeInit {
             {
               name:
                 ApplicationService.OBJECT_NODE_NAMES[
-                  ApplicationService.OBJECT_TYPE_NAMES.ROOT
+                  ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY
                 ],
-              objectTypeId: rootType.id,
+              objectTypeId: repositoryType.id,
               owner: true,
               tree: true,
               namesapce: true,
@@ -96,6 +106,56 @@ export class ObjectTreeInit {
           );
         }
         return newRoot;
+      },
+    );
+
+    await this.appCtx.publicNode.getOrSetValue(
+      async (): Promise<ObjectNode> => {
+        let newPublic = await this.objectNodeService.searchOwner(
+          ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY,
+          'public',
+        );
+        if (!newPublic) {
+          newPublic = await this.objectNodeService.add(
+            {
+              parentNodeId: this.appCtx.rootNode.value.id,
+              name: 'public',
+              objectTypeId: repositoryType.id,
+            },
+            CurrentContext.get({
+              nodeContext: {
+                parent: this.appCtx.rootNode,
+              },
+            }),
+          );
+        }
+        return newPublic;
+      },
+    );
+
+    await this.appCtx.publicTemplatesNode.getOrSetValue(
+      async (): Promise<ObjectNode> => {
+        let newTemplates = await this.objectNodeService.searchNamespace(
+          ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY,
+          'public',
+          ApplicationService.OBJECT_TYPE_NAMES.CATEGORY,
+          'templates',
+        );
+        if (!newTemplates) {
+          newTemplates = await this.objectNodeService.add(
+            {
+              parentNodeId: this.appCtx.publicNode.value.id,
+              name: 'templates',
+              objectTypeId: categoryType.id,
+            },
+            CurrentContext.get({
+              nodeContext: {
+                parent: this.appCtx.publicNode,
+              },
+            }),
+          );
+        }
+        return newTemplates;
       },
     );
   }

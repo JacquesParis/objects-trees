@@ -49,7 +49,7 @@ export class ObjectTypeController {
         },
       },
     })
-    objectType: Omit<ObjectType, 'id'>,
+    objectType: Omit<ObjectType, 'id'> & {name: string},
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectType> {
     return this.objectTypeService.add(objectType, ctx);

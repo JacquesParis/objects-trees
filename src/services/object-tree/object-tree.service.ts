@@ -1,8 +1,13 @@
 import {service} from '@loopback/core';
 import * as _ from 'lodash';
+import {ObjectTreeDefinition} from '../../integration/object-types/object-type.provider';
 import {ObjectNode} from '../../models';
 import {ObjectTree} from '../../models/object-tree.model';
-import {ApplicationService, CurrentContext} from '../application.service';
+import {
+  ApplicationService,
+  CurrentContext,
+  ExpectedValue,
+} from '../application.service';
 import {ContentEntityService} from '../content-entity.service';
 import {ObjectNodeService} from '../object-node.service';
 import {ObjectTypeService} from '../object-type.service';
@@ -30,6 +35,127 @@ export class ObjectTreeService {
       contentEntityService,
       appCtx,
     );
+  }
+
+  private async createNewApplicationSubTree(
+    parentNode: ObjectNode,
+    treeNodeName: string,
+    treeNodeTypeId: string,
+    tree: ObjectTreeDefinition,
+  ): Promise<ObjectNode> {
+    const treeNode: ObjectNode = await this.objectNodeService.add(
+      _.merge(tree.treeNode, {
+        name: treeNodeName,
+        objectTypeId: treeNodeTypeId,
+      }),
+      CurrentContext.get({
+        nodeContext: {parent: new ExpectedValue(parentNode)},
+      }),
+    );
+    for (const childTypeId in tree.children) {
+      for (const childName in tree.children[childTypeId]) {
+        for (const childTree of tree.children[childTypeId][childName]) {
+          await this.createNewApplicationSubTree(
+            treeNode,
+            childName,
+            childTypeId,
+            childTree,
+          );
+        }
+      }
+    }
+    return treeNode;
+  }
+
+  private async updateApplicationSubTree(
+    treeNode: ObjectNode,
+    tree: ObjectTreeDefinition,
+  ): Promise<ObjectNode> {
+    if (0 < Object.keys(tree.treeNode).length) {
+      treeNode = await this.objectNodeService.modifyById(
+        treeNode.id as string,
+        tree.treeNode,
+        CurrentContext.get({nodeContext: {node: new ExpectedValue(treeNode)}}),
+      );
+    }
+
+    for (const childTypeId in tree.children) {
+      for (const childName in tree.children[childTypeId]) {
+        const existingChildren = await this.objectNodeService.searchByParentIdAndObjectTypeId(
+          treeNode.id as string,
+          childTypeId,
+          childName,
+        );
+        let index = 0;
+        while (
+          index < tree.children[childTypeId][childName].length &&
+          index < existingChildren.length
+        ) {
+          await this.updateApplicationSubTree(
+            existingChildren[index],
+            tree.children[childTypeId][childName][index],
+          );
+          index++;
+        }
+        while (index < tree.children[childTypeId][childName].length) {
+          await this.createNewApplicationSubTree(
+            treeNode,
+            childName,
+            childTypeId,
+            tree.children[childTypeId][childName][index],
+          );
+          index++;
+        }
+        while (index < existingChildren.length) {
+          await this.objectNodeService.removeById(
+            existingChildren[index].id as string,
+            CurrentContext.get({
+              nodeContext: {node: new ExpectedValue(existingChildren[index])},
+            }),
+          );
+          index++;
+        }
+      }
+    }
+    return treeNode;
+  }
+
+  public async registerApplicationTree(
+    parentNode: ObjectNode,
+    treeNodeName: string,
+    treeNodeTypeId: string,
+    tree: ObjectTreeDefinition,
+  ): Promise<ObjectNode> {
+    if (!parentNode) {
+      throw ApplicationError.notFound({
+        treeNodeName,
+        treeNodeTypeId,
+        missing: 'parentNode',
+      });
+    }
+    const treeNodes = await this.objectNodeService.searchByParentIdAndObjectTypeId(
+      parentNode.id as string,
+      treeNodeTypeId,
+      treeNodeName,
+    );
+    if (!treeNodes || 0 === treeNodes.length) {
+      return this.createNewApplicationSubTree(
+        parentNode,
+        treeNodeName,
+        treeNodeTypeId,
+        tree,
+      );
+    }
+
+    if (1 < treeNodes.length) {
+      throw ApplicationError.corruptedData({
+        treeNodeName,
+        treeNodeTypeId,
+        'treeNode.length': treeNodes.length,
+      });
+    }
+
+    return this.updateApplicationSubTree(treeNodes[0], tree);
   }
 
   /*

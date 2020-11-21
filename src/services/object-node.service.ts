@@ -5,6 +5,7 @@ import {
   FilterExcludingWhere,
   Options,
   repository,
+  Where,
 } from '@loopback/repository';
 import _ from 'lodash';
 import {ObjectNode} from '../models';
@@ -53,9 +54,14 @@ export class ObjectNodeService {
   public searchByParentIdAndObjectTypeId(
     parentNodeId: string,
     objectTypeId: string,
+    objectName?: string,
   ): Promise<ObjectNode[]> {
+    const where: Where<ObjectNode> = {parentNodeId, objectTypeId};
+    if (objectName) {
+      where.name = objectName;
+    }
     return this.objectNodeRepository.find({
-      where: {parentNodeId, objectTypeId},
+      where: where,
     });
   }
 
@@ -487,7 +493,9 @@ export class ObjectNodeService {
     objectNode: DataObject<ObjectNode>,
     ctx: CurrentContext,
   ): Promise<ObjectNode> {
-    const node = await this.objectNodeRepository.findById(id);
+    const node = await ctx.nodeContext.node.getOrSetValue(async () =>
+      this.objectNodeRepository.findById(id),
+    );
     if (!node) {
       throw ApplicationError.notFound({object: id});
     }
@@ -561,7 +569,9 @@ export class ObjectNodeService {
   }
 
   async removeById(id: string, ctx: CurrentContext): Promise<void> {
-    const node = await this.objectNodeRepository.findById(id);
+    const node = await ctx.nodeContext.node.getOrSetValue(async () =>
+      this.objectNodeRepository.findById(id),
+    );
     if (!node) {
       throw ApplicationError.notFound({object: id});
     }

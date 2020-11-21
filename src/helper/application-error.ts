@@ -205,4 +205,21 @@ export class ApplicationError implements IObjectError, HttpErrors.HttpError {
       fields,
     );
   }
+
+  public static notImplemented(fields: {
+    [field: string]: any;
+  }): ApplicationError {
+    return new ApplicationError(
+      new HttpErrors[
+        APPLICATION_ERRORS[ApplicationErrors.NOT_IMPLEMENTED].statusCode
+      ](
+        'Not implemented ' +
+          Object.keys(fields)
+            .map((key) => key + ' ' + fields[key])
+            .join(', '),
+      ),
+      APPLICATION_ERRORS[ApplicationErrors.NOT_IMPLEMENTED].errorCode,
+      fields,
+    );
+  }
 }

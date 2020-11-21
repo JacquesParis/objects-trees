@@ -1,10 +1,5 @@
 import {service} from '@loopback/core';
-import {
-  DataObject,
-  FilterExcludingWhere,
-  Options,
-  repository,
-} from '@loopback/repository';
+import {DataObject, repository} from '@loopback/repository';
 import _ from 'lodash';
 import {ObjectSubType} from '../models';
 import {ObjectTypeRepository} from '../repositories';
@@ -18,6 +13,7 @@ const defaultObjectTypeFilter = {
   order: ['name'],
   fields: {
     definition: true,
+    inheritedTypesIds: true,
     id: true,
     name: true,
     contentType: true,
@@ -45,34 +41,45 @@ export class ObjectTypeService {
   ) {}
 
   async add(
-    objectType: DataObject<ObjectType>,
+    objectType: DataObject<ObjectType> & {name: string},
     ctx: CurrentContext,
   ): Promise<ObjectType> {
     delete objectType.contentDefinition;
     objectType.id = objectType.name;
+    objectType.applicationType = !!objectType.applicationType;
 
     const newType = await this.objectTypeRepository.create(objectType);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.resetCache();
+    if (!objectType.applicationType) {
+      return this.searchByName(objectType.name);
+    }
 
     return newType;
   }
 
-  async searchByName(name: string): Promise<ObjectType> {
-    const objectTypes: ObjectType[] = await this.objectTypeRepository.find({
-      where: {name: name},
+  async cleanWhenReboot() {
+    const types = await this.objectTypeRepository.find({
+      where: {applicationType: true},
     });
-    if (1 < objectTypes.length) {
-      throw ApplicationError.tooMany({objectType: name});
+
+    for (const type of types) {
+      await this.objectSubTypeRepository.deleteAll({
+        or: [{objectTypeId: type.id}, {subObjectTypeId: type.id}],
+      });
+      await this.objectTypeRepository.delete(type);
     }
-    if (!!objectTypes && 0 < objectTypes.length) {
-      const objectType = objectTypes[0];
-      if (objectType) {
-        objectType.contentDefinition = await this.contentEntityService.getContentDefinition(
-          objectType.contentType,
-        );
-      }
-      return objectType;
-    }
-    return (null as unknown) as ObjectType;
+  }
+
+  async registerApplicationType(
+    objectType: DataObject<ObjectType> & {name: string},
+  ) {
+    objectType.applicationType = true;
+    return this.add(objectType, new CurrentContext());
+  }
+
+  async searchByName(name: string): Promise<ObjectType> {
+    return this.searchById(name);
   }
   private get filterOrder() {
     return _.cloneDeep(defaultObjectTypeFilter.order);
@@ -87,60 +94,101 @@ export class ObjectTypeService {
 
   public async searchById(
     id: string,
-    filter?: FilterExcludingWhere<ObjectType>,
-    options?: Options,
   ): Promise<ObjectType & ObjectTypeRelations> {
-    if (!filter) {
-      filter = {};
-    }
-    if (!filter.fields) {
-      filter.fields = this.filterFields;
-    }
-    filter.include = this.filterInclude;
-    const objectType = await this.objectTypeRepository.findById(
-      id,
-      filter,
-      options,
-    );
-    if (objectType) {
-      objectType.contentDefinition = await this.contentEntityService.getContentDefinition(
-        objectType.contentType,
-      );
-    }
-    return objectType;
+    return (await this.searchAll())[id];
   }
 
   public async search(
     ctx: CurrentContext,
   ): Promise<(ObjectType & ObjectTypeRelations)[]> {
-    const filter = {
-      order: this.filterOrder,
-      fields: this.filterFields,
-      include: this.filterInclude,
-    };
-    const objectTypes = await this.objectTypeRepository.find(filter);
-    for (const objectType of objectTypes) {
-      objectType.contentDefinition = await this.contentEntityService.getContentDefinition(
-        objectType.contentType,
-      );
+    return _.values(await this.searchAll());
+  }
+
+  protected extendsType(
+    type: ObjectType,
+    allTypes: {
+      [name: string]: ObjectType;
+    },
+  ) {
+    if (type.extended) {
+      return;
     }
-    return objectTypes;
+    type.extended = true;
+    for (const inheritedTypeName of type.inheritedTypesIds) {
+      const parentType = allTypes[inheritedTypeName];
+      if (parentType) {
+        this.extendsType(parentType, allTypes);
+        if (!type.contentType) {
+          type.contentType = parentType.contentType;
+        }
+        if (!type.definition) {
+          type.definition = parentType.definition;
+        } else {
+          type.definition = _.merge({}, parentType.definition, type.definition);
+        }
+        if (parentType.objectSubTypes) {
+          for (const parentSubType of parentType.objectSubTypes) {
+            if (
+              !_.some(
+                type.objectSubTypes,
+                (subType) => subType.name === parentSubType.name,
+              )
+            ) {
+              if (!type.objectSubTypes) {
+                type.objectSubTypes = [];
+              }
+              type.objectSubTypes.push(parentSubType);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  public async searchAll(): Promise<{
+    [name: string]: ObjectType & ObjectTypeRelations;
+  }> {
+    return this.appCtx.allTypes.getOrSetValue(async () => {
+      const filter = {
+        order: this.filterOrder,
+        fields: this.filterFields,
+        include: this.filterInclude,
+      };
+      const allTypes = _.mapKeys(
+        await this.objectTypeRepository.find(filter),
+        (objectType: ObjectType, index) => {
+          return objectType.id;
+        },
+      );
+      for (const objectTypeName in allTypes) {
+        const objectType = allTypes[objectTypeName];
+        this.extendsType(objectType, allTypes);
+        objectType.contentDefinition = await this.contentEntityService.getContentDefinition(
+          objectType.contentType,
+        );
+      }
+      return allTypes as {
+        [name: string]: ObjectType & ObjectTypeRelations;
+      };
+    });
   }
 
   public async getAll(
     ctx: CurrentContext,
   ): Promise<{[id: string]: ObjectType}> {
     return ctx.typeContext.types.getOrSetValue(async () => {
-      return _.mapKeys(
-        await this.objectTypeRepository.find(),
-        (objectType: ObjectType, index) => {
-          return objectType.id;
-        },
-      );
+      return this.searchAll();
     });
   }
 
+  private resetCache() {
+    this.appCtx.allTypes.value = (undefined as unknown) as {
+      [nameId: string]: ObjectType & ObjectTypeRelations;
+    };
+  }
+
   removeById(id: string, ctx: CurrentContext): Promise<void> {
+    this.resetCache();
     return this.objectTypeRepository.deleteById(id);
   }
 
@@ -149,15 +197,17 @@ export class ObjectTypeService {
     objectType: DataObject<ObjectType>,
     ctx: CurrentContext,
   ): Promise<ObjectType> {
+    this.resetCache();
     delete objectType.contentDefinition;
     await this.objectTypeRepository.updateById(id, objectType);
-    return this.objectTypeRepository.findById(id);
+    return this.searchById(id);
   }
 
   public async createSubType(
     id: string,
     objectSubType: DataObject<ObjectSubType>,
   ): Promise<ObjectSubType> {
+    this.resetCache();
     return this.objectTypeRepository.objectSubTypes(id).create(objectSubType);
   }
 
@@ -166,6 +216,7 @@ export class ObjectTypeService {
     id: string,
     objectSubType: DataObject<ObjectSubType>,
   ): Promise<ObjectSubType> {
+    this.resetCache();
     const where = {
       id: id,
     };
@@ -176,6 +227,7 @@ export class ObjectTypeService {
   }
 
   public async removeSubTypeById(objectTypeId: string, id: string) {
+    this.resetCache();
     const where = {
       id: id,
     };
@@ -197,6 +249,7 @@ export class ObjectTypeService {
       mandatories?: string[];
     },
   ): Promise<ObjectSubType> {
+    this.resetCache();
     const where = {
       subObjectTypeId: subObjectTypeId,
     };
