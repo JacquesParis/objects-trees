@@ -1,15 +1,15 @@
 import {
   ObjectSubTypeDefintion,
   ObjectTypeDefinition,
-} from './../../../integration/object-types/object-type.provider';
-import {ObjectTypeName} from './../../../services/application.service';
-import {CATEGORY_TYPE} from './../../../services/object-tree/object-tree.const';
+} from '../../integration/extension.provider';
+import {ObjectTypeName} from '../../services/application.service';
+import {CATEGORY_TYPE} from '../../services/object-tree/object-tree.const';
 import {
   POST_TYPE,
   POST_WITH_DATE_TYPE,
   POST_WITH_GALLERY_TYPE,
   POST_WITH_MENU_TYPE,
-} from './../post/post-type.const';
+} from '../post/post-type.const';
 import {WEB_SITE_TEMPLATE_TYPE} from './../web-site/web-site-type.const';
 export const TRAVEL_STORY_NAME = 'TravelStoryType';
 

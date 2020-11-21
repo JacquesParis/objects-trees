@@ -28,8 +28,8 @@ import {ObjectTypeController} from './controllers/object-type.controller';
 import {PingController} from './controllers/ping.controller';
 import {UserController} from './controllers/user.controller';
 import {DbDataSource} from './datasources/db.datasource';
+import {ExtensionProvider} from './integration/extension.provider';
 import {ObjectTreesApplicationConfig} from './integration/object-trees-application.config';
-import {ObjectTypeProvider} from './integration/object-types/object-type.provider';
 import {INTERCEPTORS_ORDER} from './interceptors/constants';
 import {ContentText} from './models/content-text.model';
 import {ObjectNode} from './models/object-node.model';
@@ -44,6 +44,7 @@ import {AccessRightNodeService} from './services/access-rights/access-rights-nod
 import {AccessRightTreeService} from './services/access-rights/access-rights-tree.service';
 import {AccessRightTypeService} from './services/access-rights/access-rights-type.service';
 import {AccessRightUserService} from './services/access-rights/access-rights-user.service';
+import {AccessRightsProvider} from './services/access-rights/access-rights.provider';
 import {AccessRightsService} from './services/access-rights/access-rights.service';
 import {AppAuthorizationProvider} from './services/app-authorization.service';
 import {ApplicationService} from './services/application.service';
@@ -74,9 +75,7 @@ export abstract class ObjectTreesApplicationInterface extends BootMixin(
 }
 
 export class ObjectTreesApplication extends RestApplication {
-  protected extensionProviders: {
-    [providerName: string]: ObjectTypeProvider;
-  } = {};
+  protected extensionProviders: ExtensionProvider[] = [];
   constructor(config?: ObjectTreesApplicationConfig, parent?: Context) {
     super(config, parent);
     const app = (this as unknown) as ObjectTreesApplicationInterface;
@@ -167,10 +166,11 @@ export class ObjectTreesApplication extends RestApplication {
 
     app.component(ApplicationComponent);
 
-    if (config?.objectTypes?.length) {
-      for (const objectTypeProvider of config.objectTypes) {
+    this.extensionProviders.push(new AccessRightsProvider(app));
+    if (config?.extensions?.length) {
+      for (const objectTypeProvider of config.extensions) {
         const provider = new objectTypeProvider(app);
-        this.extensionProviders[provider.name] = provider;
+        this.extensionProviders.push(provider);
       }
     }
     console.log('Application initialized !');
@@ -226,17 +226,13 @@ export class ObjectTreesApplication extends RestApplication {
       ObjectTreeService,
     );
     await objectTreeService.ready;
-    const accessRightsService = await app.getService<AccessRightsService>(
-      AccessRightsService,
-    );
-    await accessRightsService.ready;
 
-    for (const providerName in this.extensionProviders) {
-      await this.extensionProviders[providerName].beforeBoot(appCtx);
+    for (const provider of this.extensionProviders) {
+      await provider.beforeBoot(appCtx);
     }
 
-    for (const providerName in this.extensionProviders) {
-      await this.extensionProviders[providerName].boot();
+    for (const provider of this.extensionProviders) {
+      await provider.boot();
     }
 
     app.component(ObjectTreesBootComponent);

@@ -1,4 +1,4 @@
-import {ObjectTypeDefinition} from './../../../integration/object-types/object-type.provider';
+import {ObjectTypeDefinition} from '../../integration/extension.provider';
 export const WEB_SITE_NAME = 'WebSiteType';
 
 export const TEMPLATE_VIEW_TYPE: ObjectTypeDefinition = {

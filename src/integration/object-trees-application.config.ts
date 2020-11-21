@@ -1,5 +1,5 @@
 import {ApplicationConfig} from '@loopback/core';
-import {ObjectTypeProviderClass} from './object-types/object-type.provider';
+import {ExtensionProviderClass} from './extension.provider';
 export interface ObjectTreesApplicationConfig extends ApplicationConfig {
-  objectTypes?: ObjectTypeProviderClass[];
+  extensions?: ExtensionProviderClass[];
 }

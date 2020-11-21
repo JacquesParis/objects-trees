@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   BindingFromClassOptions,
   Constructor,
@@ -9,29 +10,29 @@ import {
   ServiceOrProviderClass,
 } from '@loopback/core';
 import * as _ from 'lodash';
-import {ObjectTreesApplicationInterface} from '../../application';
-import {ObjectSubType} from '../../models';
-import {ApplicationError} from './../../helper/application-error';
-import {ObjectNode} from './../../models/object-node.model';
-import {ObjectType} from './../../models/object-type.model';
+import {ObjectTreesApplicationInterface} from '../application';
+import {ObjectSubType} from '../models';
+import {ObjectNode} from '../models/object-node.model';
+import {ObjectType} from '../models/object-type.model';
 import {
   ApplicationExtensionContext,
   ApplicationService,
   ExpectedValue,
-} from './../../services/application.service';
-import {ObjectNodeService} from './../../services/object-node.service';
-import {ObjectTreeService} from './../../services/object-tree/object-tree.service';
-import {ObjectTypeService} from './../../services/object-type.service';
+} from '../services/application.service';
+import {ObjectNodeService} from '../services/object-node.service';
+import {ObjectTreeService} from '../services/object-tree/object-tree.service';
+import {ObjectTypeService} from '../services/object-type.service';
 
-export type ObjectTypeProviderClass = new (
+export type ExtensionProviderClass = new (
   app: ObjectTreesApplicationInterface,
-) => ObjectTypeProvider;
+) => ExtensionProvider;
 
 export type ObjectTypeDefinition = Partial<ObjectType> & {name: string};
 
+export type CalculatedString = string | (() => string);
 export type ObjectSubTypeDefintion = Partial<ObjectSubType> & {
-  typeName: string;
-  subTypeName: string;
+  typeName: CalculatedString;
+  subTypeName: CalculatedString;
 };
 
 export interface ObjectTreeDefinition {
@@ -43,7 +44,6 @@ export interface ObjectTreeDefinition {
   };
 }
 
-export type CalculatedString = string | (() => string);
 export type CalculatedNode =
   | {
       ownerTypeId: string;
@@ -52,7 +52,7 @@ export type CalculatedNode =
       namespaceName: string;
     }
   | (() => Promise<ObjectNode>);
-export abstract class ObjectTypeProvider {
+export abstract class ExtensionProvider {
   protected appCtx: ApplicationService;
   protected objectTypeService: ObjectTypeService;
   protected objectNodeService: ObjectNodeService;
@@ -72,7 +72,7 @@ export abstract class ObjectTypeProvider {
   } = {types: {}, subTypes: []};
   objectTrees: {
     [nodeField: string]: {
-      parentNode: CalculatedNode;
+      parentNode: () => ObjectNode;
       treeNodeTypeId: string;
       treeNodeName: string;
       tree: ObjectTreeDefinition;
@@ -128,11 +128,9 @@ export abstract class ObjectTypeProvider {
       ObjectTypeService,
     );
 
-    const ctx: ApplicationExtensionContext = await appCtx
-      .getExtensionContext<ApplicationExtensionContext>(this.name)
-      .getOrSetValue(async () => {
-        return new ApplicationExtensionContext();
-      });
+    const ctx: ApplicationExtensionContext = appCtx.getExtensionContext<
+      ApplicationExtensionContext
+    >(this.name);
     // provider.objectTypes
     for (const typeField in this.objectTypes.types) {
       if (!ctx.types[typeField]) {
@@ -148,12 +146,14 @@ export abstract class ObjectTypeProvider {
     }
 
     for (const subType of this.objectTypes.subTypes) {
-      const parentType = await this.objectTypeService.searchByName(
-        subType.typeName as string,
-      );
-      const childType = await this.objectTypeService.searchByName(
-        subType.subTypeName as string,
-      );
+      const typeName = _.isString(subType.typeName)
+        ? subType.typeName
+        : subType.typeName();
+      const subTypeName = _.isString(subType.subTypeName)
+        ? subType.subTypeName
+        : subType.subTypeName();
+      const parentType = await this.objectTypeService.searchByName(typeName);
+      const childType = await this.objectTypeService.searchByName(subTypeName);
       await this.objectTypeService.getOrCreateObjectSubType(
         parentType.id as string,
         childType.id as string,
@@ -185,18 +185,8 @@ export abstract class ObjectTypeProvider {
       }
       await ctx.nodes[nodeField].getOrSetValue(
         async (): Promise<ObjectNode> => {
-          let parentNode: ObjectNode;
-          if (_.isFunction(this.objectTrees[nodeField].parentNode)) {
-            parentNode = await (this.objectTrees[nodeField]
-              .parentNode as () => Promise<ObjectNode>)();
-          } else {
-            throw ApplicationError.notImplemented({
-              method: 'ObjectTypeProvider.objectTrees',
-              parentNodeId: 'using namespace',
-            });
-          }
           return this.objectTreeService.registerApplicationTree(
-            parentNode,
+            this.objectTrees[nodeField].parentNode(),
             this.objectTrees[nodeField].treeNodeName,
             this.objectTrees[nodeField].treeNodeTypeId,
             this.objectTrees[nodeField].tree,
@@ -204,5 +194,6 @@ export abstract class ObjectTypeProvider {
         },
       );
     }
+    ctx.resolve();
   }
 }

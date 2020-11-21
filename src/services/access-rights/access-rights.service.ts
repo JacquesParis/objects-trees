@@ -13,7 +13,11 @@ import {ApplicationError} from './../../helper/application-error';
 import {EntityName} from './../../models/entity-name';
 import {ObjectTree} from './../../models/object-tree.model';
 import {ObjectType} from './../../models/object-type.model';
-import {ApplicationService, CurrentContext} from './../application.service';
+import {
+  AccessRightsServiceContext,
+  ApplicationService,
+  CurrentContext,
+} from './../application.service';
 import {ObjectNodeService} from './../object-node.service';
 import {ObjectTreeService} from './../object-tree/object-tree.service';
 import {ObjectTypeService} from './../object-type.service';
@@ -24,7 +28,6 @@ import {
   AccessRightSet,
   AccessRightsScope,
 } from './access-rights.const';
-import {AccessRightsInit} from './access-rights.init';
 
 export interface AccessRightsProvider {
   cleanReturnedEntity(entity: IRestEntity, ctx: CurrentContext): Promise<void>;
@@ -41,20 +44,20 @@ export class AccessRightsService {
   } = {};
 
   get ready(): Promise<void> {
-    return this.init.ready;
+    return this.appCtx.getExtensionContext('AccessRightsService').ready;
   }
-  init: AccessRightsInit;
   constructor(
     @service(ApplicationService) protected appCtx: ApplicationService,
     @service(ObjectTypeService) protected objectTypeService: ObjectTypeService,
     @service(ObjectNodeService) protected objectNodeService: ObjectNodeService,
     @service(ObjectTreeService) protected objectTreeService: ObjectTreeService,
   ) {
+    /*
     this.init = new AccessRightsInit(
       appCtx,
       objectTypeService,
       objectNodeService,
-    );
+    );*/
   }
 
   public async authorize(
@@ -68,6 +71,10 @@ export class AccessRightsService {
         0 < context.principals.length
           ? context.principals[0]
           : ((null as unknown) as Principal);
+      await ctx.accessRightsContexte.rootRights.getOrSetValue(async () => {
+        return this.calculateRootPermissions(ctx);
+      });
+
       if (metadata?.resource && metadata?.resource in this.accessRights) {
         const accessRights: AccessRightsProvider = this.accessRights[
           metadata.resource as EntityName
@@ -85,6 +92,25 @@ export class AccessRightsService {
       return AuthorizationDecision.DENY;
     }
     return AuthorizationDecision.ALLOW;
+  }
+
+  async calculateRootPermissions(ctx: CurrentContext): Promise<AccessRightSet> {
+    const actCtx: AccessRightsServiceContext = this.appCtx.getExtensionContext<
+      AccessRightsServiceContext
+    >(AccessRightsService);
+    if (!ctx.accessRightsContexte?.user?.value?.id) {
+      return new AccessRightSet();
+    }
+    const rootRights = (
+      await this.computeACLTree(
+        await this.objectTreeService.loadTree(
+          actCtx.nodes.rootACL.value.id as string,
+          CurrentContext.get({treeContext: {treeNode: actCtx.nodes.rootACL}}),
+        ),
+        ctx.accessRightsContexte.user.value,
+      )
+    ).rights;
+    return rootRights;
   }
 
   public async cleanReturnedEntity(

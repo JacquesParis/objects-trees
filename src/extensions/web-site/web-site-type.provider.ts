@@ -1,12 +1,12 @@
-import {ObjectTreesApplicationInterface} from '../../../application';
-import {ObjectTypeProvider} from './../../../integration/object-types/object-type.provider';
+import {ObjectTreesApplicationInterface} from '../../application';
+import {ExtensionProvider} from '../../integration/extension.provider';
 import {
   TEMPLATE_VIEW_TYPE,
   WEB_SITE_NAME,
   WEB_SITE_TEMPLATE_TYPE,
 } from './web-site-type.const';
 
-export class WebSiteTypeProvider extends ObjectTypeProvider {
+export class WebSiteTypeProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(WEB_SITE_NAME, app);
     this.objectTypes.types.templateViewType = TEMPLATE_VIEW_TYPE;

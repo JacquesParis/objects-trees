@@ -4,15 +4,15 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {ObjectTreesApplication} from './application';
 import {STORAGE_DIRECTORY} from './constants';
-import {PostTypeProvider} from './externals/object-types/post/post-type.provider';
-import {TravelStoryTypeProvider} from './externals/object-types/travel-story/travel-story-type.provider';
+import {PostTypeProvider} from './extensions/post/post-type.provider';
+import {TravelStoryTypeProvider} from './extensions/travel-story/travel-story-type.provider';
 import {ObjectTreesApplicationConfig} from './integration/object-trees-application.config';
 
 export class LocalDeployApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(ObjectTreesApplication)),
 ) {
   constructor(options: ObjectTreesApplicationConfig = {}) {
-    options.objectTypes = [PostTypeProvider, TravelStoryTypeProvider];
+    options.extensions = [PostTypeProvider, TravelStoryTypeProvider];
     super(options);
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const app = this;

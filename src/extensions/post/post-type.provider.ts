@@ -1,5 +1,5 @@
-import {ObjectTreesApplicationInterface} from '../../../application';
-import {ObjectTypeProvider} from '../../../integration/object-types/object-type.provider';
+import {ObjectTreesApplicationInterface} from '../../application';
+import {ExtensionProvider} from '../../integration/extension.provider';
 import {
   DATE_TYPE,
   GALLERY_TYPE,
@@ -16,7 +16,7 @@ import {
   TEXT_TYPE,
 } from './post-type.const';
 
-export class PostTypeProvider extends ObjectTypeProvider {
+export class PostTypeProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(POST_NAME, app);
 

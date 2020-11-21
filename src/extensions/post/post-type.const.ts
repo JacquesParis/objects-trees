@@ -1,7 +1,7 @@
 import {
   ObjectSubTypeDefintion,
   ObjectTypeDefinition,
-} from './../../../integration/object-types/object-type.provider';
+} from '../../integration/extension.provider';
 
 export const POST_NAME = 'PostType';
 

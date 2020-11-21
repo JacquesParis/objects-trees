@@ -1,6 +1,6 @@
 import {service} from '@loopback/core';
 import * as _ from 'lodash';
-import {ObjectTreeDefinition} from '../../integration/object-types/object-type.provider';
+import {ObjectTreeDefinition} from '../../integration/extension.provider';
 import {ObjectNode} from '../../models';
 import {ObjectTree} from '../../models/object-tree.model';
 import {
@@ -47,6 +47,7 @@ export class ObjectTreeService {
       _.merge(tree.treeNode, {
         name: treeNodeName,
         objectTypeId: treeNodeTypeId,
+        parentNodeId: parentNode.id,
       }),
       CurrentContext.get({
         nodeContext: {parent: new ExpectedValue(parentNode)},
