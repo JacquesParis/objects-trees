@@ -1,13 +1,13 @@
 import {Component, service} from '@loopback/core';
-import {ContentTextService} from './services';
 import {AccessRightNodeService} from './services/access-rights/access-rights-node.service';
 import {AccessRightTreeService} from './services/access-rights/access-rights-tree.service';
 import {AccessRightTypeService} from './services/access-rights/access-rights-type.service';
 import {AccessRightUserService} from './services/access-rights/access-rights-user.service';
 import {AccessRightsService} from './services/access-rights/access-rights.service';
 import {ApplicationService} from './services/application.service';
-import {ContentFileService} from './services/content-file.service';
-import {ContentUserService} from './services/content-user.service';
+import {ContentFileService} from './services/content-entity/content-file.service';
+import {ContentTextService} from './services/content-entity/content-text.service';
+import {ContentUserService} from './services/content-entity/content-user.service';
 import {ObjectTreeService} from './services/object-tree/object-tree.service';
 
 export class ObjectTreesBootComponent implements Component {

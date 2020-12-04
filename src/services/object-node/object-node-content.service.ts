@@ -1,11 +1,9 @@
 import {/* inject, */ BindingScope, injectable, service} from '@loopback/core';
-import {repository} from '@loopback/repository';
-import {ApplicationError} from './../helper/application-error';
-import {ObjectNodeRepository} from './../repositories/object-node.repository';
-import {CurrentContext} from './application.service';
-import {ContentEntityService} from './content-entity.service';
+import {ContentEntityService} from '../content-entity/content-entity.service';
+import {ApplicationError} from './../../helper/application-error';
+import {CurrentContext} from './../application.service';
+import {ObjectTypeService} from './../object-type.service';
 import {ObjectNodeService} from './object-node.service';
-import {ObjectTypeService} from './object-type.service';
 
 @injectable({scope: BindingScope.SINGLETON})
 export class ObjectNodeContentService {
@@ -15,8 +13,6 @@ export class ObjectNodeContentService {
     public contentEntityService: ContentEntityService,
     @service(ObjectTypeService)
     public objectTypeService: ObjectTypeService,
-    @repository(ObjectNodeRepository)
-    public objectNodeRepository: ObjectNodeRepository,
   ) {}
 
   /*

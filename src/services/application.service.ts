@@ -19,6 +19,7 @@ export class NodeContext {
     ObjectSubType
   >();
   objectType: ExpectedValue<ObjectType> = new ExpectedValue<ObjectType>();
+  brothers: ExpectedValue<ObjectNode[]> = new ExpectedValue<ObjectNode[]>();
 }
 
 export class TreeContext {

@@ -2,7 +2,7 @@ import {IJsonSchema} from '@jacquesparis/objects-model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {service} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {ContentTextRepository} from './../repositories/content-text.repository';
+import {ContentTextRepository} from './../../repositories/content-text.repository';
 import {
   ContentEntityService,
   ContentEntityServiceInterface,

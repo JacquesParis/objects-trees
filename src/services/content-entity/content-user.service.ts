@@ -3,7 +3,7 @@ import {UserRepository} from '@loopback/authentication-jwt';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {service} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {ApplicationService} from './application.service';
+import {ApplicationService} from './../application.service';
 import {
   ContentEntityService,
   ContentEntityServiceInterface,

@@ -11,14 +11,14 @@ import {CurrentContext} from '../application.service';
 import {AclCtx} from './../../models/acl-ctx.model';
 import {AccessRightAbstractService} from './access-rights-abtract.service';
 import {
-  AccessRightsProvider,
+  AccessRightsInterface,
   AccessRightsService,
 } from './access-rights.service';
 
 @injectable({scope: BindingScope.SINGLETON})
 export class AccessRightUserService
   extends AccessRightAbstractService
-  implements AccessRightsProvider {
+  implements AccessRightsInterface {
   constructor(
     @service(AccessRightsService)
     protected accessRightsService: AccessRightsService,
@@ -31,10 +31,13 @@ export class AccessRightUserService
     ctx: CurrentContext,
   ): Promise<void> {
     const user: User & RestEntity = entity as User & RestEntity;
-    if (!user?.aclCtx) {
-      user.aclCtx = new AclCtx();
+    if (!user.entityCtx) {
+      user.entityCtx = {};
     }
-    user.aclCtx.rights.read = true;
+    if (!user.entityCtx.aclCtx) {
+      user.entityCtx.aclCtx = new AclCtx();
+    }
+    user.entityCtx.aclCtx.rights.read = true;
     // TODO: clean the object here;
   }
   protected async authorizeRead(

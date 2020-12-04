@@ -1,3 +1,4 @@
+import {IJsonSchema} from '@jacquesparis/objects-model';
 import {model, property} from '@loopback/repository';
 import {AclCtx} from './acl-ctx.model';
 import {DataEntity} from './data-entity.model';
@@ -6,7 +7,12 @@ import {EntityName} from './entity-name';
 @model({settings: {strict: false}})
 export abstract class RestEntity extends DataEntity {
   public abstract entityName: EntityName;
-  aclCtx: AclCtx = new AclCtx();
+  entityCtx?: {
+    entityDefinition?: IJsonSchema;
+    aclCtx?: AclCtx;
+    loaded?: boolean;
+    actions?: {creations?: {[id: string]: IJsonSchema}; reads?: string[]};
+  };
 
   @property({
     type: 'string',

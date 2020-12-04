@@ -7,7 +7,7 @@ import {ApplicationError} from './../helper/application-error';
 import {ObjectType, ObjectTypeRelations} from './../models/object-type.model';
 import {ObjectSubTypeRepository} from './../repositories/object-sub-type.repository';
 import {ApplicationService, CurrentContext} from './application.service';
-import {ContentEntityService} from './content-entity.service';
+import {ContentEntityService} from './content-entity/content-entity.service';
 
 const defaultObjectTypeFilter = {
   order: ['name'],

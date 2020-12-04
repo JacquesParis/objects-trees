@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {IJsonSchema} from '@jacquesparis/objects-model';
 import {Entity} from '@loopback/repository';
-import {ApplicationError} from './../helper/application-error';
+import {ApplicationError} from '../../helper/application-error';
 
 export interface EntityWithContent {
   id?: string;
   content?: any;
   entityName?: string;
+  entityCtx?: {entityDefinition?: IJsonSchema};
   [contentFieldName: string]: any;
 }
 
@@ -69,12 +71,13 @@ export class ContentEntityService {
 
   public addTransientContent(
     contentType: string | undefined,
-    entity: Entity,
+    entity: EntityWithContent,
   ): Promise<void> {
+    if (!entity.entityCtx) {
+      entity.entityCtx = {};
+    }
     if (contentType && this.hasContentManager(contentType)) {
-      return this.contentTypes[contentType].addTransientContent(
-        entity as EntityWithContent,
-      );
+      return this.contentTypes[contentType].addTransientContent(entity);
     }
     return Promise.resolve();
   }

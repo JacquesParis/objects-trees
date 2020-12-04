@@ -8,8 +8,8 @@ import {
   CurrentContext,
   ExpectedValue,
 } from '../application.service';
-import {ContentEntityService} from '../content-entity.service';
-import {ObjectNodeService} from '../object-node.service';
+import {ContentEntityService} from '../content-entity/content-entity.service';
+import {ObjectNodeService} from '../object-node/object-node.service';
 import {ObjectTypeService} from '../object-type.service';
 import {ApplicationError} from './../../helper/application-error';
 import {ObjectTreeInit} from './object-tree.init';
@@ -191,8 +191,8 @@ export class ObjectTreeService {
   ) {
     return new ObjectTree(treeNode).init(
       availableNodes,
-      this.contentEntityService,
-      await this.objectTypeService.getAll(ctx),
+      //      this.contentEntityService,
+      //   await this.objectTypeService.getAll(ctx),
     );
   }
 

@@ -9,6 +9,7 @@ import {BindingScope, injectable, service} from '@loopback/core';
 import {Principal} from '@loopback/security';
 import {cloneDeep, some} from 'lodash';
 import {ObjectNode} from '../../models';
+import {ObjectNodeService} from '../object-node/object-node.service';
 import {ApplicationError} from './../../helper/application-error';
 import {EntityName} from './../../models/entity-name';
 import {ObjectTree} from './../../models/object-tree.model';
@@ -18,7 +19,6 @@ import {
   ApplicationService,
   CurrentContext,
 } from './../application.service';
-import {ObjectNodeService} from './../object-node.service';
 import {ObjectTreeService} from './../object-tree/object-tree.service';
 import {ObjectTypeService} from './../object-type.service';
 import {
@@ -29,7 +29,7 @@ import {
   AccessRightsScope,
 } from './access-rights.const';
 
-export interface AccessRightsProvider {
+export interface AccessRightsInterface {
   cleanReturnedEntity(entity: IRestEntity, ctx: CurrentContext): Promise<void>;
   authorize(
     ctx: CurrentContext,
@@ -40,8 +40,15 @@ export interface AccessRightsProvider {
 @injectable({scope: BindingScope.SINGLETON})
 export class AccessRightsService {
   private accessRights: {
-    [resource in EntityName]?: AccessRightsProvider;
+    [resource in EntityName]?: AccessRightsInterface;
   } = {};
+
+  public registerAccessRightsService(
+    resource: EntityName,
+    accessRights: AccessRightsInterface,
+  ) {
+    this.accessRights[resource] = accessRights;
+  }
 
   get ready(): Promise<void> {
     return this.appCtx.getExtensionContext('AccessRightsService').ready;
@@ -76,9 +83,9 @@ export class AccessRightsService {
       });
 
       if (metadata?.resource && metadata?.resource in this.accessRights) {
-        const accessRights: AccessRightsProvider = this.accessRights[
+        const accessRights: AccessRightsInterface = this.accessRights[
           metadata.resource as EntityName
-        ] as AccessRightsProvider;
+        ] as AccessRightsInterface;
         if (metadata.scopes) {
           if (context.scopes) {
             context.scopes = context.scopes.concat(metadata.scopes);
@@ -119,9 +126,9 @@ export class AccessRightsService {
     ctx: CurrentContext,
   ): Promise<void> {
     if (entityName in this.accessRights) {
-      const accessRights: AccessRightsProvider = this.accessRights[
+      const accessRights: AccessRightsInterface = this.accessRights[
         entityName
-      ] as AccessRightsProvider;
+      ] as AccessRightsInterface;
       await accessRights.cleanReturnedEntity(entity, ctx);
     } else {
       throw ApplicationError.forbiden();
@@ -134,28 +141,19 @@ export class AccessRightsService {
     ctx: CurrentContext,
   ) {
     if (entityName in this.accessRights) {
-      const accessRights: AccessRightsProvider = this.accessRights[
-        entityName
-      ] as AccessRightsProvider;
       for (
         let childIndex = entities.length - 1;
         childIndex >= 0;
         childIndex--
       ) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const entity: any = entities[childIndex];
+        const entity: IRestEntity = entities[childIndex];
         await this.cleanReturnedEntity(entityName, entity, ctx);
-        if (entity.aclCtx && !entity.aclCtx.rights.read) {
+        if (entity.entityCtx?.aclCtx && !entity.entityCtx.aclCtx.rights.read) {
           entities.splice(childIndex, 1);
         }
       }
     }
-  }
-  public registerAccessRightsService(
-    resource: EntityName,
-    accessRights: AccessRightsProvider,
-  ) {
-    this.accessRights[resource] = accessRights;
   }
 
   public async getNodeAccessRights(

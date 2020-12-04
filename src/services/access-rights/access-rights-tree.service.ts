@@ -6,21 +6,21 @@ import {
 import {BindingScope, injectable, service} from '@loopback/core';
 import {EntityName} from '../../models/entity-name';
 import {ObjectTree} from '../../models/object-tree.model';
+import {ObjectNodeService} from '../object-node/object-node.service';
 import {ObjectNode} from './../../models/object-node.model';
 import {CurrentContext} from './../application.service';
-import {ObjectNodeService} from './../object-node.service';
 import {AccessRightAbstractService} from './access-rights-abtract.service';
 import {AccessRightsTreeScope} from './access-rights-tree.const';
 import {AccessRightsScope} from './access-rights.const';
 import {
-  AccessRightsProvider,
+  AccessRightsInterface,
   AccessRightsService,
 } from './access-rights.service';
 
 @injectable({scope: BindingScope.SINGLETON})
 export class AccessRightTreeService
   extends AccessRightAbstractService
-  implements AccessRightsProvider {
+  implements AccessRightsInterface {
   constructor(
     @service(AccessRightsService)
     protected accessRightsService: AccessRightsService,
@@ -114,13 +114,16 @@ export class AccessRightTreeService
     ctx: CurrentContext,
   ): Promise<void> {
     const tree = entity as ObjectTree;
-    tree.aclCtx = {
+    if (!tree.entityCtx) {
+      tree.entityCtx = {};
+    }
+    tree.entityCtx.aclCtx = {
       rights: await this.accessRightsService.getNodeAccessRights(
         tree.treeNode,
         ctx,
       ),
     };
-    if (tree.aclCtx.rights.read) {
+    if (tree.entityCtx.aclCtx.rights.read) {
       await this.accessRightsService.cleanReturnedEntities(
         EntityName.objectTree,
         tree.children,

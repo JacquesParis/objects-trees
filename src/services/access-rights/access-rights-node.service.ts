@@ -7,18 +7,18 @@ import {BindingScope, injectable, service} from '@loopback/core';
 import {EntityName} from '../../models/entity-name';
 import {ObjectNode} from '../../models/object-node.model';
 import {CurrentContext} from '../application.service';
-import {ObjectNodeService} from '../object-node.service';
+import {ObjectNodeService} from '../object-node/object-node.service';
 import {AccessRightAbstractService} from './access-rights-abtract.service';
 import {AccessRightsScope} from './access-rights.const';
 import {
-  AccessRightsProvider,
+  AccessRightsInterface,
   AccessRightsService,
 } from './access-rights.service';
 
 @injectable({scope: BindingScope.SINGLETON})
 export class AccessRightNodeService
   extends AccessRightAbstractService
-  implements AccessRightsProvider {
+  implements AccessRightsInterface {
   constructor(
     @service(AccessRightsService)
     protected accessRightsService: AccessRightsService,
@@ -32,6 +32,20 @@ export class AccessRightNodeService
     ctx: CurrentContext,
     context: AuthorizationContext,
   ): Promise<AuthorizationDecision> {
+    const node: ObjectNode = await this.objectNodeService.getNode(
+      context.invocationContext.args[0],
+      ctx,
+    );
+
+    if (node) {
+      return (await this.accessRightsService.hasNodeAccessRight(
+        AccessRightsScope.read,
+        node,
+        ctx,
+      ))
+        ? AuthorizationDecision.ALLOW
+        : AuthorizationDecision.DENY;
+    }
     return AuthorizationDecision.DENY;
   }
   protected async authorizeCreate(
@@ -60,12 +74,10 @@ export class AccessRightNodeService
     ctx: CurrentContext,
     context: AuthorizationContext,
   ): Promise<AuthorizationDecision> {
-    let node: ObjectNode = (null as unknown) as ObjectNode;
-    node = await ctx.nodeContext.node.getOrSetValue(async () => {
-      return this.objectNodeService.searchById(
-        context.invocationContext.args[0],
-      );
-    });
+    const node: ObjectNode = await this.objectNodeService.getNode(
+      context.invocationContext.args[0],
+      ctx,
+    );
 
     if (node) {
       return (await this.accessRightsService.hasNodeAccessRight(
@@ -82,12 +94,10 @@ export class AccessRightNodeService
     ctx: CurrentContext,
     context: AuthorizationContext,
   ): Promise<AuthorizationDecision> {
-    let node: ObjectNode = (null as unknown) as ObjectNode;
-    node = await ctx.nodeContext.node.getOrSetValue(async () => {
-      return this.objectNodeService.searchById(
-        context.invocationContext.args[0],
-      );
-    });
+    const node: ObjectNode = await this.objectNodeService.getNode(
+      context.invocationContext.args[0],
+      ctx,
+    );
 
     if (node) {
       return (await this.accessRightsService.hasNodeAccessRight(
@@ -106,7 +116,11 @@ export class AccessRightNodeService
     ctx: CurrentContext,
   ): Promise<void> {
     const objectNode = entity as ObjectNode;
-    objectNode.aclCtx = {
+
+    if (!objectNode.entityCtx) {
+      objectNode.entityCtx = {};
+    }
+    objectNode.entityCtx.aclCtx = {
       rights: await this.accessRightsService.getNodeAccessRights(
         objectNode,
         ctx,

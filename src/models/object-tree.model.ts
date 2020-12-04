@@ -1,9 +1,7 @@
-import {IObjectTree} from '@jacquesparis/objects-model';
-import {ContentEntityService} from './../services/content-entity.service';
+import {IJsonSchema, IObjectTree} from '@jacquesparis/objects-model';
 import {AclCtx} from './acl-ctx.model';
 import {EntityName} from './entity-name';
 import {ObjectNode} from './object-node.model';
-import {ObjectType} from './object-type.model';
 export class ObjectTree implements IObjectTree {
   children: ObjectTree[] = [];
   parentTree: ObjectTree;
@@ -12,7 +10,10 @@ export class ObjectTree implements IObjectTree {
   parentTreeId: string;
   parentTreeUri: string;
   entityName: EntityName = EntityName.objectTree;
-  aclCtx: AclCtx = new AclCtx();
+  entityCtx?: {
+    entityDefinition?: IJsonSchema;
+    aclCtx?: AclCtx;
+  };
 
   constructor(public treeNode: ObjectNode) {}
 
@@ -28,20 +29,20 @@ export class ObjectTree implements IObjectTree {
   }
   async init(
     allNodes: ObjectNode[],
-    contentEntityService: ContentEntityService,
-    objectTypes: {[id: string]: ObjectType},
+    //   contentEntityService: ContentEntityService,
+    // objectTypes: {[id: string]: ObjectType},
   ): Promise<ObjectTree> {
-    await contentEntityService.addTransientContent(
+    /* await contentEntityService.addTransientContent(
       objectTypes[this.treeNode.objectTypeId]?.contentType,
       this.treeNode,
-    );
+    );*/
     for (const otherNode of allNodes) {
       if (otherNode.parentNodeId === this.treeNode.id) {
         this.children.push(
           await new ObjectTree(otherNode).init(
             allNodes,
-            contentEntityService,
-            objectTypes,
+            //      contentEntityService,
+            //       objectTypes,
           ),
         );
       }

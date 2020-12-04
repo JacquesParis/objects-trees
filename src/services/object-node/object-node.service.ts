@@ -7,20 +7,17 @@ import {
   repository,
   Where,
 } from '@loopback/repository';
-import _ from 'lodash';
-import {ObjectNode} from '../models';
-import {ObjectNodeRepository} from '../repositories';
-import {ApplicationError} from './../helper/application-error';
-import {ObjectNodeRelations} from './../models/object-node.model';
-import {ObjectSubType} from './../models/object-sub-type.model';
-import {ObjectType} from './../models/object-type.model';
-import {
-  CurrentContext,
-  ExpectedValue,
-  NodeContext,
-} from './application.service';
-import {ContentEntityService} from './content-entity.service';
-import {ObjectTypeService} from './object-type.service';
+import {concat, find, merge, pick, some} from 'lodash';
+import {ApplicationError} from '../../helper/application-error';
+import {ObjectNode} from '../../models';
+import {ObjectNodeRelations} from '../../models/object-node.model';
+import {ObjectSubType} from '../../models/object-sub-type.model';
+import {ObjectType} from '../../models/object-type.model';
+import {ObjectNodeRepository} from '../../repositories';
+import {CurrentContext, ExpectedValue} from '../application.service';
+import {ContentEntityService} from '../content-entity/content-entity.service';
+import {ObjectTypeService} from '../object-type.service';
+import {NodeContext} from './../application.service';
 
 export enum ParentNodeType {
   node = 'node',
@@ -51,18 +48,29 @@ export class ObjectNodeService {
     });
   }
 
-  public searchByParentIdAndObjectTypeId(
+  public searchByParentId(
     parentNodeId: string,
-    objectTypeId: string,
+    objectTypeId?: string,
     objectName?: string,
   ): Promise<ObjectNode[]> {
-    const where: Where<ObjectNode> = {parentNodeId, objectTypeId};
+    const where: Where<ObjectNode> = {parentNodeId};
+    if (objectTypeId) {
+      where.objectTypeId = objectTypeId;
+    }
     if (objectName) {
       where.name = objectName;
     }
     return this.objectNodeRepository.find({
       where: where,
     });
+  }
+
+  public searchByParentIdAndObjectTypeId(
+    parentNodeId: string,
+    objectTypeId: string,
+    objectName?: string,
+  ): Promise<ObjectNode[]> {
+    return this.searchByParentId(parentNodeId, objectTypeId, objectName);
   }
 
   public searchByParentIdsAndObjectTypeId(
@@ -148,7 +156,7 @@ export class ObjectNodeService {
       while (children.length < min) {
         children.push(
           await this.add(
-            _.merge({}, defaultValue, {
+            merge({}, defaultValue, {
               parentNodeId: parentId,
               objectTypeId: objectTypeId,
             }),
@@ -208,6 +216,12 @@ export class ObjectNodeService {
     return 1 === nodes.length ? nodes[0] : <ObjectNode>(<unknown>null);
   }
 
+  public async getNode(id: string, ctx: CurrentContext): Promise<ObjectNode> {
+    return ctx.nodeContext.node.getOrSetValue(async () => {
+      return this.searchById(id);
+    });
+  }
+
   public searchById(
     id: string,
     filter?: FilterExcludingWhere<ObjectNode>,
@@ -265,21 +279,21 @@ export class ObjectNodeService {
     }
   }
 
-  private async checkBrothersCondition(
-    objectNode: DataObject<ObjectNode>,
+  public async checkBrothersCondition(
+    parentNodeId: string,
     nodeContext: NodeContext,
   ): Promise<void> {
     const objectSubType: ObjectSubType = nodeContext.objectSubType.value;
+    const brothers = await nodeContext.brothers.getOrSetValue(async () =>
+      this.searchByParentId(parentNodeId),
+    );
     if (objectSubType.mandatories) {
       for (const brotherTypeId of objectSubType.mandatories) {
         if (
-          0 ===
-          (
-            await this.searchByParentIdAndObjectTypeId(
-              objectNode.parentNodeId as string,
-              brotherTypeId,
-            )
-          ).length
+          !some(
+            brothers,
+            (brother: ObjectNode) => brother.objectTypeId === brotherTypeId,
+          )
         ) {
           throw ApplicationError.missing({objectType: brotherTypeId});
         }
@@ -288,28 +302,25 @@ export class ObjectNodeService {
     if (objectSubType.exclusions) {
       for (const brotherTypeId of objectSubType.exclusions) {
         if (
-          0 <
-          (
-            await this.searchByParentIdAndObjectTypeId(
-              objectNode.parentNodeId as string,
-              brotherTypeId,
-            )
-          ).length
+          some(
+            brothers,
+            (brother: ObjectNode) => brother.objectTypeId === brotherTypeId,
+          )
         ) {
           throw ApplicationError.incompatible({objectType: brotherTypeId});
         }
       }
     }
+
     if (
       objectSubType.max &&
-      (
-        await this.searchByParentIdAndObjectTypeId(
-          objectNode.parentNodeId as string,
-          objectNode.objectTypeId as string,
-        )
+      brothers.filter(
+        (brother) => brother.objectTypeId === objectSubType.subObjectTypeId,
       ).length >= objectSubType.max
     ) {
-      throw ApplicationError.tooMany({objectType: objectNode.objectTypeId});
+      throw ApplicationError.tooMany({
+        objectType: objectSubType.subObjectTypeId,
+      });
     }
   }
 
@@ -352,7 +363,7 @@ export class ObjectNodeService {
     byPassCheck = false,
   ): Promise<ObjectNode> {
     const nodeContext = ctx.nodeContext;
-    //let objectNode = _.clone(objectNodePosted);
+    //let objectNode = clone(objectNodePosted);
     let objectNodeForUpdate = objectNode;
     let objectType: ObjectType = (null as unknown) as ObjectType;
     if (!byPassCheck) {
@@ -387,7 +398,7 @@ export class ObjectNodeService {
       }
       const objectSubType: ObjectSubType = await nodeContext.objectSubType.getOrSetValue(
         async () => {
-          return _.find(parentType.objectSubTypes, (subType) => {
+          return find(parentType.objectSubTypes, (subType) => {
             return subType.subObjectTypeId === objectNode.objectTypeId;
           }) as ObjectSubType;
         },
@@ -397,7 +408,7 @@ export class ObjectNodeService {
           objectType: objectNode.objectTypeId,
         });
       }
-      await this.checkBrothersCondition(objectNode, nodeContext);
+      await this.checkBrothersCondition(objectNode.parentNodeId, nodeContext);
 
       objectType = await nodeContext.objectType.getOrSetValue(async () => {
         return this.objectTypeService.searchById(
@@ -413,7 +424,7 @@ export class ObjectNodeService {
       objectNode.aclList = !parent.aclList
         ? [parent.id]
         : objectNode.parentACLId === parent.id
-        ? _.concat(parent.aclList, [objectNode.parentACLId])
+        ? concat(parent.aclList, [objectNode.parentACLId])
         : parent.aclList;
 
       objectNode.parentOwnerId =
@@ -436,7 +447,7 @@ export class ObjectNodeService {
 
       await this.checkNameAvailibility(objectNode, <string>objectNode.name);
 
-      objectNodeForUpdate = _.pick(
+      objectNodeForUpdate = pick(
         objectNode,
         this.getPropertiesKeys(objectType, [
           'name',
@@ -493,9 +504,7 @@ export class ObjectNodeService {
     objectNode: DataObject<ObjectNode>,
     ctx: CurrentContext,
   ): Promise<ObjectNode> {
-    const node = await ctx.nodeContext.node.getOrSetValue(async () =>
-      this.objectNodeRepository.findById(id),
-    );
+    const node = await this.getNode(id, ctx);
     if (!node) {
       throw ApplicationError.notFound({object: id});
     }
@@ -517,7 +526,7 @@ export class ObjectNodeService {
 
     await this.objectNodeRepository.updateById(
       id,
-      _.pick(objectNode, this.getPropertiesKeys(objectType)),
+      pick(objectNode, this.getPropertiesKeys(objectType)),
     );
 
     const result = await this.objectNodeRepository.findById(id);
@@ -550,7 +559,7 @@ export class ObjectNodeService {
 
   async removeByParent(parentType: ParentNodeType, id: string): Promise<void> {
     const parentIdKey = this.getParentIdKey(parentType);
-    const whereClause = _.merge(
+    const whereClause = merge(
       {
         [parentIdKey]: id,
       },
@@ -569,9 +578,7 @@ export class ObjectNodeService {
   }
 
   async removeById(id: string, ctx: CurrentContext): Promise<void> {
-    const node = await ctx.nodeContext.node.getOrSetValue(async () =>
-      this.objectNodeRepository.findById(id),
-    );
+    const node = await this.getNode(id, ctx);
     if (!node) {
       throw ApplicationError.notFound({object: id});
     }

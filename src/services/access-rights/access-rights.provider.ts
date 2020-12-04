@@ -6,8 +6,13 @@ import {
   ObjectTreeDefinition,
   ObjectTypeDefinition,
 } from './../../integration/extension.provider';
+import {AccessRightsInterceptor} from './../../interceptors/access-rights.interceptor';
 import {ObjectNode} from './../../models/object-node.model';
 import {ApplicationService} from './../application.service';
+import {AccessRightNodeService} from './access-rights-node.service';
+import {AccessRightTreeService} from './access-rights-tree.service';
+import {AccessRightTypeService} from './access-rights-type.service';
+import {AccessRightUserService} from './access-rights-user.service';
 import {
   ACCESS_RIGHTS_ACCESS_MANAGERS_TYPE,
   ACCESS_RIGHTS_DEFINITION_TYPE,
@@ -16,6 +21,7 @@ import {
   ACCESS_RIGHT_OWNERS_NODE,
   ACCESS_RIGHT_SUBTYPE,
 } from './access-rights.const';
+import {AccessRightsService} from './access-rights.service';
 
 export class AccessRightsProvider extends ExtensionProvider {
   objectTypes: {
@@ -172,6 +178,20 @@ export class AccessRightsProvider extends ExtensionProvider {
         },
         ACCESS_RIGHT_SUBTYPE,
       ),
+    ];
+
+    this.entities.services = [
+      {cls: AccessRightsService},
+      {cls: AccessRightTreeService},
+      {cls: AccessRightNodeService},
+      {cls: AccessRightTypeService},
+      {cls: AccessRightUserService},
+    ];
+    this.entities.interceptors.prepend = [
+      {
+        id: 'AccessRightsInterceptor',
+        interceptor: AccessRightsInterceptor,
+      },
     ];
   }
 }

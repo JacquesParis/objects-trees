@@ -1,7 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   BindingFromClassOptions,
+  BindingScope,
   Constructor,
+  ContextBindings,
   ControllerClass,
   Interceptor,
   InterceptorBindingOptions,
@@ -19,7 +20,7 @@ import {
   ApplicationService,
   ExpectedValue,
 } from '../services/application.service';
-import {ObjectNodeService} from '../services/object-node.service';
+import {ObjectNodeService} from '../services/object-node/object-node.service';
 import {ObjectTreeService} from '../services/object-tree/object-tree.service';
 import {ObjectTypeService} from '../services/object-type.service';
 
@@ -175,6 +176,75 @@ export abstract class ExtensionProvider {
     // TODO : add new contentEntities management
 
     // provider.entities
+    // TODO : add new entities management
+    for (const serviceProvider of this.entities.services) {
+      this.app.service(
+        serviceProvider.cls,
+        serviceProvider.nameOrOptions
+          ? serviceProvider.nameOrOptions
+          : {defaultScope: BindingScope.SINGLETON},
+      );
+      await this.app.getService(serviceProvider.cls);
+      console.log(serviceProvider.cls.name + ' started !');
+    }
+    for (const interceptorProvider of this.entities.interceptors.append) {
+      this.app.interceptor(
+        interceptorProvider.interceptor,
+        _.merge(
+          {},
+          {
+            name: interceptorProvider.id,
+            global: true,
+            group: interceptorProvider.id,
+          },
+          interceptorProvider.nameOrOptions
+            ? interceptorProvider.nameOrOptions
+            : {},
+        ),
+      );
+
+      const binding = this.app.getBinding(
+        ContextBindings.GLOBAL_INTERCEPTOR_ORDERED_GROUPS,
+      );
+      const interceptor: string[] = binding.getValue(this.app) as string[];
+      interceptor.push(interceptorProvider.id);
+      binding.to(interceptor);
+      console.log(
+        'Interceptors list updated',
+        this.app
+          .getBinding(ContextBindings.GLOBAL_INTERCEPTOR_ORDERED_GROUPS)
+          .getValue(this.app),
+      );
+    }
+    for (const interceptorProvider of this.entities.interceptors.prepend) {
+      this.app.interceptor(
+        interceptorProvider.interceptor,
+        _.merge(
+          {},
+          {
+            name: interceptorProvider.id,
+            global: true,
+            group: interceptorProvider.id,
+          },
+          interceptorProvider.nameOrOptions
+            ? interceptorProvider.nameOrOptions
+            : {},
+        ),
+      );
+
+      const binding = this.app.getBinding(
+        ContextBindings.GLOBAL_INTERCEPTOR_ORDERED_GROUPS,
+      );
+      const interceptor: string[] = binding.getValue(this.app) as string[];
+      interceptor.unshift(interceptorProvider.id);
+      binding.to(interceptor);
+      console.log(
+        'Interceptors list updated',
+        this.app
+          .getBinding(ContextBindings.GLOBAL_INTERCEPTOR_ORDERED_GROUPS)
+          .getValue(this.app),
+      );
+    }
     // TODO : add new entities management
 
     //provider.objetTrees

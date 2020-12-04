@@ -1,3 +1,4 @@
+import {IAccessRightCRUD} from '@jacquesparis/objects-model';
 import {EntityName} from '../../models/entity-name';
 import {ApplicationService} from '../application.service';
 
@@ -21,7 +22,7 @@ export enum AccessRightPermission {
   owner = 'owner',
 }
 
-export class AccessRightCRUD {
+export class AccessRightCRUD implements IAccessRightCRUD {
   public delete: boolean;
   constructor(
     public create: boolean = false,

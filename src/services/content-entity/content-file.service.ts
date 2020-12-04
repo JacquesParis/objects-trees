@@ -4,8 +4,8 @@ import {IJsonSchema} from '@jacquesparis/objects-model';
 import {inject, service} from '@loopback/core';
 import fs from 'fs';
 import path from 'path';
-import {STORAGE_DIRECTORY} from './../constants';
-import {ApplicationError} from './../helper/application-error';
+import {STORAGE_DIRECTORY} from './../../constants';
+import {ApplicationError} from './../../helper/application-error';
 import {
   ContentEntityService,
   ContentEntityServiceInterface,

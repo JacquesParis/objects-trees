@@ -1,4 +1,4 @@
-export const CONTEXT_INTERCEPTOR = 'constext';
-export const URI_INTERCEPTOR = 'uri';
+export const ACCESS_RIGHTS_INTERCEPTOR = 'AccessRightsInterceptor';
+export const URI_INTERCEPTOR = 'UriCompleteInterceptor';
 
-export const INTERCEPTORS_ORDER = [CONTEXT_INTERCEPTOR, URI_INTERCEPTOR];
+export const INTERCEPTORS_ORDER = [URI_INTERCEPTOR];

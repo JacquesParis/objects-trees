@@ -11,14 +11,14 @@ import {ObjectType} from './../../models/object-type.model';
 import {ObjectTypeService} from './../object-type.service';
 import {AccessRightAbstractService} from './access-rights-abtract.service';
 import {
-  AccessRightsProvider,
+  AccessRightsInterface,
   AccessRightsService,
 } from './access-rights.service';
 
 @injectable({scope: BindingScope.SINGLETON})
 export class AccessRightTypeService
   extends AccessRightAbstractService
-  implements AccessRightsProvider {
+  implements AccessRightsInterface {
   constructor(
     @service(AccessRightsService)
     protected accessRightsService: AccessRightsService,
@@ -33,16 +33,20 @@ export class AccessRightTypeService
     ctx: CurrentContext,
   ): Promise<void> {
     const user: ObjectType = entity as ObjectType;
-    if (!user?.aclCtx) {
-      user.aclCtx = new AclCtx();
+
+    if (!user.entityCtx) {
+      user.entityCtx = {};
     }
-    user.aclCtx.rights.read = true;
+    if (!user.entityCtx.aclCtx) {
+      user.entityCtx.aclCtx = new AclCtx();
+    }
+    user.entityCtx.aclCtx.rights.read = true;
     // TODO: check admin and registered objects during boot for CRUD
-    user.aclCtx.rights.create =
+    user.entityCtx.aclCtx.rights.create =
       ctx.accessRightsContexte.rootRights.value.create;
-    user.aclCtx.rights.update =
+    user.entityCtx.aclCtx.rights.update =
       !user.applicationType && ctx.accessRightsContexte.rootRights.value.update;
-    user.aclCtx.rights.delete =
+    user.entityCtx.aclCtx.rights.delete =
       !user.applicationType && ctx.accessRightsContexte.rootRights.value.delete;
     // TODO: remove subTypes for non admin;
   }

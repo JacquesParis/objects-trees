@@ -40,22 +40,17 @@ import {ObjectNodeRepository} from './repositories/object-node.repository';
 import {ObjectSubTypeRepository} from './repositories/object-sub-type.repository';
 import {ObjectTypeRepository} from './repositories/object-type.repository';
 import {MySequence} from './sequence';
-import {AccessRightNodeService} from './services/access-rights/access-rights-node.service';
-import {AccessRightTreeService} from './services/access-rights/access-rights-tree.service';
-import {AccessRightTypeService} from './services/access-rights/access-rights-type.service';
-import {AccessRightUserService} from './services/access-rights/access-rights-user.service';
 import {AccessRightsProvider} from './services/access-rights/access-rights.provider';
-import {AccessRightsService} from './services/access-rights/access-rights.service';
 import {AppAuthorizationProvider} from './services/app-authorization.service';
 import {ApplicationService} from './services/application.service';
-import {ContentEntityService} from './services/content-entity.service';
-import {ContentFileService} from './services/content-file.service';
-import {ContentTextService} from './services/content-text.service';
-import {ContentUserService} from './services/content-user.service';
-import {ObjectNodeContentService} from './services/object-node-content.service';
-import {ObjectNodeService} from './services/object-node.service';
+import {ContentEntityCoreProvider} from './services/content-entity/content-entity.provider';
+import {ContentEntityService} from './services/content-entity/content-entity.service';
+import {EntityDefinitionProvider} from './services/entity-definition/entity-definition.provider';
+import {ObjectNodeContentService} from './services/object-node/object-node-content.service';
+import {ObjectNodeService} from './services/object-node/object-node.service';
 import {ObjectTreeService} from './services/object-tree/object-tree.service';
 import {ObjectTypeService} from './services/object-type.service';
+import {TransientEntityProvider} from './services/transient-entity/transient-entity.provider';
 import {UserAuthenticationService} from './services/user-authentication.service';
 
 /*export abstract class ObjectTreesApplicationInterface extends RestApplication {
@@ -166,7 +161,11 @@ export class ObjectTreesApplication extends RestApplication {
 
     app.component(ApplicationComponent);
 
+    this.extensionProviders.push(new ContentEntityCoreProvider(app));
     this.extensionProviders.push(new AccessRightsProvider(app));
+    this.extensionProviders.push(new EntityDefinitionProvider(app));
+    this.extensionProviders.push(new TransientEntityProvider(app));
+
     if (config?.extensions?.length) {
       for (const objectTypeProvider of config.extensions) {
         const provider = new objectTypeProvider(app);
@@ -180,6 +179,13 @@ export class ObjectTreesApplication extends RestApplication {
     const app = (this as unknown) as ObjectTreesApplicationInterface;
     console.log('Boot application...');
     await app.boot();
+
+    /*
+    app.interceptor(AccessRightsInterceptor, {
+      name: CONTEXT_INTERCEPTOR,
+      global: true,
+      group: CONTEXT_INTERCEPTOR,
+    });*/
 
     app.service(ApplicationService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ApplicationService>(ApplicationService);
@@ -196,14 +202,18 @@ export class ObjectTreesApplication extends RestApplication {
 
     app.service(ObjectNodeService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ObjectNodeService>(ObjectNodeService);
+    /*
     app.service(ContentUserService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ContentUserService>(ContentUserService);
+    */
     app.service(ObjectNodeContentService, {
       defaultScope: BindingScope.SINGLETON,
     });
     await app.getService<ObjectNodeContentService>(ObjectNodeContentService);
     app.service(ObjectTreeService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ObjectTreeService>(ObjectTreeService);
+
+    /*
     app.service(AccessRightsService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<AccessRightsService>(AccessRightsService);
     app.service(AccessRightTreeService, {defaultScope: BindingScope.SINGLETON});
@@ -214,13 +224,15 @@ export class ObjectTreesApplication extends RestApplication {
     await app.getService<AccessRightTypeService>(AccessRightTypeService);
     app.service(AccessRightUserService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<AccessRightUserService>(AccessRightUserService);
-
+    */
+    /*
     app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ContentFileService>(ContentFileService);
     app.service(ContentTextService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ContentTextService>(ContentTextService);
     app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ContentFileService>(ContentFileService);
+    */
 
     const objectTreeService = await app.getService<ObjectTreeService>(
       ObjectTreeService,

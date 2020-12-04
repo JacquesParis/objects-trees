@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import {ObjectNodeService} from '../object-node/object-node.service';
 import {ObjectType} from './../../models/object-type.model';
 import {ApplicationService} from './../application.service';
-import {ObjectNodeService} from './../object-node.service';
 import {ObjectTypeService} from './../object-type.service';
 import {
   ACCESS_RIGHTS_ACCESS_MANAGERS_TYPE,

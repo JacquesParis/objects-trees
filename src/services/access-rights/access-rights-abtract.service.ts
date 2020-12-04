@@ -7,12 +7,12 @@ import {EntityName} from '../../models/entity-name';
 import {CurrentContext} from '../application.service';
 import {AccessRightsScope} from './access-rights.const';
 import {
-  AccessRightsProvider,
+  AccessRightsInterface,
   AccessRightsService,
 } from './access-rights.service';
 
 export abstract class AccessRightAbstractService
-  implements AccessRightsProvider {
+  implements AccessRightsInterface {
   constructor(
     protected accessRightsService: AccessRightsService,
     protected resource: EntityName,

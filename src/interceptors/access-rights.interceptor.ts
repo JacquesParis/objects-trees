@@ -1,25 +1,23 @@
 import {inject} from '@loopback/context';
 import {
-  globalInterceptor,
   InvocationContext,
   InvocationResult,
   service,
   ValueOrPromise,
 } from '@loopback/core';
 import {isObject} from 'lodash';
+import {ApplicationError} from '../helper/application-error';
 import {RestEntity} from '../models';
+import {AccessRightsService} from '../services/access-rights/access-rights.service';
 import {CurrentContext, CURRENT_CONTEXT} from '../services/application.service';
-import {ApplicationError} from './../helper/application-error';
-import {AccessRightsService} from './../services/access-rights/access-rights.service';
 import {AbstractInterceptor} from './abstract.interceptor';
-import {CONTEXT_INTERCEPTOR} from './constants';
 
 /**
  * This class will be bound to the application as an `Interceptor` during
  * `boot`
  */
-@globalInterceptor(CONTEXT_INTERCEPTOR, {tags: {name: 'Context'}})
-export class ContextInterceptor extends AbstractInterceptor {
+export class AccessRightsInterceptor extends AbstractInterceptor {
+  static readonly BINDING_KEY = `interceptors.${AccessRightsInterceptor.name}`;
   constructor(
     @service(AccessRightsService)
     private accessRightsService: AccessRightsService,

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import {ContentEntityService} from '../content-entity/content-entity.service';
+import {ObjectNodeService} from '../object-node/object-node.service';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectType} from './../../models/object-type.model';
 import {ApplicationService, CurrentContext} from './../application.service';
-import {ContentEntityService} from './../content-entity.service';
-import {ObjectNodeService} from './../object-node.service';
 import {ObjectTypeService} from './../object-type.service';
 import {CATEGORY_TYPE, REPOSITORY_TYPE, TENANT_TYPE} from './object-tree.const';
 export class ObjectTreeInit {

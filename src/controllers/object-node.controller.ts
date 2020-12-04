@@ -15,12 +15,12 @@ import {
 } from '@loopback/rest';
 import {ObjectNode} from '../models';
 import {CurrentContext, CURRENT_CONTEXT} from '../services/application.service';
+import {ObjectNodeService} from '../services/object-node/object-node.service';
 import {
   AccessRightsEntity,
   AccessRightsScope,
 } from './../services/access-rights/access-rights.const';
-import {ObjectNodeContentService} from './../services/object-node-content.service';
-import {ObjectNodeService} from './../services/object-node.service';
+import {ObjectNodeContentService} from './../services/object-node/object-node-content.service';
 
 export class ObjectNodeController {
   constructor(
@@ -161,9 +161,6 @@ export class ObjectNodeController {
     }
   }
 
-  /*
-
-
   @authorize({
     resource: AccessRightsEntity.objectNode,
     scopes: [AccessRightsScope.read],
@@ -182,12 +179,12 @@ export class ObjectNodeController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(ObjectNode, {exclude: 'where'})
-    filter?: FilterExcludingWhere<ObjectNode>,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectNode> {
-    return this.objectNodeService.findById(id, filter);
+    return this.objectNodeService.getNode(id, ctx);
   }
 
+  /*
   @put('/object-nodes/{id}', {
     responses: {
       '204': {
