@@ -8,7 +8,7 @@ import {EntityName} from './entity-name';
 export abstract class RestEntity extends DataEntity {
   public abstract entityName: EntityName;
   entityCtx?: {
-    entityDefinition?: IJsonSchema;
+    jsonSchema?: IJsonSchema;
     aclCtx?: AclCtx;
     loaded?: boolean;
     actions?: {creations?: {[id: string]: IJsonSchema}; reads?: string[]};

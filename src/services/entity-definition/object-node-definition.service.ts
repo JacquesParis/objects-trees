@@ -60,18 +60,48 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
         return this.objectTypeService.searchById(objectNode.objectTypeId);
       },
     );
-    objectNode.entityCtx.entityDefinition = this.getObjectNodeDefinition(
+    objectNode.entityCtx.jsonSchema = await this.getObjectNodeDefinition(
       objectType,
     );
   }
 
-  public getObjectNodeDefinition(objectType: ObjectType) {
-    return merge(
+  public async getObjectNodeDefinition(
+    objectType: ObjectType,
+  ): Promise<IJsonSchema> {
+    const schema = merge(
       {},
       OBJECT_NODE_SCHEMA,
       objectType.definition,
       OBJECT_NODE_SCHEMA,
       objectType.contentDefinition,
     );
+
+    if (schema?.properties) {
+      for (const key of Object.keys(schema.properties)) {
+        for (const option of Object.keys(schema.properties[key])) {
+          switch (option) {
+            case 'oneOfTree':
+              schema.properties[key].oneOf = await this.oneOfTree(
+                schema.properties[key][option],
+              );
+              break;
+          }
+        }
+      }
+    }
+
+    return schema;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async oneOfTree(def: any): Promise<any> {
+    return [
+      {
+        enum: [
+          'Repository/public/Category/templates/TravelStoryTemplate/travelStory',
+        ],
+        title: 'public - templates - travelStory',
+      },
+    ];
   }
 }

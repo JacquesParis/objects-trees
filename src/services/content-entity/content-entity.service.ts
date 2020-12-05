@@ -7,7 +7,7 @@ export interface EntityWithContent {
   id?: string;
   content?: any;
   entityName?: string;
-  entityCtx?: {entityDefinition?: IJsonSchema};
+  entityCtx?: {jsonSchema?: IJsonSchema};
   [contentFieldName: string]: any;
 }
 

@@ -63,7 +63,7 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
           );
           objectTree.entityCtx.actions.creations[
             subType.subObjectTypeId
-          ] = this.objectNodeDefinitionService.getObjectNodeDefinition(
+          ] = await this.objectNodeDefinitionService.getObjectNodeDefinition(
             await this.objectTypeService.searchById(subType.subObjectTypeId),
           );
 
