@@ -24,6 +24,8 @@ export class NodeContext {
 
 export class TreeContext {
   treeNode: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
+  treeType: ExpectedValue<ObjectType> = new ExpectedValue<ObjectType>();
+  treeChildren: ExpectedValue<ObjectNode[]> = new ExpectedValue<ObjectNode[]>();
 }
 
 export class AccessRightsContext {

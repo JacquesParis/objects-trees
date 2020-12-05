@@ -4,7 +4,7 @@ import {merge} from 'lodash';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectType} from './../../models/object-type.model';
-import {CurrentContext, NodeContext} from './../application.service';
+import {CurrentContext} from './../application.service';
 import {ObjectNodeService} from './../object-node/object-node.service';
 import {ObjectTypeService} from './../object-type.service';
 import {
@@ -18,6 +18,14 @@ export const OBJECT_NODE_SCHEMA: IJsonSchema = {
       type: 'string',
       // tslint:disable-next-line: object-literal-sort-keys
       title: 'Name',
+      default: '',
+      minLength: 3,
+      required: true,
+    },
+    description: {
+      type: 'string',
+      // tslint:disable-next-line: object-literal-sort-keys
+      title: 'Description',
       default: '',
       minLength: 3,
       required: true,
@@ -55,55 +63,9 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
     objectNode.entityCtx.entityDefinition = this.getObjectNodeDefinition(
       objectType,
     );
-    if (!objectNode.entityCtx.actions) {
-      objectNode.entityCtx.actions = {};
-    }
-    if (!objectNode.entityCtx.actions.creations) {
-      objectNode.entityCtx.actions.creations = {};
-    }
-    const childContext = new NodeContext();
-    if (objectNode.entityCtx?.aclCtx?.rights?.create) {
-      for (const subType of objectType.objectSubTypes) {
-        try {
-          childContext.objectSubType.value = subType;
-          await this.objectNodeService.checkBrothersCondition(
-            entity.id as string,
-            childContext,
-          );
-          objectNode.entityCtx.actions.creations[
-            subType.subObjectTypeId
-          ] = this.getObjectNodeDefinition(
-            await this.objectTypeService.searchById(subType.subObjectTypeId),
-          );
-
-          // eslint-disable-next-line no-empty
-        } catch (error) {}
-      }
-    }
-    const children = await childContext.brothers.getOrSetValue(async () =>
-      this.objectNodeService.searchByParentId(entity.id as string),
-    );
-    objectNode.entityCtx.actions.reads = [];
-    for (const child of children) {
-      if (
-        -1 === objectNode.entityCtx.actions.reads.indexOf(child.objectTypeId)
-      ) {
-        objectNode.entityCtx.actions.reads.push(child.objectTypeId);
-      }
-    }
-    for (const childCreationObjectTypeId of Object.keys(
-      objectNode.entityCtx.actions.creations,
-    )) {
-      if (
-        -1 ===
-        objectNode.entityCtx.actions.reads.indexOf(childCreationObjectTypeId)
-      ) {
-        objectNode.entityCtx.actions.reads.push(childCreationObjectTypeId);
-      }
-    }
   }
 
-  protected getObjectNodeDefinition(objectType: ObjectType) {
+  public getObjectNodeDefinition(objectType: ObjectType) {
     return merge(
       {},
       OBJECT_NODE_SCHEMA,

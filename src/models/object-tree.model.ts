@@ -13,6 +13,8 @@ export class ObjectTree implements IObjectTree {
   entityCtx?: {
     entityDefinition?: IJsonSchema;
     aclCtx?: AclCtx;
+    loaded?: boolean;
+    actions?: {creations?: {[id: string]: IJsonSchema}; reads?: string[]};
   };
 
   constructor(public treeNode: ObjectNode) {}

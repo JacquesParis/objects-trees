@@ -114,6 +114,12 @@ export class AccessRightTreeService
     ctx: CurrentContext,
   ): Promise<void> {
     const tree = entity as ObjectTree;
+    if (!tree.children) {
+      tree.children = [];
+    }
+    await ctx.treeContext.treeChildren.getOrSetValue(async () =>
+      tree.children.map((child) => child.treeNode),
+    );
     if (!tree.entityCtx) {
       tree.entityCtx = {};
     }

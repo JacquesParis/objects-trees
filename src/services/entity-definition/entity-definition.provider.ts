@@ -3,6 +3,7 @@ import {ExtensionProvider} from '../../integration/extension.provider';
 import {EntityDefinitionInterceptor} from './../../interceptors/entity-definition.interceptor';
 import {EntityDefinitionService} from './entity-definition.service';
 import {ObjectNodeDefinitionService} from './object-node-definition.service';
+import {ObjectTreeDefinitionService} from './object-tree-definition.service';
 
 export class EntityDefinitionProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
@@ -10,6 +11,7 @@ export class EntityDefinitionProvider extends ExtensionProvider {
     this.entities.services = [
       {cls: EntityDefinitionService},
       {cls: ObjectNodeDefinitionService},
+      {cls: ObjectTreeDefinitionService},
     ];
     this.entities.interceptors.prepend = [
       {
