@@ -10,16 +10,17 @@ export const POST_TYPE: ObjectTypeDefinition = {
   definition: {
     properties: {},
   },
-  contentType: '',
+  contentType: 'ContentText',
 };
 
+/*
 export const TEXT_TYPE: ObjectTypeDefinition = {
   name: 'Text',
   definition: {
     properties: {},
   },
-  contentType: '',
-};
+  contentType: ContentT,
+};*/
 
 export const GALLERY_TYPE: ObjectTypeDefinition = {
   name: 'Gallery',
@@ -29,22 +30,7 @@ export const GALLERY_TYPE: ObjectTypeDefinition = {
   contentType: '',
 };
 
-export const MENU_TYPE: ObjectTypeDefinition = {
-  name: 'Menu',
-  definition: {
-    properties: {},
-  },
-  contentType: '',
-};
-
-export const DATE_TYPE: ObjectTypeDefinition = {
-  name: 'Date',
-  definition: {
-    properties: {},
-  },
-  contentType: '',
-};
-
+/*
 export const POST_TEXT_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: POST_TYPE.name,
   subTypeName: TEXT_TYPE.name,
@@ -53,13 +39,14 @@ export const POST_TEXT_SUBTYPE: ObjectSubTypeDefintion = {
   namespace: false,
   owner: false,
   tree: false,
-};
-
-export const POST_WITH_MENU_TYPE: ObjectTypeDefinition = {
+};*/
+/*
+export const POST_PAGE_TYPE: ObjectTypeDefinition = {
   name: 'PostWithMenu',
-  inheritedTypesIds: [POST_TYPE.name],
+  inheritedTypesIds: [POST_TYPE.name, PAGE_TYPE.name],
 };
-
+*/
+/*
 export const POST_WITH_MENU_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: POST_WITH_MENU_TYPE.name,
   subTypeName: MENU_TYPE.name,
@@ -69,12 +56,13 @@ export const POST_WITH_MENU_SUBTYPE: ObjectSubTypeDefintion = {
   owner: false,
   tree: true,
   max: 1,
-};
-
+};*/
+/*
 export const POST_WITH_DATE_TYPE: ObjectTypeDefinition = {
   name: 'PostWithDate',
-  inheritedTypesIds: [POST_TYPE.name],
-};
+  inheritedTypesIds: [POST_TYPE.name, DATE_TYPE.name],
+};*/
+/*
 export const POST_WITH_DATE_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: POST_WITH_DATE_TYPE.name,
   subTypeName: DATE_TYPE.name,
@@ -85,7 +73,7 @@ export const POST_WITH_DATE_SUBTYPE: ObjectSubTypeDefintion = {
   tree: true,
   max: 1,
 };
-
+*/
 export const POST_WITH_GALLERY_TYPE: ObjectTypeDefinition = {
   name: 'PostWithGallery',
   inheritedTypesIds: [POST_TYPE.name],

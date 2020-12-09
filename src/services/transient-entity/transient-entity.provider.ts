@@ -8,16 +8,13 @@ import {TransientTreeService} from './transient-tree.service';
 export class TransientEntityProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super('TransientEntityService', app);
-    this.entities.services = [
-      {cls: TransientEntityService},
-      {cls: TransientTreeService},
-      {cls: TransientNodeService},
-    ];
-    this.entities.interceptors.prepend = [
-      {
-        id: 'TransientEntityInterceptor',
-        interceptor: TransientEntityInterceptor,
-      },
-    ];
+    this.services.push({cls: TransientEntityService});
+    this.services.push({cls: TransientTreeService});
+    this.services.push({cls: TransientNodeService});
+
+    this.interceptorsPrepend.push({
+      id: 'TransientEntityInterceptor',
+      interceptor: TransientEntityInterceptor,
+    });
   }
 }

@@ -40,9 +40,8 @@ export class TransientEntityService
     entityName: EntityName,
     entity: IRestEntity,
     ctx: CurrentContext,
-    loadEntity = true,
   ): Promise<void> {
-    if (loadEntity && entityName in this.transientEntitys) {
+    if (entityName in this.transientEntitys) {
       for (const transientEntity of this.transientEntitys[
         entityName
       ] as TransientEntityInterface[]) {
@@ -50,21 +49,20 @@ export class TransientEntityService
       }
     }
     if (!entity.entityCtx) {
-      entity.entityCtx = {};
+      entity.entityCtx = {entityType: entityName};
     }
-    entity.entityCtx.loaded = loadEntity;
+    entity.entityCtx.loaded = true;
   }
 
   public async completeReturnedEntities(
     entityName: EntityName,
     entities: IRestEntity[],
     ctx: CurrentContext,
-    loadEntity = true,
   ) {
     for (let childIndex = entities.length - 1; childIndex >= 0; childIndex--) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const entity: any = entities[childIndex];
-      await this.completeReturnedEntity(entityName, entity, ctx, loadEntity);
+      await this.completeReturnedEntity(entityName, entity, ctx);
     }
   }
 }

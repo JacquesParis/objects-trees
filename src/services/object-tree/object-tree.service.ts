@@ -12,13 +12,13 @@ import {ContentEntityService} from '../content-entity/content-entity.service';
 import {ObjectNodeService} from '../object-node/object-node.service';
 import {ObjectTypeService} from '../object-type.service';
 import {ApplicationError} from './../../helper/application-error';
-import {ObjectTreeInit} from './object-tree.init';
 
 export class ObjectTreeService {
   public get ready(): Promise<void> {
-    return this.init.ready;
+    return this.appCtx.getExtensionContext('ObjectTreeService').ready;
   }
-  private init: ObjectTreeInit;
+  /*
+  private init: ObjectTreeInit;*/
   constructor(
     @service(ObjectNodeService)
     private objectNodeService: ObjectNodeService,
@@ -29,12 +29,13 @@ export class ObjectTreeService {
     @service(ApplicationService)
     private appCtx: ApplicationService,
   ) {
+    /*
     this.init = new ObjectTreeInit(
       objectNodeService,
       objectTypeService,
       contentEntityService,
       appCtx,
-    );
+    );*/
   }
 
   private async createNewApplicationSubTree(

@@ -32,7 +32,7 @@ export class AccessRightUserService
   ): Promise<void> {
     const user: User & RestEntity = entity as User & RestEntity;
     if (!user.entityCtx) {
-      user.entityCtx = {};
+      user.entityCtx = {entityType: EntityName.user};
     }
     if (!user.entityCtx.aclCtx) {
       user.entityCtx.aclCtx = new AclCtx();

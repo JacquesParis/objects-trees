@@ -34,6 +34,7 @@ export class TransientNodeService implements TransientEntityInterface {
     );
 
     await this.contentEntityService.addTransientContent(
+      EntityName.objectNode,
       objectType.contentType,
       entity,
     );

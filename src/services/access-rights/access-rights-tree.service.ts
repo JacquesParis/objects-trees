@@ -121,7 +121,7 @@ export class AccessRightTreeService
       tree.children.map((child) => child.treeNode),
     );
     if (!tree.entityCtx) {
-      tree.entityCtx = {};
+      tree.entityCtx = {entityType: EntityName.objectTree};
     }
     tree.entityCtx.aclCtx = {
       rights: await this.accessRightsService.getNodeAccessRights(

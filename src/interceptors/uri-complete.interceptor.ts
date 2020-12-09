@@ -113,7 +113,7 @@ export class UriCompleteInterceptor extends AbstractInterceptor {
           const field = key.substr(0, key.length - 2);
           const entityUri: string = this.getEntityUri(field);
           if (entityUri === toKebabCase(field)) {
-            (result as EntityType)[field + 'Uri'] = `${baseUri}/${objectUri}${
+            (result as EntityType)[field + 'Uri'] = `${baseUri}${objectUri}${
               (result as EntityType).id
             }/${entityUri}/${(result as EntityType)[key]}`;
           } else {

@@ -5,7 +5,13 @@ import {ObjectNode} from './../../models/object-node.model';
 import {ObjectType} from './../../models/object-type.model';
 import {ApplicationService, CurrentContext} from './../application.service';
 import {ObjectTypeService} from './../object-type.service';
-import {CATEGORY_TYPE, REPOSITORY_TYPE, TENANT_TYPE} from './object-tree.const';
+import {
+  PUBLIC_OBJECT_NAME,
+  REPOSITORY_CATEGORY_TYPE,
+  REPOSITORY_TYPE,
+  TEMPLATES_OBJECT_NAME,
+  TENANT_TYPE,
+} from './object-tree.const';
 export class ObjectTreeInit {
   public ready: Promise<void>;
   constructor(
@@ -41,7 +47,9 @@ export class ObjectTreeInit {
 
     const categoryType: ObjectType = await this.appCtx.categoryType.getOrSetValue(
       async (): Promise<ObjectType> => {
-        return this.objectTypeService.registerApplicationType(CATEGORY_TYPE);
+        return this.objectTypeService.registerApplicationType(
+          REPOSITORY_CATEGORY_TYPE,
+        );
       },
     );
 
@@ -61,7 +69,7 @@ export class ObjectTreeInit {
       categoryType.id as string,
       {
         acl: true,
-        name: ApplicationService.OBJECT_TYPE_NAMES.CATEGORY,
+        name: ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY_CATEGORY,
         namespace: true,
         owner: false,
         tree: true,
@@ -137,9 +145,9 @@ export class ObjectTreeInit {
       async (): Promise<ObjectNode> => {
         let newTemplates = await this.objectNodeService.searchNamespace(
           ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY,
-          'public',
-          ApplicationService.OBJECT_TYPE_NAMES.CATEGORY,
-          'templates',
+          PUBLIC_OBJECT_NAME,
+          ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY_CATEGORY,
+          TEMPLATES_OBJECT_NAME,
         );
         if (!newTemplates) {
           newTemplates = await this.objectNodeService.add(

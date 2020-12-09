@@ -35,7 +35,7 @@ export class AccessRightTypeService
     const user: ObjectType = entity as ObjectType;
 
     if (!user.entityCtx) {
-      user.entityCtx = {};
+      user.entityCtx = {entityType: EntityName.objectType};
     }
     if (!user.entityCtx.aclCtx) {
       user.entityCtx.aclCtx = new AclCtx();

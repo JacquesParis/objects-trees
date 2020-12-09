@@ -1,9 +1,10 @@
 import {service} from '@loopback/core';
 import {DataObject, repository} from '@loopback/repository';
-import _ from 'lodash';
+import _, {uniq} from 'lodash';
 import {ObjectSubType} from '../models';
 import {ObjectTypeRepository} from '../repositories';
 import {ApplicationError} from './../helper/application-error';
+import {EntityName} from './../models/entity-name';
 import {ObjectType, ObjectTypeRelations} from './../models/object-type.model';
 import {ObjectSubTypeRepository} from './../repositories/object-sub-type.repository';
 import {ApplicationService, CurrentContext} from './application.service';
@@ -113,11 +114,15 @@ export class ObjectTypeService {
     if (type.extended) {
       return;
     }
+    let implementedTypes: string[] = [type.name];
     type.extended = true;
     for (const inheritedTypeName of type.inheritedTypesIds) {
       const parentType = allTypes[inheritedTypeName];
       if (parentType) {
         this.extendsType(parentType, allTypes);
+        implementedTypes = implementedTypes.concat(
+          ...(parentType.entityCtx?.implementedTypes as string[]),
+        );
         if (!type.contentType) {
           type.contentType = parentType.contentType;
         }
@@ -143,6 +148,10 @@ export class ObjectTypeService {
         }
       }
     }
+    if (!type.entityCtx) {
+      type.entityCtx = {entityType: EntityName.objectType};
+    }
+    type.entityCtx.implementedTypes = uniq(implementedTypes);
   }
 
   public async searchAll(): Promise<{

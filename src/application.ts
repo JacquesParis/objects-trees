@@ -28,7 +28,10 @@ import {ObjectTypeController} from './controllers/object-type.controller';
 import {PingController} from './controllers/ping.controller';
 import {UserController} from './controllers/user.controller';
 import {DbDataSource} from './datasources/db.datasource';
-import {ExtensionProvider} from './integration/extension.provider';
+import {
+  ExtensionProvider,
+  ExtensionProviderClass,
+} from './integration/extension.provider';
 import {ObjectTreesApplicationConfig} from './integration/object-trees-application.config';
 import {INTERCEPTORS_ORDER} from './interceptors/constants';
 import {ContentText} from './models/content-text.model';
@@ -48,6 +51,7 @@ import {ContentEntityService} from './services/content-entity/content-entity.ser
 import {EntityDefinitionProvider} from './services/entity-definition/entity-definition.provider';
 import {ObjectNodeContentService} from './services/object-node/object-node-content.service';
 import {ObjectNodeService} from './services/object-node/object-node.service';
+import {ObjectTreeProvider} from './services/object-tree/object-tree.provider';
 import {ObjectTreeService} from './services/object-tree/object-tree.service';
 import {ObjectTypeService} from './services/object-type.service';
 import {TransientEntityProvider} from './services/transient-entity/transient-entity.provider';
@@ -161,18 +165,50 @@ export class ObjectTreesApplication extends RestApplication {
 
     app.component(ApplicationComponent);
 
+    if (!config) {
+      config = {};
+    }
+    if (!config.extensions) {
+      config.extensions = [];
+    }
+    config.extensions.unshift(TransientEntityProvider);
+    config.extensions.unshift(EntityDefinitionProvider);
+    config.extensions.unshift(AccessRightsProvider);
+    config.extensions.unshift(ContentEntityCoreProvider);
+    config.extensions.unshift(ObjectTreeProvider);
+    /*
     this.extensionProviders.push(new ContentEntityCoreProvider(app));
     this.extensionProviders.push(new AccessRightsProvider(app));
     this.extensionProviders.push(new EntityDefinitionProvider(app));
     this.extensionProviders.push(new TransientEntityProvider(app));
+    */
 
+    this.addProviders(app, config.extensions);
+    /*
     if (config?.extensions?.length) {
       for (const objectTypeProvider of config.extensions) {
         const provider = new objectTypeProvider(app);
+        if (!addedProviders.includes(provider.name)) {
+        }
+        this.extensionProviders.push(provider);
+      }
+    }*/
+    console.log('Application initialized !');
+  }
+
+  private addProviders(
+    app: ObjectTreesApplicationInterface,
+    extensions: ExtensionProviderClass[],
+    addedProviders: string[] = [],
+  ) {
+    for (const objectTypeProvider of extensions) {
+      const provider = new objectTypeProvider(app);
+      if (!addedProviders.includes(provider.name)) {
+        addedProviders.push(provider.name);
+        this.addProviders(app, provider.requiredProviders, addedProviders);
         this.extensionProviders.push(provider);
       }
     }
-    console.log('Application initialized !');
   }
 
   public async bootObjectTrees(): Promise<void> {
@@ -233,14 +269,18 @@ export class ObjectTreesApplication extends RestApplication {
     app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ContentFileService>(ContentFileService);
     */
-
+    /*
     const objectTreeService = await app.getService<ObjectTreeService>(
       ObjectTreeService,
     );
-    await objectTreeService.ready;
+    await objectTreeService.ready;*/
 
     for (const provider of this.extensionProviders) {
-      await provider.beforeBoot(appCtx);
+      await provider.setContext(appCtx);
+    }
+
+    for (const provider of this.extensionProviders) {
+      await provider.beforeBoot();
     }
 
     for (const provider of this.extensionProviders) {
@@ -252,6 +292,10 @@ export class ObjectTreesApplication extends RestApplication {
   }
 
   public async getService<T>(t: {name: string}): Promise<T> {
-    return this.get('services.' + t.name);
+    let name = t.name;
+    if (name.endsWith('Provider')) {
+      name = name.substr(0, name.length - 'Provider'.length);
+    }
+    return this.get('services.' + name);
   }
 }

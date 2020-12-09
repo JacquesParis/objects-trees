@@ -129,7 +129,7 @@ export class ObjectTreeController {
 
   @authorize({
     resource: AccessRightsEntity.objectTree,
-    scopes: [AccessRightsScope.read],
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchTreeNode],
   })
   @get(
     '/object-trees/tree/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/{treeType}/{treeName}/nodes',
@@ -171,7 +171,7 @@ export class ObjectTreeController {
 
   @authorize({
     resource: AccessRightsEntity.objectTree,
-    scopes: [AccessRightsScope.read],
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchTreeNode],
   })
   @get(
     '/object-trees/tree/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/{treeType}/{treeName}',
@@ -212,7 +212,7 @@ export class ObjectTreeController {
 
   @authorize({
     resource: AccessRightsEntity.objectTree,
-    scopes: [AccessRightsScope.read],
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchNamespace],
   })
   @get(
     '/object-trees/namespace/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/nodes',
@@ -250,7 +250,7 @@ export class ObjectTreeController {
 
   @authorize({
     resource: AccessRightsEntity.objectTree,
-    scopes: [AccessRightsScope.read],
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchNamespace],
   })
   @get(
     '/object-trees/namespace/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}',

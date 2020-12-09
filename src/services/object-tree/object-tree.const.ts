@@ -1,4 +1,8 @@
+import {ObjectTypeDefinition} from './../../integration/extension.provider';
 import {ApplicationService} from './../application.service';
+
+export const TEMPLATES_OBJECT_NAME = 'templates';
+export const PUBLIC_OBJECT_NAME = 'public';
 
 export const REPOSITORY_TYPE = {
   name: ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY,
@@ -6,8 +10,15 @@ export const REPOSITORY_TYPE = {
   contentType: '',
 };
 
-export const TENANT_TYPE = {
+export const FOLDER_TYPE: ObjectTypeDefinition = {
+  name: 'Folder',
+  definition: {properties: {}},
+  contentType: '',
+};
+
+export const TENANT_TYPE: ObjectTypeDefinition = {
   name: ApplicationService.OBJECT_TYPE_NAMES.TENANT,
+  inheritedTypesIds: [FOLDER_TYPE.name],
   definition: {
     properties: {
       firstname: {
@@ -43,8 +54,8 @@ export const TENANT_TYPE = {
   contentType: '',
 };
 
-export const CATEGORY_TYPE = {
-  name: ApplicationService.OBJECT_TYPE_NAMES.CATEGORY,
+export const REPOSITORY_CATEGORY_TYPE = {
+  name: ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY_CATEGORY,
   definition: {properties: {}},
   contentType: '',
 };

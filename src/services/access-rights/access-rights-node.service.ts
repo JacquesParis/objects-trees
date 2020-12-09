@@ -118,7 +118,7 @@ export class AccessRightNodeService
     const objectNode = entity as ObjectNode;
 
     if (!objectNode.entityCtx) {
-      objectNode.entityCtx = {};
+      objectNode.entityCtx = {entityType: EntityName.objectNode};
     }
     objectNode.entityCtx.aclCtx = {
       rights: await this.accessRightsService.getNodeAccessRights(

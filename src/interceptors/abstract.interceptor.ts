@@ -47,11 +47,18 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
       .substr('/' === relativeObjectUri.charAt(0) ? 1 : 0)
       .split('/')[0];
     const camelCase = toCamelCase(entityUri.substr(0, entityUri.length - 1));
-    return EntityName[
-      (camelCase.charAt(0) + camelCase.substr(1)) as keyof typeof EntityName
-    ];
+    return EntityName[camelCase as keyof typeof EntityName];
   }
   protected getEntityUri(entityName: EntityName | string): string {
+    if (entityName.endsWith('ObjectNode')) {
+      return 'object-nodes';
+    }
+    if (entityName.endsWith('ObjectTree')) {
+      return 'object-trees';
+    }
+    if (entityName.endsWith('ObjectType')) {
+      return 'object-types';
+    }
     switch (entityName) {
       case EntityName.objectType:
       case 'subObjectType':

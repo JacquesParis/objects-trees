@@ -2,13 +2,13 @@ import * as _ from 'lodash';
 import {ObjectTreesApplicationInterface} from '../../application';
 import {
   ExtensionProvider,
-  ObjectSubTypeDefintion,
   ObjectTreeDefinition,
   ObjectTypeDefinition,
 } from './../../integration/extension.provider';
 import {AccessRightsInterceptor} from './../../interceptors/access-rights.interceptor';
 import {ObjectNode} from './../../models/object-node.model';
 import {ApplicationService} from './../application.service';
+import {ContentEntityCoreProvider} from './../content-entity/content-entity.provider';
 import {AccessRightNodeService} from './access-rights-node.service';
 import {AccessRightTreeService} from './access-rights-tree.service';
 import {AccessRightTypeService} from './access-rights-type.service';
@@ -25,17 +25,45 @@ import {AccessRightsService} from './access-rights.service';
 
 export class AccessRightsProvider extends ExtensionProvider {
   objectTypes: {
-    types: {
-      user: ObjectTypeDefinition;
-      anonymousUser: ObjectTypeDefinition;
-      accessRightsDefinition: ObjectTypeDefinition;
-      accessRightsGroup: ObjectTypeDefinition;
-      accessRightsOwners: ObjectTypeDefinition;
-      accessRightsAccessManagers: ObjectTypeDefinition;
+    user: ObjectTypeDefinition;
+    anonymousUser: ObjectTypeDefinition;
+    accessRightsDefinition: ObjectTypeDefinition;
+    accessRightsGroup: ObjectTypeDefinition;
+    accessRightsOwners: ObjectTypeDefinition;
+    accessRightsAccessManagers: ObjectTypeDefinition;
+  };
+
+  objectTrees: {
+    rootACL: {
+      parentNode: () => ObjectNode;
+      treeNodeTypeId: string;
+      treeNodeName: string;
+      tree: ObjectTreeDefinition;
     };
-    subTypes: ObjectSubTypeDefintion[];
-  } = {
-    types: {
+    publicACL: {
+      parentNode: () => ObjectNode;
+      treeNodeTypeId: string;
+      treeNodeName: string;
+      tree: ObjectTreeDefinition;
+    };
+    demonstrationAccountACL: {
+      parentNode: () => ObjectNode;
+      treeNodeTypeId: string;
+      treeNodeName: string;
+      tree: ObjectTreeDefinition;
+    };
+    demonstrationSandboxACL: {
+      parentNode: () => ObjectNode;
+      treeNodeTypeId: string;
+      treeNodeName: string;
+      tree: ObjectTreeDefinition;
+    };
+  };
+
+  constructor(protected app: ObjectTreesApplicationInterface) {
+    super('AccessRightsService', app);
+    this.requiredProviders.push(ContentEntityCoreProvider);
+    this.objectTypes = {
       user: {
         name: ApplicationService.OBJECT_TYPE_NAMES.USER,
         contentType: ApplicationService.CONTENT_TYPE.USER,
@@ -47,151 +75,237 @@ export class AccessRightsProvider extends ExtensionProvider {
       accessRightsGroup: ACCESS_RIGHTS_GROUP_TYPE,
       accessRightsOwners: ACCESS_RIGHTS_OWNERS_TYPE,
       accessRightsAccessManagers: ACCESS_RIGHTS_ACCESS_MANAGERS_TYPE,
-    },
-    subTypes: [],
-  };
-
-  objectTrees: {
-    rootACL: {
-      parentNode: () => ObjectNode;
-      treeNodeTypeId: string;
-      treeNodeName: string;
-      tree: ObjectTreeDefinition;
     };
-  } = {
-    rootACL: {
-      parentNode: () => this.appCtx.rootNode.value,
-      treeNodeTypeId: ACCESS_RIGHTS_DEFINITION_TYPE.name,
-      treeNodeName: ApplicationService.OBJECT_NODE_NAMES.AccessRightDefinition,
-      tree: {
-        treeNode: {},
-        children: {
-          [ACCESS_RIGHTS_OWNERS_TYPE.name]: {
-            [ACCESS_RIGHT_OWNERS_NODE.name]: [
-              {
-                treeNode: _.omit(ACCESS_RIGHT_OWNERS_NODE, [
-                  'name',
-                  'objectTypeId',
-                ]),
-                children: {
-                  [ApplicationService.OBJECT_TYPE_NAMES.USER]: {
-                    'Jacques Lebourgeois': [
-                      {
-                        treeNode: {
-                          contentUser: 'jacques.lebourgeois@gmail.com',
-                        },
-                        children: {},
-                      },
-                    ],
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
-    },
-  };
 
-  constructor(protected app: ObjectTreesApplicationInterface) {
-    super('AccessRightsService', app);
-
-    this.objectTypes.subTypes = [
+    this.objectSubTypes.push(
       _.merge(
         {
           typeName: () => this.appCtx.repositoryType.value.name,
-          subTypeName: () => this.objectTypes.types.accessRightsDefinition.name,
+          subTypeName: () => this.objectTypes.accessRightsDefinition.name,
         },
         ACCESS_RIGHT_SUBTYPE,
       ),
-      {
-        typeName: () => this.objectTypes.types.accessRightsDefinition.name,
-        subTypeName: () => this.objectTypes.types.accessRightsGroup.name,
-        name: ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_GROUP,
-        acl: false,
-        namespace: false,
-        owner: false,
-        tree: false,
-      },
-      {
-        typeName: () => this.objectTypes.types.accessRightsGroup.name,
-        subTypeName: () => this.objectTypes.types.user.name,
-        name: ApplicationService.OBJECT_TYPE_NAMES.USER,
-        acl: false,
-        namespace: false,
-        owner: false,
-        tree: false,
-      },
-      {
-        typeName: () => this.objectTypes.types.accessRightsGroup.name,
-        subTypeName: () => this.objectTypes.types.anonymousUser.name,
-        name: ApplicationService.OBJECT_TYPE_NAMES.ANONYMOUS_USER,
-        acl: false,
-        namespace: false,
-        owner: false,
-        tree: false,
-        max: 1,
-      },
-      {
-        typeName: () => this.objectTypes.types.accessRightsDefinition.name,
-        subTypeName: () => this.objectTypes.types.accessRightsOwners.name,
-        name: ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_OWNERS,
-        acl: false,
-        namespace: false,
-        owner: false,
-        tree: false,
-        max: 1,
-      },
-      {
-        typeName: () => this.objectTypes.types.accessRightsOwners.name,
-        subTypeName: () => this.objectTypes.types.user.name,
-        name: ApplicationService.OBJECT_TYPE_NAMES.USER,
-        acl: false,
-        namespace: false,
-        owner: false,
-        tree: false,
-      },
-      {
-        typeName: () => this.objectTypes.types.accessRightsDefinition.name,
-        subTypeName: () =>
-          this.objectTypes.types.accessRightsAccessManagers.name,
-        name: ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_ACCESS_MANAGERS,
-        acl: false,
-        namespace: false,
-        owner: false,
-        tree: false,
-        max: 1,
-      },
-      {
-        typeName: () => this.objectTypes.types.accessRightsAccessManagers.name,
-        subTypeName: () => this.objectTypes.types.user.name,
-        name: ApplicationService.OBJECT_TYPE_NAMES.USER,
-        acl: false,
-        namespace: false,
-        owner: false,
-        tree: false,
-      },
+    );
+    this.objectSubTypes.push({
+      typeName: () => this.objectTypes.accessRightsDefinition.name,
+      subTypeName: () => this.objectTypes.accessRightsGroup.name,
+      name: ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_GROUP,
+      acl: false,
+      namespace: false,
+      owner: false,
+      tree: false,
+    });
+    this.objectSubTypes.push({
+      typeName: () => this.objectTypes.accessRightsGroup.name,
+      subTypeName: () => this.objectTypes.user.name,
+      name: ApplicationService.OBJECT_TYPE_NAMES.USER,
+      acl: false,
+      namespace: false,
+      owner: false,
+      tree: false,
+    });
+    this.objectSubTypes.push({
+      typeName: () => this.objectTypes.accessRightsGroup.name,
+      subTypeName: () => this.objectTypes.anonymousUser.name,
+      name: ApplicationService.OBJECT_TYPE_NAMES.ANONYMOUS_USER,
+      acl: false,
+      namespace: false,
+      owner: false,
+      tree: false,
+      max: 1,
+    });
+    this.objectSubTypes.push({
+      typeName: () => this.objectTypes.accessRightsDefinition.name,
+      subTypeName: () => this.objectTypes.accessRightsOwners.name,
+      name: ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_OWNERS,
+      acl: false,
+      namespace: false,
+      owner: false,
+      tree: false,
+      max: 1,
+    });
+    this.objectSubTypes.push({
+      typeName: () => this.objectTypes.accessRightsOwners.name,
+      subTypeName: () => this.objectTypes.user.name,
+      name: ApplicationService.OBJECT_TYPE_NAMES.USER,
+      acl: false,
+      namespace: false,
+      owner: false,
+      tree: false,
+    });
+    this.objectSubTypes.push({
+      typeName: () => this.objectTypes.accessRightsDefinition.name,
+      subTypeName: () => this.objectTypes.accessRightsAccessManagers.name,
+      name: ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_ACCESS_MANAGERS,
+      acl: false,
+      namespace: false,
+      owner: false,
+      tree: false,
+      max: 1,
+    });
+    this.objectSubTypes.push({
+      typeName: () => this.objectTypes.accessRightsAccessManagers.name,
+      subTypeName: () => this.objectTypes.user.name,
+      name: ApplicationService.OBJECT_TYPE_NAMES.USER,
+      acl: false,
+      namespace: false,
+      owner: false,
+      tree: false,
+    });
+    this.objectSubTypes.push(
       _.merge(
         {
-          typeName: () => this.appCtx.tenantType.value.name,
-          subTypeName: () => this.objectTypes.types.accessRightsDefinition.name,
+          typeName: () => this.appCtx.folderType.value.name,
+          subTypeName: () => this.objectTypes.accessRightsDefinition.name,
         },
         ACCESS_RIGHT_SUBTYPE,
       ),
-    ];
+    );
 
-    this.entities.services = [
-      {cls: AccessRightsService},
-      {cls: AccessRightTreeService},
-      {cls: AccessRightNodeService},
-      {cls: AccessRightTypeService},
-      {cls: AccessRightUserService},
-    ];
-    this.entities.interceptors.prepend = [
-      {
-        id: 'AccessRightsInterceptor',
-        interceptor: AccessRightsInterceptor,
+    this.objectTrees = {
+      rootACL: {
+        parentNode: () => this.appCtx.rootNode.value,
+        treeNodeTypeId: ACCESS_RIGHTS_DEFINITION_TYPE.name,
+        treeNodeName:
+          ApplicationService.OBJECT_NODE_NAMES.AccessRightDefinition,
+        tree: {
+          treeNode: {},
+          children: {
+            [ACCESS_RIGHTS_OWNERS_TYPE.name]: {
+              [ACCESS_RIGHT_OWNERS_NODE.name]: [
+                {
+                  treeNode: _.omit(ACCESS_RIGHT_OWNERS_NODE, [
+                    'name',
+                    'objectTypeId',
+                  ]),
+                  children: {
+                    [ApplicationService.OBJECT_TYPE_NAMES.USER]: {
+                      'Jacques Lebourgeois': [
+                        {
+                          treeNode: {
+                            contentUser: 'jacques.lebourgeois@gmail.com',
+                          },
+                          children: {},
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
       },
-    ];
+      publicACL: {
+        parentNode: () => this.appCtx.publicNode.value,
+        treeNodeTypeId: ACCESS_RIGHTS_DEFINITION_TYPE.name,
+        treeNodeName:
+          ApplicationService.OBJECT_NODE_NAMES.AccessRightDefinition,
+        tree: {
+          treeNode: {},
+          children: {
+            [ACCESS_RIGHTS_GROUP_TYPE.name]: {
+              ['Public access']: [
+                {
+                  treeNode: {
+                    grantRead: true,
+                    grantUpdate: false,
+                    grantDelete: false,
+                    grantCreate: false,
+                  },
+                  children: {
+                    [ApplicationService.OBJECT_TYPE_NAMES.ANONYMOUS_USER]: {
+                      Anonymous: [
+                        {
+                          treeNode: {},
+                          children: {},
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+      demonstrationAccountACL: {
+        parentNode: () => this.appCtx.demonstrationAccountNode.value,
+        treeNodeTypeId: ACCESS_RIGHTS_DEFINITION_TYPE.name,
+        treeNodeName:
+          ApplicationService.OBJECT_NODE_NAMES.AccessRightDefinition,
+        tree: {
+          treeNode: {},
+          children: {
+            [ACCESS_RIGHTS_GROUP_TYPE.name]: {
+              ['Demonstration access']: [
+                {
+                  treeNode: {
+                    grantRead: true,
+                    grantUpdate: false,
+                    grantDelete: false,
+                    grantCreate: false,
+                  },
+                  children: {
+                    [ApplicationService.OBJECT_TYPE_NAMES.ANONYMOUS_USER]: {
+                      Anonymous: [
+                        {
+                          treeNode: {},
+                          children: {},
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+      demonstrationSandboxACL: {
+        parentNode: () => this.appCtx.demonstrationSandboxNode.value,
+        treeNodeTypeId: ACCESS_RIGHTS_DEFINITION_TYPE.name,
+        treeNodeName:
+          ApplicationService.OBJECT_NODE_NAMES.AccessRightDefinition,
+        tree: {
+          treeNode: {},
+          children: {
+            [ACCESS_RIGHTS_GROUP_TYPE.name]: {
+              ['Sandbox access']: [
+                {
+                  treeNode: {
+                    grantRead: true,
+                    grantUpdate: true,
+                    grantDelete: true,
+                    grantCreate: true,
+                  },
+                  children: {
+                    [ApplicationService.OBJECT_TYPE_NAMES.ANONYMOUS_USER]: {
+                      Anonymous: [
+                        {
+                          treeNode: {},
+                          children: {},
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+    };
+
+    this.services.push({cls: AccessRightsService});
+    this.services.push({cls: AccessRightTreeService});
+    this.services.push({cls: AccessRightNodeService});
+    this.services.push({cls: AccessRightTypeService});
+    this.services.push({cls: AccessRightUserService});
+
+    this.interceptorsPrepend.push({
+      id: 'AccessRightsInterceptor',
+      interceptor: AccessRightsInterceptor,
+    });
   }
 }

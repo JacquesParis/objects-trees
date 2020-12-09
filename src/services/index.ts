@@ -2,6 +2,7 @@ export * from './access-rights';
 export * from './app-authorization.service';
 export * from './application.service';
 export * from './content-entity/content-entity.service';
+export * from './inside-rest/inside-rest.service';
 export * from './object-node/object-node.service';
 export * from './object-tree';
 export * from './object-tree/object-tree.service';

@@ -86,14 +86,8 @@ export class ObjectNodeService {
     ownerType: string,
     ownerName: string,
   ): Promise<ObjectNode> {
-    const ownerObjectType = await this.objectTypeService.searchByName(
-      ownerType,
-    );
-    if (!ownerObjectType) {
-      throw ApplicationError.notFound({ownerType});
-    }
     const nodes = await this.objectNodeRepository.find({
-      where: {objectTypeId: ownerObjectType.id, name: ownerName, owner: true},
+      where: {objectTypeId: ownerType, name: ownerName, owner: true},
     });
     if (1 < nodes.length) {
       throw ApplicationError.tooMany({owner: ownerType, ownerName: ownerName});
@@ -111,33 +105,38 @@ export class ObjectNodeService {
     if (!owner) {
       throw ApplicationError.notFound({owner: ownerType, ownerNale: ownerName});
     }
-    const namespaceObjectType = await this.objectTypeService.searchByName(
+    return this.searchNamespaceOfOwnerId(
+      owner.id as string,
       namespaceType,
-    );
-    if (!namespaceObjectType) {
-      throw ApplicationError.notFound({
+      namespaceName,
+      {
         owner: ownerType,
         ownerName: ownerName,
-        namespace: namespaceType,
-        namespaceName: namespaceName,
-      });
-    }
+      },
+    );
+  }
 
+  public async searchNamespaceOfOwnerId(
+    ownerId: string,
+    namespaceType: string,
+    namespaceName: string,
+    errorContext = {},
+  ): Promise<ObjectNode> {
     const nodes = await this.objectNodeRepository.find({
       where: {
-        objectTypeId: namespaceObjectType.id,
+        objectTypeId: namespaceType,
         name: namespaceName,
-        parentOwnerId: owner.id,
+        parentOwnerId: ownerId,
         namespace: true,
       },
     });
     if (1 < nodes.length) {
-      throw ApplicationError.tooMany({
-        namespace: namespaceType,
-        namespaceName: namespaceName,
-        owner: ownerType,
-        ownerName: ownerName,
-      });
+      throw ApplicationError.tooMany(
+        merge({ownerId: ownerId}, errorContext, {
+          namespace: namespaceType,
+          namespaceName: namespaceName,
+        }),
+      );
     }
     return 1 === nodes.length ? nodes[0] : <ObjectNode>(<unknown>null);
   }
@@ -168,6 +167,20 @@ export class ObjectNodeService {
     return children;
   }
 
+  public async searchTreesOfNamespaceId(
+    namespaceId: string,
+    treeType: string,
+    errorContext = {},
+  ): Promise<ObjectNode[]> {
+    return this.objectNodeRepository.find({
+      where: {
+        objectTypeId: treeType,
+        parentNamespaceId: namespaceId,
+        tree: true,
+      },
+    });
+  }
+
   public async searchTreeNode(
     ownerType: string,
     ownerName: string,
@@ -188,20 +201,12 @@ export class ObjectNodeService {
         namespaceType,
       });
     }
-    const treeObjectType = await this.objectTypeService.searchByName(treeType);
-    if (!treeObjectType) {
-      throw ApplicationError.notFound({
-        namespace: namespaceType,
-        namespaceType,
-        treeType,
-      });
-    }
 
     const nodes = await this.objectNodeRepository.find({
       where: {
-        objectTypeId: treeObjectType.id,
+        objectTypeId: treeType,
         name: treeName,
-        parentNamepaceId: namespace.id,
+        parentNamespaceId: namespace.id,
         tree: true,
       },
     });
@@ -478,10 +483,11 @@ export class ObjectNodeService {
 
     await this.checkSubTypesCondition(result, nodeContext);
 
+    /*
     await this.contentEntityService.addTransientContent(
       objectType?.contentType,
       result,
-    );
+    );*/
 
     return result;
   }
@@ -540,10 +546,11 @@ export class ObjectNodeService {
       await this.objectNodeRepository.updateById(result.id, result);
     }
 
+    /*
     await this.contentEntityService.addTransientContent(
       objectType?.contentType,
       result,
-    );
+    );*/
 
     return result;
   }

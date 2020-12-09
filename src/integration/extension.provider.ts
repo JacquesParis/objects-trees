@@ -10,6 +10,7 @@ import {
   ServiceOptions,
   ServiceOrProviderClass,
 } from '@loopback/core';
+import {Class, juggler} from '@loopback/repository';
 import * as _ from 'lodash';
 import {ObjectTreesApplicationInterface} from '../application';
 import {ObjectSubType} from '../models';
@@ -55,6 +56,7 @@ export type CalculatedNode =
   | (() => Promise<ObjectNode>);
 export abstract class ExtensionProvider {
   protected appCtx: ApplicationService;
+  protected ctx: ApplicationExtensionContext;
   protected objectTypeService: ObjectTypeService;
   protected objectNodeService: ObjectNodeService;
   protected objectTreeService: ObjectTreeService;
@@ -67,10 +69,12 @@ export abstract class ExtensionProvider {
   async boot(): Promise<void> {
     console.log('Booting ' + this.name + '.');
   }
-  objectTypes: {
-    types: {[typeField: string]: ObjectTypeDefinition};
-    subTypes: ObjectSubTypeDefintion[];
-  } = {types: {}, subTypes: []};
+  requiredProviders: ExtensionProviderClass[] = [];
+
+  objectTypes: {[typeField: string]: ObjectTypeDefinition} = {};
+
+  objectSubTypes: ObjectSubTypeDefintion[] = [];
+
   objectTrees: {
     [nodeField: string]: {
       parentNode: () => ObjectNode;
@@ -79,45 +83,35 @@ export abstract class ExtensionProvider {
       tree: ObjectTreeDefinition;
     };
   } = {};
-  contentEntities: {
-    contentType: string;
+
+  services: {
     cls: ServiceOrProviderClass;
     nameOrOptions?: string | ServiceOptions;
   }[] = [];
-  entities: {
-    services: {
-      cls: ServiceOrProviderClass;
-      nameOrOptions?: string | ServiceOptions;
-    }[];
-    accessRights: {
-      cls: ServiceOrProviderClass;
-      nameOrOptions?: string | ServiceOptions;
-    }[];
 
-    interceptors: {
-      prepend: {
-        id: string;
-        interceptor: Interceptor | Constructor<Provider<Interceptor>>;
-        nameOrOptions?: string | InterceptorBindingOptions;
-      }[];
-      append: {
-        id: string;
-        interceptor: Interceptor | Constructor<Provider<Interceptor>>;
-        nameOrOptions?: string | InterceptorBindingOptions;
-      }[];
-    };
-    controllers: {
-      controllerCtor: ControllerClass;
-      nameOrOptions?: string | BindingFromClassOptions;
-    }[];
-  } = {
-    services: [],
-    accessRights: [],
-    interceptors: {prepend: [], append: []},
-    controllers: [],
-  };
+  interceptorsPrepend: {
+    id: string;
+    interceptor: Interceptor | Constructor<Provider<Interceptor>>;
+    nameOrOptions?: string | InterceptorBindingOptions;
+  }[] = [];
 
-  public async beforeBoot(appCtx: ApplicationService): Promise<void> {
+  interceptorsAppend: {
+    id: string;
+    interceptor: Interceptor | Constructor<Provider<Interceptor>>;
+    nameOrOptions?: string | InterceptorBindingOptions;
+  }[] = [];
+
+  controllers: {
+    controllerCtor: ControllerClass;
+    nameOrOptions?: string | BindingFromClassOptions;
+  }[] = [];
+
+  dataSources: {
+    dataSource: juggler.DataSource | Class<juggler.DataSource>;
+    name: string;
+  }[] = [];
+
+  public async setContext(appCtx: ApplicationService): Promise<void> {
     this.appCtx = appCtx;
     this.objectTreeService = await this.app.getService<ObjectTreeService>(
       ObjectTreeService,
@@ -129,24 +123,29 @@ export abstract class ExtensionProvider {
       ObjectTypeService,
     );
 
-    const ctx: ApplicationExtensionContext = appCtx.getExtensionContext<
-      ApplicationExtensionContext
-    >(this.name);
+    this.ctx = appCtx.getExtensionContext<ApplicationExtensionContext>(
+      this.name,
+    );
+  }
+
+  public async beforeBoot(): Promise<void> {
+    console.log('Initialising ' + this.name + '.');
+
     // provider.objectTypes
-    for (const typeField in this.objectTypes.types) {
-      if (!ctx.types[typeField]) {
-        ctx.types[typeField] = new ExpectedValue<ObjectType>();
+    for (const typeField in this.objectTypes) {
+      if (!this.ctx.types[typeField]) {
+        this.ctx.types[typeField] = new ExpectedValue<ObjectType>();
       }
-      await ctx.types[typeField].getOrSetValue(
+      await this.ctx.types[typeField].getOrSetValue(
         async (): Promise<ObjectType> => {
           return this.objectTypeService.registerApplicationType(
-            this.objectTypes.types[typeField],
+            this.objectTypes[typeField],
           );
         },
       );
     }
 
-    for (const subType of this.objectTypes.subTypes) {
+    for (const subType of this.objectSubTypes) {
       const typeName = _.isString(subType.typeName)
         ? subType.typeName
         : subType.typeName();
@@ -175,9 +174,17 @@ export abstract class ExtensionProvider {
     // provider.contentEntities
     // TODO : add new contentEntities management
 
-    // provider.entities
-    // TODO : add new entities management
-    for (const serviceProvider of this.entities.services) {
+    for (const dataSource of this.dataSources) {
+      let name = dataSource.name;
+      if (name.startsWith('datasources.')) {
+        name = name.substr('datasources.'.length);
+      }
+      this.app
+        .dataSource(dataSource.dataSource, name)
+        .inScope(BindingScope.SINGLETON);
+    }
+
+    for (const serviceProvider of this.services) {
       this.app.service(
         serviceProvider.cls,
         serviceProvider.nameOrOptions
@@ -187,7 +194,7 @@ export abstract class ExtensionProvider {
       await this.app.getService(serviceProvider.cls);
       console.log(serviceProvider.cls.name + ' started !');
     }
-    for (const interceptorProvider of this.entities.interceptors.append) {
+    for (const interceptorProvider of this.interceptorsAppend) {
       this.app.interceptor(
         interceptorProvider.interceptor,
         _.merge(
@@ -216,7 +223,7 @@ export abstract class ExtensionProvider {
           .getValue(this.app),
       );
     }
-    for (const interceptorProvider of this.entities.interceptors.prepend) {
+    for (const interceptorProvider of this.interceptorsPrepend) {
       this.app.interceptor(
         interceptorProvider.interceptor,
         _.merge(
@@ -245,15 +252,21 @@ export abstract class ExtensionProvider {
           .getValue(this.app),
       );
     }
+
+    // provider.accessRights
+    // TODO : add new entities management
+    // provider.contentEntites
+    // TODO : add new entities management
+    // provider.controllers
     // TODO : add new entities management
 
     //provider.objetTrees
 
     for (const nodeField in this.objectTrees) {
-      if (!ctx.nodes[nodeField]) {
-        ctx.nodes[nodeField] = new ExpectedValue<ObjectNode>();
+      if (!this.ctx.nodes[nodeField]) {
+        this.ctx.nodes[nodeField] = new ExpectedValue<ObjectNode>();
       }
-      await ctx.nodes[nodeField].getOrSetValue(
+      await this.ctx.nodes[nodeField].getOrSetValue(
         async (): Promise<ObjectNode> => {
           return this.objectTreeService.registerApplicationTree(
             this.objectTrees[nodeField].parentNode(),
@@ -264,6 +277,6 @@ export abstract class ExtensionProvider {
         },
       );
     }
-    ctx.resolve();
+    this.ctx.resolve();
   }
 }

@@ -1,21 +1,22 @@
-import {IJsonSchema, IObjectTree} from '@jacquesparis/objects-model';
-import {AclCtx} from './acl-ctx.model';
+import {IEntityContext, IObjectTree} from '@jacquesparis/objects-model';
 import {EntityName} from './entity-name';
 import {ObjectNode} from './object-node.model';
 export class ObjectTree implements IObjectTree {
   children: ObjectTree[] = [];
   parentTree: ObjectTree;
   uri: string;
+  aliasUri?: string;
   id: string;
+  ownerType?: string;
+  ownerName?: string;
+  namespaceType?: string;
+  namespaceName?: string;
+  treeType?: string;
+  treeName?: string;
   parentTreeId: string;
   parentTreeUri: string;
   entityName: EntityName = EntityName.objectTree;
-  entityCtx?: {
-    entityDefinition?: IJsonSchema;
-    aclCtx?: AclCtx;
-    loaded?: boolean;
-    actions?: {creations?: {[id: string]: IJsonSchema}; reads?: string[]};
-  };
+  entityCtx?: IEntityContext;
 
   constructor(public treeNode: ObjectNode) {}
 
@@ -49,9 +50,7 @@ export class ObjectTree implements IObjectTree {
         );
       }
     }
-    if (this.treeNode.tree) {
-      this.id = this.treeNode.id as string;
-    }
+    this.id = this.treeNode.id as string;
     return this;
   }
 }

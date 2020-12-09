@@ -13,6 +13,8 @@ import {
 
 export class NodeContext {
   node: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
+  owner: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
+  namespace: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   parent: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   parentType: ExpectedValue<ObjectType> = new ExpectedValue<ObjectType>();
   objectSubType: ExpectedValue<ObjectSubType> = new ExpectedValue<
@@ -41,6 +43,7 @@ export class AccessRightsContext {
   rootRights: ExpectedValue<AccessRightSet> = new ExpectedValue<
     AccessRightSet
   >();
+  authorization: ExpectedValue<string> = new ExpectedValue<string>();
 }
 
 export class TypeContext {
@@ -108,7 +111,7 @@ export enum ObjectTypeName {
   ACCESS_RIGHT_OWNERS = 'AccessRightOwners',
   ACCESS_RIGHT_ACCESS_MANAGERS = 'AccessRightAccessManagers',
   TENANT = 'Tenant',
-  CATEGORY = 'RepositoryCategory',
+  REPOSITORY_CATEGORY = 'RepositoryCategory',
 }
 
 export class ApplicationExtensionContext {
@@ -153,21 +156,29 @@ export class ObjectTreeServiceContext extends ApplicationExtensionContext {
     repository: ExpectedValue<ObjectType>;
     category: ExpectedValue<ObjectType>;
     tenant: ExpectedValue<ObjectType>;
+    folder: ExpectedValue<ObjectType>;
     [key: string]: ExpectedValue<ObjectType>;
   } = {
     repository: new ExpectedValue<ObjectType>(),
     category: new ExpectedValue<ObjectType>(),
     tenant: new ExpectedValue<ObjectType>(),
+    folder: new ExpectedValue<ObjectType>(),
   };
   nodes: {
     root: ExpectedValue<ObjectNode>;
     public: ExpectedValue<ObjectNode>;
     publicTemplates: ExpectedValue<ObjectNode>;
+    demonstrationAccount: ExpectedValue<ObjectNode>;
+    demonstrationExamples: ExpectedValue<ObjectNode>;
+    demonstrationSandbox: ExpectedValue<ObjectNode>;
     [key: string]: ExpectedValue<ObjectNode>;
   } = {
     root: new ExpectedValue<ObjectNode>(),
     public: new ExpectedValue<ObjectNode>(),
     publicTemplates: new ExpectedValue<ObjectNode>(),
+    demonstrationAccount: new ExpectedValue<ObjectNode>(),
+    demonstrationExamples: new ExpectedValue<ObjectNode>(),
+    demonstrationSandbox: new ExpectedValue<ObjectNode>(),
   };
 }
 export class ApplicationService {
@@ -185,7 +196,7 @@ export class ApplicationService {
     [ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_ACCESS_MANAGERS]:
       'Access Managers group',
     [ApplicationService.OBJECT_TYPE_NAMES.TENANT]: 'Tenant',
-    [ApplicationService.OBJECT_TYPE_NAMES.CATEGORY]: 'Category',
+    [ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY_CATEGORY]: 'Category',
   };
   public static CONTENT_TYPE = {
     USER: 'ContentUser',
@@ -201,11 +212,23 @@ export class ApplicationService {
   public get tenantType(): ExpectedValue<ObjectType> {
     return this.extensions.ObjectTreeService.types.tenant;
   }
+  public get folderType(): ExpectedValue<ObjectType> {
+    return this.extensions.ObjectTreeService.types.folder;
+  }
   public get rootNode(): ExpectedValue<ObjectNode> {
     return this.extensions.ObjectTreeService.nodes.root;
   }
   public get publicNode(): ExpectedValue<ObjectNode> {
     return this.extensions.ObjectTreeService.nodes.public;
+  }
+  public get demonstrationAccountNode(): ExpectedValue<ObjectNode> {
+    return this.extensions.ObjectTreeService.nodes.demonstrationAccount;
+  }
+  public get demonstrationExamplesNode(): ExpectedValue<ObjectNode> {
+    return this.extensions.ObjectTreeService.nodes.demonstrationExamples;
+  }
+  public get demonstrationSandboxNode(): ExpectedValue<ObjectNode> {
+    return this.extensions.ObjectTreeService.nodes.demonstrationSandbox;
   }
   public get publicTemplatesNode(): ExpectedValue<ObjectNode> {
     return this.extensions.ObjectTreeService.nodes.publicTemplates;

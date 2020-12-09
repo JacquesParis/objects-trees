@@ -8,16 +8,13 @@ import {ObjectTreeDefinitionService} from './object-tree-definition.service';
 export class EntityDefinitionProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super('EntityDefinitionService', app);
-    this.entities.services = [
-      {cls: EntityDefinitionService},
-      {cls: ObjectNodeDefinitionService},
-      {cls: ObjectTreeDefinitionService},
-    ];
-    this.entities.interceptors.prepend = [
-      {
-        id: 'EntityDefinitionInterceptor',
-        interceptor: EntityDefinitionInterceptor,
-      },
-    ];
+    this.services.push({cls: EntityDefinitionService});
+    this.services.push({cls: ObjectNodeDefinitionService});
+    this.services.push({cls: ObjectTreeDefinitionService});
+
+    this.interceptorsPrepend.push({
+      id: 'EntityDefinitionInterceptor',
+      interceptor: EntityDefinitionInterceptor,
+    });
   }
 }

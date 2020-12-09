@@ -33,7 +33,7 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
     const objectTree = entity as ObjectTree;
     //this.entityCtx?.entityDefinition
     if (!objectTree.entityCtx) {
-      objectTree.entityCtx = {};
+      objectTree.entityCtx = {entityType: EntityName.objectTree};
     }
     // _.merge({}, this.entityDefinition, objectType.definition, this.entityDefinition, objectType.contentDefinition),
 
@@ -42,6 +42,8 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
         objectTree.treeNode.objectTypeId,
       );
     });
+    objectTree.entityCtx.implementedTypes =
+      treeType.entityCtx?.implementedTypes;
     if (!objectTree.entityCtx.actions) {
       objectTree.entityCtx.actions = {};
     }
@@ -50,6 +52,8 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
     }
     const childContext = new NodeContext();
     childContext.brothers.value = ctx.treeContext.treeChildren.value;
+    childContext.parent.value = objectTree.treeNode;
+    childContext.parentType.value = treeType;
     if (
       treeType.objectSubTypes &&
       objectTree.entityCtx?.aclCtx?.rights?.create
@@ -65,6 +69,7 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
             subType.subObjectTypeId
           ] = await this.objectNodeDefinitionService.getObjectNodeDefinition(
             await this.objectTypeService.searchById(subType.subObjectTypeId),
+            childContext,
           );
 
           // eslint-disable-next-line no-empty
@@ -98,6 +103,16 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
         objectTree.entityCtx.actions.reads.indexOf(childCreationObjectTypeId)
       ) {
         objectTree.entityCtx.actions.reads.push(childCreationObjectTypeId);
+      }
+    }
+
+    for (const child of objectTree.children) {
+      if (!child.treeNode.tree) {
+        await this.entityDefinitionService.completeReturnedEntity(
+          EntityName.objectTree,
+          child,
+          new CurrentContext(),
+        );
       }
     }
   }
