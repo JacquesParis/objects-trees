@@ -25,6 +25,8 @@ export class ContentUserService implements ContentEntityServiceInterface {
     );
   }
 
+  public async deleteContents(entities: EntityWithContent[]): Promise<void> {}
+
   public async getContentDefinition(): Promise<IJsonSchema> {
     return {
       properties: {

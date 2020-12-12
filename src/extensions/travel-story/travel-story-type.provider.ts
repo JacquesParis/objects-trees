@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {ObjectTreesApplicationInterface} from '../../application';
-import {template} from '../../helper';
+import {contentGenericTemplate} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {POST_TYPE} from './../post/post-type.const';
 import {
@@ -31,12 +31,16 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
     this.objectSubTypes.push(CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE);
 
     this.objectTrees.travelStory = {
+      reset: true,
       parentNode: () => this.appCtx.publicTemplatesNode.value,
       treeNodeName: 'travelStory',
       treeNodeTypeId: TRAVEL_STORY_TEMPLATE_TYPE.name,
       tree: {
         treeNode: {
-          template: template(__dirname, 'travelStory'),
+          contentGenericTemplate: contentGenericTemplate(
+            __dirname,
+            'travelStory',
+          ),
           menuObjectTreeId:
             'tree/Repository/public/RepositoryCategory/templates/MenuTemplate/navBar',
           pageObjectTreeId:
@@ -67,6 +71,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
     };
 
     this.objectTrees.travelStoryExample = {
+      reset: true,
       parentNode: () => this.appCtx.demonstrationExamplesNode.value,
       treeNodeName: 'Exemple de site de Voyage',
       treeNodeTypeId: TRAVEL_STORY_TYPE.name,

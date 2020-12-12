@@ -64,11 +64,13 @@
               (click)="gotoToPage(menuTree.pageTree, $event)"
               >{{menuTree.menuTitle}}</a
             >
-            <ng-container
-              *ngTemplateOutlet="navbarDropdownItems;
+            <div class="ml-2">
+              <ng-container
+                *ngTemplateOutlet="navbarDropdownItems;
               context: { menuEntries: menuTree }
             "
-            ></ng-container>
+              ></ng-container>
+            </div>
           </ng-container>
         </ng-template>
       </ng-container>

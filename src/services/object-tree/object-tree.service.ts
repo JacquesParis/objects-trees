@@ -53,6 +53,8 @@ export class ObjectTreeService {
       CurrentContext.get({
         nodeContext: {parent: new ExpectedValue(parentNode)},
       }),
+      false,
+      false,
     );
     for (const childTypeId in tree.children) {
       for (const childName in tree.children[childTypeId]) {
@@ -127,6 +129,7 @@ export class ObjectTreeService {
     treeNodeName: string,
     treeNodeTypeId: string,
     tree: ObjectTreeDefinition,
+    reset: boolean,
   ): Promise<ObjectNode> {
     if (!parentNode) {
       throw ApplicationError.notFound({
@@ -155,6 +158,24 @@ export class ObjectTreeService {
         treeNodeTypeId,
         'treeNode.length': treeNodes.length,
       });
+    }
+
+    if (reset) {
+      await this.objectNodeService.removeById(
+        treeNodes[0].id as string,
+        CurrentContext.get({
+          nodeContext: {
+            node: new ExpectedValue(treeNodes[0]),
+            parent: new ExpectedValue(parentNode),
+          },
+        }),
+      );
+      return this.createNewApplicationSubTree(
+        parentNode,
+        treeNodeName,
+        treeNodeTypeId,
+        tree,
+      );
     }
 
     return this.updateApplicationSubTree(treeNodes[0], tree);

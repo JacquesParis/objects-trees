@@ -10,7 +10,7 @@ import {
   ServiceOptions,
   ServiceOrProviderClass,
 } from '@loopback/core';
-import {Class, juggler} from '@loopback/repository';
+import {Class, juggler, Repository} from '@loopback/repository';
 import * as _ from 'lodash';
 import {ObjectTreesApplicationInterface} from '../application';
 import {ObjectSubType} from '../models';
@@ -24,6 +24,7 @@ import {
 import {ObjectNodeService} from '../services/object-node/object-node.service';
 import {ObjectTreeService} from '../services/object-tree/object-tree.service';
 import {ObjectTypeService} from '../services/object-type.service';
+import {DataEntity} from './../models/data-entity.model';
 
 export type ExtensionProviderClass = new (
   app: ObjectTreesApplicationInterface,
@@ -80,6 +81,7 @@ export abstract class ExtensionProvider {
       parentNode: () => ObjectNode;
       treeNodeTypeId: string;
       treeNodeName: string;
+      reset?: boolean;
       tree: ObjectTreeDefinition;
     };
   } = {};
@@ -87,6 +89,13 @@ export abstract class ExtensionProvider {
   services: {
     cls: ServiceOrProviderClass;
     nameOrOptions?: string | ServiceOptions;
+  }[] = [];
+
+  models: Class<DataEntity>[] = [];
+
+  repositories: {
+    repoClass: Class<Repository<DataEntity>>;
+    nameOrOptions?: string | BindingFromClassOptions | undefined;
   }[] = [];
 
   interceptorsPrepend: {
@@ -130,50 +139,6 @@ export abstract class ExtensionProvider {
 
   public async beforeBoot(): Promise<void> {
     console.log('Initialising ' + this.name + '.');
-
-    // provider.objectTypes
-    for (const typeField in this.objectTypes) {
-      if (!this.ctx.types[typeField]) {
-        this.ctx.types[typeField] = new ExpectedValue<ObjectType>();
-      }
-      await this.ctx.types[typeField].getOrSetValue(
-        async (): Promise<ObjectType> => {
-          return this.objectTypeService.registerApplicationType(
-            this.objectTypes[typeField],
-          );
-        },
-      );
-    }
-
-    for (const subType of this.objectSubTypes) {
-      const typeName = _.isString(subType.typeName)
-        ? subType.typeName
-        : subType.typeName();
-      const subTypeName = _.isString(subType.subTypeName)
-        ? subType.subTypeName
-        : subType.subTypeName();
-      const parentType = await this.objectTypeService.searchByName(typeName);
-      const childType = await this.objectTypeService.searchByName(subTypeName);
-      await this.objectTypeService.getOrCreateObjectSubType(
-        parentType.id as string,
-        childType.id as string,
-        _.pick(subType, [
-          'name',
-          'acl',
-          'owner',
-          'namespace',
-          'tree',
-          'min',
-          'max',
-          'exclusions',
-          'mandatories',
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ]) as any,
-      );
-    }
-    // provider.contentEntities
-    // TODO : add new contentEntities management
-
     for (const dataSource of this.dataSources) {
       let name = dataSource.name;
       if (name.startsWith('datasources.')) {
@@ -182,6 +147,14 @@ export abstract class ExtensionProvider {
       this.app
         .dataSource(dataSource.dataSource, name)
         .inScope(BindingScope.SINGLETON);
+    }
+
+    for (const model of this.models) {
+      this.app.model(model);
+    }
+
+    for (const repository of this.repositories) {
+      this.app.repository(repository.repoClass, repository.nameOrOptions);
     }
 
     for (const serviceProvider of this.services) {
@@ -253,6 +226,47 @@ export abstract class ExtensionProvider {
       );
     }
 
+    // provider.objectTypes
+    for (const typeField in this.objectTypes) {
+      if (!this.ctx.types[typeField]) {
+        this.ctx.types[typeField] = new ExpectedValue<ObjectType>();
+      }
+      await this.ctx.types[typeField].getOrSetValue(
+        async (): Promise<ObjectType> => {
+          return this.objectTypeService.registerApplicationType(
+            this.objectTypes[typeField],
+          );
+        },
+      );
+    }
+
+    for (const subType of this.objectSubTypes) {
+      const typeName = _.isString(subType.typeName)
+        ? subType.typeName
+        : subType.typeName();
+      const subTypeName = _.isString(subType.subTypeName)
+        ? subType.subTypeName
+        : subType.subTypeName();
+      const parentType = await this.objectTypeService.searchByName(typeName);
+      const childType = await this.objectTypeService.searchByName(subTypeName);
+      await this.objectTypeService.getOrCreateObjectSubType(
+        parentType.id as string,
+        childType.id as string,
+        _.pick(subType, [
+          'name',
+          'acl',
+          'owner',
+          'namespace',
+          'tree',
+          'min',
+          'max',
+          'exclusions',
+          'mandatories',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ]) as any,
+      );
+    }
+
     // provider.accessRights
     // TODO : add new entities management
     // provider.contentEntites
@@ -273,6 +287,7 @@ export abstract class ExtensionProvider {
             this.objectTrees[nodeField].treeNodeName,
             this.objectTrees[nodeField].treeNodeTypeId,
             this.objectTrees[nodeField].tree,
+            !!this.objectTrees[nodeField].reset,
           );
         },
       );

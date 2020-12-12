@@ -29,6 +29,18 @@ export class ContentTextService implements ContentEntityServiceInterface {
     };
   }
 
+  public async deleteContents(
+    entities: EntityWithContent[],
+    fieldName = 'contentText',
+  ): Promise<void> {
+    const contentIdsToDelete: string[] = entities
+      .filter((entity) => {
+        return entity[fieldName + 'Id'];
+      })
+      .map((entity) => entity[fieldName + 'Id']);
+    await this.contentTextRepository.deleteAll({id: {inq: contentIdsToDelete}});
+  }
+
   public async manageContent(
     entity: EntityWithContent,
     postedEntity: EntityWithContent,

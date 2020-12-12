@@ -74,15 +74,9 @@ export const WEB_SITE_VIEW_WITH_MENU_TYPE: ObjectTypeDefinition = {
 
 export const TEMPLATE_VIEW_TYPE: ObjectTypeDefinition = {
   name: 'TemplateView',
+  contentType: 'ContentGenericTemplate',
   definition: {
-    properties: {
-      template: {
-        type: 'textarea',
-        title: 'Template',
-        default: '',
-        required: true,
-      },
-    },
+    properties: {},
   },
 };
 

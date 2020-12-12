@@ -30,6 +30,7 @@ export interface ContentEntityServiceInterface {
     postedEntity: EntityWithContent,
   ): Promise<boolean>;
   addTransientContent(entity: EntityWithContent): Promise<void>;
+  deleteContents(entities: EntityWithContent[]): Promise<void>;
 }
 
 export class ContentEntityService {
@@ -37,14 +38,16 @@ export class ContentEntityService {
     contentType: string | undefined,
   ): Promise<IJsonSchema> {
     if (this.hasContentManager(contentType)) {
-      return this.contentTypes[contentType as string].getContentDefinition();
+      return this.contentTypeDefinitions[
+        contentType as string
+      ].getContentDefinition();
     }
     return {properties: {}};
   }
   public hasContentManager(contentType: string | undefined) {
-    return contentType && contentType in this.contentTypes;
+    return contentType && contentType in this.contentTypeDefinitions;
   }
-  protected contentTypes: {
+  protected contentTypeDefinitions: {
     [contentType: string]: ContentEntityServiceInterface;
   } = {};
   constructor(/* Add @inject to inject parameters */) {}
@@ -53,7 +56,11 @@ export class ContentEntityService {
     contentType: string,
     service: ContentEntityServiceInterface,
   ) {
-    this.contentTypes[contentType] = service;
+    this.contentTypeDefinitions[contentType] = service;
+  }
+
+  public get contentTypes(): string[] {
+    return Object.keys(this.contentTypeDefinitions);
   }
 
   public manageContent(
@@ -62,12 +69,18 @@ export class ContentEntityService {
     postedEntity: Entity,
   ): Promise<boolean> {
     if (contentType && this.hasContentManager(contentType)) {
-      return this.contentTypes[contentType].manageContent(
+      return this.contentTypeDefinitions[contentType].manageContent(
         entity as EntityWithContent,
         postedEntity as EntityWithContent,
       );
     }
     return Promise.resolve(false);
+  }
+
+  public async deleteContents(contentType: string, entities: Entity[]) {
+    if (contentType && this.hasContentManager(contentType)) {
+      return this.contentTypeDefinitions[contentType].deleteContents(entities);
+    }
   }
 
   public addTransientContent(
@@ -79,7 +92,9 @@ export class ContentEntityService {
       entity.entityCtx = {entityType: entityType};
     }
     if (contentType && this.hasContentManager(contentType)) {
-      return this.contentTypes[contentType].addTransientContent(entity);
+      return this.contentTypeDefinitions[contentType].addTransientContent(
+        entity,
+      );
     }
     return Promise.resolve();
   }
@@ -91,7 +106,7 @@ export class ContentEntityService {
     args: {contentId?: string},
   ): any {
     if (contentType && this.hasContentManager(contentType)) {
-      return this.contentTypes[contentType].getContent(
+      return this.contentTypeDefinitions[contentType].getContent(
         entity as EntityWithContent,
         fieldName,
         args,

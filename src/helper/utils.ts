@@ -16,8 +16,22 @@ import {intersection} from 'lodash';
 import path from 'path';
 import {ObjectTree} from '../models';
 
+export function contentGenericTemplate(
+  dirName: string,
+  name: string,
+): {template: string; scss: string} {
+  return {
+    template: template(path.join(dirName, name), 'template'),
+    scss: scss(path.join(dirName, name), 'style'),
+  };
+}
+
 export function template(dirName: string, name: string): string {
-  return fs.readFileSync(path.join(dirName, name + '.tpl.html'), 'utf8');
+  return fs.readFileSync(path.join(dirName, name + '.html'), 'utf8');
+}
+
+export function scss(dirName: string, name: string): string {
+  return fs.readFileSync(path.join(dirName, name + '.scss'), 'utf8');
 }
 
 export function doesTreeImplementOneOfType(

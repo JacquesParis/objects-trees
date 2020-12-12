@@ -366,6 +366,7 @@ export class ObjectNodeService {
     objectNode: DataObject<ObjectNode>,
     ctx: CurrentContext,
     byPassCheck = false,
+    autoGenerateChildren = true,
   ): Promise<ObjectNode> {
     const nodeContext = ctx.nodeContext;
     //let objectNode = clone(objectNodePosted);
@@ -481,7 +482,9 @@ export class ObjectNodeService {
       await this.objectNodeRepository.updateById(result.id, result);
     }
 
-    await this.checkSubTypesCondition(result, nodeContext);
+    if (autoGenerateChildren) {
+      await this.checkSubTypesCondition(result, nodeContext);
+    }
 
     /*
     await this.contentEntityService.addTransientContent(
@@ -564,7 +567,40 @@ export class ObjectNodeService {
     );
   }
 
-  async removeByParent(parentType: ParentNodeType, id: string): Promise<void> {
+  async deleteContentNodes(where: Where, ctx: CurrentContext) {
+    const contentTypes = await this.objectTypeService.getTypeWithContent(ctx);
+    if (0 < Object.keys(contentTypes).length) {
+      const deletedContentObjects = await this.objectNodeRepository.find({
+        where: merge(where, {
+          objectTypeId: {inq: Object.keys(contentTypes)},
+        }),
+      });
+      if (0 < deletedContentObjects.length) {
+        for (const contentType of this.contentEntityService.contentTypes) {
+          const deletedObjects = deletedContentObjects.filter(
+            (deletedObject) => {
+              return (
+                contentType ===
+                contentTypes[deletedObject.objectTypeId].contentType
+              );
+            },
+          );
+          if (0 < deletedObjects.length) {
+            await this.contentEntityService.deleteContents(
+              contentType,
+              deletedObjects,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  async removeByParent(
+    parentType: ParentNodeType,
+    id: string,
+    ctx: CurrentContext,
+  ): Promise<void> {
     const parentIdKey = this.getParentIdKey(parentType);
     const whereClause = merge(
       {
@@ -576,8 +612,15 @@ export class ObjectNodeService {
       where: whereClause,
     });
     for (const subChildNode of subChildsNodes) {
-      await this.removeByParent(parentType, <string>subChildNode.id);
+      await this.removeByParent(parentType, <string>subChildNode.id, ctx);
     }
+
+    await this.deleteContentNodes(
+      {
+        [parentIdKey]: id,
+      },
+      ctx,
+    );
 
     await this.objectNodeRepository.deleteAll({
       [parentIdKey]: id,
@@ -591,14 +634,22 @@ export class ObjectNodeService {
     }
 
     if (node.owner) {
-      await this.removeByParent(ParentNodeType.owner, <string>node.id);
+      await this.removeByParent(ParentNodeType.owner, <string>node.id, ctx);
     } else if (node.namespace) {
-      await this.removeByParent(ParentNodeType.namespace, <string>node.id);
+      await this.removeByParent(ParentNodeType.namespace, <string>node.id, ctx);
     } else if (node.tree) {
-      await this.removeByParent(ParentNodeType.tree, <string>node.id);
+      await this.removeByParent(ParentNodeType.tree, <string>node.id, ctx);
     } else {
-      await this.removeByParent(ParentNodeType.node, <string>node.id);
+      await this.removeByParent(ParentNodeType.node, <string>node.id, ctx);
     }
+
+    await this.deleteContentNodes(
+      {
+        id: id,
+      },
+      ctx,
+    );
+
     await this.objectNodeRepository.deleteById(id);
     return;
   }

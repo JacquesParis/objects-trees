@@ -1,6 +1,6 @@
 import {service} from '@loopback/core';
 import {DataObject, repository} from '@loopback/repository';
-import _, {uniq} from 'lodash';
+import _, {omitBy, uniq} from 'lodash';
 import {ObjectSubType} from '../models';
 import {ObjectTypeRepository} from '../repositories';
 import {ApplicationError} from './../helper/application-error';
@@ -57,6 +57,16 @@ export class ObjectTypeService {
     }
 
     return newType;
+  }
+
+  public async getTypeWithContent(
+    ctx: CurrentContext,
+  ): Promise<{[id: string]: ObjectType}> {
+    const types = await this.getAll(ctx);
+
+    return omitBy(types, (type) => {
+      return !type.contentType || '' === type.contentType;
+    });
   }
 
   async cleanWhenReboot() {

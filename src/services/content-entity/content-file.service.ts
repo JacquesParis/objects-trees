@@ -39,6 +39,21 @@ export class ContentFileService implements ContentEntityServiceInterface {
     return path.join(this.getDirPath(entity), './' + fieldName);
   }
 
+  public async deleteContents(
+    entities: EntityWithContent[],
+    fieldName = 'contentFile',
+  ): Promise<void> {
+    const contentIdsToDelete: EntityWithContent[] = entities.filter(
+      (entity) => {
+        return entity[fieldName]?.id;
+      },
+    );
+    for (const entity of contentIdsToDelete) {
+      try {
+        await fs.promises.unlink(this.getFilePath(entity, fieldName));
+      } catch (error) {}
+    }
+  }
   public async manageContent(
     entity: EntityWithContent,
     postedEntity: EntityWithContent,
@@ -50,7 +65,7 @@ export class ContentFileService implements ContentEntityServiceInterface {
       !contentFileEntity.base64 ||
       !contentFileEntity.name
     ) {
-      if (entity.contentFile?.id && !contentFileEntity?.id) {
+      if (entity[fieldName]?.id && !contentFileEntity?.id) {
         try {
           await fs.promises.unlink(this.getFilePath(entity, fieldName));
         } catch (error) {}

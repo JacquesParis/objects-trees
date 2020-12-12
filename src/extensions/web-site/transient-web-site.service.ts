@@ -75,36 +75,43 @@ export class TransientWebSiteService {
       ctx.accessRightsContexte.authorization.value,
     )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
 
-    for (const menuEntry of webSiteObjectTree.treeNode.menuEntries) {
-      if (webSiteViewWithMenuTree.treeNode.menuEntries[menuEntry.entryKey]) {
-        const children: MenuTree[] = this.lookForMenuEntries(
-          webSiteViewWithMenuTree.children,
-          menuEntry.entryTypes,
-          webSiteViewWithMenuTree,
-          menuEntry.entryKey,
-          menuEntry.menuEntryLabelKey ? menuEntry.menuEntryLabelKey : 'name',
-        );
-        webSiteViewWithMenuTree.menuEntries[menuEntry.entryKey] = ({
-          entityCtx: webSiteViewWithMenuTree.entityCtx,
-          treeNode: webSiteViewWithMenuTree.treeNode,
-          id: webSiteViewWithMenuTree.id + '/menuEntries/' + menuEntry.entryKey,
-          uri:
-            webSiteViewWithMenuTree.uri + '/menuEntries/' + menuEntry.entryKey,
-          aliasUri: undefined,
-          children: children,
-          disabled: 0 === children.length,
-          singleMenu:
-            0 === children.length ||
-            (1 === children.length && children[0].singleMenu),
-        } as unknown) as MenuEntryTree;
-        if (
-          webSiteViewWithMenuTree.menuEntries[menuEntry.entryKey].singleMenu &&
-          !webSiteViewWithMenuTree.menuEntries[menuEntry.entryKey].disabled
-        ) {
-          webSiteViewWithMenuTree.menuEntries[menuEntry.entryKey].pageTreeId =
-            children[0].pageTreeId;
-          webSiteViewWithMenuTree.menuEntries[menuEntry.entryKey].pageTreeUri =
-            children[0].pageTreeUri;
+    if (webSiteViewWithMenuTree.treeNode.menuEntries) {
+      for (const menuEntry of webSiteObjectTree.treeNode.menuEntries) {
+        if (webSiteViewWithMenuTree.treeNode.menuEntries[menuEntry.entryKey]) {
+          const children: MenuTree[] = this.lookForMenuEntries(
+            webSiteViewWithMenuTree.children,
+            menuEntry.entryTypes,
+            webSiteViewWithMenuTree,
+            menuEntry.entryKey,
+            menuEntry.menuEntryLabelKey ? menuEntry.menuEntryLabelKey : 'name',
+          );
+          webSiteViewWithMenuTree.menuEntries[menuEntry.entryKey] = ({
+            entityCtx: webSiteViewWithMenuTree.entityCtx,
+            treeNode: webSiteViewWithMenuTree.treeNode,
+            id:
+              webSiteViewWithMenuTree.id + '/menuEntries/' + menuEntry.entryKey,
+            uri:
+              webSiteViewWithMenuTree.uri +
+              '/menuEntries/' +
+              menuEntry.entryKey,
+            aliasUri: undefined,
+            children: children,
+            disabled: 0 === children.length,
+            singleMenu:
+              0 === children.length ||
+              (1 === children.length && children[0].singleMenu),
+          } as unknown) as MenuEntryTree;
+          if (
+            webSiteViewWithMenuTree.menuEntries[menuEntry.entryKey]
+              .singleMenu &&
+            !webSiteViewWithMenuTree.menuEntries[menuEntry.entryKey].disabled
+          ) {
+            webSiteViewWithMenuTree.menuEntries[menuEntry.entryKey].pageTreeId =
+              children[0].pageTreeId;
+            webSiteViewWithMenuTree.menuEntries[
+              menuEntry.entryKey
+            ].pageTreeUri = children[0].pageTreeUri;
+          }
         }
       }
     }
