@@ -17,7 +17,7 @@ export class ContentTextRepository extends DefaultCrudRepository<
 > {
   public readonly objectNode: BelongsToAccessor<
     ObjectNode,
-    typeof ObjectNode.prototype.id
+    typeof ContentText.prototype.id
   >;
 
   constructor(

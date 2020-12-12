@@ -1,5 +1,5 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
-import {Getter, inject} from '@loopback/core';
+import {Getter} from '@loopback/core';
 import {
   belongsTo,
   BelongsToAccessor,
@@ -7,9 +7,7 @@ import {
   Entity,
   model,
   property,
-  repository,
 } from '@loopback/repository';
-import {DATASTORE_DB} from '../constants';
 import {DbDataSource} from '../datasources/db.datasource';
 import {ContentEntity} from '../models';
 import {ObjectNode, ObjectNodeRelations} from '../models/object-node.model';
@@ -46,23 +44,23 @@ export type ContentExtensionWithRelations<T extends Entity> = ContentExtension<
   ContentExtensionRelations;
 
 export class ContentExtensionRepository<
-  T extends Entity
+  T extends Entity,
+  ID extends string | undefined
 > extends DefaultCrudRepository<
   ContentExtension<T>,
-  typeof ContentExtension.prototype.id,
+  ID,
   ContentExtensionRelations
 > {
-  public readonly objectNode: BelongsToAccessor<
-    ObjectNode,
-    typeof ObjectNode.prototype.id
-  >;
+  public readonly objectNode: BelongsToAccessor<ObjectNode, ID>;
 
   constructor(
-    @inject(DATASTORE_DB) dataSource: DbDataSource,
-    @repository.getter('ObjectNodeRepository')
+    entityClass: typeof Entity & {
+      prototype: ContentExtension<T>;
+    },
+    dataSource: DbDataSource,
     protected objectNodeRepositoryGetter: Getter<ObjectNodeRepository>,
   ) {
-    super(ContentExtension, dataSource);
+    super(entityClass, dataSource);
     this.objectNode = this.createBelongsToAccessorFor(
       'objectNode',
       objectNodeRepositoryGetter,
@@ -74,11 +72,13 @@ export class ContentExtensionRepository<
   }
 }
 
-export abstract class ContentExtensionService<E extends Entity>
-  implements ContentEntityServiceInterface {
+export abstract class ContentExtensionService<
+  E extends Entity,
+  ID extends string | undefined
+> implements ContentEntityServiceInterface {
   constructor(
     protected contentEntityService: ContentEntityService,
-    protected contentExtensionRepository: ContentExtensionRepository<E>,
+    protected contentExtensionRepository: ContentExtensionRepository<E, ID>,
     protected contentTypeName: string,
   ) {
     this.contentEntityService.registerNewContentType(contentTypeName, this);
@@ -86,7 +86,7 @@ export abstract class ContentExtensionService<E extends Entity>
 
   public get fieldName(): string {
     return (
-      this.contentTypeName.charAt(0).toUpperCase() +
+      this.contentTypeName.charAt(0).toLowerCase() +
       this.contentTypeName.slice(1)
     );
   }
@@ -144,7 +144,7 @@ export abstract class ContentExtensionService<E extends Entity>
   public async getContent(
     entity: EntityWithContent,
     fieldName = this.fieldName,
-    args: {contentId: string},
+    args: {contentId: ID},
   ): Promise<E> {
     const contentExenstion = await this.contentExtensionRepository.findById(
       args.contentId,

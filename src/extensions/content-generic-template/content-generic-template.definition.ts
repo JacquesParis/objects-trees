@@ -1,5 +1,5 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
-import {service} from '@loopback/core';
+import {Getter, inject, service} from '@loopback/core';
 import {Entity, model, property, repository} from '@loopback/repository';
 import {
   ContentExtension,
@@ -9,6 +9,9 @@ import {
   ContentExtensionWithRelations,
 } from '../../integration/content-extension.definition';
 import {ContentEntityService} from '../../services/content-entity/content-entity.service';
+import {DATASTORE_DB} from './../../constants';
+import {DbDataSource} from './../../datasources/db.datasource';
+import {ObjectNodeRepository} from './../../repositories/object-node.repository';
 import {CONTENT_GENERIC_TEMPLATE} from './content-generic-template.const';
 
 @model()
@@ -33,11 +36,21 @@ export type ContentGenericTemplateWithRelations = ContentExtensionWithRelations<
 >;
 
 export class ContentGenericTemplateRepository extends ContentExtensionRepository<
-  GenericTemplate
-> {}
+  GenericTemplate,
+  typeof ContentGenericTemplate.prototype.id
+> {
+  constructor(
+    @inject(DATASTORE_DB) dataSource: DbDataSource,
+    @repository.getter('ObjectNodeRepository')
+    protected objectNodeRepositoryGetter: Getter<ObjectNodeRepository>,
+  ) {
+    super(ContentGenericTemplate, dataSource, objectNodeRepositoryGetter);
+  }
+}
 
 export class ContentGenericTemplateService extends ContentExtensionService<
-  GenericTemplate
+  GenericTemplate,
+  typeof ContentGenericTemplate.prototype.id
 > {
   constructor(
     @service(ContentEntityService)
