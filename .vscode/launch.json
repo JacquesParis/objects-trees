@@ -11,7 +11,7 @@
       "<node_internals>/**"
     ],
     "program": "${workspaceFolder}\\main.js",
-    "preLaunchTask": "tsc: build - tsconfig.json",
+    "preLaunchTask": "npm: build",
     "outFiles": [
       "${workspaceFolder}/dist/**/*.js"
     ]

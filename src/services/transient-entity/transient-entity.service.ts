@@ -1,5 +1,6 @@
 import {IRestEntity} from '@jacquesparis/objects-model';
 import {BindingScope, injectable, service} from '@loopback/core';
+import {indexOf} from 'lodash';
 import {EntityName} from '../../models';
 import {ApplicationService, CurrentContext} from '../application.service';
 import {AbstractEntityInterceptorInterface} from './../../interceptors/abstract-entity-interceptor.service';
@@ -26,6 +27,26 @@ export class TransientEntityService
       this.transientEntitys[resource] = [];
     }
     this.transientEntitys[resource]?.push(transientEntity);
+  }
+
+  public registerTransientEntityTypeFunction<T extends IRestEntity>(
+    resource: EntityName,
+    objectType: string,
+    transientFunction: (entity: T, ctx: CurrentContext) => Promise<void>,
+  ) {
+    this.registerTransientEntityService(
+      resource,
+      new (class implements TransientEntityInterface {
+        async completeReturnedEntity(
+          entity: IRestEntity,
+          ctx: CurrentContext,
+        ): Promise<void> {
+          if (-1 < indexOf(entity.entityCtx?.implementedTypes, objectType)) {
+            return transientFunction(entity as T, ctx);
+          }
+        }
+      })(),
+    );
   }
 
   get ready(): Promise<void> {

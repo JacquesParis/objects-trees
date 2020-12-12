@@ -1,9 +1,12 @@
 import {IEntityContext, IObjectTree} from '@jacquesparis/objects-model';
 import {EntityName} from './entity-name';
 import {ObjectNode} from './object-node.model';
+
 export class ObjectTree implements IObjectTree {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
   children: ObjectTree[] = [];
-  parentTree: ObjectTree;
+  parentTree?: ObjectTree;
   uri: string;
   aliasUri?: string;
   id: string;
@@ -13,8 +16,8 @@ export class ObjectTree implements IObjectTree {
   namespaceName?: string;
   treeType?: string;
   treeName?: string;
-  parentTreeId: string;
-  parentTreeUri: string;
+  parentTreeId?: string;
+  parentTreeUri?: string;
   entityName: EntityName = EntityName.objectTree;
   entityCtx?: IEntityContext;
 
@@ -53,4 +56,8 @@ export class ObjectTree implements IObjectTree {
     this.id = this.treeNode.id as string;
     return this;
   }
+}
+
+export class ObjectNodeTree<T extends ObjectNode> extends ObjectTree {
+  treeNode: T;
 }

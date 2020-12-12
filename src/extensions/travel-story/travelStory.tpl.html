@@ -4,3 +4,9 @@
   [dataTree]="dataTree"
   [templateTree]="templateNode.menuObjectTree"
 ></div>
+<div
+  template
+  *ngIf="ready"
+  [dataTree]="pageTree"
+  [templateTree]="templateNode.pageObjectTree"
+></div>

@@ -45,6 +45,29 @@ export const WEB_SITE_VIEW_WITH_MENU_TYPE: ObjectTypeDefinition = {
         default: '',
         required: true,
       },
+      menuEntries: {
+        type: 'object',
+        title: 'Menu entries',
+        properties: {},
+      },
+      webSiteObjectTreeId: {
+        type: 'string',
+        title: 'Web Site Template',
+        default: '',
+        required: true,
+        oneOfTree: [
+          {
+            treeType: 'WebSiteWitHMenuTemplate',
+            namespaceName: 'templates',
+            namespaceType: 'RepositoryCategory',
+            ownerName: 'public',
+            ownerType: 'Repository',
+          },
+          {
+            treeType: 'WebSiteWitHMenuTemplate',
+          },
+        ],
+      },
     },
   },
 };
@@ -134,9 +157,18 @@ export const WEB_SITE_WITH_MENU_TEMPLATE_TYPE: ObjectTypeDefinition = {
         items: {
           type: 'object',
           properties: {
+            entryKey: {
+              type: 'string',
+              title: 'Entry key',
+            },
             entryName: {
               type: 'string',
               title: 'Entry name',
+            },
+            menuEntryLabelKey: {
+              type: 'string',
+              title: 'Menu entry label key',
+              default: 'name',
             },
             entryTypes: {
               type: 'array',
