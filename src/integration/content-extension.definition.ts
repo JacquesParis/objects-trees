@@ -9,19 +9,19 @@ import {
   property,
   repository,
 } from '@loopback/repository';
+import {DATASTORE_DB} from '../constants';
+import {DbDataSource} from '../datasources/db.datasource';
 import {ContentEntity} from '../models';
-import {DATASTORE_DB} from './../constants';
-import {DbDataSource} from './../datasources/db.datasource';
-import {ObjectNode, ObjectNodeRelations} from './../models/object-node.model';
-import {ObjectNodeRepository} from './../repositories/object-node.repository';
+import {ObjectNode, ObjectNodeRelations} from '../models/object-node.model';
+import {ObjectNodeRepository} from '../repositories/object-node.repository';
 import {
   ContentEntityService,
   ContentEntityServiceInterface,
   EntityWithContent,
-} from './../services/content-entity/content-entity.service';
+} from '../services/content-entity/content-entity.service';
 
 @model({settings: {strict: false}})
-export class ContentExtenstion<T extends Entity> extends ContentEntity {
+export class ContentExtension<T extends Entity> extends ContentEntity {
   @property({
     type: 'object',
   })
@@ -35,21 +35,22 @@ export class ContentExtenstion<T extends Entity> extends ContentEntity {
   }
 }
 
-export interface ContentExtenstionRelations {
+export interface ContentExtensionRelations {
   // describe navigational properties here
   objectNode: ObjectNodeRelations;
 }
 
-export type ContentExtenstionWithRelations<
-  T extends Entity
-> = ContentExtenstion<T> & ContentExtenstionRelations;
+export type ContentExtensionWithRelations<T extends Entity> = ContentExtension<
+  T
+> &
+  ContentExtensionRelations;
 
-export class ContentExtenstionRepository<
+export class ContentExtensionRepository<
   T extends Entity
 > extends DefaultCrudRepository<
-  ContentExtenstion<T>,
-  typeof ContentExtenstion.prototype.id,
-  ContentExtenstionRelations
+  ContentExtension<T>,
+  typeof ContentExtension.prototype.id,
+  ContentExtensionRelations
 > {
   public readonly objectNode: BelongsToAccessor<
     ObjectNode,
@@ -61,7 +62,7 @@ export class ContentExtenstionRepository<
     @repository.getter('ObjectNodeRepository')
     protected objectNodeRepositoryGetter: Getter<ObjectNodeRepository>,
   ) {
-    super(ContentExtenstion, dataSource);
+    super(ContentExtension, dataSource);
     this.objectNode = this.createBelongsToAccessorFor(
       'objectNode',
       objectNodeRepositoryGetter,
@@ -73,11 +74,11 @@ export class ContentExtenstionRepository<
   }
 }
 
-export abstract class ContentExtenstionService<E extends Entity>
+export abstract class ContentExtensionService<E extends Entity>
   implements ContentEntityServiceInterface {
   constructor(
-    public contentEntityService: ContentEntityService,
-    public contentExtenstionRepository: ContentExtenstionRepository<E>,
+    protected contentEntityService: ContentEntityService,
+    protected contentExtensionRepository: ContentExtensionRepository<E>,
     protected contentTypeName: string,
   ) {
     this.contentEntityService.registerNewContentType(contentTypeName, this);
@@ -101,7 +102,7 @@ export abstract class ContentExtenstionService<E extends Entity>
         return entity[fieldName + 'Id'];
       })
       .map((entity) => entity[fieldName + 'Id']);
-    await this.contentExtenstionRepository.deleteAll({
+    await this.contentExtensionRepository.deleteAll({
       id: {inq: contentIdsToDelete},
     });
   }
@@ -111,30 +112,30 @@ export abstract class ContentExtenstionService<E extends Entity>
     postedEntity: EntityWithContent,
     fieldName = this.fieldName,
   ): Promise<boolean> {
-    const postedExtenstionId = entity[fieldName + 'Id'];
-    const postedExtenstion = postedEntity[fieldName];
-    if (undefined === postedExtenstion) {
+    const postedExtensionId = entity[fieldName + 'Id'];
+    const postedExtension = postedEntity[fieldName];
+    if (undefined === postedExtension) {
       return false;
     }
-    if (null === postedExtenstion || '' === postedExtenstion) {
-      if (postedExtenstionId) {
-        await this.contentExtenstionRepository.deleteById(postedExtenstionId);
+    if (null === postedExtension || '' === postedExtension) {
+      if (postedExtensionId) {
+        await this.contentExtensionRepository.deleteById(postedExtensionId);
         entity[fieldName + 'Id'] = null;
         return true;
       }
       return false;
     } else {
-      if (postedExtenstionId) {
-        await this.contentExtenstionRepository.updateById(postedExtenstionId, {
-          content: postedExtenstion,
+      if (postedExtensionId) {
+        await this.contentExtensionRepository.updateById(postedExtensionId, {
+          content: postedExtension,
         });
         return false;
       } else {
-        const newExtenstion = await this.contentExtenstionRepository.create({
-          content: postedExtenstion,
+        const newExtension = await this.contentExtensionRepository.create({
+          content: postedExtension,
           objectNodeId: entity.id,
         });
-        entity[fieldName + 'Id'] = newExtenstion.id;
+        entity[fieldName + 'Id'] = newExtension.id;
         return true;
       }
     }
@@ -145,10 +146,10 @@ export abstract class ContentExtenstionService<E extends Entity>
     fieldName = this.fieldName,
     args: {contentId: string},
   ): Promise<E> {
-    const contentExtenstion = await this.contentExtenstionRepository.findById(
+    const contentExenstion = await this.contentExtensionRepository.findById(
       args.contentId,
     );
-    return contentExtenstion.content;
+    return contentExenstion.content;
   }
 
   public async addTransientContent(

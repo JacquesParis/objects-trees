@@ -3,10 +3,10 @@ import {ExtensionProvider} from '../../integration/extension.provider';
 import {CONTENT_GENERIC_TEMPLATE} from './content-generic-template.const';
 import {
   ContentGenericTemplate,
+  ContentGenericTemplateRepository,
+  ContentGenericTemplateService,
   GenericTemplate,
-} from './content-generic-template.model';
-import {ContentGenericTemplateRepository} from './content-generic-template.repository';
-import {ContentGenericTemplateService} from './content-generic-template.service';
+} from './content-generic-template.definition';
 
 export class ContentGenericTemplateProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
