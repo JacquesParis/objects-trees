@@ -6,8 +6,11 @@ import {EntityName} from '../../models';
 import {CurrentContext, InsideRestService} from '../../services';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectNodeTree, ObjectTree} from './../../models/object-tree.model';
+import {ObjectNodeService} from './../../services/object-node/object-node.service';
+import {ObjectTreeService} from './../../services/object-tree/object-tree.service';
 import {TransientEntityService} from './../../services/transient-entity/transient-entity.service';
 import {
+  PAGE_WITH_TEMPLATE_CHOICE,
   WEB_SITE_VIEW_TYPE,
   WEB_SITE_VIEW_WITH_MENU_TYPE,
   WELCOME_PAGE_TYPE,
@@ -27,6 +30,10 @@ export class TransientWebSiteService {
     protected transientEntityService: TransientEntityService,
     @inject('services.InsideRestService')
     private insideRestService: InsideRestService,
+    @service(ObjectNodeService)
+    private objectNodeService: ObjectNodeService,
+    @service(ObjectTreeService)
+    private objectTreeService: ObjectTreeService,
   ) {
     this.transientEntityService.registerTransientEntityTypeFunction(
       EntityName.objectTree,
@@ -42,6 +49,11 @@ export class TransientWebSiteService {
       EntityName.objectNode,
       WEB_SITE_VIEW_WITH_MENU_TYPE.name,
       this.completeWebSiteViewWithMenuNode.bind(this),
+    );
+    this.transientEntityService.registerTransientEntityTypeFunction(
+      EntityName.objectNode,
+      PAGE_WITH_TEMPLATE_CHOICE.name,
+      this.completePageTypeNode.bind(this),
     );
   }
 
@@ -180,6 +192,46 @@ export class TransientWebSiteService {
           type: 'string',
           title: menuEntry.entryName,
         };
+      }
+    }
+  }
+
+  async completePageTypeNode(objectNode: ObjectNode, ctx: CurrentContext) {
+    if (objectNode.entityCtx?.jsonSchema?.properties.pageObjectTreeId) {
+      const treeNode: ObjectNode = await this.objectNodeService.getTreeNode(
+        objectNode,
+        ctx,
+      );
+      if (treeNode.webSiteObjectTreeId) {
+        const templatePath = treeNode.webSiteObjectTreeId.split('/');
+        const templateTree = await this.objectNodeService.searchTreeNode(
+          templatePath[1],
+          templatePath[2],
+          templatePath[3],
+          templatePath[4],
+          templatePath[5],
+          templatePath[6],
+        );
+
+        if (templateTree?.pageTemplateChoices) {
+          const oneOf: {enum: {[0]: string}; title: string}[] = [];
+          for (const pageTemplateChoice of templateTree.pageTemplateChoices) {
+            if (
+              doesTreeImplementOneOfType(
+                objectNode,
+                pageTemplateChoice.pageTypes,
+              )
+            ) {
+              oneOf.push({
+                enum: [pageTemplateChoice.pageObjectTreeId],
+                title: pageTemplateChoice.pageTypeName,
+              });
+            }
+          }
+          if (0 < oneOf.length) {
+            objectNode.entityCtx.jsonSchema.properties.pageObjectTreeId.oneOf = oneOf;
+          }
+        }
       }
     }
   }

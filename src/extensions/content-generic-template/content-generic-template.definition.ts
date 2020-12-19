@@ -24,6 +24,10 @@ export class GenericTemplate extends Entity {
     type: 'string',
   })
   scss: string;
+  @property({
+    type: 'string',
+  })
+  controller: string;
 }
 
 @model({settings: {strict: false}})
@@ -84,6 +88,14 @@ export class ContentGenericTemplateService extends ContentExtensionService<
             scss: {
               type: 'string',
               title: 'Scss',
+              default: '',
+              'x-schema-form': {
+                type: 'textarea',
+              },
+            },
+            controller: {
+              type: 'string',
+              title: 'Controller',
               default: '',
               'x-schema-form': {
                 type: 'textarea',

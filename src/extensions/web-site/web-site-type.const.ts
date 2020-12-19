@@ -95,7 +95,7 @@ export const WEB_SITE_TEMPLATE_TYPE: ObjectTypeDefinition = {
   definition: {
     properties: {
       pageObjectTreeId: {
-        title: 'Template de page',
+        title: 'Page template',
         type: 'string',
         oneOfTree: [
           {
@@ -124,13 +124,63 @@ export const MENU_TEMPLATE_TYPE: ObjectTypeDefinition = {
   contentType: '',
 };
 
+export const WEB_SITE_WITH_PAGES_TEMPLATE_TYPE: ObjectTypeDefinition = {
+  name: 'WebSiteWitHPagesTemplate',
+  inheritedTypesIds: [WEB_SITE_TEMPLATE_TYPE.name],
+  definition: {
+    properties: {
+      pageTemplateChoices: {
+        title: 'Page templates choice',
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            pageTypeKey: {
+              type: 'string',
+              title: 'Page type key',
+            },
+            pageTypeName: {
+              type: 'string',
+              title: 'Page type name',
+            },
+            pageObjectTreeId: {
+              title: 'Page template',
+              type: 'string',
+              oneOfTree: [
+                {
+                  treeType: PAGE_TEMPLATE_TYPE.name,
+                  namespaceName: TEMPLATES_OBJECT_NAME,
+                  namespaceType: ObjectTypeName.REPOSITORY_CATEGORY,
+                  ownerName: PUBLIC_OBJECT_NAME,
+                  ownerType: ObjectTypeName.REPOSITORY,
+                },
+                {
+                  treeType: PAGE_TEMPLATE_TYPE.name,
+                },
+              ],
+            },
+            pageTypes: {
+              type: 'array',
+              title: 'Page types',
+              items: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  contentType: '',
+};
+
 export const WEB_SITE_WITH_MENU_TEMPLATE_TYPE: ObjectTypeDefinition = {
   name: 'WebSiteWitHMenuTemplate',
   inheritedTypesIds: [WEB_SITE_TEMPLATE_TYPE.name],
   definition: {
     properties: {
       menuObjectTreeId: {
-        title: 'Template de menu',
+        title: 'Menu template',
         type: 'string',
         oneOfTree: [
           {
@@ -217,6 +267,19 @@ export const WELCOME_PAGE_TYPE: ObjectTypeDefinition = {
   inheritedTypesIds: [PAGE_TYPE.name],
   definition: {
     properties: {},
+  },
+};
+
+export const PAGE_WITH_TEMPLATE_CHOICE: ObjectTypeDefinition = {
+  name: 'PageWithTemplateChoice',
+  inheritedTypesIds: [PAGE_TYPE.name],
+  definition: {
+    properties: {
+      pageObjectTreeId: {
+        title: 'Display choice',
+        type: 'string',
+      },
+    },
   },
 };
 

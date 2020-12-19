@@ -8,5 +8,5 @@
   template
   *ngIf="ready"
   [dataTree]="pageTree"
-  [templateTree]="templateNode.pageObjectTree"
+  [templateTree]="pageNode.pageObjectTree?pageNode.pageObjectTree:templateNode.pageObjectTree"
 ></div>

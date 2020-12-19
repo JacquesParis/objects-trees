@@ -21,6 +21,7 @@ export const TENANT_TYPE: ObjectTypeDefinition = {
   inheritedTypesIds: [FOLDER_TYPE.name],
   definition: {
     properties: {
+      /*
       firstname: {
         type: 'string',
         title: 'Firstname',
@@ -48,7 +49,7 @@ export const TENANT_TYPE: ObjectTypeDefinition = {
         default: '',
         minLength: 2,
         required: false,
-      },
+      },*/
     },
   },
   contentType: '',

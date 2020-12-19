@@ -227,6 +227,15 @@ export class ObjectNodeService {
     });
   }
 
+  public async getTreeNode(
+    objectNode: ObjectNode,
+    ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    return ctx.nodeContext.tree.getOrSetValue(async () => {
+      return this.searchById(objectNode.parentTreeId);
+    });
+  }
+
   public searchById(
     id: string,
     filter?: FilterExcludingWhere<ObjectNode>,

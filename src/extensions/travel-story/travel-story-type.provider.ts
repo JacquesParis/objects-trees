@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {ObjectTreesApplicationInterface} from '../../application';
-import {contentGenericTemplate} from '../../helper';
+import {base64, contentGenericTemplate} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
-import {POST_TYPE} from './../post/post-type.const';
+import {
+  IMAGE_GALLERY_TYPE,
+  IMAGE_TYPE,
+} from './../content-image/content-image.const';
+import {ContentImageProvider} from './../content-image/content-image.provider';
+import {POST_TYPE, POST_WITH_GALLERY_TYPE} from './../post/post-type.const';
 import {
   CALENDAR_ENTRY_TYPE,
   WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE,
@@ -12,26 +17,29 @@ import {
   CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE,
   FOLDER_TRAVEL_STORY_SUBTYPE,
   TRAVEL_STORY_NAME,
+  TRAVEL_STORY_POST_ROOT_TYPE,
   TRAVEL_STORY_POST_TRAVEL_STORY_POST_SUBTYPE,
   TRAVEL_STORY_POST_TYPE,
   TRAVEL_STORY_TEMPLATE_TYPE,
-  TRAVEL_STORY_TRAVEL_STORY_POST_SUBTYPE,
+  TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE,
   TRAVEL_STORY_TYPE,
 } from './travel-story-type.const';
 export class TravelStoryTypeProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(TRAVEL_STORY_NAME, app);
-    this.objectTypes.travelStoryType = TRAVEL_STORY_TYPE;
-    this.objectTypes.travelStoryPostType = TRAVEL_STORY_POST_TYPE;
+    this.requiredProviders.push(ContentImageProvider);
+    this.objectTypes.travelStory = TRAVEL_STORY_TYPE;
+    this.objectTypes.travelStoryPost = TRAVEL_STORY_POST_TYPE;
     this.objectTypes.travelStoryTemplate = TRAVEL_STORY_TEMPLATE_TYPE;
+    this.objectTypes.travelStoryPostRoot = TRAVEL_STORY_POST_ROOT_TYPE;
 
     this.objectSubTypes.push(FOLDER_TRAVEL_STORY_SUBTYPE);
-    this.objectSubTypes.push(TRAVEL_STORY_TRAVEL_STORY_POST_SUBTYPE);
+    this.objectSubTypes.push(TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE);
     this.objectSubTypes.push(TRAVEL_STORY_POST_TRAVEL_STORY_POST_SUBTYPE);
     this.objectSubTypes.push(CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE);
 
     this.objectTrees.travelStory = {
-      reset: true,
+      reset: false,
       parentNode: () => this.appCtx.publicTemplatesNode.value,
       treeNodeName: 'travelStory',
       treeNodeTypeId: TRAVEL_STORY_TEMPLATE_TYPE.name,
@@ -65,6 +73,22 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               entryTypes: [CALENDAR_ENTRY_TYPE.name],
             },
           ],
+          pageTemplateChoices: [
+            {
+              pageTypeKey: 'cardCaroussel',
+              pageTypeName: 'Display images with Caroussel',
+              pageObjectTreeId:
+                'tree/Repository/public/RepositoryCategory/templates/PageTemplate/cardCaroussel',
+              pageTypes: [POST_WITH_GALLERY_TYPE.name],
+            },
+            {
+              pageTypeKey: 'card',
+              pageTypeName: 'Display text only',
+              pageObjectTreeId:
+                'tree/Repository/public/RepositoryCategory/templates/PageTemplate/card',
+              pageTypes: [POST_WITH_GALLERY_TYPE.name],
+            },
+          ],
         },
         children: {},
       },
@@ -87,56 +111,60 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
           },
         },
         children: {
-          [TRAVEL_STORY_POST_TYPE.name]: {
-            ['Post 1']: [
+          [IMAGE_GALLERY_TYPE.name]: {
+            ['Ipsum3']: [
               {
-                treeNode: {
-                  menuTitle: 'Lorem ipsum 1',
-                  pageTitle: 'Lorem ipsum dolor 1',
-                  contentText:
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
-                },
-                children: {},
-              },
-            ],
-            ['Post 2']: [
-              {
-                treeNode: {
-                  menuTitle: 'Lorem ipsum 2',
-                  pageTitle: 'Lorem ipsum dolor 2',
-                  contentText:
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
-                },
+                treeNode: {},
                 children: {
-                  [TRAVEL_STORY_POST_TYPE.name]: {
-                    ['Post 2.1']: [
+                  [IMAGE_TYPE.name]: {
+                    ['Eliot peper']: [
                       {
                         treeNode: {
-                          menuTitle: 'Lorem ipsum 2.1',
-                          pageTitle: 'Lorem ipsum dolor 2.1',
-                          contentText:
-                            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
+                          contentImage: {
+                            base64: base64(__dirname, 'travelStory', 'eliot'),
+                            name: 'eliot-peper-9KVEC-R8gFM-unsplash.jpg',
+                            size: '1607898086455',
+                            type: 'image/jpeg',
+                          },
                         },
                         children: {},
                       },
                     ],
-                    ['Post 2.2']: [
+                    ['Laura Chouette']: [
                       {
                         treeNode: {
-                          pageTitle: 'Lorem ipsum dolor 2.2',
-                          contentText:
-                            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
+                          contentImage: {
+                            base64: base64(__dirname, 'travelStory', 'laura'),
+                            name: 'laura-chouette-iF3nn-mXkU8-unsplash.jpg',
+                            size: '1607898094166',
+                            type: 'image/jpeg',
+                          },
                         },
                         children: {},
                       },
                     ],
-                    ['Post 2.3']: [
+                    ['Ksenia makagonov']: [
                       {
                         treeNode: {
-                          menuTitle: 'Lorem ipsum 2.3',
-                          pageTitle: 'Lorem ipsum dolor 2.3',
-                          contentText:
-                            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
+                          contentImage: {
+                            base64: base64(__dirname, 'travelStory', 'ksenia'),
+                            name: 'ksenia-makagonova-oqL8TOLARs8-unsplash.jpg',
+                            size: '1607898103955',
+                            type: 'image/jpeg',
+                          },
+                        },
+                        children: {},
+                      },
+                    ],
+                    ['Brian quid']: [
+                      {
+                        treeNode: {
+                          contentImage: {
+                            base64: base64(__dirname, 'travelStory', 'brian'),
+                            name: 'brian-quid-6O9dPC51s7M-unsplash.jpg',
+                            size: '1607898091074',
+                            type: 'image/jpeg',
+                          },
                         },
                         children: {},
                       },
@@ -145,15 +173,91 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                 },
               },
             ],
-            ['Post 3']: [
+          },
+          [TRAVEL_STORY_POST_ROOT_TYPE.name]: {
+            ['Stories']: [
               {
                 treeNode: {
-                  menuTitle: 'Lorem ipsum 3',
-                  pageTitle: 'Lorem ipsum dolor 3',
-                  contentText:
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
+                  menuTitle: 'Stories',
+                  pageTitle: 'Stories',
                 },
-                children: {},
+                children: {
+                  [TRAVEL_STORY_POST_TYPE.name]: {
+                    ['Post 1']: [
+                      {
+                        treeNode: {
+                          menuTitle: 'Lorem ipsum 1',
+                          pageTitle: 'Lorem ipsum dolor 1',
+                          contentText:
+                            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
+                        },
+                        children: {},
+                      },
+                    ],
+                    ['Post 2']: [
+                      {
+                        treeNode: {
+                          menuTitle: 'Lorem ipsum 2',
+                          pageTitle: 'Lorem ipsum dolor 2',
+                          contentText:
+                            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
+                        },
+                        children: {
+                          [TRAVEL_STORY_POST_TYPE.name]: {
+                            ['Post 2.1']: [
+                              {
+                                treeNode: {
+                                  menuTitle: 'Lorem ipsum 2.1',
+                                  pageTitle: 'Lorem ipsum dolor 2.1',
+                                  contentText:
+                                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
+                                },
+                                children: {},
+                              },
+                            ],
+                            ['Post 2.2']: [
+                              {
+                                treeNode: {
+                                  pageTitle: 'Lorem ipsum dolor 2.2',
+                                  contentText:
+                                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
+                                },
+                                children: {},
+                              },
+                            ],
+                            ['Post 2.3']: [
+                              {
+                                treeNode: {
+                                  menuTitle: 'Lorem ipsum 2.3',
+                                  pageTitle: 'Lorem ipsum dolor 2.3',
+                                  contentText:
+                                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
+                                },
+                                children: {},
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    ],
+                    ['Post 3']: [
+                      {
+                        treeNode: {
+                          pageObjectTreeId:
+                            'tree/Repository/public/RepositoryCategory/templates/PageTemplate/cardCaroussel',
+                          imageGalleryObjectTreeId:
+                            'tree/Tenant/Demonstration/TravelStory/Exemple de site de Voyage/ImageGallery/Ipsum3',
+                          menuTitle: 'Lorem ipsum 3',
+                          pageTitle: 'Lorem ipsum dolor 3',
+                          selectedImages: ['Brian quid', 'Laura Chouette'],
+                          contentText:
+                            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
+                        },
+                        children: {},
+                      },
+                    ],
+                  },
+                },
               },
             ],
           },

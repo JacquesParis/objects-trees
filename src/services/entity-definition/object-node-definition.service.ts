@@ -80,32 +80,58 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
       objectType.contentDefinition,
     );
 
-    if (schema?.properties) {
-      for (const key of Object.keys(schema.properties)) {
-        for (const option of Object.keys(schema.properties[key])) {
+    await this.completeProperties(schema?.properties, ctx);
+
+    return schema;
+  }
+
+  protected async completeProperties(
+    properties: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      [name: string]: any;
+    },
+    ctx: NodeContext,
+  ) {
+    if (properties) {
+      for (const key of Object.keys(properties)) {
+        for (const option of Object.keys(properties[key])) {
           switch (option) {
             case 'oneOfTree':
-              schema.properties[key].oneOf = await this.oneOfTree(
-                schema.properties[key].oneOfTree,
+              properties[key].oneOf = await this.oneOfTree(
+                properties[key].oneOfTree,
                 ctx,
               );
-              delete schema.properties[key].oneOfTree;
+              delete properties[key].oneOfTree;
               if (
-                !schema.properties[key].oneOf ||
-                0 === schema.properties[key].oneOf.length
+                !properties[key].oneOf ||
+                0 === properties[key].oneOf.length
               ) {
-                delete schema.properties[key].oneOf;
+                delete properties[key].oneOf;
+              }
+              break;
+            case 'type':
+              switch (properties[key].type) {
+                case 'object':
+                  await this.completeProperties(
+                    properties[key].properties,
+                    ctx,
+                  );
+                  break;
+                case 'array':
+                  await this.completeProperties(
+                    {items: properties[key].items},
+                    ctx,
+                  );
+                  break;
               }
               break;
           }
         }
       }
     }
-
-    return schema;
   }
 
-  async oneOfTree(
+  protected async oneOfTree(
     oneOfTreeOptions: OneOfTreeOption[],
     ctx: NodeContext,
   ): Promise<{enum: string[]; title: string}[]> {

@@ -1,0 +1,82 @@
+<div class="card">
+  <div class="row no-gutters">
+    <div class="col">
+      <div class="card-body">
+        <h5 class="card-title" [innerHtml]="dataNode.pageTitle"></h5>
+        <p class="card-text" [innerHtml]="dataNode.contentText"></p>
+      </div>
+    </div>
+    <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-6">
+      <div class="card-img">
+        <ng-container
+          [ngTemplateOutlet]="caroussel"
+          [ngOutletContext]="{}"
+        ></ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #caroussel>
+  <div
+    class="carousel slide"
+    data-ride="carousel"
+    id="caroussel{{dataNode.id+dataNode.imageGalleryObjectTree.id}}"
+  >
+    <ol class="carousel-indicators">
+      <li
+        *ngFor="let image of dataNode.images; let index = index;"
+        [class.active]="0===index"
+        data-target="#caroussel{{dataNode.id+dataNode.imageGalleryObjectTree.id}}"
+        data-slide-to="{{index}}"
+      ></li>
+    </ol>
+    <div class="carousel-inner">
+      <div
+        class="carousel-item"
+        [class.active]="0===index"
+        *ngFor="let image of dataNode.images; let index = index"
+      >
+        <ng-container>
+          <img
+            *ngIf="image.contentImage; else spinner"
+            [src]="getImgSrc(image.contentImage)"
+            class="d-block w-100"
+            alt="{{image.name}}"
+          />
+          <div class="carousel-caption d-none d-md-block">
+            <h5>{{image.name}}</h5>
+            <!-- <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>-->
+          </div>
+        </ng-container>
+        <ng-template #spinner>
+          <div class="d-block w-100">
+            <div class="text-center">
+              <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+    <a
+      class="carousel-control-prev"
+      href="#caroussel{{dataNode.id+dataNode.imageGalleryObjectTree.id}}"
+      role="button"
+      data-slide="prev"
+    >
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="sr-only">Previous</span>
+    </a>
+    <a
+      class="carousel-control-next"
+      href="#caroussel{{dataNode.id+dataNode.imageGalleryObjectTree.id}}"
+      role="button"
+      data-slide="next"
+    >
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="sr-only">Next</span>
+    </a>
+  </div>
+</ng-template>

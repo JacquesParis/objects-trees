@@ -1,7 +1,5 @@
-import {
-  ObjectSubTypeDefintion,
-  ObjectTypeDefinition,
-} from '../../integration/extension.provider';
+import {ObjectTypeDefinition} from '../../integration/extension.provider';
+import {IMAGE_GALLERY_SELECTOR_TYPE} from './../content-image/content-image.const';
 
 export const POST_NAME = 'PostType';
 
@@ -21,14 +19,6 @@ export const TEXT_TYPE: ObjectTypeDefinition = {
   },
   contentType: ContentT,
 };*/
-
-export const GALLERY_TYPE: ObjectTypeDefinition = {
-  name: 'Gallery',
-  definition: {
-    properties: {},
-  },
-  contentType: '',
-};
 
 /*
 export const POST_TEXT_SUBTYPE: ObjectSubTypeDefintion = {
@@ -76,8 +66,9 @@ export const POST_WITH_DATE_SUBTYPE: ObjectSubTypeDefintion = {
 */
 export const POST_WITH_GALLERY_TYPE: ObjectTypeDefinition = {
   name: 'PostWithGallery',
-  inheritedTypesIds: [POST_TYPE.name],
+  inheritedTypesIds: [POST_TYPE.name, IMAGE_GALLERY_SELECTOR_TYPE.name],
 };
+/*
 export const POST_WITH_GALLERY_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: POST_WITH_GALLERY_TYPE.name,
   subTypeName: GALLERY_TYPE.name,
@@ -87,3 +78,4 @@ export const POST_WITH_GALLERY_SUBTYPE: ObjectSubTypeDefintion = {
   owner: false,
   tree: false,
 };
+*/

@@ -15,24 +15,6 @@ export class ObjectNodeContentService {
     public objectTypeService: ObjectTypeService,
   ) {}
 
-  /*
-  public async add(
-    objectNode: DataObject<ObjectNode>,
-    content?: MemoryFile[],
-  ): Promise<ObjectNode> {
-    const nodeContexte:NodeContext = {}
-    const result:ObjectNode = await this.objectNodeService.add(objectNode,false,nodeContexte);
-    const changes = await this.contentEntityService.manageContent(
-      nodeContexte?.objectType?.contentType,
-      result,
-      content,
-    );
-    if (changes) {
-      await this.objectNodeRepository.updateById(result.id, result);
-    }
-    return result;
-  }*/
-
   public async getContent(
     nodeId: string,
     fieldName: string,

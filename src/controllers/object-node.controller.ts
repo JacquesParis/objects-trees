@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {authenticate} from '@loopback/authentication';
 import {authorize} from '@loopback/authorization';
 import {inject, service} from '@loopback/core';
@@ -13,13 +14,16 @@ import {
   Response,
   RestBindings,
 } from '@loopback/rest';
+import {isObject} from 'lodash';
 import {ObjectNode} from '../models';
 import {CurrentContext, CURRENT_CONTEXT} from '../services/application.service';
 import {ObjectNodeService} from '../services/object-node/object-node.service';
+import {EntityName} from './../models/entity-name';
 import {
   AccessRightsEntity,
   AccessRightsScope,
 } from './../services/access-rights/access-rights.const';
+import {ActionEntityService} from './../services/action-entity/action-entity.service';
 import {ObjectNodeContentService} from './../services/object-node/object-node-content.service';
 
 export class ObjectNodeController {
@@ -28,6 +32,8 @@ export class ObjectNodeController {
     public objectNodeService: ObjectNodeService,
     @service(ObjectNodeContentService)
     public objectNodeContentService: ObjectNodeContentService,
+    @service(ActionEntityService)
+    public actionEntityService: ActionEntityService,
   ) {}
 
   @authenticate('jwt')
@@ -58,6 +64,42 @@ export class ObjectNodeController {
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectNode> {
     return this.objectNodeService.add(objectNode, ctx);
+  }
+
+  @authorize({
+    resource: AccessRightsEntity.objectNode,
+    scopes: [AccessRightsScope.update],
+  })
+  @post('/object-nodes/{id}/method/{methodId}', {
+    responses: {
+      '200': {
+        description: 'ObjectNode model instance',
+        content: {'application/json': {schema: getModelSchemaRef(Object)}},
+      },
+    },
+  })
+  async runAction(
+    @param.path.string('id') id: string,
+    @param.path.string('methodId') methodId: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Object, {
+            title: 'Argument',
+          }),
+        },
+      },
+    })
+    args: Object,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    return this.actionEntityService.runAction(
+      EntityName.objectNode,
+      id,
+      methodId,
+      args,
+      ctx,
+    );
   }
 
   @authenticate('jwt')
@@ -121,8 +163,7 @@ export class ObjectNodeController {
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<Response> {
     switch (contentType) {
-      case 'file':
-        // eslint-disable-next-line no-case-declarations
+      case 'file': {
         const file: {
           filePath: string;
           fileName: string;
@@ -140,12 +181,12 @@ export class ObjectNodeController {
         };
         response.download(file.filePath, file.fileName);
         return response;
-      default:
-        // eslint-disable-next-line no-case-declarations
+      }
+      default: {
         const contentTypeExtension =
           contentType.charAt(0).toUpperCase() + contentType.substr(1);
-        // eslint-disable-next-line no-case-declarations
-        const text = (await this.objectNodeContentService.getContent(
+
+        const text: any = await this.objectNodeContentService.getContent(
           id,
           'content' + contentTypeExtension,
           'Content' + contentTypeExtension,
@@ -153,11 +194,28 @@ export class ObjectNodeController {
             contentId: contentId,
           },
           ctx,
-        )) as string;
-        response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-        response.write(text);
-        response.end();
-        return response;
+        );
+        if (isObject(text)) {
+          if ((text as any).base64 && (text as any).name) {
+            response.header(
+              'Content-Disposition',
+              'attachment; filename="' + (text as any).name + '"',
+            );
+            if ((text as any).type) {
+              response.contentType = (text as any).type;
+            }
+            response.send(Buffer.from((text as any).base64, 'base64'));
+            return response;
+          }
+          response.json(text);
+          return response;
+        } else {
+          response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+          response.write(text);
+          response.end();
+          return response;
+        }
+      }
     }
   }
 

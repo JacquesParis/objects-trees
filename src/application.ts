@@ -44,6 +44,7 @@ import {ObjectSubTypeRepository} from './repositories/object-sub-type.repository
 import {ObjectTypeRepository} from './repositories/object-type.repository';
 import {MySequence} from './sequence';
 import {AccessRightsProvider} from './services/access-rights/access-rights.provider';
+import {ActionEntityService} from './services/action-entity/action-entity.service';
 import {AppAuthorizationProvider} from './services/app-authorization.service';
 import {ApplicationService} from './services/application.service';
 import {ContentEntityCoreProvider} from './services/content-entity/content-entity.provider';
@@ -227,6 +228,8 @@ export class ObjectTreesApplication extends RestApplication {
     await app.getService<ApplicationService>(ApplicationService);
     app.service(ContentEntityService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ContentEntityService>(ContentEntityService);
+    app.service(ActionEntityService, {defaultScope: BindingScope.SINGLETON});
+    await app.getService<ActionEntityService>(ActionEntityService);
     app.service(ObjectTypeService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ObjectTypeService>(ObjectTypeService);
 

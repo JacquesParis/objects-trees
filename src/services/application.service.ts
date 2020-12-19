@@ -13,6 +13,7 @@ import {
 
 export class NodeContext {
   node: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
+  tree: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   owner: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   namespace: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   parent: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();

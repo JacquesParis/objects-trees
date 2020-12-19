@@ -3,6 +3,7 @@ import {contentGenericTemplate} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {ContentGenericTemplateProvider} from '../content-generic-template/content-generic-template.provider';
 import {TransientUriReferenceProvider} from './../../services/inside-rest/transient-uri-reference.provider';
+import {ContentImageProvider} from './../content-image/content-image.provider';
 import {TransientWebSiteService} from './transient-web-site.service';
 import {
   CALENDAR_ENTRY_TYPE,
@@ -12,6 +13,7 @@ import {
   MENU_TEMPLATE_TYPE,
   PAGE_TEMPLATE_TYPE,
   PAGE_TYPE,
+  PAGE_WITH_TEMPLATE_CHOICE,
   TEMPLATE_VIEW_TYPE,
   WEB_SITE_NAME,
   WEB_SITE_TEMPLATE_TYPE,
@@ -19,6 +21,7 @@ import {
   WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE,
   WEB_SITE_VIEW_WITH_MENU_TYPE,
   WEB_SITE_WITH_MENU_TEMPLATE_TYPE,
+  WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,
   WELCOME_PAGE_TYPE,
 } from './web-site-type.const';
 export class WebSiteTypeProvider extends ExtensionProvider {
@@ -26,15 +29,18 @@ export class WebSiteTypeProvider extends ExtensionProvider {
     super(WEB_SITE_NAME, app);
     this.requiredProviders.push(TransientUriReferenceProvider);
     this.requiredProviders.push(ContentGenericTemplateProvider);
+    this.requiredProviders.push(ContentImageProvider);
 
     this.objectTypes.templateViewType = TEMPLATE_VIEW_TYPE;
     this.objectTypes.WebSiteTemplate = WEB_SITE_TEMPLATE_TYPE;
     this.objectTypes.WebSiteWitHMenuTemplate = WEB_SITE_WITH_MENU_TEMPLATE_TYPE;
+    this.objectTypes.WebSiteWithPagesTemplate = WEB_SITE_WITH_PAGES_TEMPLATE_TYPE;
     this.objectTypes.webSiteView = WEB_SITE_VIEW_TYPE;
     this.objectTypes.webSiteViewWithMenu = WEB_SITE_VIEW_WITH_MENU_TYPE;
     this.objectTypes.menuTemplate = MENU_TEMPLATE_TYPE;
     this.objectTypes.pageTemplate = PAGE_TEMPLATE_TYPE;
     this.objectTypes.page = PAGE_TYPE;
+    this.objectTypes.pageWithTemplateChoice = PAGE_WITH_TEMPLATE_CHOICE;
     this.objectTypes.welcomePage = WELCOME_PAGE_TYPE;
     this.objectTypes.calendarEntry = CALENDAR_ENTRY_TYPE;
     this.objectTypes.menuEntry = MENU_ENTRY_TYPE;
@@ -45,7 +51,7 @@ export class WebSiteTypeProvider extends ExtensionProvider {
     this.services.push({cls: TransientWebSiteService});
 
     this.objectTrees.navBar = {
-      reset: true,
+      reset: false,
       parentNode: () => this.appCtx.publicTemplatesNode.value,
       treeNodeName: 'navBar',
       treeNodeTypeId: MENU_TEMPLATE_TYPE.name,
@@ -58,13 +64,29 @@ export class WebSiteTypeProvider extends ExtensionProvider {
     };
 
     this.objectTrees.pageCard = {
-      reset: true,
+      reset: false,
       parentNode: () => this.appCtx.publicTemplatesNode.value,
       treeNodeName: 'card',
       treeNodeTypeId: PAGE_TEMPLATE_TYPE.name,
       tree: {
         treeNode: {
           contentGenericTemplate: contentGenericTemplate(__dirname, 'card'),
+        },
+        children: {},
+      },
+    };
+
+    this.objectTrees.pageCardCaroussel = {
+      reset: false,
+      parentNode: () => this.appCtx.publicTemplatesNode.value,
+      treeNodeName: 'cardCaroussel',
+      treeNodeTypeId: PAGE_TEMPLATE_TYPE.name,
+      tree: {
+        treeNode: {
+          contentGenericTemplate: contentGenericTemplate(
+            __dirname,
+            'cardCaroussel',
+          ),
         },
         children: {},
       },
