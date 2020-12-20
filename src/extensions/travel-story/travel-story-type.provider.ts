@@ -1,18 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {ObjectTreesApplicationInterface} from '../../application';
-import {base64, contentGenericTemplate} from '../../helper';
+import {contentGenericTemplate, image} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
-import {
-  IMAGE_GALLERY_TYPE,
-  IMAGE_TYPE,
-} from './../content-image/content-image.const';
-import {ContentImageProvider} from './../content-image/content-image.provider';
-import {POST_TYPE, POST_WITH_GALLERY_TYPE} from './../post/post-type.const';
 import {
   CALENDAR_ENTRY_TYPE,
   WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE,
   WELCOME_PAGE_TYPE,
-} from './../web-site/web-site-type.const';
+} from '../web-site/web-site.const';
+import {ContentImageTemplateProvider} from './../content-image-template/content-image-template.provider';
+import {
+  IMAGE_GALLERY_TYPE,
+  IMAGE_TYPE,
+} from './../content-image/content-image.const';
+import {POST_TYPE, POST_WITH_GALLERY_TYPE} from './../post/post-type.const';
+import {WebSiteProvider} from './../web-site/web-site.provider';
 import {
   CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE,
   FOLDER_TRAVEL_STORY_SUBTYPE,
@@ -27,7 +28,7 @@ import {
 export class TravelStoryTypeProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(TRAVEL_STORY_NAME, app);
-    this.requiredProviders.push(ContentImageProvider);
+    this.requiredProviders.push(WebSiteProvider, ContentImageTemplateProvider);
     this.objectTypes.travelStory = TRAVEL_STORY_TYPE;
     this.objectTypes.travelStoryPost = TRAVEL_STORY_POST_TYPE;
     this.objectTypes.travelStoryTemplate = TRAVEL_STORY_TEMPLATE_TYPE;
@@ -121,7 +122,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                       {
                         treeNode: {
                           contentImage: {
-                            base64: base64(__dirname, 'travelStory', 'eliot'),
+                            base64: image(__dirname, 'eliot'),
                             name: 'eliot-peper-9KVEC-R8gFM-unsplash.jpg',
                             size: '1607898086455',
                             type: 'image/jpeg',
@@ -134,7 +135,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                       {
                         treeNode: {
                           contentImage: {
-                            base64: base64(__dirname, 'travelStory', 'laura'),
+                            base64: image(__dirname, 'laura'),
                             name: 'laura-chouette-iF3nn-mXkU8-unsplash.jpg',
                             size: '1607898094166',
                             type: 'image/jpeg',
@@ -147,7 +148,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                       {
                         treeNode: {
                           contentImage: {
-                            base64: base64(__dirname, 'travelStory', 'ksenia'),
+                            base64: image(__dirname, 'ksenia'),
                             name: 'ksenia-makagonova-oqL8TOLARs8-unsplash.jpg',
                             size: '1607898103955',
                             type: 'image/jpeg',
@@ -160,7 +161,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                       {
                         treeNode: {
                           contentImage: {
-                            base64: base64(__dirname, 'travelStory', 'brian'),
+                            base64: image(__dirname, 'brian'),
                             name: 'brian-quid-6O9dPC51s7M-unsplash.jpg',
                             size: '1607898091074',
                             type: 'image/jpeg',

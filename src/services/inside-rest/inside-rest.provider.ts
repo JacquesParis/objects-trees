@@ -1,8 +1,11 @@
 import {ObjectTreesApplicationInterface} from '../../application';
 import {ExtensionProvider} from '../../integration/extension.provider';
-import {InsideRestDataSource} from './../../datasources/inside-rest.datasource';
 import {DATASTIRE_INSIDE_REST} from './inside-rest.constant';
-import {InsideRestServiceProvider} from './inside-rest.service';
+import {InsideRestDataSource} from './inside-rest.datasource';
+import {
+  InsideRestRepositoryProvider,
+  InsideRestService,
+} from './inside-rest.service';
 
 export class InsideRestProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
@@ -11,6 +14,9 @@ export class InsideRestProvider extends ExtensionProvider {
       dataSource: InsideRestDataSource,
       name: DATASTIRE_INSIDE_REST,
     });
-    this.services.push({cls: InsideRestServiceProvider});
+    this.services.push(
+      {cls: InsideRestRepositoryProvider},
+      {cls: InsideRestService},
+    );
   }
 }

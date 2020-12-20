@@ -1,7 +1,7 @@
 import {ObjectTypeDefinition} from '../../integration/extension.provider';
 import {IMAGE_GALLERY_SELECTOR_TYPE} from './../content-image/content-image.const';
 
-export const POST_NAME = 'PostType';
+export const POST_NAME = 'PostService';
 
 export const POST_TYPE: ObjectTypeDefinition = {
   name: 'Post',

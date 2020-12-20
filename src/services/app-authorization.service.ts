@@ -42,7 +42,7 @@ export class AppAuthorizationProvider implements Provider<Authorizer> {
     context: AuthorizationContext,
     metadata: AuthorizationMetadata,
   ): Promise<AuthorizationDecision> {
-    this.ctx.accessRightsContexte.authorization.value = this.request.headers
+    this.ctx.accessRightsContext.authorization.value = this.request.headers
       .authorization as string;
     if (!this.user) {
       try {

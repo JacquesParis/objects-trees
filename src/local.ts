@@ -6,7 +6,7 @@ import {ObjectTreesApplication} from './application';
 import {STORAGE_DIRECTORY} from './constants';
 import {PostTypeProvider} from './extensions/post/post-type.provider';
 import {TravelStoryTypeProvider} from './extensions/travel-story/travel-story-type.provider';
-import {WebSiteTypeProvider} from './extensions/web-site/web-site-type.provider';
+import {WebSiteProvider} from './extensions/web-site/web-site.provider';
 import {ObjectTreesApplicationConfig} from './integration/object-trees-application.config';
 import {TransientUriReferenceProvider} from './services/inside-rest/transient-uri-reference.provider';
 
@@ -15,7 +15,7 @@ export class LocalDeployApplication extends BootMixin(
 ) {
   constructor(options: ObjectTreesApplicationConfig = {}) {
     options.extensions = [
-      WebSiteTypeProvider,
+      WebSiteProvider,
       PostTypeProvider,
       TravelStoryTypeProvider,
       TransientUriReferenceProvider,

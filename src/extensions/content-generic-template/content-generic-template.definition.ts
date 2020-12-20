@@ -27,7 +27,15 @@ export class GenericTemplate extends Entity {
   @property({
     type: 'string',
   })
-  controller: string;
+  controller: string; /*
+  @property({
+    required: false,
+  })
+  config: IJsonSchema;*/
+  @property({
+    required: false,
+  })
+  refererConfig: IJsonSchema;
 }
 
 @model({settings: {strict: false}})
@@ -99,6 +107,23 @@ export class ContentGenericTemplateService extends ContentExtensionService<
               default: '',
               'x-schema-form': {
                 type: 'textarea',
+              },
+            },
+            /*
+            config: {
+              type: 'object',
+              title: 'Template configuration definition',
+              default: '',
+              'x-schema-form': {
+                type: 'json',
+              },
+            },*/
+            refererConfig: {
+              type: 'object',
+              title: 'Referer configuration definition',
+              default: '',
+              'x-schema-form': {
+                type: 'json',
               },
             },
           },

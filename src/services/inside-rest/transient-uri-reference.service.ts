@@ -1,5 +1,5 @@
 import {IRestEntity} from '@jacquesparis/objects-model';
-import {inject, service} from '@loopback/core';
+import {service} from '@loopback/core';
 import {EntityName} from '../../models/entity-name';
 import {CurrentContext} from '../application.service';
 import {
@@ -11,7 +11,7 @@ export class TransientUriReferenceService implements TransientEntityInterface {
   constructor(
     @service(TransientEntityService)
     private transientEntityService: TransientEntityService,
-    @inject('services.InsideRestService')
+    @service(InsideRestService)
     private insideRestService: InsideRestService,
   ) {
     this.transientEntityService.registerTransientEntityService(
@@ -34,10 +34,7 @@ export class TransientUriReferenceService implements TransientEntityInterface {
             attribute + 'Id' in entity.entityCtx.jsonSchema.properties
           ) {
             try {
-              entity[attribute] = await this.insideRestService.read(
-                uri,
-                ctx.accessRightsContexte.authorization.value,
-              );
+              entity[attribute] = await this.insideRestService.read(uri, ctx);
             } catch (error) {
               entity[attribute] = error.message;
             }

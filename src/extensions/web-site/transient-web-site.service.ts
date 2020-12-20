@@ -1,20 +1,22 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
-import {inject, service} from '@loopback/core';
-import {find, indexOf} from 'lodash';
+import {service} from '@loopback/core';
+import {find, indexOf, isArray, merge} from 'lodash';
 import {doesTreeImplementOneOfType} from '../../helper';
 import {EntityName} from '../../models';
-import {CurrentContext, InsideRestService} from '../../services';
+import {CurrentContext} from '../../services';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectNodeTree, ObjectTree} from './../../models/object-tree.model';
+import {ObjectNodeDefinitionService} from './../../services/entity-definition/object-node-definition.service';
+import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
 import {ObjectNodeService} from './../../services/object-node/object-node.service';
-import {ObjectTreeService} from './../../services/object-tree/object-tree.service';
 import {TransientEntityService} from './../../services/transient-entity/transient-entity.service';
 import {
   PAGE_WITH_TEMPLATE_CHOICE,
   WEB_SITE_VIEW_TYPE,
   WEB_SITE_VIEW_WITH_MENU_TYPE,
+  WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,
   WELCOME_PAGE_TYPE,
-} from './web-site-type.const';
+} from './web-site.const';
 import {
   MenuEntry,
   MenuEntryTree,
@@ -22,18 +24,18 @@ import {
   WebSiteView,
   WebSiteViewWithMenuTree,
   WebSiteWitHMenuTemplate,
-} from './web-site-type.interface';
+} from './web-site.interface';
 
 export class TransientWebSiteService {
   constructor(
     @service(TransientEntityService)
     protected transientEntityService: TransientEntityService,
-    @inject('services.InsideRestService')
+    @service(InsideRestService)
     private insideRestService: InsideRestService,
     @service(ObjectNodeService)
     private objectNodeService: ObjectNodeService,
-    @service(ObjectTreeService)
-    private objectTreeService: ObjectTreeService,
+    @service(ObjectNodeDefinitionService)
+    private objectNodeDefinitionService: ObjectNodeDefinitionService,
   ) {
     this.transientEntityService.registerTransientEntityTypeFunction(
       EntityName.objectTree,
@@ -54,6 +56,11 @@ export class TransientWebSiteService {
       EntityName.objectNode,
       PAGE_WITH_TEMPLATE_CHOICE.name,
       this.completePageTypeNode.bind(this),
+    );
+    this.transientEntityService.registerTransientEntityTypeFunction(
+      EntityName.objectNode,
+      WEB_SITE_WITH_PAGES_TEMPLATE_TYPE.name,
+      this.completeWebSiteWithPagesTemplateNode.bind(this),
     );
   }
 
@@ -84,7 +91,7 @@ export class TransientWebSiteService {
 
     const webSiteObjectTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
       webSiteViewWithMenuTree.treeNode.webSiteObjectTreeUri,
-      ctx.accessRightsContexte.authorization.value,
+      ctx,
     )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
 
     if (webSiteViewWithMenuTree.treeNode.menuEntries) {
@@ -232,6 +239,96 @@ export class TransientWebSiteService {
             objectNode.entityCtx.jsonSchema.properties.pageObjectTreeId.oneOf = oneOf;
           }
         }
+      }
+    }
+  }
+
+  async completeWebSiteWithPagesTemplateNode(
+    objectNode: ObjectNode,
+    ctx: CurrentContext,
+  ) {
+    console.log('complete', objectNode, ctx);
+    if (
+      isArray(
+        objectNode.entityCtx?.jsonSchema?.properties?.pageTemplateChoices?.items
+          ?.properties?.pageObjectTreeId?.oneOf,
+      ) &&
+      0 <
+        objectNode.entityCtx?.jsonSchema?.properties.pageTemplateChoices.items
+          .properties.pageObjectTreeId.oneOf.length
+    ) {
+      const pageRefJasonSchema: IJsonSchema = objectNode.entityCtx?.jsonSchema
+        ?.properties.pageTemplateChoices.items as IJsonSchema;
+      for (const pageTemplateEnum of pageRefJasonSchema.properties
+        .pageObjectTreeId.oneOf) {
+        const pageTemplateTreeId = pageTemplateEnum.enum[0];
+        const pageTemplate =
+          ctx.nodeContext.references[pageTemplateTreeId]?.value;
+        if (pageTemplate) {
+          if (!pageTemplate.contentGenericTemplate) {
+            pageTemplate.contentGenericTemplate = {};
+            await this.transientEntityService.completeReturnedEntity(
+              EntityName.objectNode,
+              pageTemplate,
+              CurrentContext.get({
+                nodeContext: {
+                  node: ctx.nodeContext.references[pageTemplateTreeId],
+                },
+              }),
+            );
+          }
+          if (
+            pageTemplate?.contentGenericTemplate?.refererConfig?.properties &&
+            0 <
+              Object.keys(
+                pageTemplate?.contentGenericTemplate?.refererConfig?.properties,
+              ).length
+          ) {
+            if (!pageRefJasonSchema.properties.templatesConfigurations) {
+              pageRefJasonSchema.properties.templatesConfigurations = {
+                type: 'object',
+                title: 'Page template configurattion',
+                'x-schema-form': {labelHtmlClass: 'd-none'},
+                properties: {},
+              };
+            }
+            pageRefJasonSchema.properties.templatesConfigurations.properties[
+              pageTemplate.name
+            ] = merge(
+              {
+                type: 'object',
+                'x-schema-form': {labelHtmlClass: 'd-none'},
+              },
+              pageTemplate.contentGenericTemplate.refererConfig,
+            );
+            this.addCondition(
+              "model.pageTemplateChoices[arrayIndex].pageObjectTreeId=='" +
+                pageTemplateTreeId +
+                "'",
+              pageRefJasonSchema.properties.templatesConfigurations.properties[
+                pageTemplate.name
+              ],
+            );
+          }
+        }
+      }
+      if (pageRefJasonSchema?.properties?.templatesConfigurations?.properties) {
+        await this.objectNodeDefinitionService.completeProperties(
+          pageRefJasonSchema.properties.templatesConfigurations.properties,
+          ctx.nodeContext,
+        );
+      }
+    }
+  }
+
+  protected addCondition(condition: string, schema: IJsonSchema) {
+    if (!schema['x-schema-form']) {
+      schema['x-schema-form'] = {};
+    }
+    schema['x-schema-form'].condition = condition;
+    if (schema.properties) {
+      for (const key of Object.keys(schema.properties)) {
+        this.addCondition(condition, schema.properties[key]);
       }
     }
   }

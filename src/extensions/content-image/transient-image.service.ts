@@ -1,4 +1,4 @@
-import {inject, service} from '@loopback/core';
+import {service} from '@loopback/core';
 import {filter, indexOf} from 'lodash';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
@@ -17,7 +17,7 @@ export class TransientImageService {
   constructor(
     @service(TransientEntityService)
     protected transientEntityService: TransientEntityService,
-    @inject('services.InsideRestService')
+    @service(InsideRestService)
     private insideRestService: InsideRestService,
     @service(ObjectNodeService)
     private objectNodeService: ObjectNodeService,
@@ -82,7 +82,7 @@ export class TransientImageService {
     ) {
       objectNode.imageGalleryObjectTree = (await this.insideRestService.read(
         objectNode.imageGalleryObjectTreeUri,
-        ctx.accessRightsContexte.authorization.value,
+        ctx,
       )) as ObjectTree;
     }
     if (objectNode.imageGalleryObjectTree?.children) {

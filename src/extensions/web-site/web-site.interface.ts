@@ -1,6 +1,6 @@
 import {IEntityContext} from '@jacquesparis/objects-model';
-import {ObjectNode} from './../../models/object-node.model';
-import {ObjectNodeTree, ObjectTree} from './../../models/object-tree.model';
+import {ObjectNode} from '../../models/object-node.model';
+import {ObjectNodeTree, ObjectTree} from '../../models/object-tree.model';
 export interface WebSiteTemplate extends TemplateView {
   pageObjectTree: PageTemplate;
 }

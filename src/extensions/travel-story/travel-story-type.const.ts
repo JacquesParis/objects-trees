@@ -9,19 +9,19 @@ import {
 } from '../../services/object-tree/object-tree.const';
 import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post-type.const';
 import {
-  PUBLIC_OBJECT_NAME,
-  TEMPLATES_OBJECT_NAME,
-} from './../../services/object-tree/object-tree.const';
-import {IMAGE_GALLERIES_TYPE} from './../content-image/content-image.const';
-import {
   CALENDAR_ENTRY_TYPE,
   MENU_ENTRY_TYPE,
   PAGE_WITH_TEMPLATE_CHOICE,
   WEB_SITE_VIEW_WITH_MENU_TYPE,
   WEB_SITE_WITH_MENU_TEMPLATE_TYPE,
   WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,
-} from './../web-site/web-site-type.const';
-export const TRAVEL_STORY_NAME = 'TravelStoryType';
+} from '../web-site/web-site.const';
+import {
+  PUBLIC_OBJECT_NAME,
+  TEMPLATES_OBJECT_NAME,
+} from './../../services/object-tree/object-tree.const';
+import {IMAGE_GALLERIES_TYPE} from './../content-image/content-image.const';
+export const TRAVEL_STORY_NAME = 'TravelStoryService';
 
 export const TRAVEL_STORY_TEMPLATE_TYPE = {
   name: 'TravelStoryTemplate',

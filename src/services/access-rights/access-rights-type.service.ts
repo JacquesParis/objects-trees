@@ -43,11 +43,11 @@ export class AccessRightTypeService
     user.entityCtx.aclCtx.rights.read = true;
     // TODO: check admin and registered objects during boot for CRUD
     user.entityCtx.aclCtx.rights.create =
-      ctx.accessRightsContexte.rootRights.value.create;
+      ctx.accessRightsContext.rootRights.value.create;
     user.entityCtx.aclCtx.rights.update =
-      !user.applicationType && ctx.accessRightsContexte.rootRights.value.update;
+      !user.applicationType && ctx.accessRightsContext.rootRights.value.update;
     user.entityCtx.aclCtx.rights.delete =
-      !user.applicationType && ctx.accessRightsContexte.rootRights.value.delete;
+      !user.applicationType && ctx.accessRightsContext.rootRights.value.delete;
     // TODO: remove subTypes for non admin;
   }
   protected async authorizeRead(
@@ -60,7 +60,7 @@ export class AccessRightTypeService
     ctx: CurrentContext,
     context: AuthorizationContext,
   ): Promise<AuthorizationDecision> {
-    return ctx.accessRightsContexte.rootRights.value.create
+    return ctx.accessRightsContext.rootRights.value.create
       ? AuthorizationDecision.ALLOW
       : AuthorizationDecision.DENY;
   }
@@ -68,7 +68,7 @@ export class AccessRightTypeService
     ctx: CurrentContext,
     context: AuthorizationContext,
   ): Promise<AuthorizationDecision> {
-    return ctx.accessRightsContexte.rootRights.value.update &&
+    return ctx.accessRightsContext.rootRights.value.update &&
       !(
         await this.objectTypeService.searchById(
           context.invocationContext.args[0],
@@ -81,7 +81,7 @@ export class AccessRightTypeService
     ctx: CurrentContext,
     context: AuthorizationContext,
   ): Promise<AuthorizationDecision> {
-    return ctx.accessRightsContexte.rootRights.value.delete &&
+    return ctx.accessRightsContext.rootRights.value.delete &&
       !(
         await this.objectTypeService.searchById(
           context.invocationContext.args[0],

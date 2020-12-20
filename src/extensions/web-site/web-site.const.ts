@@ -1,15 +1,22 @@
-import {ObjectTypeDefinition} from '../../integration/extension.provider';
-import {ObjectSubTypeDefintion} from './../../integration/extension.provider';
-import {ObjectTypeName} from './../../services/application.service';
+import {
+  ObjectSubTypeDefintion,
+  ObjectTypeDefinition,
+} from '../../integration/extension.provider';
+import {ObjectTypeName} from '../../services/application.service';
 import {
   PUBLIC_OBJECT_NAME,
   REPOSITORY_CATEGORY_TYPE,
   TEMPLATES_OBJECT_NAME,
-} from './../../services/object-tree/object-tree.const';
-export const WEB_SITE_NAME = 'WebSiteType';
+} from '../../services/object-tree/object-tree.const';
+import {
+  TEMPLATE_REFERER,
+  TEMPLATE_VIEW_TYPE,
+} from './../content-generic-template/content-generic-template.const';
+export const WEB_SITE_NAME = 'WebSiteService';
 
 export const WEB_SITE_VIEW_TYPE: ObjectTypeDefinition = {
   name: 'WebSiteView',
+  inheritedTypesIds: [TEMPLATE_REFERER.name],
   definition: {
     properties: {
       webSiteObjectTreeId: {
@@ -72,14 +79,6 @@ export const WEB_SITE_VIEW_WITH_MENU_TYPE: ObjectTypeDefinition = {
   },
 };
 
-export const TEMPLATE_VIEW_TYPE: ObjectTypeDefinition = {
-  name: 'TemplateView',
-  contentType: 'ContentGenericTemplate',
-  definition: {
-    properties: {},
-  },
-};
-
 export const PAGE_TEMPLATE_TYPE: ObjectTypeDefinition = {
   name: 'PageTemplate',
   inheritedTypesIds: [TEMPLATE_VIEW_TYPE.name],
@@ -91,7 +90,7 @@ export const PAGE_TEMPLATE_TYPE: ObjectTypeDefinition = {
 
 export const WEB_SITE_TEMPLATE_TYPE: ObjectTypeDefinition = {
   name: 'WebSiteTemplate',
-  inheritedTypesIds: [TEMPLATE_VIEW_TYPE.name],
+  inheritedTypesIds: [TEMPLATE_VIEW_TYPE.name, TEMPLATE_REFERER.name],
   definition: {
     properties: {
       pageObjectTreeId: {

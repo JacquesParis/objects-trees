@@ -2,7 +2,7 @@ import {
   ObjectSubTypeDefintion,
   ObjectTypeDefinition,
 } from './../../integration/extension.provider';
-export const CONTENT_IMAGE = 'ContentImage';
+export const CONTENT_IMAGE_SERVICE = 'ContentImageService';
 
 export const IMAGE_GALLERIES_TYPE: ObjectTypeDefinition = {
   name: 'ImageGalleries',
@@ -62,7 +62,7 @@ export const IMAGE_TYPE: ObjectTypeDefinition = {
   definition: {
     properties: {},
   },
-  contentType: CONTENT_IMAGE,
+  contentType: 'ContentImage',
 };
 
 export const IMAGE_GALLERIES_IMAGE_GALLERY_SUBTYPE: ObjectSubTypeDefintion = {

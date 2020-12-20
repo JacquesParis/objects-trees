@@ -23,6 +23,9 @@ export class NodeContext {
   >();
   objectType: ExpectedValue<ObjectType> = new ExpectedValue<ObjectType>();
   brothers: ExpectedValue<ObjectNode[]> = new ExpectedValue<ObjectNode[]>();
+  references: {
+    [treeId: string]: ExpectedValue<ObjectNode>;
+  } = {};
 }
 
 export class TreeContext {
@@ -56,7 +59,7 @@ export class TypeContext {
 export class CurrentContext {
   public nodeContext: NodeContext = new NodeContext();
   public treeContext: TreeContext = new TreeContext();
-  public accessRightsContexte: AccessRightsContext = new AccessRightsContext();
+  public accessRightsContext: AccessRightsContext = new AccessRightsContext();
   public typeContext: TypeContext = new TypeContext();
   public static get(value: DataObject<CurrentContext>): CurrentContext {
     const ctx = new CurrentContext();

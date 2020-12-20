@@ -1,6 +1,10 @@
 import {ObjectTreesApplicationInterface} from '../../application';
 import {ExtensionProvider} from '../../integration/extension.provider';
-import {CONTENT_GENERIC_TEMPLATE} from './content-generic-template.const';
+import {
+  CONTENT_GENERIC_TEMPLATE,
+  TEMPLATE_REFERER,
+  TEMPLATE_VIEW_TYPE,
+} from './content-generic-template.const';
 import {
   ContentGenericTemplate,
   ContentGenericTemplateRepository,
@@ -17,5 +21,8 @@ export class ContentGenericTemplateProvider extends ExtensionProvider {
     this.repositories.push({repoClass: ContentGenericTemplateRepository});
 
     this.services.push({cls: ContentGenericTemplateService});
+
+    this.objectTypes.templateView = TEMPLATE_VIEW_TYPE;
+    this.objectTypes.refererWithConfiguration = TEMPLATE_REFERER;
   }
 }

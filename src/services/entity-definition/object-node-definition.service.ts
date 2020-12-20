@@ -4,7 +4,11 @@ import {merge, some} from 'lodash';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectType} from './../../models/object-type.model';
-import {CurrentContext, NodeContext} from './../application.service';
+import {
+  CurrentContext,
+  ExpectedValue,
+  NodeContext,
+} from './../application.service';
 import {ObjectNodeService} from './../object-node/object-node.service';
 import {ObjectTypeService} from './../object-type.service';
 import {
@@ -85,7 +89,7 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
     return schema;
   }
 
-  protected async completeProperties(
+  public async completeProperties(
     properties: {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [name: string]: any;
@@ -195,6 +199,7 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
             tree.name;
 
           if (!some(result, (choice) => choice.enum[0] === treeId)) {
+            ctx.references[treeId] = new ExpectedValue(tree);
             result.push({
               enum: [treeId],
               title: owner.name + ' - ' + namespace.name + ' - ' + tree.name,

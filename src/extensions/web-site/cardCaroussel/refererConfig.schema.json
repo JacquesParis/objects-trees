@@ -1,0 +1,23 @@
+{
+  "type":"object",
+  "title":"cardCaroussel configuration",
+  "properties": {
+    "carousselObjectTreeId": {
+       "type": "string",
+       "title": "Caroussel Template",
+       "default": "",
+       "oneOfTree": [
+          {
+            "treeType": "ImageGalleryTemplate",
+            "namespaceName": "templates",
+            "namespaceType": "RepositoryCategory",
+            "ownerName": "public",
+            "ownerType": "Repository"
+          },
+          {
+            "treeType": "ImageGalleryTemplate"
+          }
+       ]
+    }
+  }
+}

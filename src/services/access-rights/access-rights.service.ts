@@ -74,11 +74,11 @@ export class AccessRightsService {
   ): Promise<AuthorizationDecision> {
     try {
       await this.ready;
-      ctx.accessRightsContexte.user.value =
+      ctx.accessRightsContext.user.value =
         0 < context.principals.length
           ? context.principals[0]
           : ((null as unknown) as Principal);
-      await ctx.accessRightsContexte.rootRights.getOrSetValue(async () => {
+      await ctx.accessRightsContext.rootRights.getOrSetValue(async () => {
         return this.calculateRootPermissions(ctx);
       });
 
@@ -105,7 +105,7 @@ export class AccessRightsService {
     const actCtx: AccessRightsServiceContext = this.appCtx.getExtensionContext<
       AccessRightsServiceContext
     >(AccessRightsService);
-    if (!ctx.accessRightsContexte?.user?.value?.id) {
+    if (!ctx.accessRightsContext?.user?.value?.id) {
       return new AccessRightSet();
     }
     const rootRights = (
@@ -114,7 +114,7 @@ export class AccessRightsService {
           actCtx.nodes.rootACL.value.id as string,
           CurrentContext.get({treeContext: {treeNode: actCtx.nodes.rootACL}}),
         ),
-        ctx.accessRightsContexte.user.value,
+        ctx.accessRightsContext.user.value,
       )
     ).rights;
     return rootRights;
@@ -162,9 +162,9 @@ export class AccessRightsService {
   ): Promise<AccessRightCRUD> {
     // TODO : disable update for object created during boot ?
     try {
-      const rights = await ctx.accessRightsContexte.rights.waitForValue;
+      const rights = await ctx.accessRightsContext.rights.waitForValue;
       // if node is just the root of the acl tree
-      if (node.id === ctx.accessRightsContexte.treeRootNodeId.value) {
+      if (node.id === ctx.accessRightsContext.treeRootNodeId.value) {
         return rights.treeRootNode.toAccessRightCRUD();
       }
       // if owner => true
@@ -173,7 +173,7 @@ export class AccessRightsService {
       }
       //Check if node is not in last def tree ACLDef
       //  => rights.treeChildrenNodes[scope]
-      const aclTrees = await ctx.accessRightsContexte.aclTrees.waitForValue;
+      const aclTrees = await ctx.accessRightsContext.aclTrees.waitForValue;
       if (
         !(node.parentACLId in aclTrees) ||
         !this.objectTreeService.isInTree(aclTrees[node.parentACLId], node)
@@ -231,7 +231,7 @@ export class AccessRightsService {
     acl: string[],
     ctx: CurrentContext,
   ): Promise<{[aclId: string]: ObjectTree}> {
-    return ctx.accessRightsContexte.aclTrees.getOrSetValue(async () => {
+    return ctx.accessRightsContext.aclTrees.getOrSetValue(async () => {
       const aclType: ObjectType = await this.appCtx.accessRightsDefinitionType
         .waitForValue;
       const aclRoots: ObjectNode[] = await this.objectNodeService.searchByParentIdsAndObjectTypeId(
@@ -256,7 +256,7 @@ export class AccessRightsService {
   }
 
   public async loadRights(node: ObjectNode, ctx: CurrentContext) {
-    return ctx.accessRightsContexte.rights.getOrSetValue(async () => {
+    return ctx.accessRightsContext.rights.getOrSetValue(async () => {
       const rights: AccessRightPermissions = new AccessRightPermissions();
 
       try {
@@ -265,10 +265,10 @@ export class AccessRightsService {
           acl.push(node.id as string);
         }
         if (0 === acl.length) {
-          ctx.accessRightsContexte.treeRootNodeId.value = (null as unknown) as string;
+          ctx.accessRightsContext.treeRootNodeId.value = (null as unknown) as string;
           return rights;
         }
-        ctx.accessRightsContexte.treeRootNodeId.value = acl[acl.length - 1];
+        ctx.accessRightsContext.treeRootNodeId.value = acl[acl.length - 1];
 
         const aclTrees: {[aclId: string]: ObjectTree} = await this.loadACLTrees(
           acl,
@@ -282,7 +282,7 @@ export class AccessRightsService {
             rights: AccessRightSet;
           } = await this.computeACLTree(
             aclTrees[acl.pop() as string],
-            ctx.accessRightsContexte.user.value,
+            ctx.accessRightsContext.user.value,
           );
           reset.treeChildrenNodes = nodeRightSet.reset;
           rights.treeChildrenNodes = nodeRightSet.rights;
@@ -309,7 +309,7 @@ export class AccessRightsService {
               rights: AccessRightSet;
             } = await this.computeACLTree(
               aclTrees[aclId],
-              ctx.accessRightsContexte.user.value,
+              ctx.accessRightsContext.user.value,
             );
             this.mergeRight(
               reset.treeChildrenNodes,

@@ -7,7 +7,7 @@ import {ContentUserService} from './content-user.service';
 
 export class ContentEntityCoreProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
-    super('ContentEntityCore', app);
+    super('ContentEntityCoreService', app);
     this.requiredProviders.push(ObjectTreeProvider);
     this.services.push({cls: ContentFileService});
     this.services.push({cls: ContentTextService});
