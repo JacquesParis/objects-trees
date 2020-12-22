@@ -9,6 +9,7 @@ import {AccessRightsInterceptor} from './../../interceptors/access-rights.interc
 import {ObjectNode} from './../../models/object-node.model';
 import {ApplicationService} from './../application.service';
 import {ContentEntityCoreProvider} from './../content-entity/content-entity.provider';
+import {UriCompleteProvider} from './../uri-complete/uri-complete.provider';
 import {AccessRightNodeService} from './access-rights-node.service';
 import {AccessRightTreeService} from './access-rights-tree.service';
 import {AccessRightTypeService} from './access-rights-type.service';
@@ -62,7 +63,7 @@ export class AccessRightsProvider extends ExtensionProvider {
 
   constructor(protected app: ObjectTreesApplicationInterface) {
     super('AccessRightsService', app);
-    this.requiredProviders.push(ContentEntityCoreProvider);
+    this.requiredProviders.push(UriCompleteProvider, ContentEntityCoreProvider);
     this.objectTypes = {
       user: {
         name: ApplicationService.OBJECT_TYPE_NAMES.USER,

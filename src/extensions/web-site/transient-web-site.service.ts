@@ -1,6 +1,6 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
-import {find, indexOf, isArray, merge} from 'lodash';
+import {find, indexOf, merge} from 'lodash';
 import {doesTreeImplementOneOfType} from '../../helper';
 import {EntityName} from '../../models';
 import {CurrentContext} from '../../services';
@@ -8,8 +8,11 @@ import {ObjectNode} from './../../models/object-node.model';
 import {ObjectNodeTree, ObjectTree} from './../../models/object-tree.model';
 import {ObjectNodeDefinitionService} from './../../services/entity-definition/object-node-definition.service';
 import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
+import {TransientUriReferenceService} from './../../services/inside-rest/transient-uri-reference.service';
 import {ObjectNodeService} from './../../services/object-node/object-node.service';
 import {TransientEntityService} from './../../services/transient-entity/transient-entity.service';
+import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
+import {TransientContentGenericService} from './../content-generic-template/transient-content-generic.service';
 import {
   PAGE_WITH_TEMPLATE_CHOICE,
   WEB_SITE_VIEW_TYPE,
@@ -21,6 +24,7 @@ import {
   MenuEntry,
   MenuEntryTree,
   MenuTree,
+  PageTemplateChoice,
   WebSiteView,
   WebSiteViewWithMenuTree,
   WebSiteWitHMenuTemplate,
@@ -36,6 +40,11 @@ export class TransientWebSiteService {
     private objectNodeService: ObjectNodeService,
     @service(ObjectNodeDefinitionService)
     private objectNodeDefinitionService: ObjectNodeDefinitionService,
+    @service(UriCompleteService) private uriCompleteService: UriCompleteService,
+    @service(TransientUriReferenceService)
+    private transientUriReferenceService: TransientUriReferenceService,
+    @service(TransientContentGenericService)
+    private transientContentGenericService: TransientContentGenericService,
   ) {
     this.transientEntityService.registerTransientEntityTypeFunction(
       EntityName.objectTree,
@@ -61,6 +70,31 @@ export class TransientWebSiteService {
       EntityName.objectNode,
       WEB_SITE_WITH_PAGES_TEMPLATE_TYPE.name,
       this.completeWebSiteWithPagesTemplateNode.bind(this),
+    );
+  }
+
+  addTemplatesConfigurations(
+    objectNode: ObjectNode,
+    configurationName: string,
+    configurationValue: Object,
+  ) {
+    if (!objectNode.templatesConfigurations) {
+      objectNode.templatesConfigurations = {
+        id: objectNode.id + '/templatesConfigurations',
+        entityCtx: {
+          entityType: EntityName.objectNode,
+        },
+      };
+    }
+
+    objectNode.templatesConfigurations[configurationName] = merge(
+      {
+        id: objectNode.id + '/templatesConfigurations/' + configurationName,
+        entityCtx: {
+          entityType: EntityName.objectNode,
+        },
+      },
+      configurationValue,
     );
   }
 
@@ -204,7 +238,7 @@ export class TransientWebSiteService {
   }
 
   async completePageTypeNode(objectNode: ObjectNode, ctx: CurrentContext) {
-    if (objectNode.entityCtx?.jsonSchema?.properties.pageObjectTreeId) {
+    if (objectNode.entityCtx?.jsonSchema?.properties.pageTemplateChoice) {
       const treeNode: ObjectNode = await this.objectNodeService.getTreeNode(
         objectNode,
         ctx,
@@ -230,13 +264,48 @@ export class TransientWebSiteService {
               )
             ) {
               oneOf.push({
-                enum: [pageTemplateChoice.pageObjectTreeId],
+                enum: [pageTemplateChoice.pageTypeKey],
                 title: pageTemplateChoice.pageTypeName,
               });
             }
           }
           if (0 < oneOf.length) {
-            objectNode.entityCtx.jsonSchema.properties.pageObjectTreeId.oneOf = oneOf;
+            objectNode.entityCtx.jsonSchema.properties.pageTemplateChoice.oneOf = oneOf;
+
+            if (objectNode.pageTemplateChoice) {
+              const pageTemplateChoice: PageTemplateChoice = find(
+                templateTree.pageTemplateChoices,
+                (choice: PageTemplateChoice) =>
+                  objectNode.pageTemplateChoice === choice.pageTypeKey,
+              );
+              if (pageTemplateChoice?.pageObjectTreeId) {
+                objectNode.pageObjectTreeId =
+                  pageTemplateChoice.pageObjectTreeId;
+                const pageObjectTreeIdParts: string[] = objectNode.pageObjectTreeId.split(
+                  '/',
+                );
+                const pageObjectTreeName =
+                  pageObjectTreeIdParts[pageObjectTreeIdParts.length - 1];
+                if (
+                  pageTemplateChoice.templatesConfigurations &&
+                  pageObjectTreeName in
+                    pageTemplateChoice.templatesConfigurations
+                ) {
+                  this.addTemplatesConfigurations(
+                    objectNode,
+                    pageObjectTreeName,
+                    pageTemplateChoice.templatesConfigurations[
+                      pageObjectTreeName
+                    ],
+                  );
+                }
+              }
+              this.uriCompleteService.addUri(objectNode, ctx);
+              await this.transientUriReferenceService.completeReturnedEntity(
+                objectNode,
+                ctx,
+              );
+            }
           }
         }
       }
@@ -247,89 +316,11 @@ export class TransientWebSiteService {
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ) {
-    console.log('complete', objectNode, ctx);
-    if (
-      isArray(
-        objectNode.entityCtx?.jsonSchema?.properties?.pageTemplateChoices?.items
-          ?.properties?.pageObjectTreeId?.oneOf,
-      ) &&
-      0 <
-        objectNode.entityCtx?.jsonSchema?.properties.pageTemplateChoices.items
-          .properties.pageObjectTreeId.oneOf.length
-    ) {
-      const pageRefJasonSchema: IJsonSchema = objectNode.entityCtx?.jsonSchema
-        ?.properties.pageTemplateChoices.items as IJsonSchema;
-      for (const pageTemplateEnum of pageRefJasonSchema.properties
-        .pageObjectTreeId.oneOf) {
-        const pageTemplateTreeId = pageTemplateEnum.enum[0];
-        const pageTemplate =
-          ctx.nodeContext.references[pageTemplateTreeId]?.value;
-        if (pageTemplate) {
-          if (!pageTemplate.contentGenericTemplate) {
-            pageTemplate.contentGenericTemplate = {};
-            await this.transientEntityService.completeReturnedEntity(
-              EntityName.objectNode,
-              pageTemplate,
-              CurrentContext.get({
-                nodeContext: {
-                  node: ctx.nodeContext.references[pageTemplateTreeId],
-                },
-              }),
-            );
-          }
-          if (
-            pageTemplate?.contentGenericTemplate?.refererConfig?.properties &&
-            0 <
-              Object.keys(
-                pageTemplate?.contentGenericTemplate?.refererConfig?.properties,
-              ).length
-          ) {
-            if (!pageRefJasonSchema.properties.templatesConfigurations) {
-              pageRefJasonSchema.properties.templatesConfigurations = {
-                type: 'object',
-                title: 'Page template configurattion',
-                'x-schema-form': {labelHtmlClass: 'd-none'},
-                properties: {},
-              };
-            }
-            pageRefJasonSchema.properties.templatesConfigurations.properties[
-              pageTemplate.name
-            ] = merge(
-              {
-                type: 'object',
-                'x-schema-form': {labelHtmlClass: 'd-none'},
-              },
-              pageTemplate.contentGenericTemplate.refererConfig,
-            );
-            this.addCondition(
-              "model.pageTemplateChoices[arrayIndex].pageObjectTreeId=='" +
-                pageTemplateTreeId +
-                "'",
-              pageRefJasonSchema.properties.templatesConfigurations.properties[
-                pageTemplate.name
-              ],
-            );
-          }
-        }
-      }
-      if (pageRefJasonSchema?.properties?.templatesConfigurations?.properties) {
-        await this.objectNodeDefinitionService.completeProperties(
-          pageRefJasonSchema.properties.templatesConfigurations.properties,
-          ctx.nodeContext,
-        );
-      }
-    }
-  }
-
-  protected addCondition(condition: string, schema: IJsonSchema) {
-    if (!schema['x-schema-form']) {
-      schema['x-schema-form'] = {};
-    }
-    schema['x-schema-form'].condition = condition;
-    if (schema.properties) {
-      for (const key of Object.keys(schema.properties)) {
-        this.addCondition(condition, schema.properties[key]);
-      }
-    }
+    await this.transientContentGenericService.addTemplateConfiguration(
+      objectNode.entityCtx?.jsonSchema?.properties?.pageTemplateChoices?.items,
+      'pageObjectTreeId',
+      'model.pageTemplateChoices[arrayIndex]',
+      ctx,
+    );
   }
 }

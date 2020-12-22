@@ -1,5 +1,6 @@
 import {service} from '@loopback/core';
 import {filter, indexOf} from 'lodash';
+import {addCondition} from '../../helper';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectTree} from './../../models/object-tree.model';
@@ -98,30 +99,45 @@ export class TransientImageService {
           objectNode.entityCtx?.implementedTypes,
           IMAGE_GALLERY_SELECTOR_TYPE.name,
         ) &&
-      objectNode.entityCtx?.jsonSchema?.properties?.selectedImages &&
-      0 < images.length
+      objectNode.entityCtx?.jsonSchema?.properties?.selectedImages
     ) {
-      objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enum = [];
-      objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enumNames = [];
-      for (const image of images) {
-        objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enum.push(
-          image.name,
-        );
-        objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enumNames.push(
-          image.name +
-            '<span class="imageSelect"><img src="' +
-            image.contentImageUri +
-            '" ></span>',
-        );
-      }
-      if (objectNode.selectedImages && 0 < objectNode.selectedImages.length) {
-        objectNode.images = filter(
-          images,
-          (image) => -1 < indexOf(objectNode.selectedImages, image.name),
+      if (0 < images.length) {
+        objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enum = [];
+        objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enumNames = [];
+        for (const image of images) {
+          objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enum.push(
+            image.name,
+          );
+          objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enumNames.push(
+            image.name +
+              '<span class="imageSelect"><img src="' +
+              image.contentImageUri +
+              '" ></span>',
+          );
+        }
+        if (objectNode.selectedImages && 0 < objectNode.selectedImages.length) {
+          objectNode.images = filter(
+            images,
+            (image) => -1 < indexOf(objectNode.selectedImages, image.name),
+          );
+          if (0 === objectNode.images.length) {
+            objectNode.selectedImages =
+              objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enum;
+            objectNode.images = images;
+          }
+        } else {
+          objectNode.selectedImages =
+            objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enum;
+        }
+
+        addCondition(
+          "model.imageGalleryObjectTreeId=='" +
+            objectNode.imageGalleryObjectTreeId +
+            "'",
+          objectNode.entityCtx.jsonSchema.properties.selectedImages,
         );
       } else {
-        objectNode.selectedImages =
-          objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enum;
+        delete objectNode.entityCtx.jsonSchema.properties.selectedImages;
       }
     }
   }

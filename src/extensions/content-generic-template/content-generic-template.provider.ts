@@ -11,6 +11,7 @@ import {
   ContentGenericTemplateService,
   GenericTemplate,
 } from './content-generic-template.definition';
+import {TransientContentGenericService} from './transient-content-generic.service';
 
 export class ContentGenericTemplateProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
@@ -20,7 +21,10 @@ export class ContentGenericTemplateProvider extends ExtensionProvider {
     this.models.push(ContentGenericTemplate);
     this.repositories.push({repoClass: ContentGenericTemplateRepository});
 
-    this.services.push({cls: ContentGenericTemplateService});
+    this.services.push(
+      {cls: ContentGenericTemplateService},
+      {cls: TransientContentGenericService},
+    );
 
     this.objectTypes.templateView = TEMPLATE_VIEW_TYPE;
     this.objectTypes.refererWithConfiguration = TEMPLATE_REFERER;

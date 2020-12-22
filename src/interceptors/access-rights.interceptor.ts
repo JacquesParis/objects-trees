@@ -53,7 +53,7 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
       if (Array.isArray(result)) {
         if (result.length > 0) {
           if (result[0]?.uri) {
-            const uriParts = await this.getUriParts(invocationCtx);
+            const uriParts = await this.getUriParts(invocationCtx, this.ctx);
             const entityName = this.getEntityName(
               result[0]?.uri,
               uriParts.baseUri,
@@ -71,7 +71,7 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
       } else if (isObject(result)) {
         const entity: RestEntity = result as RestEntity;
         if (entity?.uri) {
-          const uriParts = await this.getUriParts(invocationCtx);
+          const uriParts = await this.getUriParts(invocationCtx, this.ctx);
           const entityName = this.getEntityName(entity.uri, uriParts.baseUri);
 
           await this.accessRightsService.cleanReturnedEntity(
@@ -80,7 +80,7 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
             this.ctx,
           );
         } else {
-          const uriParts = await this.getUriParts(invocationCtx);
+          const uriParts = await this.getUriParts(invocationCtx, this.ctx);
           if (-1 === ['/explorer/openapi.json/'].indexOf(uriParts.objectUri)) {
             throw ApplicationError.forbiden();
           }

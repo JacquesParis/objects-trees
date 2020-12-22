@@ -1,0 +1,11 @@
+{
+  "type":"object",
+  "title":"cardTextAndImages configuration",
+  "properties": {
+    "siteMaxWidth": {
+       "type": "number",
+       "title": "Site maximum width",
+       "default": ""
+    }
+  }
+}

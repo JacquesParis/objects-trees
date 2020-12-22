@@ -1,10 +1,10 @@
 {
   "type":"object",
-  "title":"cardCaroussel configuration",
+  "title":"cardTextAndImages configuration",
   "properties": {
-    "carousselObjectTreeId": {
+    "imageGalleryObjectTreeId": {
        "type": "string",
-       "title": "Caroussel Template",
+       "title": "Image gallery Template",
        "default": "",
        "oneOfTree": [
           {

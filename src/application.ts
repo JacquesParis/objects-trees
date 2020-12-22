@@ -56,6 +56,7 @@ import {ObjectTreeProvider} from './services/object-tree/object-tree.provider';
 import {ObjectTreeService} from './services/object-tree/object-tree.service';
 import {ObjectTypeService} from './services/object-type.service';
 import {TransientEntityProvider} from './services/transient-entity/transient-entity.provider';
+import {UriCompleteProvider} from './services/uri-complete/uri-complete.provider';
 import {UserAuthenticationService} from './services/user-authentication.service';
 
 /*export abstract class ObjectTreesApplicationInterface extends RestApplication {
@@ -177,6 +178,7 @@ export class ObjectTreesApplication extends RestApplication {
     config.extensions.unshift(AccessRightsProvider);
     config.extensions.unshift(ContentEntityCoreProvider);
     config.extensions.unshift(ObjectTreeProvider);
+    config.extensions.push(UriCompleteProvider);
     /*
     this.extensionProviders.push(new ContentEntityCoreProvider(app));
     this.extensionProviders.push(new AccessRightsProvider(app));
@@ -185,6 +187,7 @@ export class ObjectTreesApplication extends RestApplication {
     */
 
     this.addProviders(app, config.extensions);
+
     /*
     if (config?.extensions?.length) {
       for (const objectTypeProvider of config.extensions) {

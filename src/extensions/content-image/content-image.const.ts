@@ -48,8 +48,6 @@ export const IMAGE_GALLERY_SELECTOR_TYPE: ObjectTypeDefinition = {
         type: 'array',
         items: {
           type: 'string',
-          enum: [],
-          enumNames: [],
         },
       },
     },

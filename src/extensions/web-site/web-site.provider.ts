@@ -3,6 +3,7 @@ import {contentGenericTemplate} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {TransientUriReferenceProvider} from '../../services/inside-rest/transient-uri-reference.provider';
 import {ContentGenericTemplateProvider} from '../content-generic-template/content-generic-template.provider';
+import {UriCompleteProvider} from './../../services/uri-complete/uri-complete.provider';
 import {TransientWebSiteService} from './transient-web-site.service';
 import {
   CALENDAR_ENTRY_TYPE,
@@ -26,6 +27,7 @@ export class WebSiteProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(WEB_SITE_NAME, app);
     this.requiredProviders.push(
+      UriCompleteProvider,
       TransientUriReferenceProvider,
       ContentGenericTemplateProvider,
     );
@@ -76,16 +78,16 @@ export class WebSiteProvider extends ExtensionProvider {
       },
     };
 
-    this.objectTrees.pageCardCaroussel = {
+    this.objectTrees.pageCardTextAndImages = {
       reset: false,
       parentNode: () => this.appCtx.publicTemplatesNode.value,
-      treeNodeName: 'cardCaroussel',
+      treeNodeName: 'cardTextAndImages',
       treeNodeTypeId: PAGE_TEMPLATE_TYPE.name,
       tree: {
         treeNode: {
           contentGenericTemplate: contentGenericTemplate(
             __dirname,
-            'cardCaroussel',
+            'cardTextAndImages',
           ),
         },
         children: {},

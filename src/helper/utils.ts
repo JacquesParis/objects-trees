@@ -111,3 +111,15 @@ export function doesTreeImplementOneOfType(
 ): boolean {
   return intersection(tree.entityCtx?.implementedTypes, types).length > 0;
 }
+
+export function addCondition(condition: string, schema: IJsonSchema) {
+  if (!schema['x-schema-form']) {
+    schema['x-schema-form'] = {};
+  }
+  schema['x-schema-form'].condition = condition;
+  if (schema.properties) {
+    for (const key of Object.keys(schema.properties)) {
+      addCondition(condition, schema.properties[key]);
+    }
+  }
+}

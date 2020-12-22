@@ -1,0 +1,19 @@
+<div class="card">
+  <div class="row no-gutters">
+    <div class="col">
+      <div class="card-body">
+        <h5 class="card-title" [innerHtml]="dataNode.pageTitle"></h5>
+        <p class="card-text" [innerHtml]="dataNode.contentText"></p>
+      </div>
+    </div>
+    <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-6">
+      <div class="card-img">
+        <div
+          template
+          [dataTree]="dataTree"
+          [templateTree]="ctrl.getGalleryObjectTree(pageNode, templateNode)"
+        ></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -79,8 +79,14 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               pageTypeKey: 'cardCaroussel',
               pageTypeName: 'Display images with Caroussel',
               pageObjectTreeId:
-                'tree/Repository/public/RepositoryCategory/templates/PageTemplate/cardCaroussel',
+                'tree/Repository/public/RepositoryCategory/templates/PageTemplate/cardTextAndImages',
               pageTypes: [POST_WITH_GALLERY_TYPE.name],
+              templatesConfigurations: {
+                cardTextAndImages: {
+                  imageGalleryObjectTreeId:
+                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/caroussel',
+                },
+              },
             },
             {
               pageTypeKey: 'card',
@@ -96,7 +102,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
     };
 
     this.objectTrees.travelStoryExample = {
-      reset: true,
+      reset: false,
       parentNode: () => this.appCtx.demonstrationExamplesNode.value,
       treeNodeName: 'Exemple de site de Voyage',
       treeNodeTypeId: TRAVEL_STORY_TYPE.name,
@@ -244,8 +250,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                     ['Post 3']: [
                       {
                         treeNode: {
-                          pageObjectTreeId:
-                            'tree/Repository/public/RepositoryCategory/templates/PageTemplate/cardCaroussel',
+                          pageTemplateChoice: 'cardCaroussel',
                           imageGalleryObjectTreeId:
                             'tree/Tenant/Demonstration/TravelStory/Exemple de site de Voyage/ImageGallery/Ipsum3',
                           menuTitle: 'Lorem ipsum 3',

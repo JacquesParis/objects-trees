@@ -56,11 +56,19 @@ export class TypeContext {
   }>();
 }
 
+export class UriContext {
+  uri: ExpectedValue<{
+    baseUri: string;
+    objectUri: string;
+  }> = new ExpectedValue();
+}
+
 export class CurrentContext {
   public nodeContext: NodeContext = new NodeContext();
   public treeContext: TreeContext = new TreeContext();
   public accessRightsContext: AccessRightsContext = new AccessRightsContext();
   public typeContext: TypeContext = new TypeContext();
+  public uriContext: UriContext = new UriContext();
   public static get(value: DataObject<CurrentContext>): CurrentContext {
     const ctx = new CurrentContext();
     if (value) {

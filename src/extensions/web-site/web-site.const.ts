@@ -274,7 +274,7 @@ export const PAGE_WITH_TEMPLATE_CHOICE: ObjectTypeDefinition = {
   inheritedTypesIds: [PAGE_TYPE.name],
   definition: {
     properties: {
-      pageObjectTreeId: {
+      pageTemplateChoice: {
         title: 'Display choice',
         type: 'string',
       },
