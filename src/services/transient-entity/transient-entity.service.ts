@@ -1,11 +1,19 @@
 import {IRestEntity} from '@jacquesparis/objects-model';
 import {BindingScope, injectable, service} from '@loopback/core';
-import {indexOf} from 'lodash';
+import {indexOf, isFunction, isString} from 'lodash';
 import {EntityName} from '../../models';
 import {ApplicationService, CurrentContext} from '../application.service';
+import {
+  ServiceDescripiton,
+  TreatmentDescription,
+} from './../../integration/extension-description';
 import {AbstractEntityInterceptorInterface} from './../../interceptors/abstract-entity-interceptor.service';
+import {TRANSIENT_ENTITY_PROVIDER} from './transient-entity.const';
 
 export interface TransientEntityInterface {
+  providerId: string;
+  serviceId: string;
+  description: string | (() => TreatmentDescription) | TreatmentDescription;
   completeReturnedEntity(
     entity: IRestEntity,
     ctx: CurrentContext,
@@ -14,7 +22,7 @@ export interface TransientEntityInterface {
 
 @injectable({scope: BindingScope.SINGLETON})
 export class TransientEntityService
-  implements AbstractEntityInterceptorInterface {
+  implements AbstractEntityInterceptorInterface, ServiceDescripiton {
   private transientEntitys: {
     [resource in EntityName]?: TransientEntityInterface[];
   } = {};
@@ -29,7 +37,38 @@ export class TransientEntityService
     this.transientEntitys[resource]?.push(transientEntity);
   }
 
+  getPostTraitmentDescription(): TreatmentDescription[] {
+    const treatment: TreatmentDescription = new TreatmentDescription(
+      TRANSIENT_ENTITY_PROVIDER,
+      TransientEntityService.name,
+      'Add transient fields',
+    );
+    for (const resource in this.transientEntitys) {
+      for (const transientEntity of this.transientEntitys[
+        resource as EntityName
+      ] as TransientEntityInterface[]) {
+        if (isString(transientEntity.description)) {
+          treatment.subTreatments.push(
+            new TreatmentDescription(
+              transientEntity.providerId,
+              transientEntity.serviceId,
+              resource + ': ' + transientEntity.description,
+            ),
+          );
+        } else if (isFunction(transientEntity.description)) {
+          treatment.subTreatments.push(transientEntity.description());
+        } else {
+          treatment.subTreatments.push(transientEntity.description);
+        }
+      }
+    }
+    return [treatment];
+  }
+
   public registerTransientEntityTypeFunction<T extends IRestEntity>(
+    functionProviderId: string,
+    functionServiceId: string,
+    functionDescription: string,
     resource: EntityName,
     objectType: string,
     transientFunction: (entity: T, ctx: CurrentContext) => Promise<void>,
@@ -37,6 +76,25 @@ export class TransientEntityService
     this.registerTransientEntityService(
       resource,
       new (class implements TransientEntityInterface {
+        constructor() {
+          this.providerId = functionProviderId;
+          this.serviceId = functionServiceId;
+          this.description = new TreatmentDescription(
+            TRANSIENT_ENTITY_PROVIDER,
+            TransientEntityService.name,
+            resource + ': ',
+            [
+              new TreatmentDescription(
+                functionProviderId,
+                functionServiceId,
+                objectType + ': ' + functionDescription,
+              ),
+            ],
+          );
+        }
+        public providerId: string;
+        public serviceId: string;
+        public description: TreatmentDescription;
         async completeReturnedEntity(
           entity: IRestEntity,
           ctx: CurrentContext,
@@ -50,7 +108,7 @@ export class TransientEntityService
   }
 
   get ready(): Promise<void> {
-    return this.appCtx.getExtensionContext('TransientEntityService').ready;
+    return this.appCtx.getExtensionContext(TRANSIENT_ENTITY_PROVIDER).ready;
   }
 
   constructor(

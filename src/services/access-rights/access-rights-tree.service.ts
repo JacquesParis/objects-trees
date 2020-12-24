@@ -9,17 +9,17 @@ import {ObjectTree} from '../../models/object-tree.model';
 import {ObjectNodeService} from '../object-node/object-node.service';
 import {ObjectNode} from './../../models/object-node.model';
 import {CurrentContext} from './../application.service';
-import {AccessRightAbstractService} from './access-rights-abtract.service';
+import {AccessRightsAbstractService} from './access-rights-abtract.service';
 import {AccessRightsTreeScope} from './access-rights-tree.const';
-import {AccessRightsScope} from './access-rights.const';
+import {AccessRightsScope, ACCESS_RIGHT_PROVIDER} from './access-rights.const';
 import {
   AccessRightsInterface,
   AccessRightsService,
 } from './access-rights.service';
 
 @injectable({scope: BindingScope.SINGLETON})
-export class AccessRightTreeService
-  extends AccessRightAbstractService
+export class AccessRightsTreeService
+  extends AccessRightsAbstractService
   implements AccessRightsInterface {
   constructor(
     @service(AccessRightsService)
@@ -27,7 +27,12 @@ export class AccessRightTreeService
     @service(ObjectNodeService)
     protected objectNodeService: ObjectNodeService,
   ) {
-    super(accessRightsService, EntityName.objectTree);
+    super(
+      ACCESS_RIGHT_PROVIDER,
+      AccessRightsTreeService.name,
+      accessRightsService,
+      EntityName.objectTree,
+    );
   }
 
   protected async authorizeRead(
@@ -80,7 +85,7 @@ export class AccessRightTreeService
     }
 
     if (treeNode) {
-      return (await this.accessRightsService.hasNodeAccessRight(
+      return (await this.accessRightsService.hasNodeAccessRights(
         AccessRightsScope.read,
         treeNode,
         ctx,

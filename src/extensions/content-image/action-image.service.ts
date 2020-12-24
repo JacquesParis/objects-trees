@@ -4,7 +4,11 @@ import {ObjectNodeService} from '../../services/object-node/object-node.service'
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
 import {CurrentContext} from './../../services/application.service';
-import {IMAGE_GALLERY_TYPE, IMAGE_TYPE} from './content-image.const';
+import {
+  CONTENT_IMAGE_PROVIDER,
+  IMAGE_GALLERY_TYPE,
+  IMAGE_TYPE,
+} from './content-image.const';
 import {Image} from './content-image.definition';
 
 export class ActionImageService {
@@ -15,6 +19,9 @@ export class ActionImageService {
     private objectNodeService: ObjectNodeService,
   ) {
     this.actionEntityService.registerNewActionTypeFunction(
+      CONTENT_IMAGE_PROVIDER,
+      ActionImageService.name,
+      'Load and create several Image entities in an Image Gallery',
       EntityName.objectNode,
       'load',
       IMAGE_GALLERY_TYPE.name,

@@ -12,6 +12,7 @@ import {
   TEMPLATE_REFERER,
   TEMPLATE_VIEW_TYPE,
 } from './../content-generic-template/content-generic-template.const';
+export const WEB_SITE_PROVIDER = 'WebSiteProvider';
 export const WEB_SITE_NAME = 'WebSiteService';
 
 export const WEB_SITE_VIEW_TYPE: ObjectTypeDefinition = {

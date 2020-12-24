@@ -8,7 +8,12 @@ import {
   TransientEntityService,
 } from '../transient-entity/transient-entity.service';
 import {InsideRestService} from './inside-rest.service';
+import {TRANSIENT_URI_PROVIDER} from './transient-uri-reference.const';
 export class TransientUriReferenceService implements TransientEntityInterface {
+  providerId: string = TRANSIENT_URI_PROVIDER;
+  serviceId: string = TransientUriReferenceService.name;
+  description =
+    'Add references to ObjectTree, ObjectNode and ObjectType entities when they are referenced by an Uri field ended respectivly by ObjectTreeUri, ObjectNodeUri or ObjectTypeUri';
   constructor(
     @service(TransientEntityService)
     private transientEntityService: TransientEntityService,

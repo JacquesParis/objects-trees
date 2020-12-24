@@ -1,4 +1,6 @@
 import {ObjectTypeDefinition} from './../../integration/extension.provider';
+
+export const CONTENT_GENERIC_PROVIDER = 'ContentGenericProvider';
 export const CONTENT_GENERIC_TEMPLATE = 'ContentGenericTemplate';
 
 export const TEMPLATE_VIEW_TYPE: ObjectTypeDefinition = {

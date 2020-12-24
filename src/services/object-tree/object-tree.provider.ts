@@ -4,6 +4,7 @@ import {ObjectNode} from './../../models/object-node.model';
 import {ApplicationService, CurrentContext} from './../application.service';
 import {
   FOLDER_TYPE,
+  OBJECT_TREE_PROVIDER,
   REPOSITORY_CATEGORY_TYPE,
   REPOSITORY_TYPE,
   TEMPLATES_OBJECT_NAME,
@@ -12,7 +13,7 @@ import {
 
 export class ObjectTreeProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
-    super('ObjectTreeService', app);
+    super(OBJECT_TREE_PROVIDER, app);
 
     this.objectTypes.repository = REPOSITORY_TYPE;
     this.objectTypes.folder = FOLDER_TYPE;

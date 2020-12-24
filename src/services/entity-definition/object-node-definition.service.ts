@@ -11,6 +11,7 @@ import {
 } from './../application.service';
 import {ObjectNodeService} from './../object-node/object-node.service';
 import {ObjectTypeService} from './../object-type.service';
+import {ENTITY_DEFINITION_PROVIDER} from './entity-definition.cont';
 import {
   EntityDefinitionInterface,
   EntityDefinitionService,
@@ -38,6 +39,8 @@ interface OneOfTreeOption {
 }
 
 export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
+  public providerId: string = ENTITY_DEFINITION_PROVIDER;
+  public serviceId: string = ObjectNodeDefinitionService.name;
   constructor(
     @service(ObjectTypeService) protected objectTypeService: ObjectTypeService,
     @service(ObjectNodeService) protected objectNodeService: ObjectNodeService,

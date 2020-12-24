@@ -9,15 +9,16 @@ import {AclCtx} from './../../models/acl-ctx.model';
 import {EntityName} from './../../models/entity-name';
 import {ObjectType} from './../../models/object-type.model';
 import {ObjectTypeService} from './../object-type.service';
-import {AccessRightAbstractService} from './access-rights-abtract.service';
+import {AccessRightsAbstractService} from './access-rights-abtract.service';
+import {ACCESS_RIGHT_PROVIDER} from './access-rights.const';
 import {
   AccessRightsInterface,
   AccessRightsService,
 } from './access-rights.service';
 
 @injectable({scope: BindingScope.SINGLETON})
-export class AccessRightTypeService
-  extends AccessRightAbstractService
+export class AccessRightsTypeService
+  extends AccessRightsAbstractService
   implements AccessRightsInterface {
   constructor(
     @service(AccessRightsService)
@@ -25,7 +26,12 @@ export class AccessRightTypeService
     @service(ObjectTypeService)
     protected objectTypeService: ObjectTypeService,
   ) {
-    super(accessRightsService, EntityName.objectType);
+    super(
+      ACCESS_RIGHT_PROVIDER,
+      AccessRightsTypeService.name,
+      accessRightsService,
+      EntityName.objectType,
+    );
   }
 
   public async cleanReturnedEntity(

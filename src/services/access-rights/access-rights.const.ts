@@ -1,7 +1,8 @@
-import {IAccessRightCRUD} from '@jacquesparis/objects-model';
+import {IAccessRightsCRUD} from '@jacquesparis/objects-model';
 import {EntityName} from '../../models/entity-name';
 import {ApplicationService} from '../application.service';
 
+export const ACCESS_RIGHT_PROVIDER = 'AccessRightsProvider';
 export const AccessRightsEntity = EntityName;
 export enum AccessRightsScope {
   create = 'create',
@@ -9,11 +10,11 @@ export enum AccessRightsScope {
   update = 'update',
   delete = 'delete',
 }
-export enum AccessRightMgt {
+export enum AccessRightsMgt {
   access = 'access',
   owner = 'owner',
 }
-export enum AccessRightPermission {
+export enum AccessRightsPermission {
   create = 'create',
   read = 'read',
   update = 'update',
@@ -22,7 +23,7 @@ export enum AccessRightPermission {
   owner = 'owner',
 }
 
-export class AccessRightCRUD implements IAccessRightCRUD {
+export class AccessRightsCRUD implements IAccessRightsCRUD {
   public delete: boolean;
   constructor(
     public create: boolean = false,
@@ -34,15 +35,15 @@ export class AccessRightCRUD implements IAccessRightCRUD {
   }
 }
 
-export class AccessRightSet {
+export class AccessRightsSet {
   create = false;
   read = false;
   update = false;
   delete = false;
   access = false;
   owner = false;
-  public toAccessRightCRUD() {
-    return new AccessRightCRUD(
+  public toAccessRightsCRUD() {
+    return new AccessRightsCRUD(
       this.create,
       this.read,
       this.update,
@@ -51,9 +52,9 @@ export class AccessRightSet {
   }
 }
 
-export class AccessRightPermissions {
-  treeRootNode: AccessRightSet = new AccessRightSet();
-  treeChildrenNodes: AccessRightSet = new AccessRightSet();
+export class AccessRightsPermissions {
+  treeRootNode: AccessRightsSet = new AccessRightsSet();
+  treeChildrenNodes: AccessRightsSet = new AccessRightsSet();
 }
 
 export const ACCESS_RIGHT_SUBTYPE = {

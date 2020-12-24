@@ -11,7 +11,15 @@ import {
   AuthorizationTags,
 } from '@loopback/authorization';
 import {BootMixin} from '@loopback/boot';
-import {BindingScope, Context, ContextBindings} from '@loopback/core';
+import {
+  BindingScope,
+  Constructor,
+  Context,
+  ContextBindings,
+  Interceptor,
+  InterceptorBindingOptions,
+  Provider,
+} from '@loopback/core';
 import {ObjectType, RepositoryMixin} from '@loopback/repository';
 import {RestApplication, RestBindings} from '@loopback/rest';
 import {
@@ -19,6 +27,7 @@ import {
   RestExplorerComponent,
 } from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
+import {merge} from 'lodash';
 import {ApplicationComponent} from './application.component';
 import {ObjectTreesBootComponent} from './boot.component';
 import {AUTHORIZATION_SERVICE, DATASTORE_DB} from './constants';
@@ -28,6 +37,11 @@ import {ObjectTypeController} from './controllers/object-type.controller';
 import {PingController} from './controllers/ping.controller';
 import {UserController} from './controllers/user.controller';
 import {DbDataSource} from './datasources/db.datasource';
+import {
+  InterceptorDescription,
+  ServiceDescripiton,
+  TreatmentDescription,
+} from './integration/extension-description';
 import {
   ExtensionProvider,
   ExtensionProviderClass,
@@ -71,11 +85,25 @@ import {UserAuthenticationService} from './services/user-authentication.service'
 export abstract class ObjectTreesApplicationInterface extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
 ) {
+  public abstract addInterceptor(
+    providerId: string,
+    interceptorProvider: {
+      id: string;
+      interceptor: Interceptor | Constructor<Provider<Interceptor>>;
+      nameOrOptions?: string | InterceptorBindingOptions;
+      description: InterceptorDescription;
+    },
+  ): void;
   public abstract bootObjectTrees(): Promise<void>;
   public abstract getService<T>(t: {name: string}): Promise<T>;
 }
 
 export class ObjectTreesApplication extends RestApplication {
+  public interceptorDescriptions: {
+    [interceptorId: string]: InterceptorDescription & {providerId: string};
+  } = {};
+  public postTreatmentDescriptions: TreatmentDescription[] = [];
+  public preTreatmentDescriptions: TreatmentDescription[] = [];
   protected extensionProviders: ExtensionProvider[] = [];
   constructor(config?: ObjectTreesApplicationConfig, parent?: Context) {
     super(config, parent);
@@ -215,6 +243,35 @@ export class ObjectTreesApplication extends RestApplication {
     }
   }
 
+  public addInterceptor(
+    providerId: string,
+    interceptorProvider: {
+      id: string;
+      interceptor: Interceptor | Constructor<Provider<Interceptor>>;
+      nameOrOptions?: string | InterceptorBindingOptions;
+      description: InterceptorDescription;
+    },
+  ) {
+    this.interceptor(
+      interceptorProvider.interceptor,
+      merge(
+        {},
+        {
+          name: interceptorProvider.id,
+          global: true,
+          group: interceptorProvider.id,
+        },
+        interceptorProvider.nameOrOptions
+          ? interceptorProvider.nameOrOptions
+          : {},
+      ),
+    );
+    this.interceptorDescriptions[interceptorProvider.id] = merge(
+      {providerId},
+      interceptorProvider.description,
+    );
+  }
+
   public async bootObjectTrees(): Promise<void> {
     const app = (this as unknown) as ObjectTreesApplicationInterface;
     console.log('Boot application...');
@@ -258,14 +315,14 @@ export class ObjectTreesApplication extends RestApplication {
     /*
     app.service(AccessRightsService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<AccessRightsService>(AccessRightsService);
-    app.service(AccessRightTreeService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<AccessRightTreeService>(AccessRightTreeService);
-    app.service(AccessRightNodeService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<AccessRightNodeService>(AccessRightNodeService);
-    app.service(AccessRightTypeService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<AccessRightTypeService>(AccessRightTypeService);
-    app.service(AccessRightUserService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<AccessRightUserService>(AccessRightUserService);
+    app.service(AccessRightsTreeService, {defaultScope: BindingScope.SINGLETON});
+    await app.getService<AccessRightsTreeService>(AccessRightsTreeService);
+    app.service(AccessRightsNodeService, {defaultScope: BindingScope.SINGLETON});
+    await app.getService<AccessRightsNodeService>(AccessRightsNodeService);
+    app.service(AccessRightsTypeService, {defaultScope: BindingScope.SINGLETON});
+    await app.getService<AccessRightsTypeService>(AccessRightsTypeService);
+    app.service(AccessRightsUserService, {defaultScope: BindingScope.SINGLETON});
+    await app.getService<AccessRightsUserService>(AccessRightsUserService);
     */
     /*
     app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
@@ -295,6 +352,111 @@ export class ObjectTreesApplication extends RestApplication {
 
     app.component(ObjectTreesBootComponent);
     console.log('Boot up !');
+
+    //    for (const interceptorId of Object.keys(this.interceptorDescriptions)
+    const interceptors: string[] = app
+      .getBinding(ContextBindings.GLOBAL_INTERCEPTOR_ORDERED_GROUPS)
+      .getValue(app) as string[];
+
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
+    for (let index = 0; index < interceptors.length; index++) {
+      if (
+        interceptors[index] in this.interceptorDescriptions &&
+        this.interceptorDescriptions[interceptors[index]].preTreatment
+      ) {
+        const treatment: TreatmentDescription = new TreatmentDescription(
+          this.interceptorDescriptions[interceptors[index]].providerId,
+          interceptors[index],
+          this.interceptorDescriptions[interceptors[index]].preTreatment
+            ?.description as string,
+        );
+        for (const serviceName of this.interceptorDescriptions[
+          interceptors[index]
+        ].preTreatment?.services as string[]) {
+          const service: ServiceDescripiton = await this.getService<
+            ServiceDescripiton
+          >({name: serviceName});
+          if (service.getPreTraitmentDescription) {
+            treatment.subTreatments.push(
+              ...service.getPreTraitmentDescription(),
+            );
+          }
+        }
+        this.preTreatmentDescriptions.push(treatment);
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
+    for (let index = interceptors.length - 1; index >= 0; index--) {
+      if (
+        interceptors[index] in this.interceptorDescriptions &&
+        this.interceptorDescriptions[interceptors[index]].postTreatment
+      ) {
+        const treatment: TreatmentDescription = new TreatmentDescription(
+          this.interceptorDescriptions[interceptors[index]].providerId,
+          interceptors[index],
+          this.interceptorDescriptions[interceptors[index]].postTreatment
+            ?.description as string,
+        );
+        for (const serviceName of this.interceptorDescriptions[
+          interceptors[index]
+        ].postTreatment?.services as string[]) {
+          const service: ServiceDescripiton = await this.getService<
+            ServiceDescripiton
+          >({name: serviceName});
+          if (service.getPostTraitmentDescription) {
+            treatment.subTreatments.push(
+              ...service.getPostTraitmentDescription(),
+            );
+          }
+        }
+        this.postTreatmentDescriptions.push(treatment);
+      }
+    }
+    console.log('Boot summary:');
+    console.log('- Treatments on incoming request:');
+    for (const treatment of this.preTreatmentDescriptions) {
+      this.consoleTreatment(treatment);
+    }
+    console.log('- Request extended actions');
+    for (const treatment of (
+      await this.getService<ActionEntityService>(ActionEntityService)
+    ).getPostTraitmentDescription()) {
+      this.consoleTreatment(treatment);
+    }
+
+    console.log('- Treatments on returned Entity(ies):');
+    for (const treatment of this.postTreatmentDescriptions) {
+      this.consoleTreatment(treatment);
+    }
+  }
+
+  private consoleTreatments(
+    treatmentDescriptions: TreatmentDescription[],
+    level = 0,
+  ) {
+    for (const treatmentDescription of treatmentDescriptions) {
+      this.consoleTreatment(treatmentDescription, level + 1);
+    }
+  }
+  private consoleTreatment(
+    treatmentDescription: TreatmentDescription,
+    level = 1,
+  ) {
+    let prepend = ' ';
+    for (let i = 0; i < level; i++) {
+      prepend += '   ';
+    }
+    prepend += '- ';
+    console.log(
+      prepend +
+        treatmentDescription.description +
+        ' (' +
+        treatmentDescription.providerId +
+        '.' +
+        treatmentDescription.runnerId +
+        ')',
+    );
+    this.consoleTreatments(treatmentDescription.subTreatments, level);
   }
 
   public async getService<T>(t: {name: string}): Promise<T> {

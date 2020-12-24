@@ -3,6 +3,7 @@ import {IJsonSchema} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {ContentTextRepository} from './../../repositories/content-text.repository';
+import {CONTENT_ENTITY_PROVIDER} from './content-entity.const';
 import {
   ContentEntityService,
   ContentEntityServiceInterface,
@@ -10,6 +11,8 @@ import {
 } from './content-entity.service';
 
 export class ContentTextService implements ContentEntityServiceInterface {
+  public providerId: string = CONTENT_ENTITY_PROVIDER;
+  public serviceId: string = ContentTextService.name;
   constructor(
     @service(ContentEntityService)
     public contentEntityService: ContentEntityService,

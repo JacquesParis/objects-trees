@@ -11,9 +11,11 @@ import {
   AccessRightsService,
 } from './access-rights.service';
 
-export abstract class AccessRightAbstractService
+export abstract class AccessRightsAbstractService
   implements AccessRightsInterface {
   constructor(
+    public providerId: string,
+    public serviceId: string,
     protected accessRightsService: AccessRightsService,
     protected resource: EntityName,
   ) {

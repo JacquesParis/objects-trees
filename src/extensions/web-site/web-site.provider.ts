@@ -14,7 +14,7 @@ import {
   PAGE_TEMPLATE_TYPE,
   PAGE_TYPE,
   PAGE_WITH_TEMPLATE_CHOICE,
-  WEB_SITE_NAME,
+  WEB_SITE_PROVIDER,
   WEB_SITE_TEMPLATE_TYPE,
   WEB_SITE_VIEW_TYPE,
   WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE,
@@ -25,7 +25,7 @@ import {
 } from './web-site.const';
 export class WebSiteProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
-    super(WEB_SITE_NAME, app);
+    super(WEB_SITE_PROVIDER, app);
     this.requiredProviders.push(
       UriCompleteProvider,
       TransientUriReferenceProvider,

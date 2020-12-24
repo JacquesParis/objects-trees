@@ -4,6 +4,7 @@ import {UserRepository} from '@loopback/authentication-jwt';
 import {service} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {ApplicationService} from './../application.service';
+import {CONTENT_ENTITY_PROVIDER} from './content-entity.const';
 import {
   ContentEntityService,
   ContentEntityServiceInterface,
@@ -13,6 +14,8 @@ import {
 const FIELD_NAME = 'contentUser';
 
 export class ContentUserService implements ContentEntityServiceInterface {
+  public providerId: string = CONTENT_ENTITY_PROVIDER;
+  public serviceId: string = ContentUserService.name;
   constructor(
     @service(ContentEntityService)
     public contentEntityService: ContentEntityService,

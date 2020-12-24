@@ -9,21 +9,27 @@ import {RestEntity} from '../../models';
 import {EntityName} from '../../models/entity-name';
 import {CurrentContext} from '../application.service';
 import {AclCtx} from './../../models/acl-ctx.model';
-import {AccessRightAbstractService} from './access-rights-abtract.service';
+import {AccessRightsAbstractService} from './access-rights-abtract.service';
+import {ACCESS_RIGHT_PROVIDER} from './access-rights.const';
 import {
   AccessRightsInterface,
   AccessRightsService,
 } from './access-rights.service';
 
 @injectable({scope: BindingScope.SINGLETON})
-export class AccessRightUserService
-  extends AccessRightAbstractService
+export class AccessRightsUserService
+  extends AccessRightsAbstractService
   implements AccessRightsInterface {
   constructor(
     @service(AccessRightsService)
     protected accessRightsService: AccessRightsService,
   ) {
-    super(accessRightsService, EntityName.user);
+    super(
+      ACCESS_RIGHT_PROVIDER,
+      AccessRightsUserService.name,
+      accessRightsService,
+      EntityName.user,
+    );
   }
 
   public async cleanReturnedEntity(

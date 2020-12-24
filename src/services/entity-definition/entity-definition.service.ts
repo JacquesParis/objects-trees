@@ -2,10 +2,17 @@ import {IRestEntity} from '@jacquesparis/objects-model';
 import {BindingScope, injectable, service} from '@loopback/core';
 import {EntityName} from '../../models';
 import {CurrentContext} from '../application.service';
+import {
+  ServiceDescripiton,
+  TreatmentDescription,
+} from './../../integration/extension-description';
 import {AbstractEntityInterceptorInterface} from './../../interceptors/abstract-entity-interceptor.service';
 import {ApplicationService} from './../application.service';
+import {ENTITY_DEFINITION_PROVIDER} from './entity-definition.cont';
 
 export interface EntityDefinitionInterface {
+  providerId: string;
+  serviceId: string;
   completeReturnedEntity(
     entity: IRestEntity,
     ctx: CurrentContext,
@@ -14,7 +21,7 @@ export interface EntityDefinitionInterface {
 
 @injectable({scope: BindingScope.SINGLETON})
 export class EntityDefinitionService
-  implements AbstractEntityInterceptorInterface {
+  implements AbstractEntityInterceptorInterface, ServiceDescripiton {
   private entityDefinitions: {
     [resource in EntityName]?: EntityDefinitionInterface;
   } = {};
@@ -26,8 +33,30 @@ export class EntityDefinitionService
     this.entityDefinitions[resource] = entityDefinition;
   }
 
+  getPostTraitmentDescription(): TreatmentDescription[] {
+    const treatment: TreatmentDescription = new TreatmentDescription(
+      ENTITY_DEFINITION_PROVIDER,
+      EntityDefinitionService.name,
+      'Add Json Schema definitions',
+    );
+    for (const resource in this.entityDefinitions) {
+      treatment.subTreatments.push(
+        new TreatmentDescription(
+          (this.entityDefinitions[
+            resource as EntityName
+          ] as EntityDefinitionInterface).providerId,
+          (this.entityDefinitions[
+            resource as EntityName
+          ] as EntityDefinitionInterface).serviceId,
+          resource + '  definition',
+        ),
+      );
+    }
+    return [treatment];
+  }
+
   get ready(): Promise<void> {
-    return this.appCtx.getExtensionContext('EntityDefinitionService').ready;
+    return this.appCtx.getExtensionContext(ENTITY_DEFINITION_PROVIDER).ready;
   }
 
   constructor(

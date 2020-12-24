@@ -21,6 +21,7 @@ import {
   TEMPLATES_OBJECT_NAME,
 } from './../../services/object-tree/object-tree.const';
 import {IMAGE_GALLERIES_TYPE} from './../content-image/content-image.const';
+export const TRAVEL_STORY_PROVIDER = 'TravelStoryProvider';
 export const TRAVEL_STORY_NAME = 'TravelStoryService';
 
 export const TRAVEL_STORY_TEMPLATE_TYPE = {

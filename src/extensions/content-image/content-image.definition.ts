@@ -12,6 +12,7 @@ import {
 } from '../../integration/content-extension.definition';
 import {ObjectNodeRepository} from '../../repositories/object-node.repository';
 import {ContentEntityService} from '../../services/content-entity/content-entity.service';
+import {CONTENT_IMAGE_PROVIDER} from './content-image.const';
 
 @model()
 export class Image extends Entity {
@@ -63,7 +64,13 @@ export class ContentImageService extends ContentExtensionService<
     @repository(ContentImageRepository)
     protected contentExtensionRepository: ContentImageRepository,
   ) {
-    super(contentEntityService, contentExtensionRepository, 'ContentImage');
+    super(
+      CONTENT_IMAGE_PROVIDER,
+      ContentImageService.name,
+      contentEntityService,
+      contentExtensionRepository,
+      'ContentImage',
+    );
   }
 
   public async getContentDefinition(): Promise<IJsonSchema> {

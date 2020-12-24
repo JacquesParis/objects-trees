@@ -15,6 +15,7 @@ import {UriCompleteService} from './../../services/uri-complete/uri-complete.ser
 import {TransientContentGenericService} from './../content-generic-template/transient-content-generic.service';
 import {
   PAGE_WITH_TEMPLATE_CHOICE,
+  WEB_SITE_PROVIDER,
   WEB_SITE_VIEW_TYPE,
   WEB_SITE_VIEW_WITH_MENU_TYPE,
   WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,
@@ -47,26 +48,41 @@ export class TransientWebSiteService {
     private transientContentGenericService: TransientContentGenericService,
   ) {
     this.transientEntityService.registerTransientEntityTypeFunction(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Add welcomePage Id and Uri',
       EntityName.objectTree,
       WEB_SITE_VIEW_TYPE.name,
       this.completeWebSiteView.bind(this),
     );
     this.transientEntityService.registerTransientEntityTypeFunction(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Add menuEntries, tree of site menu entries',
       EntityName.objectTree,
       WEB_SITE_VIEW_WITH_MENU_TYPE.name,
       this.completeWebSiteViewWithMenu.bind(this),
     );
     this.transientEntityService.registerTransientEntityTypeFunction(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Complete menuEntries json schema definition with menuEntries from referenced template',
       EntityName.objectNode,
       WEB_SITE_VIEW_WITH_MENU_TYPE.name,
       this.completeWebSiteViewWithMenuNode.bind(this),
     );
     this.transientEntityService.registerTransientEntityTypeFunction(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Complete pageTemplateChoice json chema definition with pageTemplateChoice from referenced template and add its conditional page template configuration',
       EntityName.objectNode,
       PAGE_WITH_TEMPLATE_CHOICE.name,
       this.completePageTypeNode.bind(this),
     );
     this.transientEntityService.registerTransientEntityTypeFunction(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Add new template configuration json schema definitions, configuration from new added referenced templates',
       EntityName.objectNode,
       WEB_SITE_WITH_PAGES_TEMPLATE_TYPE.name,
       this.completeWebSiteWithPagesTemplateNode.bind(this),

@@ -2,6 +2,7 @@
 import {IEntityContext, IJsonSchema} from '@jacquesparis/objects-model';
 import {Entity} from '@loopback/repository';
 import {ApplicationError} from '../../helper/application-error';
+import {TreatmentDescription} from './../../integration/extension-description';
 import {EntityName} from './../../models/entity-name';
 
 export interface EntityWithContent {
@@ -13,6 +14,8 @@ export interface EntityWithContent {
 }
 
 export interface ContentEntityServiceInterface {
+  providerId: string;
+  serviceId: string;
   getContentDefinition(): Promise<IJsonSchema>;
   getContent(
     entity: EntityWithContent,
@@ -52,6 +55,19 @@ export class ContentEntityService {
   } = {};
   constructor(/* Add @inject to inject parameters */) {}
 
+  getPostTraitmentDescription(): TreatmentDescription[] {
+    const treatment: TreatmentDescription[] = [];
+    for (const contentType of Object.keys(this.contentTypeDefinitions)) {
+      treatment.push(
+        new TreatmentDescription(
+          this.contentTypeDefinitions[contentType].providerId,
+          this.contentTypeDefinitions[contentType].serviceId,
+          contentType + ': Add transient fields',
+        ),
+      );
+    }
+    return treatment;
+  }
   public registerNewContentType(
     contentType: string,
     service: ContentEntityServiceInterface,

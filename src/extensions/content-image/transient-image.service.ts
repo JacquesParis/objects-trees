@@ -9,6 +9,7 @@ import {InsideRestService} from './../../services/inside-rest/inside-rest.servic
 import {ObjectNodeService} from './../../services/object-node/object-node.service';
 import {TransientEntityService} from './../../services/transient-entity/transient-entity.service';
 import {
+  CONTENT_IMAGE_PROVIDER,
   IMAGE_GALLERY_REFERRER_TYPE,
   IMAGE_GALLERY_SELECTOR_TYPE,
   IMAGE_GALLERY_TYPE,
@@ -26,11 +27,17 @@ export class TransientImageService {
     private contentImageService: ContentImageService,
   ) {
     this.transientEntityService.registerTransientEntityTypeFunction(
+      CONTENT_IMAGE_PROVIDER,
+      TransientImageService.name,
+      'Add referenced images field and its json schema definition',
       EntityName.objectNode,
       IMAGE_GALLERY_REFERRER_TYPE.name,
       this.completeImageGalleryReferrerNode.bind(this),
     );
     this.transientEntityService.registerTransientEntityTypeFunction(
+      CONTENT_IMAGE_PROVIDER,
+      TransientImageService.name,
+      'Add load Images method definition to load several images in one operation',
       EntityName.objectNode,
       IMAGE_GALLERY_TYPE.name,
       this.completeImageGalleryTypeNode.bind(this),

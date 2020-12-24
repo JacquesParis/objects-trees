@@ -12,7 +12,10 @@ import {ContentEntityService} from '../../services/content-entity/content-entity
 import {DATASTORE_DB} from './../../constants';
 import {DbDataSource} from './../../datasources/db.datasource';
 import {ObjectNodeRepository} from './../../repositories/object-node.repository';
-import {CONTENT_GENERIC_TEMPLATE} from './content-generic-template.const';
+import {
+  CONTENT_GENERIC_PROVIDER,
+  CONTENT_GENERIC_TEMPLATE,
+} from './content-generic-template.const';
 
 @model()
 export class GenericTemplate extends Entity {
@@ -71,6 +74,8 @@ export class ContentGenericTemplateService extends ContentExtensionService<
     protected contentExtensionRepository: ContentGenericTemplateRepository,
   ) {
     super(
+      CONTENT_GENERIC_PROVIDER,
+      ContentGenericTemplateService.name,
       contentEntityService,
       contentExtensionRepository,
       CONTENT_GENERIC_TEMPLATE,

@@ -176,7 +176,7 @@ export class AccessRightsInit {
       await this.objectNodeService.getOrCreateChildren(
         (await this.appCtx.rootNode.waitForValue).id as string,
         accessRightsDefinition.id as string,
-        {name: ApplicationService.OBJECT_NODE_NAMES.AccessRightDefinition},
+        {name: ApplicationService.OBJECT_NODE_NAMES.AccessRightsDefinition},
       )
     )[0];
 

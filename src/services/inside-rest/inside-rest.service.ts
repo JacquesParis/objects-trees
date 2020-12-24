@@ -2,7 +2,7 @@ import {IRestEntity} from '@jacquesparis/objects-model';
 import {BindingScope, inject, injectable, Provider} from '@loopback/core';
 import {getService} from '@loopback/service-proxy';
 import {CurrentContext} from './../application.service';
-import {DATASTIRE_INSIDE_REST} from './inside-rest.constant';
+import {DATASTIRE_INSIDE_REST} from './inside-rest.const';
 import {InsideRestDataSource} from './inside-rest.datasource';
 
 export interface InsideRestRepository {

@@ -4,12 +4,16 @@ import {EntityName} from '../../models';
 import {CurrentContext} from '../application.service';
 import {ObjectTree} from './../../models/object-tree.model';
 import {ObjectNodeService} from './../object-node/object-node.service';
+import {TRANSIENT_ENTITY_PROVIDER} from './transient-entity.const';
 import {
   TransientEntityInterface,
   TransientEntityService,
 } from './transient-entity.service';
 
 export class TransientTreeService implements TransientEntityInterface {
+  public providerId: string = TRANSIENT_ENTITY_PROVIDER;
+  serviceId: string = TransientTreeService.name;
+  description = 'Add owner, namespace, tree and aliasUri fields';
   constructor(
     @service(ObjectNodeService) private objectNodeService: ObjectNodeService,
     @service(TransientEntityService)

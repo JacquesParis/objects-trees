@@ -12,6 +12,7 @@ import {ObjectNodeService} from '../../services/object-node/object-node.service'
 import {TransientEntityService} from '../../services/transient-entity/transient-entity.service';
 import {UriCompleteService} from '../../services/uri-complete/uri-complete.service';
 import {
+  CONTENT_GENERIC_PROVIDER,
   TEMPLATE_REFERER,
   TEMPLATE_VIEW_TYPE,
 } from './content-generic-template.const';
@@ -31,6 +32,9 @@ export class TransientContentGenericService {
     private transientUriReferenceService: TransientUriReferenceService,
   ) {
     this.transientEntityService.registerTransientEntityTypeFunction(
+      CONTENT_GENERIC_PROVIDER,
+      TransientContentGenericService.name,
+      'Add template configuration json schema definitions, configuration from referenced templates',
       EntityName.objectNode,
       TEMPLATE_REFERER.name,
       this.completeTemplateRefererNode.bind(this),

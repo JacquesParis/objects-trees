@@ -8,16 +8,16 @@ import {EntityName} from '../../models/entity-name';
 import {ObjectNode} from '../../models/object-node.model';
 import {CurrentContext} from '../application.service';
 import {ObjectNodeService} from '../object-node/object-node.service';
-import {AccessRightAbstractService} from './access-rights-abtract.service';
-import {AccessRightsScope} from './access-rights.const';
+import {AccessRightsAbstractService} from './access-rights-abtract.service';
+import {AccessRightsScope, ACCESS_RIGHT_PROVIDER} from './access-rights.const';
 import {
   AccessRightsInterface,
   AccessRightsService,
 } from './access-rights.service';
 
 @injectable({scope: BindingScope.SINGLETON})
-export class AccessRightNodeService
-  extends AccessRightAbstractService
+export class AccessRightsNodeService
+  extends AccessRightsAbstractService
   implements AccessRightsInterface {
   constructor(
     @service(AccessRightsService)
@@ -25,7 +25,12 @@ export class AccessRightNodeService
     @service(ObjectNodeService)
     protected objectNodeService: ObjectNodeService,
   ) {
-    super(accessRightsService, EntityName.objectNode);
+    super(
+      ACCESS_RIGHT_PROVIDER,
+      AccessRightsNodeService.name,
+      accessRightsService,
+      EntityName.objectNode,
+    );
   }
 
   protected async authorizeRead(
@@ -38,7 +43,7 @@ export class AccessRightNodeService
     );
 
     if (node) {
-      return (await this.accessRightsService.hasNodeAccessRight(
+      return (await this.accessRightsService.hasNodeAccessRights(
         AccessRightsScope.read,
         node,
         ctx,
@@ -60,7 +65,7 @@ export class AccessRightNodeService
     });
 
     if (node) {
-      return (await this.accessRightsService.hasNodeAccessRight(
+      return (await this.accessRightsService.hasNodeAccessRights(
         AccessRightsScope.create,
         node,
         ctx,
@@ -80,7 +85,7 @@ export class AccessRightNodeService
     );
 
     if (node) {
-      return (await this.accessRightsService.hasNodeAccessRight(
+      return (await this.accessRightsService.hasNodeAccessRights(
         AccessRightsScope.update,
         node,
         ctx,
@@ -100,7 +105,7 @@ export class AccessRightNodeService
     );
 
     if (node) {
-      return (await this.accessRightsService.hasNodeAccessRight(
+      return (await this.accessRightsService.hasNodeAccessRights(
         AccessRightsScope.delete,
         node,
         ctx,

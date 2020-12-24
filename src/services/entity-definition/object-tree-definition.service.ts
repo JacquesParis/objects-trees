@@ -6,6 +6,7 @@ import {CurrentContext} from '../application.service';
 import {ObjectTypeService} from '../object-type.service';
 import {NodeContext} from './../application.service';
 import {ObjectNodeService} from './../object-node/object-node.service';
+import {ENTITY_DEFINITION_PROVIDER} from './entity-definition.cont';
 import {
   EntityDefinitionInterface,
   EntityDefinitionService,
@@ -13,6 +14,8 @@ import {
 import {ObjectNodeDefinitionService} from './object-node-definition.service';
 
 export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
+  public providerId: string = ENTITY_DEFINITION_PROVIDER;
+  public serviceId: string = ObjectTreeDefinitionService.name;
   constructor(
     @service(ObjectTypeService) protected objectTypeService: ObjectTypeService,
     @service(ObjectNodeService) protected objectNodeService: ObjectNodeService,

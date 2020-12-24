@@ -25,6 +25,7 @@ import {ObjectNodeService} from '../services/object-node/object-node.service';
 import {ObjectTreeService} from '../services/object-tree/object-tree.service';
 import {ObjectTypeService} from '../services/object-type.service';
 import {DataEntity} from './../models/data-entity.model';
+import {InterceptorDescription} from './extension-description';
 
 export type ExtensionProviderClass = new (
   app: ObjectTreesApplicationInterface,
@@ -102,12 +103,14 @@ export abstract class ExtensionProvider {
     id: string;
     interceptor: Interceptor | Constructor<Provider<Interceptor>>;
     nameOrOptions?: string | InterceptorBindingOptions;
+    description: InterceptorDescription;
   }[] = [];
 
   interceptorsAppend: {
     id: string;
     interceptor: Interceptor | Constructor<Provider<Interceptor>>;
     nameOrOptions?: string | InterceptorBindingOptions;
+    description: InterceptorDescription;
   }[] = [];
 
   controllers: {
@@ -168,21 +171,7 @@ export abstract class ExtensionProvider {
       console.log(serviceProvider.cls.name + ' started !');
     }
     for (const interceptorProvider of this.interceptorsAppend) {
-      this.app.interceptor(
-        interceptorProvider.interceptor,
-        _.merge(
-          {},
-          {
-            name: interceptorProvider.id,
-            global: true,
-            group: interceptorProvider.id,
-          },
-          interceptorProvider.nameOrOptions
-            ? interceptorProvider.nameOrOptions
-            : {},
-        ),
-      );
-
+      this.app.addInterceptor(this.name, interceptorProvider);
       const binding = this.app.getBinding(
         ContextBindings.GLOBAL_INTERCEPTOR_ORDERED_GROUPS,
       );
@@ -197,20 +186,7 @@ export abstract class ExtensionProvider {
       );
     }
     for (const interceptorProvider of this.interceptorsPrepend) {
-      this.app.interceptor(
-        interceptorProvider.interceptor,
-        _.merge(
-          {},
-          {
-            name: interceptorProvider.id,
-            global: true,
-            group: interceptorProvider.id,
-          },
-          interceptorProvider.nameOrOptions
-            ? interceptorProvider.nameOrOptions
-            : {},
-        ),
-      );
+      this.app.addInterceptor(this.name, interceptorProvider);
 
       const binding = this.app.getBinding(
         ContextBindings.GLOBAL_INTERCEPTOR_ORDERED_GROUPS,

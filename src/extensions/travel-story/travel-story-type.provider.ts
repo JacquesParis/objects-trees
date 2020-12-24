@@ -17,17 +17,17 @@ import {WebSiteProvider} from './../web-site/web-site.provider';
 import {
   CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE,
   FOLDER_TRAVEL_STORY_SUBTYPE,
-  TRAVEL_STORY_NAME,
   TRAVEL_STORY_POST_ROOT_TYPE,
   TRAVEL_STORY_POST_TRAVEL_STORY_POST_SUBTYPE,
   TRAVEL_STORY_POST_TYPE,
+  TRAVEL_STORY_PROVIDER,
   TRAVEL_STORY_TEMPLATE_TYPE,
   TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE,
   TRAVEL_STORY_TYPE,
 } from './travel-story-type.const';
 export class TravelStoryTypeProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
-    super(TRAVEL_STORY_NAME, app);
+    super(TRAVEL_STORY_PROVIDER, app);
     this.requiredProviders.push(WebSiteProvider, ContentImageTemplateProvider);
     this.objectTypes.travelStory = TRAVEL_STORY_TYPE;
     this.objectTypes.travelStoryPost = TRAVEL_STORY_POST_TYPE;

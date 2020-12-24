@@ -1,5 +1,6 @@
-import * as _ from 'lodash';
+import {merge, omit} from 'lodash';
 import {ObjectTreesApplicationInterface} from '../../application';
+import {InterceptorTreatmentDescription} from '../../integration/extension-description';
 import {
   ExtensionProvider,
   ObjectTreeDefinition,
@@ -10,16 +11,17 @@ import {ObjectNode} from './../../models/object-node.model';
 import {ApplicationService} from './../application.service';
 import {ContentEntityCoreProvider} from './../content-entity/content-entity.provider';
 import {UriCompleteProvider} from './../uri-complete/uri-complete.provider';
-import {AccessRightNodeService} from './access-rights-node.service';
-import {AccessRightTreeService} from './access-rights-tree.service';
-import {AccessRightTypeService} from './access-rights-type.service';
-import {AccessRightUserService} from './access-rights-user.service';
+import {AccessRightsNodeService} from './access-rights-node.service';
+import {AccessRightsTreeService} from './access-rights-tree.service';
+import {AccessRightsTypeService} from './access-rights-type.service';
+import {AccessRightsUserService} from './access-rights-user.service';
 import {
   ACCESS_RIGHTS_ACCESS_MANAGERS_TYPE,
   ACCESS_RIGHTS_DEFINITION_TYPE,
   ACCESS_RIGHTS_GROUP_TYPE,
   ACCESS_RIGHTS_OWNERS_TYPE,
   ACCESS_RIGHT_OWNERS_NODE,
+  ACCESS_RIGHT_PROVIDER,
   ACCESS_RIGHT_SUBTYPE,
 } from './access-rights.const';
 import {AccessRightsService} from './access-rights.service';
@@ -62,8 +64,30 @@ export class AccessRightsProvider extends ExtensionProvider {
   };
 
   constructor(protected app: ObjectTreesApplicationInterface) {
-    super('AccessRightsService', app);
+    super(ACCESS_RIGHT_PROVIDER, app);
     this.requiredProviders.push(UriCompleteProvider, ContentEntityCoreProvider);
+
+    this.services.push({cls: AccessRightsService});
+    this.services.push({cls: AccessRightsTreeService});
+    this.services.push({cls: AccessRightsNodeService});
+    this.services.push({cls: AccessRightsTypeService});
+    this.services.push({cls: AccessRightsUserService});
+
+    this.interceptorsPrepend.push({
+      id: 'AccessRightsInterceptor',
+      interceptor: AccessRightsInterceptor,
+      description: {
+        preTreatment: new InterceptorTreatmentDescription(
+          'Check access rights on target entity(ies)',
+          ['AccessRightsService'],
+        ),
+        postTreatment: new InterceptorTreatmentDescription(
+          'Remove forbidden entities',
+          ['AccessRightsService'],
+        ),
+      },
+    });
+
     this.objectTypes = {
       user: {
         name: ApplicationService.OBJECT_TYPE_NAMES.USER,
@@ -79,7 +103,7 @@ export class AccessRightsProvider extends ExtensionProvider {
     };
 
     this.objectSubTypes.push(
-      _.merge(
+      merge(
         {
           typeName: () => this.appCtx.repositoryType.value.name,
           subTypeName: () => this.objectTypes.accessRightsDefinition.name,
@@ -154,7 +178,7 @@ export class AccessRightsProvider extends ExtensionProvider {
       tree: false,
     });
     this.objectSubTypes.push(
-      _.merge(
+      merge(
         {
           typeName: () => this.appCtx.folderType.value.name,
           subTypeName: () => this.objectTypes.accessRightsDefinition.name,
@@ -168,14 +192,14 @@ export class AccessRightsProvider extends ExtensionProvider {
         parentNode: () => this.appCtx.rootNode.value,
         treeNodeTypeId: ACCESS_RIGHTS_DEFINITION_TYPE.name,
         treeNodeName:
-          ApplicationService.OBJECT_NODE_NAMES.AccessRightDefinition,
+          ApplicationService.OBJECT_NODE_NAMES.AccessRightsDefinition,
         tree: {
           treeNode: {},
           children: {
             [ACCESS_RIGHTS_OWNERS_TYPE.name]: {
               [ACCESS_RIGHT_OWNERS_NODE.name]: [
                 {
-                  treeNode: _.omit(ACCESS_RIGHT_OWNERS_NODE, [
+                  treeNode: omit(ACCESS_RIGHT_OWNERS_NODE, [
                     'name',
                     'objectTypeId',
                   ]),
@@ -201,7 +225,7 @@ export class AccessRightsProvider extends ExtensionProvider {
         parentNode: () => this.appCtx.publicNode.value,
         treeNodeTypeId: ACCESS_RIGHTS_DEFINITION_TYPE.name,
         treeNodeName:
-          ApplicationService.OBJECT_NODE_NAMES.AccessRightDefinition,
+          ApplicationService.OBJECT_NODE_NAMES.AccessRightsDefinition,
         tree: {
           treeNode: {},
           children: {
@@ -234,7 +258,7 @@ export class AccessRightsProvider extends ExtensionProvider {
         parentNode: () => this.appCtx.demonstrationAccountNode.value,
         treeNodeTypeId: ACCESS_RIGHTS_DEFINITION_TYPE.name,
         treeNodeName:
-          ApplicationService.OBJECT_NODE_NAMES.AccessRightDefinition,
+          ApplicationService.OBJECT_NODE_NAMES.AccessRightsDefinition,
         tree: {
           treeNode: {},
           children: {
@@ -267,7 +291,7 @@ export class AccessRightsProvider extends ExtensionProvider {
         parentNode: () => this.appCtx.demonstrationSandboxNode.value,
         treeNodeTypeId: ACCESS_RIGHTS_DEFINITION_TYPE.name,
         treeNodeName:
-          ApplicationService.OBJECT_NODE_NAMES.AccessRightDefinition,
+          ApplicationService.OBJECT_NODE_NAMES.AccessRightsDefinition,
         tree: {
           treeNode: {},
           children: {
@@ -297,16 +321,5 @@ export class AccessRightsProvider extends ExtensionProvider {
         },
       },
     };
-
-    this.services.push({cls: AccessRightsService});
-    this.services.push({cls: AccessRightTreeService});
-    this.services.push({cls: AccessRightNodeService});
-    this.services.push({cls: AccessRightTypeService});
-    this.services.push({cls: AccessRightUserService});
-
-    this.interceptorsPrepend.push({
-      id: 'AccessRightsInterceptor',
-      interceptor: AccessRightsInterceptor,
-    });
   }
 }

@@ -77,6 +77,8 @@ export abstract class ContentExtensionService<
   ID extends string | undefined
 > implements ContentEntityServiceInterface {
   constructor(
+    public providerId: string,
+    public serviceId: string,
     protected contentEntityService: ContentEntityService,
     protected contentExtensionRepository: ContentExtensionRepository<E, ID>,
     protected contentTypeName: string,

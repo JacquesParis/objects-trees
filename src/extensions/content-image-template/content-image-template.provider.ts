@@ -6,13 +6,13 @@ import {ContentGenericTemplateProvider} from './../content-generic-template/cont
 import {ContentImageProvider} from './../content-image/content-image.provider';
 import {
   CATEGORY_IMAGE_GALLERY_TEMPLATE_SUBTYPE,
-  CONTENT_IMAGE_TEMPLATE,
+  CONTENT_IMAGE_TEMPLATE_PROVIDER,
   IMAGE_GALLERY_TEMPLATE_TYPE,
 } from './content-image-template.const';
 
 export class ContentImageTemplateProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
-    super(CONTENT_IMAGE_TEMPLATE, app);
+    super(CONTENT_IMAGE_TEMPLATE_PROVIDER, app);
     this.requiredProviders.push(
       ContentImageProvider,
       ContentGenericTemplateProvider,

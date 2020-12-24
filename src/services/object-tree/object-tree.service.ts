@@ -12,10 +12,11 @@ import {ContentEntityService} from '../content-entity/content-entity.service';
 import {ObjectNodeService} from '../object-node/object-node.service';
 import {ObjectTypeService} from '../object-type.service';
 import {ApplicationError} from './../../helper/application-error';
+import {OBJECT_TREE_PROVIDER} from './object-tree.const';
 
 export class ObjectTreeService {
   public get ready(): Promise<void> {
-    return this.appCtx.getExtensionContext('ObjectTreeService').ready;
+    return this.appCtx.getExtensionContext(OBJECT_TREE_PROVIDER).ready;
   }
   /*
   private init: ObjectTreeInit;*/

@@ -4,11 +4,12 @@ import * as _ from 'lodash';
 import {ObjectNode} from '../models/object-node.model';
 import {ObjectSubType} from '../models/object-sub-type.model';
 import {ObjectType} from '../models/object-type.model';
+import {ApplicationError} from './../helper/application-error';
 import {ObjectTree} from './../models/object-tree.model';
 import {ObjectTypeRelations} from './../models/object-type.model';
 import {
-  AccessRightPermissions,
-  AccessRightSet,
+  AccessRightsPermissions,
+  AccessRightsSet,
 } from './access-rights/access-rights.const';
 
 export class NodeContext {
@@ -36,16 +37,16 @@ export class TreeContext {
 
 export class AccessRightsContext {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  rights: ExpectedValue<AccessRightPermissions> = new ExpectedValue<
-    AccessRightPermissions
+  rights: ExpectedValue<AccessRightsPermissions> = new ExpectedValue<
+    AccessRightsPermissions
   >();
   user: ExpectedValue<Principal> = new ExpectedValue<Principal>();
   treeRootNodeId: ExpectedValue<string> = new ExpectedValue<string>();
   aclTrees: ExpectedValue<{[aclId: string]: ObjectTree}> = new ExpectedValue<{
     [aclId: string]: ObjectTree;
   }>();
-  rootRights: ExpectedValue<AccessRightSet> = new ExpectedValue<
-    AccessRightSet
+  rootRights: ExpectedValue<AccessRightsSet> = new ExpectedValue<
+    AccessRightsSet
   >();
   authorization: ExpectedValue<string> = new ExpectedValue<string>();
 }
@@ -118,10 +119,10 @@ export enum ObjectTypeName {
   REPOSITORY = 'Repository',
   USER = 'User',
   ANONYMOUS_USER = 'AnonymousUser',
-  ACCESS_RIGHT_DEFINITION = 'AccessRightDefinition',
-  ACCESS_RIGHT_GROUP = 'AccessRightGroup',
-  ACCESS_RIGHT_OWNERS = 'AccessRightOwners',
-  ACCESS_RIGHT_ACCESS_MANAGERS = 'AccessRightAccessManagers',
+  ACCESS_RIGHT_DEFINITION = 'AccessRightsDefinition',
+  ACCESS_RIGHT_GROUP = 'AccessRightsGroup',
+  ACCESS_RIGHT_OWNERS = 'AccessRightsOwners',
+  ACCESS_RIGHT_ACCESS_MANAGERS = 'AccessRightsAccessManagers',
   TENANT = 'Tenant',
   REPOSITORY_CATEGORY = 'RepositoryCategory',
 }
@@ -141,7 +142,7 @@ export class ApplicationExtensionContext {
   } = {};
 }
 
-export class AccessRightsServiceContext extends ApplicationExtensionContext {
+export class AccessRightsProviderContext extends ApplicationExtensionContext {
   types: {
     user: ExpectedValue<ObjectType>;
     anonymousUser: ExpectedValue<ObjectType>;
@@ -163,7 +164,7 @@ export class AccessRightsServiceContext extends ApplicationExtensionContext {
     [key: string]: ExpectedValue<ObjectNode>;
   } = {rootACL: new ExpectedValue<ObjectNode>()};
 }
-export class ObjectTreeServiceContext extends ApplicationExtensionContext {
+export class ObjectTreeProviderContext extends ApplicationExtensionContext {
   types: {
     repository: ExpectedValue<ObjectType>;
     category: ExpectedValue<ObjectType>;
@@ -216,61 +217,62 @@ export class ApplicationService {
   };
 
   public get repositoryType(): ExpectedValue<ObjectType> {
-    return this.extensions.ObjectTreeService.types.repository;
+    return this.extensions.ObjectTreeProvider.types.repository;
   }
   public get categoryType(): ExpectedValue<ObjectType> {
-    return this.extensions.ObjectTreeService.types.category;
+    return this.extensions.ObjectTreeProvider.types.category;
   }
   public get tenantType(): ExpectedValue<ObjectType> {
-    return this.extensions.ObjectTreeService.types.tenant;
+    return this.extensions.ObjectTreeProvider.types.tenant;
   }
   public get folderType(): ExpectedValue<ObjectType> {
-    return this.extensions.ObjectTreeService.types.folder;
+    return this.extensions.ObjectTreeProvider.types.folder;
   }
   public get rootNode(): ExpectedValue<ObjectNode> {
-    return this.extensions.ObjectTreeService.nodes.root;
+    return this.extensions.ObjectTreeProvider.nodes.root;
   }
   public get publicNode(): ExpectedValue<ObjectNode> {
-    return this.extensions.ObjectTreeService.nodes.public;
+    return this.extensions.ObjectTreeProvider.nodes.public;
   }
   public get demonstrationAccountNode(): ExpectedValue<ObjectNode> {
-    return this.extensions.ObjectTreeService.nodes.demonstrationAccount;
+    return this.extensions.ObjectTreeProvider.nodes.demonstrationAccount;
   }
   public get demonstrationExamplesNode(): ExpectedValue<ObjectNode> {
-    return this.extensions.ObjectTreeService.nodes.demonstrationExamples;
+    return this.extensions.ObjectTreeProvider.nodes.demonstrationExamples;
   }
   public get demonstrationSandboxNode(): ExpectedValue<ObjectNode> {
-    return this.extensions.ObjectTreeService.nodes.demonstrationSandbox;
+    return this.extensions.ObjectTreeProvider.nodes.demonstrationSandbox;
   }
   public get publicTemplatesNode(): ExpectedValue<ObjectNode> {
-    return this.extensions.ObjectTreeService.nodes.publicTemplates;
+    return this.extensions.ObjectTreeProvider.nodes.publicTemplates;
   }
   public get userType(): ExpectedValue<ObjectType> {
-    return this.extensions.AccessRightsService.types.user;
+    return this.extensions.AccessRightsProvider.types.user;
   }
   public get anonymousUserType(): ExpectedValue<ObjectType> {
-    return this.extensions.AccessRightsService.types.anonymousUser;
+    return this.extensions.AccessRightsProvider.types.anonymousUser;
   }
   public get accessRightsDefinitionType(): ExpectedValue<ObjectType> {
-    return this.extensions.AccessRightsService.types.accessRightsDefinition;
+    return this.extensions.AccessRightsProvider.types.accessRightsDefinition;
   }
   public get accessRightsGroupType(): ExpectedValue<ObjectType> {
-    return this.extensions.AccessRightsService.types.accessRightsGroup;
+    return this.extensions.AccessRightsProvider.types.accessRightsGroup;
   }
   public get accessRightsOwnersType(): ExpectedValue<ObjectType> {
-    return this.extensions.AccessRightsService.types.accessRightsOwners;
+    return this.extensions.AccessRightsProvider.types.accessRightsOwners;
   }
   public get accessRightsAccessManagersType(): ExpectedValue<ObjectType> {
-    return this.extensions.AccessRightsService.types.accessRightsAccessManagers;
+    return this.extensions.AccessRightsProvider.types
+      .accessRightsAccessManagers;
   }
 
   private extensions: {
     [key: string]: ApplicationExtensionContext;
-    ObjectTreeService: ObjectTreeServiceContext;
-    AccessRightsService: AccessRightsServiceContext;
+    ObjectTreeProvider: ObjectTreeProviderContext;
+    AccessRightsProvider: AccessRightsProviderContext;
   } = {
-    ObjectTreeService: new ObjectTreeServiceContext(),
-    AccessRightsService: new AccessRightsServiceContext(),
+    ObjectTreeProvider: new ObjectTreeProviderContext(),
+    AccessRightsProvider: new AccessRightsProviderContext(),
   };
   public ready: Promise<unknown> = Promise.all([
     this.tenantType.waitForValue,
@@ -294,6 +296,11 @@ export class ApplicationService {
     const extensionName = _.isString(extensionNameOrClass)
       ? extensionNameOrClass
       : extensionNameOrClass.name;
+    if (!extensionName.endsWith('Provider')) {
+      throw ApplicationError.unauthorizedValue({
+        extensionName: 'Extension name should end with Provider',
+      });
+    }
     if (!(extensionName in this.extensions)) {
       this.extensions[extensionName] = new ApplicationExtensionContext();
     }

@@ -1,6 +1,7 @@
 import {ObjectTypeDefinition} from './../../integration/extension.provider';
 import {ApplicationService} from './../application.service';
 
+export const OBJECT_TREE_PROVIDER = 'ObjectTreeProvider';
 export const TEMPLATES_OBJECT_NAME = 'templates';
 export const PUBLIC_OBJECT_NAME = 'public';
 

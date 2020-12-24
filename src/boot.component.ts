@@ -1,8 +1,8 @@
 import {Component, service} from '@loopback/core';
-import {AccessRightNodeService} from './services/access-rights/access-rights-node.service';
-import {AccessRightTreeService} from './services/access-rights/access-rights-tree.service';
-import {AccessRightTypeService} from './services/access-rights/access-rights-type.service';
-import {AccessRightUserService} from './services/access-rights/access-rights-user.service';
+import {AccessRightsNodeService} from './services/access-rights/access-rights-node.service';
+import {AccessRightsTreeService} from './services/access-rights/access-rights-tree.service';
+import {AccessRightsTypeService} from './services/access-rights/access-rights-type.service';
+import {AccessRightsUserService} from './services/access-rights/access-rights-user.service';
 import {AccessRightsService} from './services/access-rights/access-rights.service';
 import {ApplicationService} from './services/application.service';
 import {ContentFileService} from './services/content-entity/content-file.service';
@@ -17,14 +17,14 @@ export class ObjectTreesBootComponent implements Component {
     @service(ContentUserService) contentUserService: ContentUserService,
     @service(ObjectTreeService) objectTreeService: ObjectTreeService,
     @service(AccessRightsService) accessRightsService: AccessRightsService,
-    @service(AccessRightTreeService)
-    accessRightTreeService: AccessRightTreeService,
-    @service(AccessRightNodeService)
-    accessRightNodeService: AccessRightNodeService,
-    @service(AccessRightTypeService)
-    accessRightTypeService: AccessRightTypeService,
-    @service(AccessRightUserService)
-    accessRightUserService: AccessRightUserService,
+    @service(AccessRightsTreeService)
+    accessRightTreeService: AccessRightsTreeService,
+    @service(AccessRightsNodeService)
+    accessRightNodeService: AccessRightsNodeService,
+    @service(AccessRightsTypeService)
+    accessRightTypeService: AccessRightsTypeService,
+    @service(AccessRightsUserService)
+    accessRightUserService: AccessRightsUserService,
     @service(ApplicationService)
     private appCtx: ApplicationService,
   ) {

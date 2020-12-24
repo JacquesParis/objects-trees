@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import {STORAGE_DIRECTORY} from './../../constants';
 import {ApplicationError} from './../../helper/application-error';
+import {CONTENT_ENTITY_PROVIDER} from './content-entity.const';
 import {
   ContentEntityService,
   ContentEntityServiceInterface,
@@ -22,6 +23,8 @@ export interface ContentFileEntity {
 }
 
 export class ContentFileService implements ContentEntityServiceInterface {
+  public providerId: string = CONTENT_ENTITY_PROVIDER;
+  public serviceId: string = ContentFileService.name;
   constructor(
     @service(ContentEntityService)
     public contentEntityService: ContentEntityService,

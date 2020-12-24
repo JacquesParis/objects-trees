@@ -4,6 +4,7 @@ import {
   ObjectTypeDefinition,
 } from './../../integration/extension.provider';
 import {TEMPLATE_VIEW_TYPE} from './../content-generic-template/content-generic-template.const';
+export const CONTENT_IMAGE_TEMPLATE_PROVIDER = 'ContentImageTemplateProvider';
 export const CONTENT_IMAGE_TEMPLATE = 'ContentImageTemplateService';
 
 export const IMAGE_GALLERY_TEMPLATE_TYPE: ObjectTypeDefinition = {
