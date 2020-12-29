@@ -86,7 +86,12 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
       ? treeType.objectSubTypes.map((subType) => subType.subObjectTypeId)
       : [];
     if (objectTree.children) {
-      for (const child of objectTree.children) {
+      for (
+        let childIndex = objectTree.children.length - 1;
+        childIndex >= 0;
+        childIndex--
+      ) {
+        const child = objectTree.children[childIndex];
         if (
           -1 ===
             objectTree.entityCtx.actions.reads.indexOf(
@@ -95,6 +100,10 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
           -1 < knownSubObjectTypeIds.indexOf(child.treeNode.objectTypeId)
         ) {
           objectTree.entityCtx.actions.reads.push(child.treeNode.objectTypeId);
+        } else if (
+          -1 === knownSubObjectTypeIds.indexOf(child.treeNode.objectTypeId)
+        ) {
+          objectTree.children.splice(childIndex, 1);
         }
       }
     }

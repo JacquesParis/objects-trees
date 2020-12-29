@@ -11,8 +11,8 @@ export const TEMPLATE_VIEW_TYPE: ObjectTypeDefinition = {
   },
 };
 
-export const TEMPLATE_REFERER: ObjectTypeDefinition = {
-  name: 'RefererWithConfiguration',
+export const TEMPLATE_REFERER_WITH_CONFIGURATION_TYPE: ObjectTypeDefinition = {
+  name: 'TemplateRefererWithConfiguration',
   definition: {
     properties: {
       templatesConfigurations: {

@@ -521,48 +521,48 @@ export class ObjectNodeService {
     id: string,
     objectNode: DataObject<ObjectNode>,
     ctx: CurrentContext,
+    byPassCheck = false,
   ): Promise<ObjectNode> {
-    const node = await this.getNode(id, ctx);
-    if (!node) {
-      throw ApplicationError.notFound({object: id});
-    }
-    if ('name' in objectNode && node.name !== objectNode.name) {
-      if (!objectNode.name) {
-        throw ApplicationError.missingParameter('name');
+    let objectNodeForUpdate = objectNode;
+    if (!byPassCheck) {
+      const node = await this.getNode(id, ctx);
+      if (!node) {
+        throw ApplicationError.notFound({object: id});
       }
-      await this.checkNameAvailibility(node, <string>objectNode.name);
-    }
-    const objectType = await this.objectTypeService.searchById(
-      node.objectTypeId,
-    );
-    if (!objectType) {
-      throw ApplicationError.corruptedData({
-        object: id,
-        objectType: node.objectTypeId,
-      });
+      if ('name' in objectNode && node.name !== objectNode.name) {
+        if (!objectNode.name) {
+          throw ApplicationError.missingParameter('name');
+        }
+        await this.checkNameAvailibility(node, <string>objectNode.name);
+      }
+      const objectType = await this.objectTypeService.searchById(
+        node.objectTypeId,
+      );
+      if (!objectType) {
+        throw ApplicationError.corruptedData({
+          object: id,
+          objectType: node.objectTypeId,
+        });
+      }
+      objectNodeForUpdate = pick(
+        objectNode,
+        this.getPropertiesKeys(objectType),
+      );
     }
 
-    await this.objectNodeRepository.updateById(
-      id,
-      pick(objectNode, this.getPropertiesKeys(objectType)),
-    );
+    await this.objectNodeRepository.updateById(id, objectNodeForUpdate);
 
     const result = await this.objectNodeRepository.findById(id);
 
     const changes = await this.contentEntityService.manageContent(
-      objectType?.contentType,
+      (await this.objectTypeService.searchById(result.objectTypeId))
+        .contentType,
       result,
       objectNode as Entity,
     );
     if (changes) {
       await this.objectNodeRepository.updateById(result.id, result);
     }
-
-    /*
-    await this.contentEntityService.addTransientContent(
-      objectType?.contentType,
-      result,
-    );*/
 
     return result;
   }

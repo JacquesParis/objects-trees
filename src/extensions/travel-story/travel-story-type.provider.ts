@@ -2,6 +2,7 @@
 import {ObjectTreesApplicationInterface} from '../../application';
 import {contentGenericTemplate, image} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
+import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post.const';
 import {
   CALENDAR_ENTRY_TYPE,
   WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE,
@@ -12,7 +13,6 @@ import {
   IMAGE_GALLERY_TYPE,
   IMAGE_TYPE,
 } from './../content-image/content-image.const';
-import {POST_TYPE, POST_WITH_GALLERY_TYPE} from './../post/post-type.const';
 import {WebSiteProvider} from './../web-site/web-site.provider';
 import {
   CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE,
@@ -29,10 +29,12 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(TRAVEL_STORY_PROVIDER, app);
     this.requiredProviders.push(WebSiteProvider, ContentImageTemplateProvider);
-    this.objectTypes.travelStory = TRAVEL_STORY_TYPE;
-    this.objectTypes.travelStoryPost = TRAVEL_STORY_POST_TYPE;
-    this.objectTypes.travelStoryTemplate = TRAVEL_STORY_TEMPLATE_TYPE;
-    this.objectTypes.travelStoryPostRoot = TRAVEL_STORY_POST_ROOT_TYPE;
+    this.objectTypes.push(
+      TRAVEL_STORY_TYPE,
+      TRAVEL_STORY_POST_TYPE,
+      TRAVEL_STORY_TEMPLATE_TYPE,
+      TRAVEL_STORY_POST_ROOT_TYPE,
+    );
 
     this.objectSubTypes.push(FOLDER_TRAVEL_STORY_SUBTYPE);
     this.objectSubTypes.push(TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE);

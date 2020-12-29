@@ -34,13 +34,9 @@ export class EntityDefinitionService
   }
 
   getPostTraitmentDescription(): TreatmentDescription[] {
-    const treatment: TreatmentDescription = new TreatmentDescription(
-      ENTITY_DEFINITION_PROVIDER,
-      EntityDefinitionService.name,
-      'Add Json Schema definitions',
-    );
+    const treatments: TreatmentDescription[] = [];
     for (const resource in this.entityDefinitions) {
-      treatment.subTreatments.push(
+      treatments.push(
         new TreatmentDescription(
           (this.entityDefinitions[
             resource as EntityName
@@ -48,11 +44,11 @@ export class EntityDefinitionService
           (this.entityDefinitions[
             resource as EntityName
           ] as EntityDefinitionInterface).serviceId,
-          resource + '  definition',
+          resource + ':  Add Json Schema definition',
         ),
       );
     }
-    return [treatment];
+    return treatments;
   }
 
   get ready(): Promise<void> {

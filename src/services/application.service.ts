@@ -5,6 +5,7 @@ import {ObjectNode} from '../models/object-node.model';
 import {ObjectSubType} from '../models/object-sub-type.model';
 import {ObjectType} from '../models/object-type.model';
 import {ApplicationError} from './../helper/application-error';
+import {TreatmentDescription} from './../integration/extension-description';
 import {ObjectTree} from './../models/object-tree.model';
 import {ObjectTypeRelations} from './../models/object-type.model';
 import {
@@ -215,6 +216,7 @@ export class ApplicationService {
     USER: 'ContentUser',
     JSON: '',
   };
+  configSummary: TreatmentDescription;
 
   public get repositoryType(): ExpectedValue<ObjectType> {
     return this.extensions.ObjectTreeProvider.types.repository;

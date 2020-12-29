@@ -32,7 +32,7 @@ export class TransientNodeService implements TransientEntityInterface {
     const treatment: TreatmentDescription = new TreatmentDescription(
       TRANSIENT_ENTITY_PROVIDER,
       TransientNodeService.name,
-      'Add Node Content Data',
+      'objectNode: Add Node Content Data',
     );
     treatment.subTreatments.push(
       ...this.contentEntityService.getPostTraitmentDescription(),

@@ -19,7 +19,7 @@ export class ContentImageTemplateProvider extends ExtensionProvider {
       WebSiteProvider,
     );
 
-    this.objectTypes.imageGalleryTemplate = IMAGE_GALLERY_TEMPLATE_TYPE;
+    this.objectTypes.push(IMAGE_GALLERY_TEMPLATE_TYPE);
     this.objectSubTypes.push(CATEGORY_IMAGE_GALLERY_TEMPLATE_SUBTYPE);
 
     this.objectTrees.caroussel = {

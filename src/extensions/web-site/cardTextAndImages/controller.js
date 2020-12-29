@@ -1,5 +1,3 @@
-newFunction();
-
 function newFunction() {
   return {
     async init(ctrl) {
@@ -8,18 +6,17 @@ function newFunction() {
           await image.waitForReady();
         }
       }
-      ctrl.ready = true;
     },
 
-    getGalleryObjectTree(pageNode, templateNode) {
+    getGalleryObjectTree(dataNode, templateNode) {
       if (
-        pageNode &&
-        pageNode.templatesConfigurations &&
-        pageNode.templatesConfigurations.cardTextAndImages &&
-        pageNode.templatesConfigurations.cardTextAndImages
+        dataNode &&
+        dataNode.templatesConfigurations &&
+        dataNode.templatesConfigurations.cardTextAndImages &&
+        dataNode.templatesConfigurations.cardTextAndImages
           .imageGalleryObjectTree
       ) {
-        return pageNode.templatesConfigurations.cardTextAndImages
+        return dataNode.templatesConfigurations.cardTextAndImages
           .imageGalleryObjectTree;
       } else if (
         templateNode &&
@@ -31,8 +28,9 @@ function newFunction() {
         return templateNode.templatesConfigurations.cardTextAndImages
           .imageGalleryObjectTree;
       } else {
-        return templateNode;
+        return undefined;
       }
     },
   };
 }
+newFunction();

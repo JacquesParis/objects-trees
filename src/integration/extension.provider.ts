@@ -12,6 +12,7 @@ import {
 } from '@loopback/core';
 import {Class, juggler, Repository} from '@loopback/repository';
 import * as _ from 'lodash';
+import {camelCase} from 'lodash';
 import {ObjectTreesApplicationInterface} from '../application';
 import {ObjectSubType} from '../models';
 import {ObjectNode} from '../models/object-node.model';
@@ -68,12 +69,11 @@ export abstract class ExtensionProvider {
   ) {
     console.log('Adding ' + this.name + '.');
   }
-  async boot(): Promise<void> {
-    console.log('Booting ' + this.name + '.');
-  }
   requiredProviders: ExtensionProviderClass[] = [];
 
-  objectTypes: {[typeField: string]: ObjectTypeDefinition} = {};
+  _objectTypes: {[typeField: string]: ObjectTypeDefinition} = {};
+
+  objectTypes: ObjectTypeDefinition[] = [];
 
   objectSubTypes: ObjectSubTypeDefintion[] = [];
 
@@ -202,16 +202,14 @@ export abstract class ExtensionProvider {
       );
     }
 
-    // provider.objectTypes
-    for (const typeField in this.objectTypes) {
+    for (const objectType of this.objectTypes) {
+      const typeField = camelCase(objectType.name);
       if (!this.ctx.types[typeField]) {
         this.ctx.types[typeField] = new ExpectedValue<ObjectType>();
       }
       await this.ctx.types[typeField].getOrSetValue(
         async (): Promise<ObjectType> => {
-          return this.objectTypeService.registerApplicationType(
-            this.objectTypes[typeField],
-          );
+          return this.objectTypeService.registerApplicationType(objectType);
         },
       );
     }
@@ -242,16 +240,9 @@ export abstract class ExtensionProvider {
         ]) as any,
       );
     }
-
-    // provider.accessRights
-    // TODO : add new entities management
-    // provider.contentEntites
-    // TODO : add new entities management
-    // provider.controllers
-    // TODO : add new entities management
-
-    //provider.objetTrees
-
+  }
+  async boot(): Promise<void> {
+    console.log('Booting ' + this.name + '.');
     for (const nodeField in this.objectTrees) {
       if (!this.ctx.nodes[nodeField]) {
         this.ctx.nodes[nodeField] = new ExpectedValue<ObjectNode>();

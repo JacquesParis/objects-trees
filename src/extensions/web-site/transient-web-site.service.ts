@@ -14,6 +14,7 @@ import {TransientEntityService} from './../../services/transient-entity/transien
 import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {TransientContentGenericService} from './../content-generic-template/transient-content-generic.service';
 import {
+  PAGE_WITH_SUB_PAGE,
   PAGE_WITH_TEMPLATE_CHOICE,
   WEB_SITE_PROVIDER,
   WEB_SITE_VIEW_TYPE,
@@ -74,7 +75,7 @@ export class TransientWebSiteService {
     this.transientEntityService.registerTransientEntityTypeFunction(
       WEB_SITE_PROVIDER,
       TransientWebSiteService.name,
-      'Complete pageTemplateChoice json chema definition with pageTemplateChoice from referenced template and add its conditional page template configuration',
+      'Complete pageTemplateChoice json schema definition with pageTemplateChoice from referenced template and add its conditional page template configuration',
       EntityName.objectNode,
       PAGE_WITH_TEMPLATE_CHOICE.name,
       this.completePageTypeNode.bind(this),
@@ -86,6 +87,15 @@ export class TransientWebSiteService {
       EntityName.objectNode,
       WEB_SITE_WITH_PAGES_TEMPLATE_TYPE.name,
       this.completeWebSiteWithPagesTemplateNode.bind(this),
+    );
+
+    this.transientEntityService.registerTransientEntityTypeFunction<ObjectTree>(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Add pageTrees field, list of sub-pages',
+      EntityName.objectTree,
+      PAGE_WITH_SUB_PAGE.name,
+      this.completePageWithSubPageTree.bind(this),
     );
   }
 
@@ -338,5 +348,13 @@ export class TransientWebSiteService {
       'model.pageTemplateChoices[arrayIndex]',
       ctx,
     );
+  }
+
+  async completePageWithSubPageTree(
+    entity: ObjectTree,
+    ctx: CurrentContext,
+  ): Promise<void> {
+    const pageTrees = entity.childrenByImplentedTypeId[PAGE_WITH_SUB_PAGE.name];
+    entity.pageTrees = pageTrees ? pageTrees : [];
   }
 }

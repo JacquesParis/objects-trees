@@ -6,7 +6,7 @@ import {
   ValueOrPromise,
 } from '@loopback/core';
 import {Request, RestBindings} from '@loopback/rest';
-import {toCamelCase} from '../helper/utils';
+import {camelCase} from 'lodash';
 import {EntityName} from './../models/entity-name';
 import {CurrentContext} from './../services/application.service';
 
@@ -50,7 +50,9 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
     const entityUri = relativeObjectUri
       .substr('/' === relativeObjectUri.charAt(0) ? 1 : 0)
       .split('/')[0];
-    const camelCase = toCamelCase(entityUri.substr(0, entityUri.length - 1));
-    return EntityName[camelCase as keyof typeof EntityName];
+    const entityCamelCase = camelCase(
+      entityUri.substr(0, entityUri.length - 1),
+    );
+    return EntityName[entityCamelCase as keyof typeof EntityName];
   }
 }

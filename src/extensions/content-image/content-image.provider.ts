@@ -32,11 +32,13 @@ export class ContentImageProvider extends ExtensionProvider {
       {cls: ActionImageService},
     );
 
-    this.objectTypes.imageGallery = IMAGE_GALLERY_TYPE;
-    this.objectTypes.imageGalleries = IMAGE_GALLERIES_TYPE;
-    this.objectTypes.imageGalleryReferrer = IMAGE_GALLERY_REFERRER_TYPE;
-    this.objectTypes.image = IMAGE_TYPE;
-    this.objectTypes.imageGallerySelector = IMAGE_GALLERY_SELECTOR_TYPE;
+    this.objectTypes.push(
+      IMAGE_GALLERY_TYPE,
+      IMAGE_GALLERIES_TYPE,
+      IMAGE_GALLERY_REFERRER_TYPE,
+      IMAGE_TYPE,
+      IMAGE_GALLERY_SELECTOR_TYPE,
+    );
 
     this.objectSubTypes.push(
       IMAGE_GALLERIES_IMAGE_GALLERY_SUBTYPE,

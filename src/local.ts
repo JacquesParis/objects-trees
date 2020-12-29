@@ -4,7 +4,7 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {ObjectTreesApplication} from './application';
 import {STORAGE_DIRECTORY} from './constants';
-import {PostTypeProvider} from './extensions/post/post-type.provider';
+import {PostTypeProvider} from './extensions/post/post.provider';
 import {TravelStoryTypeProvider} from './extensions/travel-story/travel-story-type.provider';
 import {WebSiteProvider} from './extensions/web-site/web-site.provider';
 import {ObjectTreesApplicationConfig} from './integration/object-trees-application.config';

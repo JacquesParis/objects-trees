@@ -26,7 +26,10 @@ export class ContentTextService implements ContentEntityServiceInterface {
     return {
       properties: {
         contentText: {
-          type: 'textarea',
+          type: 'string',
+          'x-schema-form': {
+            type: 'textarea',
+          },
         },
       },
     };

@@ -1,12 +1,21 @@
 import {ObjectTreesApplicationInterface} from '../../application';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {ObjectNode} from './../../models/object-node.model';
-import {ApplicationService, CurrentContext} from './../application.service';
 import {
+  ApplicationService,
+  CurrentContext,
+  ExpectedValue,
+} from './../application.service';
+import {
+  FOLDER_FOLDER_SUBTYPE,
   FOLDER_TYPE,
   OBJECT_TREE_PROVIDER,
   REPOSITORY_CATEGORY_TYPE,
+  REPOSITORY_REPOSITORY_CATEGORY_SUBTYPE,
+  REPOSITORY_REPOSITORY_SUBTYPE,
+  REPOSITORY_TENANT_SUBTYPE,
   REPOSITORY_TYPE,
+  ROOT_TYPE,
   TEMPLATES_OBJECT_NAME,
   TENANT_TYPE,
 } from './object-tree.const';
@@ -15,48 +24,19 @@ export class ObjectTreeProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(OBJECT_TREE_PROVIDER, app);
 
-    this.objectTypes.repository = REPOSITORY_TYPE;
-    this.objectTypes.folder = FOLDER_TYPE;
-    this.objectTypes.tenant = TENANT_TYPE;
-    this.objectTypes.repositoryCategory = REPOSITORY_CATEGORY_TYPE;
-    this.objectSubTypes.push({
-      typeName: REPOSITORY_TYPE.name,
-      subTypeName: REPOSITORY_TYPE.name,
-      acl: true,
-      name: ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY,
-      namespace: true,
-      owner: true,
-      tree: true,
-    });
-    this.objectSubTypes.push({
-      typeName: REPOSITORY_TYPE.name,
-      subTypeName: REPOSITORY_CATEGORY_TYPE.name,
-      acl: true,
-      name: ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY_CATEGORY,
-      namespace: true,
-      owner: false,
-      tree: true,
-    });
-
-    this.objectSubTypes.push({
-      typeName: REPOSITORY_TYPE.name,
-      subTypeName: TENANT_TYPE.name,
-      acl: true,
-      name: TENANT_TYPE.name,
-      namespace: true,
-      owner: true,
-      tree: true,
-    });
-
-    this.objectSubTypes.push({
-      typeName: FOLDER_TYPE.name,
-      subTypeName: FOLDER_TYPE.name,
-      acl: true,
-      name: FOLDER_TYPE.name,
-      namespace: true,
-      owner: false,
-      tree: true,
-    });
+    this.objectTypes.push(
+      REPOSITORY_TYPE,
+      FOLDER_TYPE,
+      TENANT_TYPE,
+      REPOSITORY_CATEGORY_TYPE,
+      ROOT_TYPE,
+    );
+    this.objectSubTypes.push(
+      REPOSITORY_REPOSITORY_SUBTYPE,
+      REPOSITORY_REPOSITORY_CATEGORY_SUBTYPE,
+      REPOSITORY_TENANT_SUBTYPE,
+      FOLDER_FOLDER_SUBTYPE,
+    );
 
     this.objectTrees.public = {
       parentNode: () => this.appCtx.rootNode.value,
@@ -91,35 +71,56 @@ export class ObjectTreeProvider extends ExtensionProvider {
     };
   }
 
-  public async beforeBoot(): Promise<void> {
+  public async boot(): Promise<void> {
     await this.appCtx.rootNode.getOrSetValue(
       async (): Promise<ObjectNode> => {
         let newRoot = await this.objectNodeService.searchOwner(
-          ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY,
+          ROOT_TYPE.name,
           ApplicationService.OBJECT_NODE_NAMES[
             ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY
           ],
         );
         if (!newRoot) {
-          newRoot = await this.objectNodeService.add(
-            {
-              name:
-                ApplicationService.OBJECT_NODE_NAMES[
-                  ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY
-                ],
-              objectTypeId: REPOSITORY_TYPE.name,
-              owner: true,
-              tree: true,
-              namesapce: true,
-              acl: true,
-            },
-            new CurrentContext(),
-            true,
+          // Look for Convert Root Repository
+          newRoot = await this.objectNodeService.searchOwner(
+            REPOSITORY_TYPE.name,
+            ApplicationService.OBJECT_NODE_NAMES[
+              ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY
+            ],
           );
+          if (newRoot) {
+            // Convert Root Repository to Root
+            newRoot = await this.objectNodeService.modifyById(
+              newRoot.id as string,
+              {
+                objectTypeId: ROOT_TYPE.name,
+              },
+              CurrentContext.get({
+                nodeContext: {node: new ExpectedValue(newRoot)},
+              }),
+              true,
+            );
+          } else {
+            newRoot = await this.objectNodeService.add(
+              {
+                name:
+                  ApplicationService.OBJECT_NODE_NAMES[
+                    ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY
+                  ],
+                objectTypeId: REPOSITORY_TYPE.name,
+                owner: true,
+                tree: true,
+                namesapce: true,
+                acl: true,
+              },
+              new CurrentContext(),
+              true,
+            );
+          }
         }
         return newRoot;
       },
     );
-    await super.beforeBoot();
+    await super.boot();
   }
 }

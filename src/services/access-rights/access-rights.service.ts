@@ -51,13 +51,9 @@ export class AccessRightsService implements ServiceDescripiton {
   } = {};
 
   getPreTraitmentDescription(): TreatmentDescription[] {
-    const treatment: TreatmentDescription = new TreatmentDescription(
-      ACCESS_RIGHT_PROVIDER,
-      AccessRightsService.name,
-      'Check entity(ies) access authorization',
-    );
+    const treatments: TreatmentDescription[] = [];
     for (const resource in this.accessRights) {
-      treatment.subTreatments.push(
+      treatments.push(
         new TreatmentDescription(
           (this.accessRights[
             resource as EntityName
@@ -65,20 +61,16 @@ export class AccessRightsService implements ServiceDescripiton {
           (this.accessRights[
             resource as EntityName
           ] as AccessRightsInterface).serviceId,
-          resource + ' access check',
+          resource + ': Access check',
         ),
       );
     }
-    return [treatment];
+    return treatments;
   }
   getPostTraitmentDescription(): TreatmentDescription[] {
-    const treatment: TreatmentDescription = new TreatmentDescription(
-      ACCESS_RIGHT_PROVIDER,
-      AccessRightsService.name,
-      'Remove forbidden returned entity(ies)',
-    );
+    const treatments: TreatmentDescription[] = [];
     for (const resource in this.accessRights) {
-      treatment.subTreatments.push(
+      treatments.push(
         new TreatmentDescription(
           (this.accessRights[
             resource as EntityName
@@ -86,11 +78,11 @@ export class AccessRightsService implements ServiceDescripiton {
           (this.accessRights[
             resource as EntityName
           ] as AccessRightsInterface).serviceId,
-          resource + ' clean',
+          resource + ': Clean',
         ),
       );
     }
-    return [treatment];
+    return treatments;
   }
 
   public registerAccessRightsService(

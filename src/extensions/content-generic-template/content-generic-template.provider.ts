@@ -2,7 +2,7 @@ import {ObjectTreesApplicationInterface} from '../../application';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {
   CONTENT_GENERIC_PROVIDER,
-  TEMPLATE_REFERER,
+  TEMPLATE_REFERER_WITH_CONFIGURATION_TYPE,
   TEMPLATE_VIEW_TYPE,
 } from './content-generic-template.const';
 import {
@@ -26,7 +26,9 @@ export class ContentGenericTemplateProvider extends ExtensionProvider {
       {cls: TransientContentGenericService},
     );
 
-    this.objectTypes.templateView = TEMPLATE_VIEW_TYPE;
-    this.objectTypes.refererWithConfiguration = TEMPLATE_REFERER;
+    this.objectTypes.push(
+      TEMPLATE_VIEW_TYPE,
+      TEMPLATE_REFERER_WITH_CONFIGURATION_TYPE,
+    );
   }
 }

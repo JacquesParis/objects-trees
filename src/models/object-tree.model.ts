@@ -33,6 +33,23 @@ export class ObjectTree implements IObjectTree {
     }
     return result;
   }
+
+  public get childrenByImplentedTypeId(): {
+    [objectTypeId: string]: ObjectTree[];
+  } {
+    const result: {[objectTypeId: string]: ObjectTree[]} = {};
+    for (const child of this.children) {
+      if (child.entityCtx?.implementedTypes) {
+        for (const implementedType of child.entityCtx.implementedTypes) {
+          if (!(implementedType in result)) {
+            result[implementedType] = [];
+          }
+          result[implementedType].push(child);
+        }
+      }
+    }
+    return result;
+  }
   async init(
     allNodes: ObjectNode[],
     //   contentEntityService: ContentEntityService,

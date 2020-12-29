@@ -9,9 +9,10 @@
     <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-6">
       <div class="card-img">
         <div
+          *ngIf="ctrl.getGalleryObjectTree(dataNode, templateNode)"
           template
           [dataTree]="dataTree"
-          [templateTree]="ctrl.getGalleryObjectTree(pageNode, templateNode)"
+          [templateTree]="ctrl.getGalleryObjectTree(dataNode, templateNode)"
         ></div>
       </div>
     </div>

@@ -1,21 +1,16 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
 /* eslint-disable no-empty */
 import fs from 'fs';
-import {intersection} from 'lodash';
+import {camelCase, intersection, kebabCase} from 'lodash';
 import path from 'path';
 import {ObjectTree} from '../models';
 import {ObjectNode} from './../models/object-node.model';
 export function toKebabCase(str: string) {
-  const matches = str?.match(
-    /[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g,
-  );
-  return matches?.map((x) => x.toLowerCase()).join('-') as string;
+  return kebabCase(str);
 }
 
 export function toCamelCase(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr: string) => chr.toUpperCase());
+  return camelCase(str);
 }
 
 export function contentGenericTemplate(
@@ -25,20 +20,13 @@ export function contentGenericTemplate(
   const genericTemplate = {
     template: '',
     scss: '',
-    controller: `newFunction();
-
-    function newFunction() {
+    controller: `function newFunction() {
       return {
-        init: (ctrl) => {
-          ctrl.ready = true;
-        },
+        async init(component) {},
       };
-    }`,
-    /*
-    config: `{
-      "type": "object",
-      "properties": {}
-    }`,*/
+    }
+    newFunction();
+    `,
     refererConfig: {
       properties: {},
     },

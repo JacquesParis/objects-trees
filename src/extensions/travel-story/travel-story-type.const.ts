@@ -7,7 +7,7 @@ import {
   FOLDER_TYPE,
   REPOSITORY_CATEGORY_TYPE,
 } from '../../services/object-tree/object-tree.const';
-import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post-type.const';
+import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post.const';
 import {
   CALENDAR_ENTRY_TYPE,
   MENU_ENTRY_TYPE,
@@ -21,6 +21,7 @@ import {
   TEMPLATES_OBJECT_NAME,
 } from './../../services/object-tree/object-tree.const';
 import {IMAGE_GALLERIES_TYPE} from './../content-image/content-image.const';
+import {PAGE_WITH_SUB_PAGE} from './../web-site/web-site.const';
 export const TRAVEL_STORY_PROVIDER = 'TravelStoryProvider';
 export const TRAVEL_STORY_NAME = 'TravelStoryService';
 
@@ -72,6 +73,7 @@ export const TRAVEL_STORY_POST_TYPE: ObjectTypeDefinition = {
     PAGE_WITH_TEMPLATE_CHOICE.name,
     CALENDAR_ENTRY_TYPE.name,
     POST_WITH_GALLERY_TYPE.name,
+    PAGE_WITH_SUB_PAGE.name,
   ],
   definition: {
     properties: {},

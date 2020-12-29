@@ -1,12 +1,30 @@
-<div
-  template
-  *ngIf="ready"
-  [dataTree]="dataTree"
-  [templateTree]="templateNode.menuObjectTree"
-></div>
-<div
-  template
-  *ngIf="ready"
-  [dataTree]="pageTree"
-  [templateTree]="pageNode.pageObjectTree?pageNode.pageObjectTree:templateNode.pageObjectTree"
-></div>
+<ng-container *ngIf="ready">
+  <div
+    template
+    [dataTree]="dataTree"
+    [templateTree]="templateNode.menuObjectTree"
+  ></div>
+  <div
+    template
+    [dataTree]="pageTree"
+    [templateTree]="ctrl.getPageTreeTemplate(pageNode, templateNode)"
+  ></div>
+
+  <ng-container
+    *ngTemplateOutlet="subPages;context:{pageTrees:pageTree.pageTrees}"
+  ></ng-container>
+</ng-container>
+<ng-template #subPages let-pageTrees="pageTrees">
+  <ng-container *ngFor="let childTree of pageTrees">
+    <div
+      template
+      [dataTree]="childTree"
+      [templateTree]="ctrl.getPageTreeTemplate(childTree.treeNode, templateNode)"
+    ></div>
+    <ng-container *ngIf="childTree.pageTrees">
+      <ng-container
+        *ngTemplateOutlet="subPages; context: {pageTrees:childTree.pageTrees}"
+      ></ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>

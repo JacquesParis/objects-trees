@@ -1,5 +1,3 @@
-newFunction();
-
 function newFunction() {
   return {
     async init(ctrl) {
@@ -8,7 +6,7 @@ function newFunction() {
           await image.waitForReady();
         }
       }
-      ctrl.ready = true;
     },
   };
 }
+newFunction();

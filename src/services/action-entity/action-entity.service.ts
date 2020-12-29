@@ -98,14 +98,13 @@ export class ActionEntityService {
           this.description = new TreatmentDescription(
             this.providerId,
             this.serviceId,
-            entityType + '.' + methodId + '():',
-          );
-          this.description.subTreatments.push(
-            new TreatmentDescription(
-              functionProviderId,
-              functionServiceId,
-              objectType + '.' + methodId + '(): ' + functionDescription,
-            ),
+            entityType +
+              '.' +
+              objectType +
+              '.' +
+              methodId +
+              '(): ' +
+              functionDescription,
           );
         }
         async runAction(

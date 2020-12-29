@@ -9,7 +9,7 @@ import {
   TEMPLATES_OBJECT_NAME,
 } from '../../services/object-tree/object-tree.const';
 import {
-  TEMPLATE_REFERER,
+  TEMPLATE_REFERER_WITH_CONFIGURATION_TYPE,
   TEMPLATE_VIEW_TYPE,
 } from './../content-generic-template/content-generic-template.const';
 export const WEB_SITE_PROVIDER = 'WebSiteProvider';
@@ -17,7 +17,7 @@ export const WEB_SITE_NAME = 'WebSiteService';
 
 export const WEB_SITE_VIEW_TYPE: ObjectTypeDefinition = {
   name: 'WebSiteView',
-  inheritedTypesIds: [TEMPLATE_REFERER.name],
+  inheritedTypesIds: [TEMPLATE_REFERER_WITH_CONFIGURATION_TYPE.name],
   definition: {
     properties: {
       webSiteObjectTreeId: {
@@ -91,7 +91,10 @@ export const PAGE_TEMPLATE_TYPE: ObjectTypeDefinition = {
 
 export const WEB_SITE_TEMPLATE_TYPE: ObjectTypeDefinition = {
   name: 'WebSiteTemplate',
-  inheritedTypesIds: [TEMPLATE_VIEW_TYPE.name, TEMPLATE_REFERER.name],
+  inheritedTypesIds: [
+    TEMPLATE_VIEW_TYPE.name,
+    TEMPLATE_REFERER_WITH_CONFIGURATION_TYPE.name,
+  ],
   definition: {
     properties: {
       pageObjectTreeId: {
@@ -260,6 +263,10 @@ export const PAGE_TYPE: ObjectTypeDefinition = {
     },
   },
   contentType: 'ContentText',
+};
+
+export const PAGE_WITH_SUB_PAGE: ObjectTypeDefinition = {
+  name: 'PageWithSubPage',
 };
 
 export const WELCOME_PAGE_TYPE: ObjectTypeDefinition = {

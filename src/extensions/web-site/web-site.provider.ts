@@ -13,6 +13,7 @@ import {
   MENU_TEMPLATE_TYPE,
   PAGE_TEMPLATE_TYPE,
   PAGE_TYPE,
+  PAGE_WITH_SUB_PAGE,
   PAGE_WITH_TEMPLATE_CHOICE,
   WEB_SITE_PROVIDER,
   WEB_SITE_TEMPLATE_TYPE,
@@ -32,18 +33,21 @@ export class WebSiteProvider extends ExtensionProvider {
       ContentGenericTemplateProvider,
     );
 
-    this.objectTypes.WebSiteTemplate = WEB_SITE_TEMPLATE_TYPE;
-    this.objectTypes.WebSiteWitHMenuTemplate = WEB_SITE_WITH_MENU_TEMPLATE_TYPE;
-    this.objectTypes.WebSiteWithPagesTemplate = WEB_SITE_WITH_PAGES_TEMPLATE_TYPE;
-    this.objectTypes.webSiteView = WEB_SITE_VIEW_TYPE;
-    this.objectTypes.webSiteViewWithMenu = WEB_SITE_VIEW_WITH_MENU_TYPE;
-    this.objectTypes.menuTemplate = MENU_TEMPLATE_TYPE;
-    this.objectTypes.pageTemplate = PAGE_TEMPLATE_TYPE;
-    this.objectTypes.page = PAGE_TYPE;
-    this.objectTypes.pageWithTemplateChoice = PAGE_WITH_TEMPLATE_CHOICE;
-    this.objectTypes.welcomePage = WELCOME_PAGE_TYPE;
-    this.objectTypes.calendarEntry = CALENDAR_ENTRY_TYPE;
-    this.objectTypes.menuEntry = MENU_ENTRY_TYPE;
+    this.objectTypes.push(
+      WEB_SITE_TEMPLATE_TYPE,
+      WEB_SITE_WITH_MENU_TEMPLATE_TYPE,
+      WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,
+      WEB_SITE_VIEW_TYPE,
+      WEB_SITE_VIEW_WITH_MENU_TYPE,
+      MENU_TEMPLATE_TYPE,
+      PAGE_TEMPLATE_TYPE,
+      PAGE_TYPE,
+      PAGE_WITH_TEMPLATE_CHOICE,
+      WELCOME_PAGE_TYPE,
+      CALENDAR_ENTRY_TYPE,
+      MENU_ENTRY_TYPE,
+      PAGE_WITH_SUB_PAGE,
+    );
     this.objectSubTypes.push(
       CATEGORY_MENU_TEMPLATE_SUBTYPE,
       WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE,

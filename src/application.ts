@@ -69,6 +69,7 @@ import {ObjectNodeService} from './services/object-node/object-node.service';
 import {ObjectTreeProvider} from './services/object-tree/object-tree.provider';
 import {ObjectTreeService} from './services/object-tree/object-tree.service';
 import {ObjectTypeService} from './services/object-type.service';
+import {RootConfigProvider} from './services/root-config/root-config.provider';
 import {TransientEntityProvider} from './services/transient-entity/transient-entity.provider';
 import {UriCompleteProvider} from './services/uri-complete/uri-complete.provider';
 import {UserAuthenticationService} from './services/user-authentication.service';
@@ -102,8 +103,7 @@ export class ObjectTreesApplication extends RestApplication {
   public interceptorDescriptions: {
     [interceptorId: string]: InterceptorDescription & {providerId: string};
   } = {};
-  public postTreatmentDescriptions: TreatmentDescription[] = [];
-  public preTreatmentDescriptions: TreatmentDescription[] = [];
+
   protected extensionProviders: ExtensionProvider[] = [];
   constructor(config?: ObjectTreesApplicationConfig, parent?: Context) {
     super(config, parent);
@@ -207,24 +207,10 @@ export class ObjectTreesApplication extends RestApplication {
     config.extensions.unshift(ContentEntityCoreProvider);
     config.extensions.unshift(ObjectTreeProvider);
     config.extensions.push(UriCompleteProvider);
-    /*
-    this.extensionProviders.push(new ContentEntityCoreProvider(app));
-    this.extensionProviders.push(new AccessRightsProvider(app));
-    this.extensionProviders.push(new EntityDefinitionProvider(app));
-    this.extensionProviders.push(new TransientEntityProvider(app));
-    */
+    config.extensions.push(RootConfigProvider);
 
     this.addProviders(app, config.extensions);
 
-    /*
-    if (config?.extensions?.length) {
-      for (const objectTypeProvider of config.extensions) {
-        const provider = new objectTypeProvider(app);
-        if (!addedProviders.includes(provider.name)) {
-        }
-        this.extensionProviders.push(provider);
-      }
-    }*/
     console.log('Application initialized !');
   }
 
@@ -277,13 +263,6 @@ export class ObjectTreesApplication extends RestApplication {
     console.log('Boot application...');
     await app.boot();
 
-    /*
-    app.interceptor(AccessRightsInterceptor, {
-      name: CONTEXT_INTERCEPTOR,
-      global: true,
-      group: CONTEXT_INTERCEPTOR,
-    });*/
-
     app.service(ApplicationService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ApplicationService>(ApplicationService);
     app.service(ContentEntityService, {defaultScope: BindingScope.SINGLETON});
@@ -301,42 +280,12 @@ export class ObjectTreesApplication extends RestApplication {
 
     app.service(ObjectNodeService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ObjectNodeService>(ObjectNodeService);
-    /*
-    app.service(ContentUserService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<ContentUserService>(ContentUserService);
-    */
     app.service(ObjectNodeContentService, {
       defaultScope: BindingScope.SINGLETON,
     });
     await app.getService<ObjectNodeContentService>(ObjectNodeContentService);
     app.service(ObjectTreeService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ObjectTreeService>(ObjectTreeService);
-
-    /*
-    app.service(AccessRightsService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<AccessRightsService>(AccessRightsService);
-    app.service(AccessRightsTreeService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<AccessRightsTreeService>(AccessRightsTreeService);
-    app.service(AccessRightsNodeService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<AccessRightsNodeService>(AccessRightsNodeService);
-    app.service(AccessRightsTypeService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<AccessRightsTypeService>(AccessRightsTypeService);
-    app.service(AccessRightsUserService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<AccessRightsUserService>(AccessRightsUserService);
-    */
-    /*
-    app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<ContentFileService>(ContentFileService);
-    app.service(ContentTextService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<ContentTextService>(ContentTextService);
-    app.service(ContentFileService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<ContentFileService>(ContentFileService);
-    */
-    /*
-    const objectTreeService = await app.getService<ObjectTreeService>(
-      ObjectTreeService,
-    );
-    await objectTreeService.ready;*/
 
     for (const provider of this.extensionProviders) {
       await provider.setContext(appCtx);
@@ -353,11 +302,30 @@ export class ObjectTreesApplication extends RestApplication {
     app.component(ObjectTreesBootComponent);
     console.log('Boot up !');
 
+    appCtx.configSummary = await this.calculateBootSummary(app);
+    for (const treatment of appCtx.configSummary.descriptionLines) {
+      console.log(treatment);
+    }
+  }
+
+  private async calculateBootSummary(
+    app: ObjectTreesApplicationInterface,
+  ): Promise<TreatmentDescription> {
+    const configSummary: TreatmentDescription = new TreatmentDescription(
+      'CoreProvider',
+      ObjectTreesApplication.name,
+      'Boot summary:',
+    );
     //    for (const interceptorId of Object.keys(this.interceptorDescriptions)
     const interceptors: string[] = app
       .getBinding(ContextBindings.GLOBAL_INTERCEPTOR_ORDERED_GROUPS)
       .getValue(app) as string[];
 
+    const preTreatmentDescription = new TreatmentDescription(
+      'CoreProdider',
+      ObjectTreesApplication.name,
+      'Treatments on incoming request:',
+    );
     // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let index = 0; index < interceptors.length; index++) {
       if (
@@ -373,6 +341,7 @@ export class ObjectTreesApplication extends RestApplication {
         for (const serviceName of this.interceptorDescriptions[
           interceptors[index]
         ].preTreatment?.services as string[]) {
+          treatment.description += ' and ' + serviceName;
           const service: ServiceDescripiton = await this.getService<
             ServiceDescripiton
           >({name: serviceName});
@@ -382,9 +351,26 @@ export class ObjectTreesApplication extends RestApplication {
             );
           }
         }
-        this.preTreatmentDescriptions.push(treatment);
+        preTreatmentDescription.subTreatments.push(treatment);
       }
     }
+    configSummary.subTreatments.push(preTreatmentDescription);
+    const treatmentDescription = new TreatmentDescription(
+      'CoreProvider',
+      ObjectTreesApplication.name,
+      'Request extended actions',
+    );
+    for (const treatment of (
+      await this.getService<ActionEntityService>(ActionEntityService)
+    ).getPostTraitmentDescription()) {
+      treatmentDescription.subTreatments.push(treatment);
+    }
+    configSummary.subTreatments.push(treatmentDescription);
+    const postTreatmentDescriptions = new TreatmentDescription(
+      'CoreProdider',
+      ObjectTreesApplication.name,
+      'Treatments on returned Entity(ies):',
+    );
     // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let index = interceptors.length - 1; index >= 0; index--) {
       if (
@@ -400,6 +386,7 @@ export class ObjectTreesApplication extends RestApplication {
         for (const serviceName of this.interceptorDescriptions[
           interceptors[index]
         ].postTreatment?.services as string[]) {
+          treatment.description += ' and ' + serviceName;
           const service: ServiceDescripiton = await this.getService<
             ServiceDescripiton
           >({name: serviceName});
@@ -409,54 +396,11 @@ export class ObjectTreesApplication extends RestApplication {
             );
           }
         }
-        this.postTreatmentDescriptions.push(treatment);
+        postTreatmentDescriptions.subTreatments.push(treatment);
       }
     }
-    console.log('Boot summary:');
-    console.log('- Treatments on incoming request:');
-    for (const treatment of this.preTreatmentDescriptions) {
-      this.consoleTreatment(treatment);
-    }
-    console.log('- Request extended actions');
-    for (const treatment of (
-      await this.getService<ActionEntityService>(ActionEntityService)
-    ).getPostTraitmentDescription()) {
-      this.consoleTreatment(treatment);
-    }
-
-    console.log('- Treatments on returned Entity(ies):');
-    for (const treatment of this.postTreatmentDescriptions) {
-      this.consoleTreatment(treatment);
-    }
-  }
-
-  private consoleTreatments(
-    treatmentDescriptions: TreatmentDescription[],
-    level = 0,
-  ) {
-    for (const treatmentDescription of treatmentDescriptions) {
-      this.consoleTreatment(treatmentDescription, level + 1);
-    }
-  }
-  private consoleTreatment(
-    treatmentDescription: TreatmentDescription,
-    level = 1,
-  ) {
-    let prepend = ' ';
-    for (let i = 0; i < level; i++) {
-      prepend += '   ';
-    }
-    prepend += '- ';
-    console.log(
-      prepend +
-        treatmentDescription.description +
-        ' (' +
-        treatmentDescription.providerId +
-        '.' +
-        treatmentDescription.runnerId +
-        ')',
-    );
-    this.consoleTreatments(treatmentDescription.subTreatments, level);
+    configSummary.subTreatments.push(postTreatmentDescriptions);
+    return configSummary;
   }
 
   public async getService<T>(t: {name: string}): Promise<T> {

@@ -38,17 +38,13 @@ export class TransientEntityService
   }
 
   getPostTraitmentDescription(): TreatmentDescription[] {
-    const treatment: TreatmentDescription = new TreatmentDescription(
-      TRANSIENT_ENTITY_PROVIDER,
-      TransientEntityService.name,
-      'Add transient fields',
-    );
+    const treatments: TreatmentDescription[] = [];
     for (const resource in this.transientEntitys) {
       for (const transientEntity of this.transientEntitys[
         resource as EntityName
       ] as TransientEntityInterface[]) {
         if (isString(transientEntity.description)) {
-          treatment.subTreatments.push(
+          treatments.push(
             new TreatmentDescription(
               transientEntity.providerId,
               transientEntity.serviceId,
@@ -56,13 +52,13 @@ export class TransientEntityService
             ),
           );
         } else if (isFunction(transientEntity.description)) {
-          treatment.subTreatments.push(transientEntity.description());
+          treatments.push(transientEntity.description());
         } else {
-          treatment.subTreatments.push(transientEntity.description);
+          treatments.push(transientEntity.description);
         }
       }
     }
-    return [treatment];
+    return treatments;
   }
 
   public registerTransientEntityTypeFunction<T extends IRestEntity>(
@@ -82,14 +78,7 @@ export class TransientEntityService
           this.description = new TreatmentDescription(
             TRANSIENT_ENTITY_PROVIDER,
             TransientEntityService.name,
-            resource + ': ',
-            [
-              new TreatmentDescription(
-                functionProviderId,
-                functionServiceId,
-                objectType + ': ' + functionDescription,
-              ),
-            ],
+            resource + '.' + objectType + ': ' + functionDescription,
           );
         }
         public providerId: string;
