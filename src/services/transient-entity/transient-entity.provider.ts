@@ -1,7 +1,7 @@
 import {ObjectTreesApplicationInterface} from '../../application';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {TransientEntityInterceptor} from '../../interceptors/transient-entity.interceptor';
-import {InterceptorTreatmentDescription} from './../../integration/extension-description';
+import {RunnerTreatmentDescription} from './../../integration/extension-description';
 import {TRANSIENT_ENTITY_PROVIDER} from './transient-entity.const';
 import {TransientEntityService} from './transient-entity.service';
 import {TransientNodeService} from './transient-node.service';
@@ -18,7 +18,7 @@ export class TransientEntityProvider extends ExtensionProvider {
       id: 'TransientEntityInterceptor',
       interceptor: TransientEntityInterceptor,
       description: {
-        postTreatment: new InterceptorTreatmentDescription(
+        postTreatment: new RunnerTreatmentDescription(
           'Add transient data to returned entity(ies)',
           ['TransientEntityService'],
         ),

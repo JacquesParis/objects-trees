@@ -2,6 +2,7 @@ import {service} from '@loopback/core';
 import {
   DataObject,
   Entity,
+  Filter,
   FilterExcludingWhere,
   Options,
   repository,
@@ -36,14 +37,22 @@ export class ObjectNodeService {
     public contentEntityService: ContentEntityService,
   ) {}
 
+  public findOrderedNodes(filter: Filter<ObjectNode>): Promise<ObjectNode[]> {
+    const orderedFilter: Filter<ObjectNode> = merge(
+      {order: ['index ASC']},
+      filter,
+    );
+    return this.objectNodeRepository.find(orderedFilter);
+  }
+
   public searchByTreeId(treeId: string): Promise<ObjectNode[]> {
-    return this.objectNodeRepository.find({
+    return this.findOrderedNodes({
       where: {parentTreeId: treeId},
     });
   }
 
   public searchByTreeIds(treeIds: string[]): Promise<ObjectNode[]> {
-    return this.objectNodeRepository.find({
+    return this.findOrderedNodes({
       where: {parentTreeId: {inq: treeIds}},
     });
   }
@@ -60,7 +69,7 @@ export class ObjectNodeService {
     if (objectName) {
       where.name = objectName;
     }
-    return this.objectNodeRepository.find({
+    return this.findOrderedNodes({
       where: where,
     });
   }
@@ -77,7 +86,7 @@ export class ObjectNodeService {
     parentNodeIds: string[],
     objectTypeId: string,
   ): Promise<ObjectNode[]> {
-    return this.objectNodeRepository.find({
+    return this.findOrderedNodes({
       where: {parentNodeId: {inq: parentNodeIds}, objectTypeId},
     });
   }
@@ -86,7 +95,7 @@ export class ObjectNodeService {
     ownerType: string,
     ownerName: string,
   ): Promise<ObjectNode> {
-    const nodes = await this.objectNodeRepository.find({
+    const nodes = await this.findOrderedNodes({
       where: {objectTypeId: ownerType, name: ownerName, owner: true},
     });
     if (1 < nodes.length) {
@@ -122,7 +131,7 @@ export class ObjectNodeService {
     namespaceName: string,
     errorContext = {},
   ): Promise<ObjectNode> {
-    const nodes = await this.objectNodeRepository.find({
+    const nodes = await this.findOrderedNodes({
       where: {
         objectTypeId: namespaceType,
         name: namespaceName,
@@ -172,7 +181,7 @@ export class ObjectNodeService {
     treeType: string,
     errorContext = {},
   ): Promise<ObjectNode[]> {
-    return this.objectNodeRepository.find({
+    return this.findOrderedNodes({
       where: {
         objectTypeId: treeType,
         parentNamespaceId: namespaceId,
@@ -202,7 +211,7 @@ export class ObjectNodeService {
       });
     }
 
-    const nodes = await this.objectNodeRepository.find({
+    const nodes = await this.findOrderedNodes({
       where: {
         objectTypeId: treeType,
         name: treeName,
@@ -252,7 +261,7 @@ export class ObjectNodeService {
       return;
     }
     if (objectNode.tree) {
-      const otherTrees: ObjectNode[] = await this.objectNodeRepository.find({
+      const otherTrees: ObjectNode[] = await this.findOrderedNodes({
         where: {
           parentNamespaceId: objectNode.parentNamespaceId,
           objectTypeId: objectNode.objectTypeId,
@@ -265,22 +274,20 @@ export class ObjectNodeService {
       }
     }
     if (objectNode.namespace) {
-      const otherNamespaces: ObjectNode[] = await this.objectNodeRepository.find(
-        {
-          where: {
-            parentOwnerId: objectNode.parentOwnerId,
-            objectTypeId: objectNode.objectTypeId,
-            name: name,
-            namespace: true,
-          },
+      const otherNamespaces: ObjectNode[] = await this.findOrderedNodes({
+        where: {
+          parentOwnerId: objectNode.parentOwnerId,
+          objectTypeId: objectNode.objectTypeId,
+          name: name,
+          namespace: true,
         },
-      );
+      });
       if (otherNamespaces && 0 < otherNamespaces.length) {
         throw ApplicationError.conflict({name: name});
       }
     }
     if (objectNode.owner) {
-      const otherOwners: ObjectNode[] = await this.objectNodeRepository.find({
+      const otherOwners: ObjectNode[] = await this.findOrderedNodes({
         where: {
           objectTypeId: objectNode.objectTypeId,
           name: name,
@@ -579,7 +586,7 @@ export class ObjectNodeService {
   async deleteContentNodes(where: Where, ctx: CurrentContext) {
     const contentTypes = await this.objectTypeService.getTypeWithContent(ctx);
     if (0 < Object.keys(contentTypes).length) {
-      const deletedContentObjects = await this.objectNodeRepository.find({
+      const deletedContentObjects = await this.findOrderedNodes({
         where: merge(where, {
           objectTypeId: {inq: Object.keys(contentTypes)},
         }),
@@ -617,7 +624,7 @@ export class ObjectNodeService {
       },
       'node' === parentType ? {} : {[parentType]: true},
     );
-    const subChildsNodes = await this.objectNodeRepository.find({
+    const subChildsNodes = await this.findOrderedNodes({
       where: whereClause,
     });
     for (const subChildNode of subChildsNodes) {

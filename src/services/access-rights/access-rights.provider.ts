@@ -1,6 +1,6 @@
 import {merge, omit} from 'lodash';
 import {ObjectTreesApplicationInterface} from '../../application';
-import {InterceptorTreatmentDescription} from '../../integration/extension-description';
+import {RunnerTreatmentDescription} from '../../integration/extension-description';
 import {ExtensionProvider} from './../../integration/extension.provider';
 import {AccessRightsInterceptor} from './../../interceptors/access-rights.interceptor';
 import {ApplicationService} from './../application.service';
@@ -36,11 +36,11 @@ export class AccessRightsProvider extends ExtensionProvider {
       id: 'AccessRightsInterceptor',
       interceptor: AccessRightsInterceptor,
       description: {
-        preTreatment: new InterceptorTreatmentDescription(
+        preTreatment: new RunnerTreatmentDescription(
           'Check access rights on target entity(ies)',
           ['AccessRightsService'],
         ),
-        postTreatment: new InterceptorTreatmentDescription(
+        postTreatment: new RunnerTreatmentDescription(
           'Remove forbidden entities',
           ['AccessRightsService'],
         ),

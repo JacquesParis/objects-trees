@@ -19,6 +19,12 @@ export class ObjectNode extends RestEntity implements IObjectNode {
   owner?: boolean;
 
   @property({
+    type: 'number',
+    default: 10000,
+  })
+  index?: number;
+
+  @property({
     type: 'boolean',
     default: false,
   })

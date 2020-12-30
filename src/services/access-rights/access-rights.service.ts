@@ -18,6 +18,7 @@ import {
 import {EntityName} from './../../models/entity-name';
 import {ObjectTree} from './../../models/object-tree.model';
 import {ObjectType} from './../../models/object-type.model';
+import {ActionEntityService} from './../action-entity/action-entity.service';
 import {
   AccessRightsProviderContext,
   ApplicationService,
@@ -100,6 +101,8 @@ export class AccessRightsService implements ServiceDescripiton {
     @service(ObjectTypeService) protected objectTypeService: ObjectTypeService,
     @service(ObjectNodeService) protected objectNodeService: ObjectNodeService,
     @service(ObjectTreeService) protected objectTreeService: ObjectTreeService,
+    @service(ActionEntityService)
+    protected actionEntityService: ActionEntityService,
   ) {
     /*
     this.init = new AccessRightsInit(
@@ -134,6 +137,13 @@ export class AccessRightsService implements ServiceDescripiton {
           } else {
             context.scopes = metadata.scopes;
           }
+        }
+        if (context.scopes && 'method' === context.scopes[0]) {
+          context.scopes[0] = await this.actionEntityService.getAuthorizationContext(
+            metadata.resource as EntityName,
+            context.invocationContext.args,
+            ctx,
+          );
         }
         return await accessRights.authorize(ctx, context);
       }
@@ -266,9 +276,9 @@ export class AccessRightsService implements ServiceDescripiton {
   ): Promise<boolean> {
     await this.loadRights(node, ctx);
     const rights: {
-      [scope in AccessRightsScope]: boolean;
+      [scope in AccessRightsScope]?: boolean;
     } = await this.getNodeAccessRights(node, ctx);
-    return rights[scope];
+    return !!rights[scope];
   }
 
   private async loadACLTrees(

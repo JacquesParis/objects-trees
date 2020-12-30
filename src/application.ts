@@ -12,6 +12,7 @@ import {
 } from '@loopback/authorization';
 import {BootMixin} from '@loopback/boot';
 import {
+  BindingFromClassOptions,
   BindingScope,
   Constructor,
   Context,
@@ -39,6 +40,7 @@ import {UserController} from './controllers/user.controller';
 import {DbDataSource} from './datasources/db.datasource';
 import {
   InterceptorDescription,
+  RunnerTreatmentDescription,
   ServiceDescripiton,
   TreatmentDescription,
 } from './integration/extension-description';
@@ -58,7 +60,7 @@ import {ObjectSubTypeRepository} from './repositories/object-sub-type.repository
 import {ObjectTypeRepository} from './repositories/object-type.repository';
 import {MySequence} from './sequence';
 import {AccessRightsProvider} from './services/access-rights/access-rights.provider';
-import {ActionEntityService} from './services/action-entity/action-entity.service';
+import {ActionEntityProvider} from './services/action-entity/action-entity.provider';
 import {AppAuthorizationProvider} from './services/app-authorization.service';
 import {ApplicationService} from './services/application.service';
 import {ContentEntityCoreProvider} from './services/content-entity/content-entity.provider';
@@ -95,6 +97,14 @@ export abstract class ObjectTreesApplicationInterface extends BootMixin(
       description: InterceptorDescription;
     },
   ): void;
+  public abstract addController(
+    name: string,
+    controller: {
+      controllerCtor: Constructor<unknown>;
+      nameOrOptions?: string | BindingFromClassOptions | undefined;
+      description: RunnerTreatmentDescription;
+    },
+  ): void;
   public abstract bootObjectTrees(): Promise<void>;
   public abstract getService<T>(t: {name: string}): Promise<T>;
 }
@@ -103,6 +113,10 @@ export class ObjectTreesApplication extends RestApplication {
   public interceptorDescriptions: {
     [interceptorId: string]: InterceptorDescription & {providerId: string};
   } = {};
+  public controllersDescriptions: (RunnerTreatmentDescription & {
+    providerId: string;
+    controllerId: string;
+  })[] = [];
 
   protected extensionProviders: ExtensionProvider[] = [];
   constructor(config?: ObjectTreesApplicationConfig, parent?: Context) {
@@ -206,6 +220,7 @@ export class ObjectTreesApplication extends RestApplication {
     config.extensions.unshift(AccessRightsProvider);
     config.extensions.unshift(ContentEntityCoreProvider);
     config.extensions.unshift(ObjectTreeProvider);
+    config.extensions.unshift(ActionEntityProvider);
     config.extensions.push(UriCompleteProvider);
     config.extensions.push(RootConfigProvider);
 
@@ -227,6 +242,23 @@ export class ObjectTreesApplication extends RestApplication {
         this.extensionProviders.push(provider);
       }
     }
+  }
+
+  public addController(
+    providerId: string,
+    controller: {
+      controllerCtor: Constructor<unknown>;
+      nameOrOptions?: string | BindingFromClassOptions | undefined;
+      description: RunnerTreatmentDescription;
+    },
+  ): void {
+    this.controller(controller.controllerCtor, controller.nameOrOptions);
+    this.controllersDescriptions.push(
+      merge(
+        {providerId, controllerId: controller.controllerCtor.name},
+        controller.description,
+      ),
+    );
   }
 
   public addInterceptor(
@@ -267,8 +299,8 @@ export class ObjectTreesApplication extends RestApplication {
     await app.getService<ApplicationService>(ApplicationService);
     app.service(ContentEntityService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ContentEntityService>(ContentEntityService);
-    app.service(ActionEntityService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<ActionEntityService>(ActionEntityService);
+    /*    app.service(ActionEntityService, {defaultScope: BindingScope.SINGLETON});
+    await app.getService<ActionEntityService>(ActionEntityService);*/
     app.service(ObjectTypeService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ObjectTypeService>(ObjectTypeService);
 
@@ -341,7 +373,7 @@ export class ObjectTreesApplication extends RestApplication {
         for (const serviceName of this.interceptorDescriptions[
           interceptors[index]
         ].preTreatment?.services as string[]) {
-          treatment.description += ' and ' + serviceName;
+          treatment.runnerId += ' and ' + serviceName;
           const service: ServiceDescripiton = await this.getService<
             ServiceDescripiton
           >({name: serviceName});
@@ -355,6 +387,25 @@ export class ObjectTreesApplication extends RestApplication {
       }
     }
     configSummary.subTreatments.push(preTreatmentDescription);
+
+    for (const description of this.controllersDescriptions) {
+      const treatment: TreatmentDescription = new TreatmentDescription(
+        description.providerId,
+        description.controllerId,
+        description.description,
+      );
+      for (const serviceName of description.services) {
+        treatment.runnerId += ' and ' + serviceName;
+        const service: ServiceDescripiton = await this.getService<
+          ServiceDescripiton
+        >({name: serviceName});
+        if (service.getTraitmentDescription) {
+          treatment.subTreatments.push(...service.getTraitmentDescription());
+        }
+      }
+      configSummary.subTreatments.push(treatment);
+    }
+    /*
     const treatmentDescription = new TreatmentDescription(
       'CoreProvider',
       ObjectTreesApplication.name,
@@ -362,10 +413,10 @@ export class ObjectTreesApplication extends RestApplication {
     );
     for (const treatment of (
       await this.getService<ActionEntityService>(ActionEntityService)
-    ).getPostTraitmentDescription()) {
+    ).getTraitmentDescription()) {
       treatmentDescription.subTreatments.push(treatment);
     }
-    configSummary.subTreatments.push(treatmentDescription);
+    configSummary.subTreatments.push(treatmentDescription);*/
     const postTreatmentDescriptions = new TreatmentDescription(
       'CoreProdider',
       ObjectTreesApplication.name,
@@ -386,7 +437,7 @@ export class ObjectTreesApplication extends RestApplication {
         for (const serviceName of this.interceptorDescriptions[
           interceptors[index]
         ].postTreatment?.services as string[]) {
-          treatment.description += ' and ' + serviceName;
+          treatment.runnerId += ' and ' + serviceName;
           const service: ServiceDescripiton = await this.getService<
             ServiceDescripiton
           >({name: serviceName});

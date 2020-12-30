@@ -48,15 +48,17 @@ export class TreatmentDescription {
   }
 }
 
-export class InterceptorTreatmentDescription {
+export class RunnerTreatmentDescription {
   constructor(public description: string, public services: string[] = []) {}
 }
+
 export class InterceptorDescription {
-  preTreatment?: InterceptorTreatmentDescription;
-  postTreatment?: InterceptorTreatmentDescription;
+  preTreatment?: RunnerTreatmentDescription;
+  postTreatment?: RunnerTreatmentDescription;
 }
 
 export interface ServiceDescripiton {
   getPreTraitmentDescription?(): TreatmentDescription[];
+  getTraitmentDescription?(): TreatmentDescription[];
   getPostTraitmentDescription?(): TreatmentDescription[];
 }

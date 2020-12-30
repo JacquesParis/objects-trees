@@ -26,6 +26,7 @@ export class ActionImageService {
       'load',
       IMAGE_GALLERY_TYPE.name,
       this.loadImageGalleryNode.bind(this),
+      'create',
     );
   }
 

@@ -18,7 +18,6 @@ import {isObject} from 'lodash';
 import {ObjectNode} from '../models';
 import {CurrentContext, CURRENT_CONTEXT} from '../services/application.service';
 import {ObjectNodeService} from '../services/object-node/object-node.service';
-import {EntityName} from './../models/entity-name';
 import {
   AccessRightsEntity,
   AccessRightsScope,
@@ -66,6 +65,7 @@ export class ObjectNodeController {
     return this.objectNodeService.add(objectNode, ctx);
   }
 
+  /*
   @authorize({
     resource: AccessRightsEntity.objectNode,
     scopes: [AccessRightsScope.update],
@@ -100,7 +100,7 @@ export class ObjectNodeController {
       args,
       ctx,
     );
-  }
+  }*/
 
   @authenticate('jwt')
   @authorize({

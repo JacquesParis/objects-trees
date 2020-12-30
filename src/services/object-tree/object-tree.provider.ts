@@ -6,6 +6,7 @@ import {
   CurrentContext,
   ExpectedValue,
 } from './../application.service';
+import {ActionTreeService} from './action-tree.service';
 import {
   FOLDER_FOLDER_SUBTYPE,
   FOLDER_TYPE,
@@ -23,6 +24,8 @@ import {
 export class ObjectTreeProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(OBJECT_TREE_PROVIDER, app);
+
+    this.services.push({cls: ActionTreeService});
 
     this.objectTypes.push(
       REPOSITORY_TYPE,

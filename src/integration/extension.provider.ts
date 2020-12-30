@@ -26,7 +26,10 @@ import {ObjectNodeService} from '../services/object-node/object-node.service';
 import {ObjectTreeService} from '../services/object-tree/object-tree.service';
 import {ObjectTypeService} from '../services/object-type.service';
 import {DataEntity} from './../models/data-entity.model';
-import {InterceptorDescription} from './extension-description';
+import {
+  InterceptorDescription,
+  RunnerTreatmentDescription,
+} from './extension-description';
 
 export type ExtensionProviderClass = new (
   app: ObjectTreesApplicationInterface,
@@ -116,6 +119,7 @@ export abstract class ExtensionProvider {
   controllers: {
     controllerCtor: ControllerClass;
     nameOrOptions?: string | BindingFromClassOptions;
+    description: RunnerTreatmentDescription;
   }[] = [];
 
   dataSources: {
@@ -200,6 +204,10 @@ export abstract class ExtensionProvider {
           .getBinding(ContextBindings.GLOBAL_INTERCEPTOR_ORDERED_GROUPS)
           .getValue(this.app),
       );
+    }
+
+    for (const controller of this.controllers) {
+      this.app.addController(this.name, controller);
     }
 
     for (const objectType of this.objectTypes) {

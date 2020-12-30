@@ -1,6 +1,6 @@
 import {ObjectTreesApplicationInterface} from '../../application';
 import {ExtensionProvider} from '../../integration/extension.provider';
-import {InterceptorTreatmentDescription} from './../../integration/extension-description';
+import {RunnerTreatmentDescription} from './../../integration/extension-description';
 import {UriCompleteInterceptor} from './../../interceptors/uri-complete.interceptor';
 import {URI_COMPLETE_PROVIDER} from './uri-complete.const';
 import {UriCompleteService} from './uri-complete.service';
@@ -16,7 +16,7 @@ export class UriCompleteProvider extends ExtensionProvider {
       interceptor: UriCompleteInterceptor,
 
       description: {
-        postTreatment: new InterceptorTreatmentDescription(
+        postTreatment: new RunnerTreatmentDescription(
           'Add Uri references to Entities base on the id and the type of Entity',
         ),
       },

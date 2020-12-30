@@ -1,6 +1,6 @@
 import {ObjectTreesApplicationInterface} from '../../application';
 import {ExtensionProvider} from '../../integration/extension.provider';
-import {InterceptorTreatmentDescription} from './../../integration/extension-description';
+import {RunnerTreatmentDescription} from './../../integration/extension-description';
 import {EntityDefinitionInterceptor} from './../../interceptors/entity-definition.interceptor';
 import {ENTITY_DEFINITION_PROVIDER} from './entity-definition.cont';
 import {EntityDefinitionService} from './entity-definition.service';
@@ -18,7 +18,7 @@ export class EntityDefinitionProvider extends ExtensionProvider {
       id: 'EntityDefinitionInterceptor',
       interceptor: EntityDefinitionInterceptor,
       description: {
-        postTreatment: new InterceptorTreatmentDescription(
+        postTreatment: new RunnerTreatmentDescription(
           'Add Json Schema entity(ies) definition to returned entity(ies)',
           ['EntityDefinitionService'],
         ),

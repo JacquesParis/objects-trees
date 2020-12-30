@@ -99,18 +99,63 @@ export class AccessRightsTreeService
     ctx: CurrentContext,
     context: AuthorizationContext,
   ): Promise<AuthorizationDecision> {
+    const treeNode = await ctx.treeContext.treeNode.getOrSetValue(async () => {
+      return this.objectNodeService.searchById(
+        context.invocationContext.args[0],
+      );
+    });
+
+    if (treeNode) {
+      return (await this.accessRightsService.hasNodeAccessRights(
+        AccessRightsScope.create,
+        treeNode,
+        ctx,
+      ))
+        ? AuthorizationDecision.ALLOW
+        : AuthorizationDecision.DENY;
+    }
     return AuthorizationDecision.DENY;
   }
   protected async authorizeUpdate(
     ctx: CurrentContext,
     context: AuthorizationContext,
   ): Promise<AuthorizationDecision> {
+    const treeNode = await ctx.treeContext.treeNode.getOrSetValue(async () => {
+      return this.objectNodeService.searchById(
+        context.invocationContext.args[0],
+      );
+    });
+
+    if (treeNode) {
+      return (await this.accessRightsService.hasNodeAccessRights(
+        AccessRightsScope.update,
+        treeNode,
+        ctx,
+      ))
+        ? AuthorizationDecision.ALLOW
+        : AuthorizationDecision.DENY;
+    }
     return AuthorizationDecision.DENY;
   }
   protected async authorizeDelete(
     ctx: CurrentContext,
     context: AuthorizationContext,
   ): Promise<AuthorizationDecision> {
+    const treeNode = await ctx.treeContext.treeNode.getOrSetValue(async () => {
+      return this.objectNodeService.searchById(
+        context.invocationContext.args[0],
+      );
+    });
+
+    if (treeNode) {
+      return (await this.accessRightsService.hasNodeAccessRights(
+        AccessRightsScope.delete,
+        treeNode,
+        ctx,
+      ))
+        ? AuthorizationDecision.ALLOW
+        : AuthorizationDecision.DENY;
+    }
     return AuthorizationDecision.DENY;
   }
 

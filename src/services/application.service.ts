@@ -1,3 +1,4 @@
+import {IRestEntity} from '@jacquesparis/objects-model';
 import {DataObject} from '@loopback/repository';
 import {Principal} from '@loopback/security';
 import * as _ from 'lodash';
@@ -13,6 +14,9 @@ import {
   AccessRightsSet,
 } from './access-rights/access-rights.const';
 
+export class MethodContext {
+  entity: ExpectedValue<IRestEntity> = new ExpectedValue<IRestEntity>();
+}
 export class NodeContext {
   node: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   tree: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
@@ -71,6 +75,7 @@ export class CurrentContext {
   public accessRightsContext: AccessRightsContext = new AccessRightsContext();
   public typeContext: TypeContext = new TypeContext();
   public uriContext: UriContext = new UriContext();
+  public methodContext: MethodContext = new MethodContext();
   public static get(value: DataObject<CurrentContext>): CurrentContext {
     const ctx = new CurrentContext();
     if (value) {
