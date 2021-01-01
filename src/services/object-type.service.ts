@@ -128,32 +128,39 @@ export class ObjectTypeService {
     type.extended = true;
     for (const inheritedTypeName of type.inheritedTypesIds) {
       const parentType = allTypes[inheritedTypeName];
-      if (parentType) {
-        this.extendsType(parentType, allTypes);
-        implementedTypes = implementedTypes.concat(
-          ...(parentType.entityCtx?.implementedTypes as string[]),
+      if (!parentType) {
+        console.error(
+          type.name + ': missing ' + inheritedTypeName + ' inherited type',
         );
-        if (!type.contentType) {
-          type.contentType = parentType.contentType;
-        }
-        if (!type.definition) {
-          type.definition = parentType.definition;
-        } else {
-          type.definition = _.merge({}, parentType.definition, type.definition);
-        }
-        if (parentType.objectSubTypes) {
-          for (const parentSubType of parentType.objectSubTypes) {
-            if (
-              !_.some(
-                type.objectSubTypes,
-                (subType) => subType.name === parentSubType.name,
-              )
-            ) {
-              if (!type.objectSubTypes) {
-                type.objectSubTypes = [];
-              }
-              type.objectSubTypes.push(parentSubType);
+        throw ApplicationError.missing({
+          type: type.name,
+          inheritedType: inheritedTypeName,
+        });
+      }
+      this.extendsType(parentType, allTypes);
+      implementedTypes = implementedTypes.concat(
+        ...(parentType.entityCtx?.implementedTypes as string[]),
+      );
+      if (!type.contentType || '' === type.contentType) {
+        type.contentType = parentType.contentType;
+      }
+      if (!type.definition) {
+        type.definition = parentType.definition;
+      } else {
+        type.definition = _.merge({}, parentType.definition, type.definition);
+      }
+      if (parentType.objectSubTypes) {
+        for (const parentSubType of parentType.objectSubTypes) {
+          if (
+            !_.some(
+              type.objectSubTypes,
+              (subType) => subType.name === parentSubType.name,
+            )
+          ) {
+            if (!type.objectSubTypes) {
+              type.objectSubTypes = [];
             }
+            type.objectSubTypes.push(parentSubType);
           }
         }
       }

@@ -1,6 +1,6 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
-import {find, indexOf, merge} from 'lodash';
+import {find, indexOf, isObject} from 'lodash';
 import {doesTreeImplementOneOfType} from '../../helper';
 import {EntityName} from '../../models';
 import {CurrentContext} from '../../services';
@@ -14,12 +14,17 @@ import {TransientEntityService} from './../../services/transient-entity/transien
 import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {TransientContentGenericService} from './../content-generic-template/transient-content-generic.service';
 import {
-  PAGE_WITH_SUB_PAGE,
+  PAGE_TYPE,
+  PAGE_WITH_PARAGRAPH_TYPE,
+  PAGE_WITH_SUB_PAGE_TYPE,
   PAGE_WITH_TEMPLATE_CHOICE,
+  PARAGRAPH_TYPE,
+  PARAGRAPH_WITH_TEMPLATE_CHOICE,
   WEB_SITE_PROVIDER,
   WEB_SITE_VIEW_TYPE,
   WEB_SITE_VIEW_WITH_MENU_TYPE,
   WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,
+  WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE,
   WELCOME_PAGE_TYPE,
 } from './web-site.const';
 import {
@@ -27,6 +32,7 @@ import {
   MenuEntryTree,
   MenuTree,
   PageTemplateChoice,
+  ParagraphTemplateChoice,
   WebSiteView,
   WebSiteViewWithMenuTree,
   WebSiteWitHMenuTemplate,
@@ -78,15 +84,31 @@ export class TransientWebSiteService {
       'Complete pageTemplateChoice json schema definition with pageTemplateChoice from referenced template and add its conditional page template configuration',
       EntityName.objectNode,
       PAGE_WITH_TEMPLATE_CHOICE.name,
-      this.completePageTypeNode.bind(this),
+      this.completePageWithTemplateChoiceNode.bind(this),
     );
     this.transientEntityService.registerTransientEntityTypeFunction(
       WEB_SITE_PROVIDER,
       TransientWebSiteService.name,
-      'Add new template configuration json schema definitions, configuration from new added referenced templates',
+      'Complete paragraphsTemplateChoice json schema definition with paragraphsTemplateChoice from referenced template and add its conditional paragraph template configuration',
+      EntityName.objectNode,
+      PARAGRAPH_WITH_TEMPLATE_CHOICE.name,
+      this.completeParagraphWithTemplateChoiceNode.bind(this),
+    );
+    this.transientEntityService.registerTransientEntityTypeFunction(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Add new page template configuration json schema definitions, configuration from new added referenced templates',
       EntityName.objectNode,
       WEB_SITE_WITH_PAGES_TEMPLATE_TYPE.name,
       this.completeWebSiteWithPagesTemplateNode.bind(this),
+    );
+    this.transientEntityService.registerTransientEntityTypeFunction(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Add new paragraph template configuration json schema definitions, configuration from new added referenced templates',
+      EntityName.objectNode,
+      WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE.name,
+      this.completeWebSiteWithParagraphsTemplateNode.bind(this),
     );
 
     this.transientEntityService.registerTransientEntityTypeFunction<ObjectTree>(
@@ -94,9 +116,50 @@ export class TransientWebSiteService {
       TransientWebSiteService.name,
       'Add pageTrees field, list of sub-pages',
       EntityName.objectTree,
-      PAGE_WITH_SUB_PAGE.name,
+      PAGE_WITH_SUB_PAGE_TYPE.name,
       this.completePageWithSubPageTree.bind(this),
     );
+
+    this.transientEntityService.registerTransientEntityTypeFunction<ObjectTree>(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Add paragraphTrees field, list of paragraphs',
+      EntityName.objectTree,
+      PAGE_WITH_PARAGRAPH_TYPE.name,
+      this.completePageWithParagraphTree.bind(this),
+    );
+  }
+
+  addTemplatesConfigurationsReferences(objectNode: ObjectNode) {
+    if (objectNode.templatesConfigurations) {
+      if (!objectNode.templatesConfigurations.id) {
+        objectNode.templatesConfigurations.id =
+          objectNode.id + '/templatesConfigurations';
+      }
+      if (!objectNode.templatesConfigurations.entityCtx) {
+        objectNode.templatesConfigurations.entityCtx = {
+          entityType: EntityName.objectNode,
+        };
+      }
+      for (const configurationName of Object.keys(
+        objectNode.templatesConfigurations,
+      )) {
+        if (isObject(objectNode.templatesConfigurations[configurationName])) {
+          if (!objectNode.templatesConfigurations[configurationName].id) {
+            objectNode.templatesConfigurations[configurationName].id =
+              objectNode.id + '/templatesConfigurations/' + configurationName;
+          }
+
+          if (
+            !objectNode.templatesConfigurations[configurationName].entityCtx
+          ) {
+            objectNode.templatesConfigurations[configurationName].entityCtx = {
+              entityType: EntityName.objectNode,
+            };
+          }
+        }
+      }
+    }
   }
 
   addTemplatesConfigurations(
@@ -105,23 +168,11 @@ export class TransientWebSiteService {
     configurationValue: Object,
   ) {
     if (!objectNode.templatesConfigurations) {
-      objectNode.templatesConfigurations = {
-        id: objectNode.id + '/templatesConfigurations',
-        entityCtx: {
-          entityType: EntityName.objectNode,
-        },
-      };
+      objectNode.templatesConfigurations = {};
     }
 
-    objectNode.templatesConfigurations[configurationName] = merge(
-      {
-        id: objectNode.id + '/templatesConfigurations/' + configurationName,
-        entityCtx: {
-          entityType: EntityName.objectNode,
-        },
-      },
-      configurationValue,
-    );
+    objectNode.templatesConfigurations[configurationName] = configurationValue;
+    this.addTemplatesConfigurationsReferences(objectNode);
   }
 
   async completeWebSiteView(
@@ -263,7 +314,10 @@ export class TransientWebSiteService {
     }
   }
 
-  async completePageTypeNode(objectNode: ObjectNode, ctx: CurrentContext) {
+  async completePageWithTemplateChoiceNode(
+    objectNode: ObjectNode,
+    ctx: CurrentContext,
+  ) {
     if (objectNode.entityCtx?.jsonSchema?.properties.pageTemplateChoice) {
       const treeNode: ObjectNode = await this.objectNodeService.getTreeNode(
         objectNode,
@@ -304,24 +358,107 @@ export class TransientWebSiteService {
                 (choice: PageTemplateChoice) =>
                   objectNode.pageTemplateChoice === choice.pageTypeKey,
               );
-              if (pageTemplateChoice?.pageObjectTreeId) {
-                objectNode.pageObjectTreeId =
-                  pageTemplateChoice.pageObjectTreeId;
-                const pageObjectTreeIdParts: string[] = objectNode.pageObjectTreeId.split(
+              if (pageTemplateChoice?.pageTemplateObjectTreeId) {
+                objectNode.pageTemplateObjectTreeId =
+                  pageTemplateChoice.pageTemplateObjectTreeId;
+                const pageTemplateObjectTreeIdParts: string[] = objectNode.pageTemplateObjectTreeId.split(
                   '/',
                 );
-                const pageObjectTreeName =
-                  pageObjectTreeIdParts[pageObjectTreeIdParts.length - 1];
+                const pageTemplateObjectTreeName =
+                  pageTemplateObjectTreeIdParts[
+                    pageTemplateObjectTreeIdParts.length - 1
+                  ];
                 if (
                   pageTemplateChoice.templatesConfigurations &&
-                  pageObjectTreeName in
+                  pageTemplateObjectTreeName in
                     pageTemplateChoice.templatesConfigurations
                 ) {
                   this.addTemplatesConfigurations(
                     objectNode,
-                    pageObjectTreeName,
+                    pageTemplateObjectTreeName,
                     pageTemplateChoice.templatesConfigurations[
-                      pageObjectTreeName
+                      pageTemplateObjectTreeName
+                    ],
+                  );
+                }
+              }
+              this.uriCompleteService.addUri(objectNode, ctx);
+              await this.transientUriReferenceService.completeReturnedEntity(
+                objectNode,
+                ctx,
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+
+  async completeParagraphWithTemplateChoiceNode(
+    objectNode: ObjectNode,
+    ctx: CurrentContext,
+  ) {
+    if (objectNode.entityCtx?.jsonSchema?.properties.paragraphTemplateChoice) {
+      const treeNode: ObjectNode = await this.objectNodeService.getTreeNode(
+        objectNode,
+        ctx,
+      );
+      if (treeNode.webSiteObjectTreeId) {
+        const templatePath = treeNode.webSiteObjectTreeId.split('/');
+        const templateTree = await this.objectNodeService.searchTreeNode(
+          templatePath[1],
+          templatePath[2],
+          templatePath[3],
+          templatePath[4],
+          templatePath[5],
+          templatePath[6],
+        );
+
+        if (templateTree?.paragraphTemplateChoices) {
+          const oneOf: {enum: {[0]: string}; title: string}[] = [];
+          for (const paragraphTemplateChoice of templateTree.paragraphTemplateChoices) {
+            if (
+              doesTreeImplementOneOfType(
+                objectNode,
+                paragraphTemplateChoice.paragraphTypes,
+              )
+            ) {
+              oneOf.push({
+                enum: [paragraphTemplateChoice.paragraphTypeKey],
+                title: paragraphTemplateChoice.paragraphTypeName,
+              });
+            }
+          }
+          if (0 < oneOf.length) {
+            objectNode.entityCtx.jsonSchema.properties.paragraphTemplateChoice.oneOf = oneOf;
+
+            if (objectNode.paragraphTemplateChoice) {
+              const paragraphTemplateChoice: ParagraphTemplateChoice = find(
+                templateTree.paragraphTemplateChoices,
+                (choice: ParagraphTemplateChoice) =>
+                  objectNode.paragraphTemplateChoice ===
+                  choice.paragraphTypeKey,
+              );
+              if (paragraphTemplateChoice?.paragraphTemplateObjectTreeId) {
+                objectNode.paragraphTemplateObjectTreeId =
+                  paragraphTemplateChoice.paragraphTemplateObjectTreeId;
+                const paragraphTemplateObjectTreeIdParts: string[] = objectNode.paragraphTemplateObjectTreeId.split(
+                  '/',
+                );
+                const paragraphTemplateObjectTreeName =
+                  paragraphTemplateObjectTreeIdParts[
+                    paragraphTemplateObjectTreeIdParts.length - 1
+                  ];
+                if (
+                  paragraphTemplateChoice.templatesConfigurations &&
+                  paragraphTemplateObjectTreeName in
+                    paragraphTemplateChoice.templatesConfigurations
+                ) {
+                  this.addTemplatesConfigurations(
+                    objectNode,
+                    paragraphTemplateObjectTreeName,
+                    paragraphTemplateChoice.templatesConfigurations[
+                      paragraphTemplateObjectTreeName
                     ],
                   );
                 }
@@ -344,17 +481,41 @@ export class TransientWebSiteService {
   ) {
     await this.transientContentGenericService.addTemplateConfiguration(
       objectNode.entityCtx?.jsonSchema?.properties?.pageTemplateChoices?.items,
-      'pageObjectTreeId',
+      'pageTemplateObjectTreeId',
       'model.pageTemplateChoices[arrayIndex]',
       ctx,
     );
+    this.addTemplatesConfigurationsReferences(objectNode);
+  }
+
+  async completeWebSiteWithParagraphsTemplateNode(
+    objectNode: ObjectNode,
+    ctx: CurrentContext,
+  ) {
+    await this.transientContentGenericService.addTemplateConfiguration(
+      objectNode.entityCtx?.jsonSchema?.properties?.paragraphTemplateChoices
+        ?.items,
+      'paragraphTemplateObjectTreeId',
+      'model.paragraphTemplateChoices[arrayIndex]',
+      ctx,
+    );
+    this.addTemplatesConfigurationsReferences(objectNode);
   }
 
   async completePageWithSubPageTree(
     entity: ObjectTree,
     ctx: CurrentContext,
   ): Promise<void> {
-    const pageTrees = entity.childrenByImplentedTypeId[PAGE_WITH_SUB_PAGE.name];
+    const pageTrees = entity.childrenByImplentedTypeId[PAGE_TYPE.name];
     entity.pageTrees = pageTrees ? pageTrees : [];
+  }
+
+  async completePageWithParagraphTree(
+    entity: ObjectTree,
+    ctx: CurrentContext,
+  ): Promise<void> {
+    const paragraphTrees =
+      entity.childrenByImplentedTypeId[PARAGRAPH_TYPE.name];
+    entity.paragraphTrees = paragraphTrees ? paragraphTrees : [];
   }
 }

@@ -18,6 +18,16 @@
             "treeType": "ImageGalleryTemplate"
           }
        ]
+    },
+    "imageGalleryPosition": {
+      "type": "string",
+      "title": "Image gallery Position",
+      "default": "after",
+      "oneOf":[
+        {"enum": ["after"], "title": "After the text"},
+        {"enum": ["before"], "title": "Before the text"},
+        {"enum": ["left"], "title": "On left side of the text"},
+        {"enum": ["right"], "title": "On right side of the text"}]
     }
   }
 }

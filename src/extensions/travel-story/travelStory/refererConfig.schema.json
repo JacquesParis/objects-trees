@@ -1,6 +1,6 @@
 {
   "type":"object",
-  "title":"cardTextAndImages configuration",
+  "title":"travelStory configuration",
   "properties": {
     "siteMaxWidth": {
        "type": "number",

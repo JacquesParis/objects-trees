@@ -37,11 +37,11 @@ export class TransientContentGenericService {
       'Add template configuration json schema definitions, configuration from referenced templates',
       EntityName.objectNode,
       TEMPLATE_REFERER_WITH_CONFIGURATION_TYPE.name,
-      this.completeTemplateRefererNode.bind(this),
+      this.completeTemplateRefererWithConfigurationNode.bind(this),
     );
   }
 
-  async completeTemplateRefererNode(
+  async completeTemplateRefererWithConfigurationNode(
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ) {

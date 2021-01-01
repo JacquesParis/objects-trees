@@ -7,24 +7,6 @@
   <div
     template
     [dataTree]="pageTree"
-    [templateTree]="ctrl.getPageTreeTemplate(pageNode, templateNode)"
+    [templateTree]="ctrl.getPageTreeTemplate(pageNode, templateNode, siteTemplateNode)"
   ></div>
-
-  <ng-container
-    *ngTemplateOutlet="subPages;context:{pageTrees:pageTree.pageTrees}"
-  ></ng-container>
 </ng-container>
-<ng-template #subPages let-pageTrees="pageTrees">
-  <ng-container *ngFor="let childTree of pageTrees">
-    <div
-      template
-      [dataTree]="childTree"
-      [templateTree]="ctrl.getPageTreeTemplate(childTree.treeNode, templateNode)"
-    ></div>
-    <ng-container *ngIf="childTree.pageTrees">
-      <ng-container
-        *ngTemplateOutlet="subPages; context: {pageTrees:childTree.pageTrees}"
-      ></ng-container>
-    </ng-container>
-  </ng-container>
-</ng-template>

@@ -1,6 +1,8 @@
 <div class="card">
   <div class="card-body">
-    <h5 class="card-title">{{dataNode.pageTitle}}</h5>
+    <h6 class="card-title" *ngIf="dataNode.paragraphTitle">
+      {{dataNode.paragraphTitle}}
+    </h6>
     <p class="card-text">{{dataNode.contentText}}</p>
   </div>
 </div>

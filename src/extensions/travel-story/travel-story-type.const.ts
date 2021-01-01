@@ -11,17 +11,20 @@ import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post.const';
 import {
   CALENDAR_ENTRY_TYPE,
   MENU_ENTRY_TYPE,
-  PAGE_WITH_TEMPLATE_CHOICE,
+  PAGE_WITH_PARAGRAPH_TYPE,
   WEB_SITE_VIEW_WITH_MENU_TYPE,
   WEB_SITE_WITH_MENU_TEMPLATE_TYPE,
-  WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,
+  WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE,
 } from '../web-site/web-site.const';
 import {
   PUBLIC_OBJECT_NAME,
   TEMPLATES_OBJECT_NAME,
 } from './../../services/object-tree/object-tree.const';
 import {IMAGE_GALLERIES_TYPE} from './../content-image/content-image.const';
-import {PAGE_WITH_SUB_PAGE} from './../web-site/web-site.const';
+import {
+  PAGE_WITH_SUB_PAGE_TYPE,
+  PARAGRAPH_WITH_TEMPLATE_CHOICE,
+} from './../web-site/web-site.const';
 export const TRAVEL_STORY_PROVIDER = 'TravelStoryProvider';
 export const TRAVEL_STORY_NAME = 'TravelStoryService';
 
@@ -29,7 +32,7 @@ export const TRAVEL_STORY_TEMPLATE_TYPE = {
   name: 'TravelStoryTemplate',
   inheritedTypesIds: [
     WEB_SITE_WITH_MENU_TEMPLATE_TYPE.name,
-    WEB_SITE_WITH_PAGES_TEMPLATE_TYPE.name,
+    WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE.name,
   ],
   definition: {
     properties: {},
@@ -70,10 +73,11 @@ export const TRAVEL_STORY_POST_TYPE: ObjectTypeDefinition = {
   inheritedTypesIds: [
     POST_TYPE.name,
     MENU_ENTRY_TYPE.name,
-    PAGE_WITH_TEMPLATE_CHOICE.name,
     CALENDAR_ENTRY_TYPE.name,
     POST_WITH_GALLERY_TYPE.name,
-    PAGE_WITH_SUB_PAGE.name,
+    PAGE_WITH_SUB_PAGE_TYPE.name,
+    PAGE_WITH_PARAGRAPH_TYPE.name,
+    PARAGRAPH_WITH_TEMPLATE_CHOICE.name,
   ],
   definition: {
     properties: {},

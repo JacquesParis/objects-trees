@@ -1,0 +1,101 @@
+@startuml
+package "ObjectTreeProvider" #DDDDDD {
+  class RepositoryCategory < ObjectNode >
+}
+
+package "ContentGenericProvider" #DDDDDD {
+  class TemplateRefererWithConfiguration < ObjectNode >{
+    Object templatesConfigurations
+  }
+  class TemplateView < ObjectNode >
+}
+
+package WebSiteProvider{
+  TemplateRefererWithConfiguration <|-- WebSiteView
+  class WebSiteView < ObjectNode >{
+    string webSiteObjectTreeId
+  }
+  WebSiteView -->"1" WebSiteTemplate: webSiteObjectTree
+
+  WebSiteView <|-- WebSiteViewWithMenu
+  class WebSiteViewWithMenu < ObjectNode >{
+    string menuTitle
+    Object menuEntries
+    string webSiteObjectTreeId
+  }
+  WebSiteViewWithMenu -->"1" WebSiteWitHMenuTemplate: webSiteObjectTree
+
+
+  TemplateView <|-- PageTemplate
+  class PageTemplate  < ObjectNode >
+
+  TemplateView <|-- WebSiteTemplate
+  TemplateRefererWithConfiguration <|-- WebSiteTemplate
+  class WebSiteTemplate < ObjectNode >{
+    string pageTemplateObjectTreeId
+  }
+  WebSiteTemplate -->"1" PageTemplate: pageTemplateObjectTree
+
+  TemplateView <|-- MenuTemplate
+  class MenuTemplate < ObjectNode >
+
+  class WebSiteWitHPagesTemplate < ObjectNode >
+
+  WebSiteWitHPagesTemplate  *--"0..n" TPageTemplateChoice: pageTemplateChoices[]
+
+  class TPageTemplateChoice {
+    string pageTypeKey
+    string pageTypeName
+    string pageTemplateObjectTreeId
+    string pageTypes[]
+  }
+
+
+  WebSiteTemplate <|-- WebSiteWitHMenuTemplate
+  class WebSiteWitHMenuTemplate< ObjectNode > {
+    string menuObjectTreeId
+  }
+
+  WebSiteWitHMenuTemplate-->"1" MenuTemplate: menuObjectTree
+
+  WebSiteWitHMenuTemplate*--"0..n" TMenuEntry: menuEntries[]
+
+  class TMenuEntry {
+    string entryKey
+    string entryName
+    string menuEntryLabelKey
+    string entryTypes[]
+  }
+
+  class Page < ObjectNode > {
+    string pageTitle
+  }
+
+  class PageWithSubPage < ObjectNode >
+
+  Page <|-- WelcomePage
+  class WelcomePage < ObjectNode >
+
+  Page <|-- PageWithTemplateChoice
+  class PageWithTemplateChoice < ObjectNode > {
+    string pageTemplateChoice
+  }
+
+
+  Page <|-- MenuEntry
+  class MenuEntry  < ObjectNode > {
+    string menuTitle
+  }
+
+
+  Page <|-- CalendarEntry
+  class CalendarEntry < ObjectNode > {
+    string calendarDate
+  }
+
+  RepositoryCategory *--"0..n tree" MenuTemplate
+  RepositoryCategory *--"0..n tree" PageTemplate
+  WebSiteView *--"1" WelcomePage
+
+}
+@enduml

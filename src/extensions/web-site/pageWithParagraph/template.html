@@ -1,0 +1,53 @@
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title" *ngIf="dataNode.pageTitle">
+      {{dataNode.pageTitle}}
+    </h5>
+    <p class="card-text">
+      <ng-container *ngIf="pageTree.paragraphTrees; else noParagraphTrees">
+        <ng-container
+          *ngTemplateOutlet="paragraphs;context:{paragraphTrees:[pageTree]}"
+        ></ng-container>
+      </ng-container>
+      <ng-template #noParagraphTrees>
+        <ng-container *ngIf="pageTree.pageTrees">
+          <ng-container
+            *ngTemplateOutlet="subPages;context:{pageTrees:[pageTree]}"
+          ></ng-container>
+        </ng-container>
+      </ng-template>
+    </p>
+  </div>
+</div>
+
+<ng-template #subPages let-pageTrees="pageTrees">
+  <ng-container *ngFor="let childTree of pageTrees">
+    <div
+      *ngIf="ctrl.getPageTreeTemplate(childTree.treeNode, templateNode, siteTemplateNode) as pageTreeTemplate"
+      template
+      [dataTree]="childTree"
+      [templateTree]="pageTreeTemplate"
+    ></div>
+    <ng-container *ngIf="childTree.pageTrees">
+      <ng-container
+        *ngTemplateOutlet="subPages; context: {pageTrees:childTree.pageTrees}"
+      ></ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>
+
+<ng-template #paragraphs let-paragraphTrees="paragraphTrees">
+  <ng-container *ngFor="let childTree of paragraphTrees">
+    <div
+      *ngIf="ctrl.getParagraphTreeTemplate(childTree.treeNode, templateNode, siteTemplateNode) as paragraphTreeTemplate"
+      template
+      [dataTree]="childTree"
+      [templateTree]="paragraphTreeTemplate"
+    ></div>
+    <ng-container *ngIf="childTree.paragraphTrees">
+      <ng-container
+        *ngTemplateOutlet="paragraphs; context: {paragraphTrees:childTree.paragraphTrees}"
+      ></ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>

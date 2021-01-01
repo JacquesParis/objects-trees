@@ -2,7 +2,7 @@
 import {ObjectTreesApplicationInterface} from '../../application';
 import {contentGenericTemplate, image} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
-import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post.const';
+import {POST_TYPE} from '../post/post.const';
 import {
   CALENDAR_ENTRY_TYPE,
   WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE,
@@ -10,6 +10,7 @@ import {
 } from '../web-site/web-site.const';
 import {ContentImageTemplateProvider} from './../content-image-template/content-image-template.provider';
 import {
+  IMAGE_GALLERY_SELECTOR_TYPE,
   IMAGE_GALLERY_TYPE,
   IMAGE_TYPE,
 } from './../content-image/content-image.const';
@@ -54,8 +55,10 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
           ),
           menuObjectTreeId:
             'tree/Repository/public/RepositoryCategory/templates/MenuTemplate/navBar',
-          pageObjectTreeId:
-            'tree/Repository/public/RepositoryCategory/templates/PageTemplate/card',
+          paragraphTemplateObjectTreeId:
+            'tree/Repository/public/RepositoryCategory/templates/ParagraphTemplate/cardTextAndImages',
+          pageTemplateObjectTreeId:
+            'tree/Repository/public/RepositoryCategory/templates/PageTemplate/pageWithParagraph',
           menuEntries: [
             {
               entryKey: 'home',
@@ -76,28 +79,42 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               entryTypes: [CALENDAR_ENTRY_TYPE.name],
             },
           ],
-          pageTemplateChoices: [
+          paragraphTemplateChoices: [
             {
-              pageTypeKey: 'cardCaroussel',
-              pageTypeName: 'Display images with Caroussel',
-              pageObjectTreeId:
-                'tree/Repository/public/RepositoryCategory/templates/PageTemplate/cardTextAndImages',
-              pageTypes: [POST_WITH_GALLERY_TYPE.name],
+              paragraphTypeKey: 'cardCaroussel',
+              paragraphTypeName: 'Display images with Caroussel',
+              paragraphTemplateObjectTreeId:
+                'tree/Repository/public/RepositoryCategory/templates/ParagraphTemplate/cardTextAndImages',
+              paragraphTypes: [IMAGE_GALLERY_SELECTOR_TYPE.name],
               templatesConfigurations: {
                 cardTextAndImages: {
                   imageGalleryObjectTreeId:
                     'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/caroussel',
+                  imageGalleryPosition: 'right',
                 },
               },
             },
             {
-              pageTypeKey: 'card',
-              pageTypeName: 'Display text only',
-              pageObjectTreeId:
-                'tree/Repository/public/RepositoryCategory/templates/PageTemplate/card',
-              pageTypes: [POST_WITH_GALLERY_TYPE.name],
+              paragraphTypeKey: 'card',
+              paragraphTypeName: 'Display images in thumb',
+              paragraphTemplateObjectTreeId:
+                'tree/Repository/public/RepositoryCategory/templates/ParagraphTemplate/cardTextAndImages',
+              paragraphTypes: [IMAGE_GALLERY_SELECTOR_TYPE.name],
+              templatesConfigurations: {
+                cardTextAndImages: {
+                  imageGalleryObjectTreeId:
+                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/caroussel',
+                  imageGalleryPosition: 'after',
+                },
+              },
             },
           ],
+          templatesConfigurations: {
+            cardTextAndImages: {
+              imageGalleryObjectTreeId:
+                'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/caroussel',
+            },
+          },
         },
         children: {},
       },
@@ -197,6 +214,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                         treeNode: {
                           menuTitle: 'Lorem ipsum 1',
                           pageTitle: 'Lorem ipsum dolor 1',
+                          paragraphTitle: 'Lorem ipsum dolor 1',
                           contentText:
                             'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
                         },
@@ -208,6 +226,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                         treeNode: {
                           menuTitle: 'Lorem ipsum 2',
                           pageTitle: 'Lorem ipsum dolor 2',
+                          paragraphTitle: 'Lorem ipsum dolor 2',
                           contentText:
                             'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
                         },
@@ -218,6 +237,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                                 treeNode: {
                                   menuTitle: 'Lorem ipsum 2.1',
                                   pageTitle: 'Lorem ipsum dolor 2.1',
+                                  paragraphTitle: 'Lorem ipsum dolor 2.1',
                                   contentText:
                                     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
                                 },
@@ -228,6 +248,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                               {
                                 treeNode: {
                                   pageTitle: 'Lorem ipsum dolor 2.2',
+                                  paragraphTitle: 'Lorem ipsum dolor 2.2',
                                   contentText:
                                     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
                                 },
@@ -239,6 +260,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                                 treeNode: {
                                   menuTitle: 'Lorem ipsum 2.3',
                                   pageTitle: 'Lorem ipsum dolor 2.3',
+                                  paragraphTitle: 'Lorem ipsum dolor 2.3',
                                   contentText:
                                     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
                                 },
@@ -252,11 +274,12 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                     ['Post 3']: [
                       {
                         treeNode: {
-                          pageTemplateChoice: 'cardCaroussel',
+                          paragraphTemplateChoice: 'cardCaroussel',
                           imageGalleryObjectTreeId:
                             'tree/Tenant/Demonstration/TravelStory/Exemple de site de Voyage/ImageGallery/Ipsum3',
                           menuTitle: 'Lorem ipsum 3',
                           pageTitle: 'Lorem ipsum dolor 3',
+                          paragraphTitle: 'Lorem ipsum dolor 3',
                           selectedImages: ['Brian quid', 'Laura Chouette'],
                           contentText:
                             'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',

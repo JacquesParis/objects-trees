@@ -5,12 +5,20 @@ import {ObjectNodeTree, ObjectTree} from '../../models/object-tree.model';
 export interface PageTemplateChoice {
   pageTypeKey: string;
   pageTypeName: string;
-  pageObjectTreeId: string;
+  pageTemplateObjectTreeId: string;
   pageTypes: string[];
   templatesConfigurations?: {[templateName: string]: Object};
 }
+
+export interface ParagraphTemplateChoice {
+  paragraphTypeKey: string;
+  paragraphTypeName: string;
+  paragraphTemplateObjectTreeId: string;
+  paragraphTypes: string[];
+  templatesConfigurations?: {[templateName: string]: Object};
+}
 export interface WebSiteTemplate extends TemplateView {
-  pageObjectTree: PageTemplate;
+  pageTemplateObjectTree: PageTemplate;
 }
 
 export interface WebSiteView extends ObjectNode {

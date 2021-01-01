@@ -1,0 +1,63 @@
+<ng-container
+  *ngIf="ctrl.getGalleryObjectTree(dataNode, templateNode, siteTemplateNode) as galleryObjectTree"
+>
+  <ng-container
+    *ngIf="ctrl.getGalleriePosition(dataNode, templateNode, siteTemplateNode) as galleriePosition"
+  >
+    <div class="card">
+      <div class="row no-gutters">
+        <div
+          class="col-12"
+          *ngIf="galleryObjectTree && 'before'===galleriePosition"
+        >
+          <ng-container *ngTemplateOutlet="cardImg"></ng-container>
+        </div>
+        <div
+          class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-6"
+          *ngIf="galleryObjectTree && 'left'===galleriePosition"
+        >
+          <ng-container *ngTemplateOutlet="cardImg"></ng-container>
+        </div>
+        <div
+          class="col"
+          *ngIf="(dataNode.paragraphTitle && '' !== dataNode.paragraphTitle) || (dataNode.contentText && '' !== dataNode.contentText)"
+        >
+          <div class="card-body">
+            <h6
+              class="card-title"
+              *ngIf="dataNode.paragraphTitle && '' !== dataNode.paragraphTitle"
+            >
+              {{dataNode.paragraphTitle}}
+            </h6>
+            <p
+              class="card-text"
+              *ngIf="dataNode.contentText && '' !== dataNode.contentText"
+              [innerHtml]="dataNode.contentText"
+            ></p>
+          </div>
+        </div>
+        <div
+          class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-6"
+          *ngIf="galleryObjectTree && 'right'===galleriePosition"
+        >
+          <ng-container *ngTemplateOutlet="cardImg"></ng-container>
+        </div>
+        <div
+          class="col-12"
+          *ngIf="galleryObjectTree && 'after'===galleriePosition"
+        >
+          <ng-container *ngTemplateOutlet="cardImg"></ng-container>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <ng-template #cardImg>
+    <div class="card-img">
+      <div
+        template
+        [dataTree]="dataTree"
+        [templateTree]="galleryObjectTree"
+      ></div>
+    </div>
+  </ng-template>
+</ng-container>

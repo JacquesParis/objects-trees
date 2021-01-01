@@ -2,13 +2,13 @@
   *ngIf="ready"
   class="carousel slide"
   data-ride="carousel"
-  id="caroussel{{dataNode.id+dataNode.imageGalleryObjectTree.id}}"
+  id="caroussel_images_{{dataNode.id}}"
 >
   <ol class="carousel-indicators">
     <li
       *ngFor="let image of dataNode.images; let index = index;"
       [class.active]="0===index"
-      data-target="#caroussel{{dataNode.id+dataNode.imageGalleryObjectTree.id}}"
+      data-target="#caroussel_images_{{dataNode.id}}"
       data-slide-to="{{index}}"
     ></li>
   </ol>
@@ -43,7 +43,7 @@
   </div>
   <a
     class="carousel-control-prev"
-    href="#caroussel{{dataNode.id+dataNode.imageGalleryObjectTree.id}}"
+    href="#caroussel_images_{{dataNode.id}}"
     role="button"
     data-slide="prev"
   >
@@ -52,7 +52,7 @@
   </a>
   <a
     class="carousel-control-next"
-    href="#caroussel{{dataNode.id+dataNode.imageGalleryObjectTree.id}}"
+    href="#caroussel_images_{{dataNode.id}}"
     role="button"
     data-slide="next"
   >

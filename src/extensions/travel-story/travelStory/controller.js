@@ -1,17 +1,14 @@
 function newFunction() {
   return {
-    async init(component) {
-      if (component.pageTree && component.pageTree.pageTrees) {
-        for (const page of component.pageTree.pageTrees) {
-          await page.treeNode.waitForReady();
-        }
+    async init(component) {},
+    getPageTreeTemplate(pageNode, templateNode, siteTemplateNode) {
+      if (pageNode && pageNode.pageTemplateObjectTree) {
+        return pageNode.pageTemplateObjectTree;
       }
-    },
-    getPageTreeTemplate(pageNode, templateNode) {
-      if (pageNode && pageNode.pageObjectTree) {
-        return pageNode.pageObjectTree;
+      if (templateNode && templateNode.pageTemplateObjectTree) {
+        return templateNode.pageTemplateObjectTree;
       }
-      return templateNode.pageObjectTree;
+      return siteTemplateNode.pageTemplateObjectTree;
     },
   };
 }

@@ -80,9 +80,18 @@ export const WEB_SITE_VIEW_WITH_MENU_TYPE: ObjectTypeDefinition = {
   },
 };
 
+export const PARAGRAPH_TEMPLATE_TYPE: ObjectTypeDefinition = {
+  name: 'ParagraphTemplate',
+  inheritedTypesIds: [TEMPLATE_VIEW_TYPE.name],
+  definition: {
+    properties: {},
+  },
+  contentType: '',
+};
+
 export const PAGE_TEMPLATE_TYPE: ObjectTypeDefinition = {
   name: 'PageTemplate',
-  inheritedTypesIds: [TEMPLATE_VIEW_TYPE.name],
+  inheritedTypesIds: [TEMPLATE_VIEW_TYPE.name, PARAGRAPH_TEMPLATE_TYPE.name],
   definition: {
     properties: {},
   },
@@ -97,7 +106,7 @@ export const WEB_SITE_TEMPLATE_TYPE: ObjectTypeDefinition = {
   ],
   definition: {
     properties: {
-      pageObjectTreeId: {
+      pageTemplateObjectTreeId: {
         title: 'Page template',
         type: 'string',
         oneOfTree: [
@@ -110,6 +119,22 @@ export const WEB_SITE_TEMPLATE_TYPE: ObjectTypeDefinition = {
           },
           {
             treeType: PAGE_TEMPLATE_TYPE.name,
+          },
+        ],
+      },
+      paragraphTemplateObjectTreeId: {
+        title: 'Paragraph template',
+        type: 'string',
+        oneOfTree: [
+          {
+            treeType: PARAGRAPH_TEMPLATE_TYPE.name,
+            namespaceName: TEMPLATES_OBJECT_NAME,
+            namespaceType: ObjectTypeName.REPOSITORY_CATEGORY,
+            ownerName: PUBLIC_OBJECT_NAME,
+            ownerType: ObjectTypeName.REPOSITORY,
+          },
+          {
+            treeType: PARAGRAPH_TEMPLATE_TYPE.name,
           },
         ],
       },
@@ -146,7 +171,7 @@ export const WEB_SITE_WITH_PAGES_TEMPLATE_TYPE: ObjectTypeDefinition = {
               type: 'string',
               title: 'Page type name',
             },
-            pageObjectTreeId: {
+            pageTemplateObjectTreeId: {
               title: 'Page template',
               type: 'string',
               oneOfTree: [
@@ -165,6 +190,56 @@ export const WEB_SITE_WITH_PAGES_TEMPLATE_TYPE: ObjectTypeDefinition = {
             pageTypes: {
               type: 'array',
               title: 'Page types',
+              items: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  contentType: '',
+};
+
+export const WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE: ObjectTypeDefinition = {
+  name: 'WebSiteWitHParagraphsTemplate',
+  inheritedTypesIds: [WEB_SITE_TEMPLATE_TYPE.name],
+  definition: {
+    properties: {
+      paragraphTemplateChoices: {
+        title: 'Paragraph templates choice',
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            paragraphTypeKey: {
+              type: 'string',
+              title: 'Paragraph type key',
+            },
+            paragraphTypeName: {
+              type: 'string',
+              title: 'Paragraph type name',
+            },
+            paragraphTemplateObjectTreeId: {
+              title: 'Paragraph template',
+              type: 'string',
+              oneOfTree: [
+                {
+                  treeType: PARAGRAPH_TEMPLATE_TYPE.name,
+                  namespaceName: TEMPLATES_OBJECT_NAME,
+                  namespaceType: ObjectTypeName.REPOSITORY_CATEGORY,
+                  ownerName: PUBLIC_OBJECT_NAME,
+                  ownerType: ObjectTypeName.REPOSITORY,
+                },
+                {
+                  treeType: PARAGRAPH_TEMPLATE_TYPE.name,
+                },
+              ],
+            },
+            paragraphTypes: {
+              type: 'array',
+              title: 'Paragraph types',
               items: {
                 type: 'string',
               },
@@ -232,28 +307,22 @@ export const WEB_SITE_WITH_MENU_TEMPLATE_TYPE: ObjectTypeDefinition = {
   contentType: '',
 };
 
-export const CATEGORY_MENU_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
-  typeName: REPOSITORY_CATEGORY_TYPE.name,
-  subTypeName: MENU_TEMPLATE_TYPE.name,
-  name: MENU_TEMPLATE_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
-  tree: true,
-};
-
-export const CATEGORY_PAGE_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
-  typeName: REPOSITORY_CATEGORY_TYPE.name,
-  subTypeName: PAGE_TEMPLATE_TYPE.name,
-  name: PAGE_TEMPLATE_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
-  tree: true,
+export const PARAGRAPH_TYPE: ObjectTypeDefinition = {
+  name: 'Paragraph',
+  definition: {
+    properties: {
+      paragraphTitle: {
+        title: 'Paragraph title',
+        type: 'string',
+      },
+    },
+  },
+  contentType: 'ContentText',
 };
 
 export const PAGE_TYPE: ObjectTypeDefinition = {
   name: 'Page',
+  inheritedTypesIds: [],
   definition: {
     properties: {
       pageTitle: {
@@ -265,8 +334,14 @@ export const PAGE_TYPE: ObjectTypeDefinition = {
   contentType: 'ContentText',
 };
 
-export const PAGE_WITH_SUB_PAGE: ObjectTypeDefinition = {
+export const PAGE_WITH_SUB_PAGE_TYPE: ObjectTypeDefinition = {
+  inheritedTypesIds: [PAGE_TYPE.name],
   name: 'PageWithSubPage',
+};
+
+export const PAGE_WITH_PARAGRAPH_TYPE: ObjectTypeDefinition = {
+  inheritedTypesIds: [PAGE_TYPE.name],
+  name: 'PageWithParagraph',
 };
 
 export const WELCOME_PAGE_TYPE: ObjectTypeDefinition = {
@@ -283,23 +358,24 @@ export const PAGE_WITH_TEMPLATE_CHOICE: ObjectTypeDefinition = {
   definition: {
     properties: {
       pageTemplateChoice: {
-        title: 'Display choice',
+        title: 'Page display choice',
         type: 'string',
       },
     },
   },
 };
 
-export const WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE: ObjectSubTypeDefintion = {
-  typeName: WEB_SITE_VIEW_TYPE.name,
-  subTypeName: WELCOME_PAGE_TYPE.name,
-  name: 'Welcome page',
-  acl: false,
-  namespace: false,
-  owner: false,
-  tree: false,
-  min: 1,
-  max: 1,
+export const PARAGRAPH_WITH_TEMPLATE_CHOICE: ObjectTypeDefinition = {
+  name: 'ParagraphWithTemplateChoice',
+  inheritedTypesIds: [PARAGRAPH_TYPE.name],
+  definition: {
+    properties: {
+      paragraphTemplateChoice: {
+        title: 'Paragraph display choice',
+        type: 'string',
+      },
+    },
+  },
 };
 
 export const MENU_ENTRY_TYPE: ObjectTypeDefinition = {
@@ -328,4 +404,46 @@ export const CALENDAR_ENTRY_TYPE: ObjectTypeDefinition = {
     },
   },
   contentType: '',
+};
+
+export const CATEGORY_MENU_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: REPOSITORY_CATEGORY_TYPE.name,
+  subTypeName: MENU_TEMPLATE_TYPE.name,
+  name: MENU_TEMPLATE_TYPE.name,
+  acl: false,
+  namespace: false,
+  owner: false,
+  tree: true,
+};
+
+export const CATEGORY_PAGE_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: REPOSITORY_CATEGORY_TYPE.name,
+  subTypeName: PAGE_TEMPLATE_TYPE.name,
+  name: PAGE_TEMPLATE_TYPE.name,
+  acl: false,
+  namespace: false,
+  owner: false,
+  tree: true,
+};
+
+export const CATEGORY_PARAGRAPH_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: REPOSITORY_CATEGORY_TYPE.name,
+  subTypeName: PARAGRAPH_TEMPLATE_TYPE.name,
+  name: PARAGRAPH_TEMPLATE_TYPE.name,
+  acl: false,
+  namespace: false,
+  owner: false,
+  tree: true,
+};
+
+export const WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: WEB_SITE_VIEW_TYPE.name,
+  subTypeName: WELCOME_PAGE_TYPE.name,
+  name: 'Welcome page',
+  acl: false,
+  namespace: false,
+  owner: false,
+  tree: false,
+  min: 1,
+  max: 1,
 };
