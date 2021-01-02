@@ -6,15 +6,12 @@
   >
     <div class="card">
       <div class="row no-gutters">
-        <div
-          class="col-12"
-          *ngIf="galleryObjectTree && 'before'===galleriePosition"
-        >
+        <div class="col-12" *ngIf="'before'===galleriePosition">
           <ng-container *ngTemplateOutlet="cardImg"></ng-container>
         </div>
         <div
           class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-6"
-          *ngIf="galleryObjectTree && 'left'===galleriePosition"
+          *ngIf="'left'===galleriePosition"
         >
           <ng-container *ngTemplateOutlet="cardImg"></ng-container>
         </div>
@@ -38,14 +35,11 @@
         </div>
         <div
           class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-6"
-          *ngIf="galleryObjectTree && 'right'===galleriePosition"
+          *ngIf="'right'===galleriePosition"
         >
           <ng-container *ngTemplateOutlet="cardImg"></ng-container>
         </div>
-        <div
-          class="col-12"
-          *ngIf="galleryObjectTree && 'after'===galleriePosition"
-        >
+        <div class="col-12" *ngIf="'after'===galleriePosition">
           <ng-container *ngTemplateOutlet="cardImg"></ng-container>
         </div>
       </div>

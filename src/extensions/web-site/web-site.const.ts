@@ -317,6 +317,14 @@ export const PARAGRAPH_TYPE: ObjectTypeDefinition = {
       },
     },
   },
+  contentType: '',
+};
+
+export const TEXT_PARAGRAPH_TYPE: ObjectTypeDefinition = {
+  name: 'TextParagraph',
+  definition: {
+    properties: {},
+  },
   contentType: 'ContentText',
 };
 
@@ -344,6 +352,11 @@ export const PAGE_WITH_PARAGRAPH_TYPE: ObjectTypeDefinition = {
   name: 'PageWithParagraph',
 };
 
+export const PAGE_WITH_TEXT_PARAGRAPH_TYPE: ObjectTypeDefinition = {
+  inheritedTypesIds: [PAGE_TYPE.name],
+  name: 'PageWithTextParagraph',
+};
+
 export const WELCOME_PAGE_TYPE: ObjectTypeDefinition = {
   name: 'WelcomePage',
   inheritedTypesIds: [PAGE_TYPE.name],
@@ -365,7 +378,7 @@ export const PAGE_WITH_TEMPLATE_CHOICE: ObjectTypeDefinition = {
   },
 };
 
-export const PARAGRAPH_WITH_TEMPLATE_CHOICE: ObjectTypeDefinition = {
+export const PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE: ObjectTypeDefinition = {
   name: 'ParagraphWithTemplateChoice',
   inheritedTypesIds: [PARAGRAPH_TYPE.name],
   definition: {
@@ -414,6 +427,16 @@ export const CATEGORY_MENU_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
   namespace: false,
   owner: false,
   tree: true,
+};
+
+export const PAGE_WITH_TEXT_PARAGRAPH_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: PAGE_WITH_TEXT_PARAGRAPH_TYPE.name,
+  subTypeName: TEXT_PARAGRAPH_TYPE.name,
+  name: TEXT_PARAGRAPH_TYPE.name,
+  acl: false,
+  namespace: false,
+  owner: false,
+  tree: false,
 };
 
 export const CATEGORY_PAGE_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {

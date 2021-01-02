@@ -8,9 +8,14 @@ import {PARAGRAPH_TEMPLATE_TYPE} from './../web-site/web-site.const';
 import {
   CATEGORY_IMAGE_GALLERY_TEMPLATE_SUBTYPE,
   CONTENT_IMAGE_TEMPLATE_PROVIDER,
+  GALLERY_PARAGRAPH_TYPE,
+  GALLERY_TEXT_PARAGRAPH_TYPE,
   IMAGE_GALLERY_TEMPLATE_TYPE,
+  PAGE_WITH_GALLERY_PARAGRAPH_GALLERY_PARAGRAPH_SUBTYPE,
+  PAGE_WITH_GALLERY_PARAGRAPH_TYPE,
+  PAGE_WITH_GALLERY_TEXT_PARAGRAPH_GALLERY_TEXT_PARAGRAPH_SUBTYPE,
+  PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE,
   PAGE_WITH_GALLERY_TYPE,
-  PARAGRAPH_WITH_GALLERY_TYPE,
 } from './content-image-template.const';
 
 export class ContentImageTemplateProvider extends ExtensionProvider {
@@ -24,10 +29,17 @@ export class ContentImageTemplateProvider extends ExtensionProvider {
 
     this.objectTypes.push(
       IMAGE_GALLERY_TEMPLATE_TYPE,
-      PARAGRAPH_WITH_GALLERY_TYPE,
+      GALLERY_PARAGRAPH_TYPE,
+      GALLERY_TEXT_PARAGRAPH_TYPE,
       PAGE_WITH_GALLERY_TYPE,
+      PAGE_WITH_GALLERY_PARAGRAPH_TYPE,
+      PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE,
     );
-    this.objectSubTypes.push(CATEGORY_IMAGE_GALLERY_TEMPLATE_SUBTYPE);
+    this.objectSubTypes.push(
+      CATEGORY_IMAGE_GALLERY_TEMPLATE_SUBTYPE,
+      PAGE_WITH_GALLERY_PARAGRAPH_GALLERY_PARAGRAPH_SUBTYPE,
+      PAGE_WITH_GALLERY_TEXT_PARAGRAPH_GALLERY_TEXT_PARAGRAPH_SUBTYPE,
+    );
 
     this.objectTrees.caroussel = {
       reset: false,
@@ -40,6 +52,19 @@ export class ContentImageTemplateProvider extends ExtensionProvider {
             __dirname,
             'caroussel',
           ),
+        },
+        children: {},
+      },
+    };
+
+    this.objectTrees.thumbs = {
+      reset: false,
+      parentNode: () => this.appCtx.publicTemplatesNode.value,
+      treeNodeName: 'thumbs',
+      treeNodeTypeId: IMAGE_GALLERY_TEMPLATE_TYPE.name,
+      tree: {
+        treeNode: {
+          contentGenericTemplate: contentGenericTemplate(__dirname, 'thumbs'),
         },
         children: {},
       },

@@ -19,7 +19,7 @@ import {
   PAGE_WITH_SUB_PAGE_TYPE,
   PAGE_WITH_TEMPLATE_CHOICE,
   PARAGRAPH_TYPE,
-  PARAGRAPH_WITH_TEMPLATE_CHOICE,
+  PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE,
   WEB_SITE_PROVIDER,
   WEB_SITE_VIEW_TYPE,
   WEB_SITE_VIEW_WITH_MENU_TYPE,
@@ -91,7 +91,7 @@ export class TransientWebSiteService {
       TransientWebSiteService.name,
       'Complete paragraphsTemplateChoice json schema definition with paragraphsTemplateChoice from referenced template and add its conditional paragraph template configuration',
       EntityName.objectNode,
-      PARAGRAPH_WITH_TEMPLATE_CHOICE.name,
+      PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
       this.completeParagraphWithTemplateChoiceNode.bind(this),
     );
     this.transientEntityService.registerTransientEntityTypeFunction(

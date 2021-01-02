@@ -45,7 +45,13 @@ export class UriCompleteService {
           '/';
         //   delete (result as EntityType).entityName;
       }
-      if ('id' in result && !(result as EntityType).uri) {
+      if (
+        'id' in result &&
+        !(result as EntityType).uri &&
+        (result as EntityType).id &&
+        '' !== (result as EntityType).id &&
+        'null' !== (result as EntityType).id
+      ) {
         (result as EntityType).uri =
           baseUri + objectUri + (result as EntityType).id;
       }
@@ -65,7 +71,9 @@ export class UriCompleteService {
           );
         } else if (
           isString((result as EntityType)[key]) &&
-          key.endsWith('Id')
+          key.endsWith('Id') &&
+          '' !== (result as EntityType)[key] &&
+          'null' !== (result as EntityType)[key]
         ) {
           const field = key.substr(0, key.length - 2);
           if (!(result as EntityType)[field + 'Uri']) {

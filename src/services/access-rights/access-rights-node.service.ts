@@ -4,6 +4,7 @@ import {
   AuthorizationDecision,
 } from '@loopback/authorization';
 import {BindingScope, injectable, service} from '@loopback/core';
+import {isString} from 'lodash';
 import {EntityName} from '../../models/entity-name';
 import {ObjectNode} from '../../models/object-node.model';
 import {CurrentContext} from '../application.service';
@@ -58,11 +59,18 @@ export class AccessRightsNodeService
     context: AuthorizationContext,
   ): Promise<AuthorizationDecision> {
     let node: ObjectNode = (null as unknown) as ObjectNode;
-    node = await ctx.nodeContext.parent.getOrSetValue(async () => {
-      return this.objectNodeService.searchById(
-        context.invocationContext.args[0]?.parentNodeId,
+    if (isString(context.invocationContext.args[0])) {
+      node = await this.objectNodeService.getNode(
+        context.invocationContext.args[0],
+        ctx,
       );
-    });
+    } else {
+      node = await ctx.nodeContext.parent.getOrSetValue(async () => {
+        return this.objectNodeService.searchById(
+          context.invocationContext.args[0]?.parentNodeId,
+        );
+      });
+    }
 
     if (node) {
       return (await this.accessRightsService.hasNodeAccessRights(

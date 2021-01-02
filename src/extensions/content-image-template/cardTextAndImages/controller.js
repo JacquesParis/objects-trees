@@ -10,6 +10,12 @@ function newFunction() {
 
     getGalleriePosition(dataNode, templateNode, siteTemplateNode) {
       if (
+        'none' ===
+        this.getGalleryObjectTree(dataNode, templateNode, siteTemplateNode)
+      ) {
+        return 'none';
+      }
+      if (
         dataNode &&
         dataNode.templatesConfigurations &&
         dataNode.templatesConfigurations.cardTextAndImages &&
@@ -76,7 +82,7 @@ function newFunction() {
         return siteTemplateNode.templatesConfigurations.cardTextAndImages
           .imageGalleryObjectTree;
       } else {
-        return undefined;
+        return 'none';
       }
     },
   };

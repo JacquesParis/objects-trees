@@ -81,7 +81,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
           ],
           paragraphTemplateChoices: [
             {
-              paragraphTypeKey: 'cardCaroussel',
+              paragraphTypeKey: 'carousselRight',
               paragraphTypeName: 'Display images with Caroussel',
               paragraphTemplateObjectTreeId:
                 'tree/Repository/public/RepositoryCategory/templates/ParagraphTemplate/cardTextAndImages',
@@ -95,7 +95,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               },
             },
             {
-              paragraphTypeKey: 'card',
+              paragraphTypeKey: 'thumbAfter',
               paragraphTypeName: 'Display images in thumb',
               paragraphTemplateObjectTreeId:
                 'tree/Repository/public/RepositoryCategory/templates/ParagraphTemplate/cardTextAndImages',
@@ -103,7 +103,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               templatesConfigurations: {
                 cardTextAndImages: {
                   imageGalleryObjectTreeId:
-                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/caroussel',
+                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/thumbs',
                   imageGalleryPosition: 'after',
                 },
               },
@@ -112,7 +112,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
           templatesConfigurations: {
             cardTextAndImages: {
               imageGalleryObjectTreeId:
-                'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/caroussel',
+                'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/thumbs',
             },
           },
         },
@@ -274,7 +274,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                     ['Post 3']: [
                       {
                         treeNode: {
-                          paragraphTemplateChoice: 'cardCaroussel',
+                          paragraphTemplateChoice: 'carousselRight',
                           imageGalleryObjectTreeId:
                             'tree/Tenant/Demonstration/TravelStory/Exemple de site de Voyage/ImageGallery/Ipsum3',
                           menuTitle: 'Lorem ipsum 3',

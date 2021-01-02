@@ -7,11 +7,16 @@ import {
   FOLDER_TYPE,
   REPOSITORY_CATEGORY_TYPE,
 } from '../../services/object-tree/object-tree.const';
+import {
+  PAGE_WITH_GALLERY_PARAGRAPH_TYPE,
+  PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE,
+} from '../content-image-template/content-image-template.const';
 import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post.const';
 import {
   CALENDAR_ENTRY_TYPE,
   MENU_ENTRY_TYPE,
   PAGE_WITH_PARAGRAPH_TYPE,
+  PAGE_WITH_TEXT_PARAGRAPH_TYPE,
   WEB_SITE_VIEW_WITH_MENU_TYPE,
   WEB_SITE_WITH_MENU_TEMPLATE_TYPE,
   WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE,
@@ -23,7 +28,7 @@ import {
 import {IMAGE_GALLERIES_TYPE} from './../content-image/content-image.const';
 import {
   PAGE_WITH_SUB_PAGE_TYPE,
-  PARAGRAPH_WITH_TEMPLATE_CHOICE,
+  PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE,
 } from './../web-site/web-site.const';
 export const TRAVEL_STORY_PROVIDER = 'TravelStoryProvider';
 export const TRAVEL_STORY_NAME = 'TravelStoryService';
@@ -77,7 +82,10 @@ export const TRAVEL_STORY_POST_TYPE: ObjectTypeDefinition = {
     POST_WITH_GALLERY_TYPE.name,
     PAGE_WITH_SUB_PAGE_TYPE.name,
     PAGE_WITH_PARAGRAPH_TYPE.name,
-    PARAGRAPH_WITH_TEMPLATE_CHOICE.name,
+    PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
+    PAGE_WITH_TEXT_PARAGRAPH_TYPE.name,
+    PAGE_WITH_GALLERY_PARAGRAPH_TYPE.name,
+    PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE.name,
   ],
   definition: {
     properties: {},

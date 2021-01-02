@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="row d-flex justify-content-center">
+    <ng-container *ngFor="let image of dataNode.images; let index = index;">
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
+        <div class="card">
+          <img
+            class="card-img-top"
+            *ngIf="image.contentImage; else spinner"
+            [src]="getImgSrc(image.contentImage)"
+            alt="{{image.name}}"
+          />
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
+<ng-template #spinner>
+  <div class="d-block w-100">
+    <div class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+  </div>
+</ng-template>
