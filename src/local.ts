@@ -8,7 +8,6 @@ import {PostTypeProvider} from './extensions/post/post.provider';
 import {TravelStoryTypeProvider} from './extensions/travel-story/travel-story-type.provider';
 import {WebSiteProvider} from './extensions/web-site/web-site.provider';
 import {ObjectTreesApplicationConfig} from './integration/object-trees-application.config';
-import {TransientUriReferenceProvider} from './services/inside-rest/transient-uri-reference.provider';
 
 export class LocalDeployApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(ObjectTreesApplication)),
@@ -18,7 +17,6 @@ export class LocalDeployApplication extends BootMixin(
       WebSiteProvider,
       PostTypeProvider,
       TravelStoryTypeProvider,
-      TransientUriReferenceProvider,
     ];
     super(options);
     // eslint-disable-next-line @typescript-eslint/no-this-alias

@@ -66,6 +66,7 @@ import {ApplicationService} from './services/application.service';
 import {ContentEntityCoreProvider} from './services/content-entity/content-entity.provider';
 import {ContentEntityService} from './services/content-entity/content-entity.service';
 import {EntityDefinitionProvider} from './services/entity-definition/entity-definition.provider';
+import {TransientUriReferenceProvider} from './services/inside-rest/transient-uri-reference.provider';
 import {ObjectNodeContentService} from './services/object-node/object-node-content.service';
 import {ObjectNodeService} from './services/object-node/object-node.service';
 import {ObjectTreeProvider} from './services/object-tree/object-tree.provider';
@@ -223,6 +224,7 @@ export class ObjectTreesApplication extends RestApplication {
     config.extensions.unshift(ActionEntityProvider);
     config.extensions.push(UriCompleteProvider);
     config.extensions.push(RootConfigProvider);
+    config.extensions.push(TransientUriReferenceProvider);
 
     this.addProviders(app, config.extensions);
 
