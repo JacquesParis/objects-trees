@@ -1,6 +1,6 @@
 import {service} from '@loopback/core';
 import {DataObject, repository} from '@loopback/repository';
-import _, {omitBy, uniq} from 'lodash';
+import _, {isArray, omitBy, uniq} from 'lodash';
 import {ObjectSubType} from '../models';
 import {ObjectTypeRepository} from '../repositories';
 import {ApplicationError} from './../helper/application-error';
@@ -126,41 +126,43 @@ export class ObjectTypeService {
     }
     let implementedTypes: string[] = [type.name];
     type.extended = true;
-    for (const inheritedTypeName of type.inheritedTypesIds) {
-      const parentType = allTypes[inheritedTypeName];
-      if (!parentType) {
-        console.error(
-          type.name + ': missing ' + inheritedTypeName + ' inherited type',
+    if (isArray(type.inheritedTypesIds)) {
+      for (const inheritedTypeName of type.inheritedTypesIds) {
+        const parentType = allTypes[inheritedTypeName];
+        if (!parentType) {
+          console.error(
+            type.name + ': missing ' + inheritedTypeName + ' inherited type',
+          );
+          throw ApplicationError.missing({
+            type: type.name,
+            inheritedType: inheritedTypeName,
+          });
+        }
+        this.extendsType(parentType, allTypes);
+        implementedTypes = implementedTypes.concat(
+          ...(parentType.entityCtx?.implementedTypes as string[]),
         );
-        throw ApplicationError.missing({
-          type: type.name,
-          inheritedType: inheritedTypeName,
-        });
-      }
-      this.extendsType(parentType, allTypes);
-      implementedTypes = implementedTypes.concat(
-        ...(parentType.entityCtx?.implementedTypes as string[]),
-      );
-      if (!type.contentType || '' === type.contentType) {
-        type.contentType = parentType.contentType;
-      }
-      if (!type.definition) {
-        type.definition = parentType.definition;
-      } else {
-        type.definition = _.merge({}, parentType.definition, type.definition);
-      }
-      if (parentType.objectSubTypes) {
-        for (const parentSubType of parentType.objectSubTypes) {
-          if (
-            !_.some(
-              type.objectSubTypes,
-              (subType) => subType.name === parentSubType.name,
-            )
-          ) {
-            if (!type.objectSubTypes) {
-              type.objectSubTypes = [];
+        if (!type.contentType || '' === type.contentType) {
+          type.contentType = parentType.contentType;
+        }
+        if (!type.definition) {
+          type.definition = parentType.definition;
+        } else {
+          type.definition = _.merge({}, parentType.definition, type.definition);
+        }
+        if (parentType.objectSubTypes) {
+          for (const parentSubType of parentType.objectSubTypes) {
+            if (
+              !_.some(
+                type.objectSubTypes,
+                (subType) => subType.name === parentSubType.name,
+              )
+            ) {
+              if (!type.objectSubTypes) {
+                type.objectSubTypes = [];
+              }
+              type.objectSubTypes.push(parentSubType);
             }
-            type.objectSubTypes.push(parentSubType);
           }
         }
       }
