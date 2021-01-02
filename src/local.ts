@@ -31,7 +31,5 @@ export class LocalDeployApplication extends BootMixin(
   }
   async boot(): Promise<void> {
     await super.boot();
-
-    // this.component(ObjectsTreesBootComponent);
   }
 }
