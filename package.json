@@ -1,6 +1,6 @@
 {
   "name": "@jacquesparis/objects-trees",
-  "version": "0.0.1-SNAPSHOT.17",
+  "version": "1.0.69",
   "description": "manage tree of objects",
   "keywords": [
     "loopback-application",
@@ -32,7 +32,7 @@
     "start": "node main.js",
     "dev": "npm uninstall @jacquesparis/objects-model @jacquesparis/objects-angular @jacquesparis/objects-website && npm install --save ../objects-model ../objects-angular/dist ../objects-website ",
     "update": "npm uninstall @jacquesparis/objects-model @jacquesparis/objects-angular @jacquesparis/objects-website  && npm install --save @jacquesparis/objects-model @jacquesparis/objects-angular @jacquesparis/objects-website ",
-    "lib": "npm update && npm run build && git add -A && git commit -m \"lib\" && git push origin HEAD && npm publish --access=public"
+    "lib": "npm run update && npm run build && git add -A && git commit --no-edit --amend  && git push -f origin HEAD && npm publish --access=public"
   },
   "repository": {
     "type": "git"
@@ -49,9 +49,9 @@
   ],
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.2",
-    "@jacquesparis/objects-angular": "file:../objects-angular/dist",
-    "@jacquesparis/objects-model": "file:../objects-model",
-    "@jacquesparis/objects-website": "file:../objects-website",
+    "@jacquesparis/objects-angular": "^1.0.19",
+    "@jacquesparis/objects-model": "^1.0.8",
+    "@jacquesparis/objects-website": "^1.0.10",
     "@loopback/authentication": "^7.0.6",
     "@loopback/authentication-jwt": "^0.7.6",
     "@loopback/authorization": "^0.7.6",
