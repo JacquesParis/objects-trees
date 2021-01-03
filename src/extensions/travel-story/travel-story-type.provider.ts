@@ -10,6 +10,7 @@ import {
 } from '../web-site/web-site.const';
 import {ContentImageTemplateProvider} from './../content-image-template/content-image-template.provider';
 import {
+  IMAGE_GALLERIES_TYPE,
   IMAGE_GALLERY_SELECTOR_TYPE,
   IMAGE_GALLERY_TYPE,
   IMAGE_TYPE,
@@ -18,6 +19,7 @@ import {WebSiteProvider} from './../web-site/web-site.provider';
 import {
   CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE,
   FOLDER_TRAVEL_STORY_SUBTYPE,
+  TRAVEL_STORY_IMAGE_GALLERIES_SUBTYPE,
   TRAVEL_STORY_POST_ROOT_TYPE,
   TRAVEL_STORY_POST_TRAVEL_STORY_POST_SUBTYPE,
   TRAVEL_STORY_POST_TYPE,
@@ -37,10 +39,13 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       TRAVEL_STORY_POST_ROOT_TYPE,
     );
 
-    this.objectSubTypes.push(FOLDER_TRAVEL_STORY_SUBTYPE);
-    this.objectSubTypes.push(TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE);
-    this.objectSubTypes.push(TRAVEL_STORY_POST_TRAVEL_STORY_POST_SUBTYPE);
-    this.objectSubTypes.push(CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE);
+    this.objectSubTypes.push(
+      FOLDER_TRAVEL_STORY_SUBTYPE,
+      TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE,
+      TRAVEL_STORY_POST_TRAVEL_STORY_POST_SUBTYPE,
+      CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE,
+      TRAVEL_STORY_IMAGE_GALLERIES_SUBTYPE,
+    );
 
     this.objectTrees.travelStory = {
       reset: false,
@@ -121,7 +126,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
     };
 
     this.objectTrees.travelStoryExample = {
-      reset: false,
+      reset: true,
       parentNode: () => this.appCtx.demonstrationExamplesNode.value,
       treeNodeName: 'Exemple de site de Voyage',
       treeNodeTypeId: TRAVEL_STORY_TYPE.name,
@@ -137,62 +142,74 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
           },
         },
         children: {
-          [IMAGE_GALLERY_TYPE.name]: {
-            ['Ipsum3']: [
+          [IMAGE_GALLERIES_TYPE.name]: {
+            [IMAGE_GALLERIES_TYPE.name]: [
               {
                 treeNode: {},
                 children: {
-                  [IMAGE_TYPE.name]: {
-                    ['Eliot peper']: [
+                  [IMAGE_GALLERY_TYPE.name]: {
+                    ['Ipsum3']: [
                       {
-                        treeNode: {
-                          contentImage: {
-                            base64: image(__dirname, 'eliot'),
-                            name: 'eliot-peper-9KVEC-R8gFM-unsplash.jpg',
-                            size: '1607898086455',
-                            type: 'image/jpeg',
+                        treeNode: {},
+                        children: {
+                          [IMAGE_TYPE.name]: {
+                            ['Eliot peper']: [
+                              {
+                                treeNode: {
+                                  contentImage: {
+                                    base64: image(__dirname, 'eliot'),
+                                    name:
+                                      'eliot-peper-9KVEC-R8gFM-unsplash.jpg',
+                                    size: '1607898086455',
+                                    type: 'image/jpeg',
+                                  },
+                                },
+                                children: {},
+                              },
+                            ],
+                            ['Laura Chouette']: [
+                              {
+                                treeNode: {
+                                  contentImage: {
+                                    base64: image(__dirname, 'laura'),
+                                    name:
+                                      'laura-chouette-iF3nn-mXkU8-unsplash.jpg',
+                                    size: '1607898094166',
+                                    type: 'image/jpeg',
+                                  },
+                                },
+                                children: {},
+                              },
+                            ],
+                            ['Ksenia makagonov']: [
+                              {
+                                treeNode: {
+                                  contentImage: {
+                                    base64: image(__dirname, 'ksenia'),
+                                    name:
+                                      'ksenia-makagonova-oqL8TOLARs8-unsplash.jpg',
+                                    size: '1607898103955',
+                                    type: 'image/jpeg',
+                                  },
+                                },
+                                children: {},
+                              },
+                            ],
+                            ['Brian quid']: [
+                              {
+                                treeNode: {
+                                  contentImage: {
+                                    base64: image(__dirname, 'brian'),
+                                    name: 'brian-quid-6O9dPC51s7M-unsplash.jpg',
+                                    size: '1607898091074',
+                                    type: 'image/jpeg',
+                                  },
+                                },
+                                children: {},
+                              },
+                            ],
                           },
                         },
-                        children: {},
-                      },
-                    ],
-                    ['Laura Chouette']: [
-                      {
-                        treeNode: {
-                          contentImage: {
-                            base64: image(__dirname, 'laura'),
-                            name: 'laura-chouette-iF3nn-mXkU8-unsplash.jpg',
-                            size: '1607898094166',
-                            type: 'image/jpeg',
-                          },
-                        },
-                        children: {},
-                      },
-                    ],
-                    ['Ksenia makagonov']: [
-                      {
-                        treeNode: {
-                          contentImage: {
-                            base64: image(__dirname, 'ksenia'),
-                            name: 'ksenia-makagonova-oqL8TOLARs8-unsplash.jpg',
-                            size: '1607898103955',
-                            type: 'image/jpeg',
-                          },
-                        },
-                        children: {},
-                      },
-                    ],
-                    ['Brian quid']: [
-                      {
-                        treeNode: {
-                          contentImage: {
-                            base64: image(__dirname, 'brian'),
-                            name: 'brian-quid-6O9dPC51s7M-unsplash.jpg',
-                            size: '1607898091074',
-                            type: 'image/jpeg',
-                          },
-                        },
-                        children: {},
                       },
                     ],
                   },

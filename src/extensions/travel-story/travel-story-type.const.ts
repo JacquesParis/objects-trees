@@ -47,10 +47,7 @@ export const TRAVEL_STORY_TEMPLATE_TYPE = {
 
 export const TRAVEL_STORY_TYPE: ObjectTypeDefinition = {
   name: 'TravelStory',
-  inheritedTypesIds: [
-    WEB_SITE_VIEW_WITH_MENU_TYPE.name,
-    IMAGE_GALLERIES_TYPE.name,
-  ],
+  inheritedTypesIds: [WEB_SITE_VIEW_WITH_MENU_TYPE.name],
   definition: {
     properties: {
       webSiteObjectTreeId: {
@@ -106,6 +103,14 @@ export const FOLDER_TRAVEL_STORY_SUBTYPE: ObjectSubTypeDefintion = {
   namespace: true,
   owner: false,
   tree: true,
+};
+
+export const TRAVEL_STORY_IMAGE_GALLERIES_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: TRAVEL_STORY_TYPE.name,
+  subTypeName: IMAGE_GALLERIES_TYPE.name,
+  name: IMAGE_GALLERIES_TYPE.name,
+  max: 1,
+  min: 1,
 };
 
 export const TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE: ObjectSubTypeDefintion = {
