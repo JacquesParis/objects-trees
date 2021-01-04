@@ -4,6 +4,7 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {ObjectTreesApplication} from './application';
 import {STORAGE_DIRECTORY} from './constants';
+import {ContentImageThumbProvider} from './extensions/content-image-thumb/content-image-thumb.provider';
 import {PostTypeProvider} from './extensions/post/post.provider';
 import {TravelStoryTypeProvider} from './extensions/travel-story/travel-story-type.provider';
 import {WebSiteProvider} from './extensions/web-site/web-site.provider';
@@ -17,6 +18,7 @@ export class LocalDeployApplication extends BootMixin(
       WebSiteProvider,
       PostTypeProvider,
       TravelStoryTypeProvider,
+      ContentImageThumbProvider,
     ];
     super(options);
     // eslint-disable-next-line @typescript-eslint/no-this-alias

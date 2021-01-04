@@ -3,7 +3,7 @@ function newFunction() {
     async init(ctrl) {
       if (ctrl.dataNode && ctrl.dataNode.images) {
         for (const image of ctrl.dataNode.images) {
-          await image.waitForReady();
+          image.waitForReady();
         }
       }
     },

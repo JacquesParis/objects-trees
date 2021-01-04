@@ -229,11 +229,12 @@ export abstract class ExtensionProvider {
       const subTypeName = _.isString(subType.subTypeName)
         ? subType.subTypeName
         : subType.subTypeName();
-      const parentType = await this.objectTypeService.searchByName(typeName);
-      const childType = await this.objectTypeService.searchByName(subTypeName);
+      if (!subType.name) {
+        subType.name = subTypeName;
+      }
       await this.objectTypeService.getOrCreateObjectSubType(
-        parentType.id as string,
-        childType.id as string,
+        typeName,
+        subTypeName,
         _.pick(subType, [
           'name',
           'acl',
