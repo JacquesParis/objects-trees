@@ -1,14 +1,22 @@
 function newFunction() {
   return {
-    async init(component) {
-      if (component.pageTree && component.pageTree.paragraphTrees) {
-        for (const paragraph of component.pageTree.paragraphTrees) {
+    ctrl: undefined,
+    async init(ctrl) {
+      this.ctrl = ctrl;
+      // eslint-disable-next-line no-void
+      void this.backGroundInit();
+    },
+    async backGroundInit() {
+      if (this.ctrl.pageTree && this.ctrl.pageTree.paragraphTrees) {
+        for (const paragraph of this.ctrl.pageTree.paragraphTrees) {
           await paragraph.treeNode.waitForReady();
+          this.ctrl.refresh();
         }
       }
-      if (component.pageTree && component.pageTree.pageTrees) {
-        for (const page of component.pageTree.pageTrees) {
+      if (this.ctrl.pageTree && this.ctrl.pageTree.pageTrees) {
+        for (const page of this.ctrl.pageTree.pageTrees) {
           await page.treeNode.waitForReady();
+          this.ctrl.refresh();
         }
       }
     },

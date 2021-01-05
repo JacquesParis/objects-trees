@@ -5,8 +5,8 @@ import {
 import {IMAGE_TYPE} from './../content-image/content-image.const';
 export const CONTENT_IMAGE_THUMB_PROVIDER = 'ContentImageThumbProvider';
 
-export const IMAGE_WEB_TYPE: ObjectTypeDefinition = {
-  name: 'ImageWeb',
+export const IMAGE_THUMB_TYPE: ObjectTypeDefinition = {
+  name: 'ImageThumb',
   definition: {
     properties: {},
   },
@@ -21,14 +21,14 @@ export const IMAGE_ORIGINAL_TYPE: ObjectTypeDefinition = {
   contentType: 'ContentImage',
 };
 
-export const IMAGE_IMAGE_WEB_SUBTYPE: ObjectSubTypeDefintion = {
+export const IMAGE_IMAGE_THUMB_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: IMAGE_TYPE.name,
-  subTypeName: IMAGE_WEB_TYPE.name,
+  subTypeName: IMAGE_THUMB_TYPE.name,
   max: 1,
 };
 
-export const IMAGE_WEB_IMAGE_ORIGINAL_SUBTYPE: ObjectSubTypeDefintion = {
-  typeName: IMAGE_WEB_TYPE.name,
+export const IMAGE_IMAGE_ORIGINAL_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: IMAGE_TYPE.name,
   subTypeName: IMAGE_ORIGINAL_TYPE.name,
   max: 1,
 };

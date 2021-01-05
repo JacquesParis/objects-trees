@@ -1,6 +1,12 @@
 function newFunction() {
   return {
-    async init(component) {},
+    ctrl: undefined,
+    async init(ctrl) {
+      this.ctrl = ctrl;
+      // eslint-disable-next-line no-void
+      void this.backGroundInit();
+    },
+    async backGroundInit() {},
   };
 }
 newFunction();

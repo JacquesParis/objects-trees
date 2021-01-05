@@ -28,11 +28,15 @@ export class InsideRestService {
     @inject('services.InsideRestRepository')
     private insideRestRepository: InsideRestRepository,
   ) {}
-  async read(uri: string, ctx: CurrentContext): Promise<IRestEntity> {
+  async read(
+    uri: string,
+    ctx: CurrentContext,
+    forceNewRead = false,
+  ): Promise<IRestEntity> {
     if (!ctx.insideRestContext) {
       ctx.insideRestContext = {};
     }
-    if (!(uri in ctx.insideRestContext)) {
+    if (forceNewRead || !(uri in ctx.insideRestContext)) {
       ctx.insideRestContext[uri] = await this.insideRestRepository.read(
         uri,
         ctx.accessRightsContext.authorization.value,

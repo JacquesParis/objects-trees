@@ -95,7 +95,7 @@ export class TransientImageService {
     }
     if (objectNode.imageGalleryObjectTree?.children) {
       for (const image of objectNode.imageGalleryObjectTree.children) {
-        images.push(image.treeNode);
+        images.push(image);
       }
     }
     objectNode.images = images;
@@ -113,19 +113,20 @@ export class TransientImageService {
         objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enumNames = [];
         for (const image of images) {
           objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enum.push(
-            image.name,
+            image.treeNode.name,
           );
           objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enumNames.push(
-            image.name +
+            image.treeNode.name +
               '<span class="imageSelect"><img src="' +
-              image.contentImageUri +
+              image.treeNode.contentImageUri +
               '" ></span>',
           );
         }
         if (objectNode.selectedImages && 0 < objectNode.selectedImages.length) {
           objectNode.images = filter(
             images,
-            (image) => -1 < indexOf(objectNode.selectedImages, image.name),
+            (image) =>
+              -1 < indexOf(objectNode.selectedImages, image.treeNode.name),
           );
           if (0 === objectNode.images.length) {
             objectNode.selectedImages =

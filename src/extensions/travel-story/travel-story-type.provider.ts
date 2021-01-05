@@ -126,7 +126,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
     };
 
     this.objectTrees.travelStoryExample = {
-      reset: false,
+      reset: true,
       parentNode: () => this.appCtx.demonstrationExamplesNode.value,
       treeNodeName: 'Exemple de site de Voyage',
       treeNodeTypeId: TRAVEL_STORY_TYPE.name,
@@ -223,6 +223,8 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                 treeNode: {
                   menuTitle: 'Stories',
                   pageTitle: 'Stories',
+                  imageGalleryObjectTreeId:
+                    'tree/Tenant/Demonstration/TravelStory/Exemple de site de Voyage/ImageGallery/Ipsum3',
                 },
                 children: {
                   [TRAVEL_STORY_POST_TYPE.name]: {

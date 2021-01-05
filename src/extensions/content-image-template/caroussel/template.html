@@ -20,13 +20,13 @@
     >
       <ng-container>
         <img
-          *ngIf="image.contentImage; else spinner"
-          [src]="getImgSrc(image.contentImage)"
+          *ngIf="image.treeNode.contentImage; else spinner"
+          [src]="getImgSrc(image.treeNode.contentImage)"
           class="d-block w-100"
-          alt="{{image.name}}"
+          alt="{{image.treeNode.name}}"
         />
         <div class="carousel-caption d-none d-md-block">
-          <h5>{{image.name}}</h5>
+          <h5>{{image.treeNode.name}}</h5>
           <!-- <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>-->
         </div>
       </ng-container>
