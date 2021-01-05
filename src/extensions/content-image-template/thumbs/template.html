@@ -1,16 +1,20 @@
 <div class="container">
   <div class="row d-flex justify-content-center">
     <ng-container *ngFor="let image of dataNode.images; let index = index;">
-      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">
-        <div class="card img-thumbnail imgThumb">
-          <img
-            (click)="ctrl.showImg(image,index)"
-            data-toggle="modal"
-            [attr.data-target]="'#modalImgGal'+dataNode.id"
-            class="card-img-top"
-            [src]="getImgSrc({uri: image.treeNode.contentImageUri})"
-            alt="{{image.treeNode.name}}"
-          />
+      <div
+        class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 d-flex align-items-center"
+      >
+        <div class="m-2 img-thumbnail">
+          <div class="card imgThumb" *ngIf="image.treeNode.contentImage">
+            <img
+              (click)="ctrl.showImg(index)"
+              data-toggle="modal"
+              [attr.data-target]="'#modalImgGal'+dataNode.id"
+              class="card-img-top"
+              [src]="getImgSrc({uri:image.treeNode.contentImageUri})"
+              alt="{{image.treeNode.name}}"
+            />
+          </div>
         </div>
       </div>
     </ng-container>
@@ -29,20 +33,22 @@
       <div class="modal-header">
         <h5 class="modal-title" *ngIf="ctrl.modalTitle">{{ctrl.modalTitle}}</h5>
 
-        <div class="btn-group btn-group-sm" role="group">
+        <div
+          class="btn-group btn-group-sm"
+          role="group"
+          *ngIf="dataTree.treeNode.images.length > 1"
+        >
           <button
             type="button"
             class="btn btn-secondary"
-            [disabled]="!ctrl.modalPrevious"
-            (click)="ctrl.showImg(ctrl.modalPrevious,ctrl.modalIndex-1)"
+            (click)="ctrl.showImg(ctrl.modalIndex-1)"
           >
             &lt;
           </button>
           <button
             type="button"
             class="btn btn-secondary"
-            [disabled]="!ctrl.modalNext"
-            (click)="ctrl.showImg(ctrl.modalNext,ctrl.modalIndex+1)"
+            (click)="ctrl.showImg(ctrl.modalIndex+1)"
           >
             &gt;
           </button>
@@ -60,7 +66,7 @@
       <div class="modal-body">
         <div
           class="imgFullScreen"
-          [ngStyle]="{'background-image': getImgBackground({uri:ctrl.modalImage.contentImageUri})}"
+          [style.background-image]="getImgBackground({uri:ctrl.modalImage.contentImageUri})"
         ></div>
         <div class="d-block w-100" *ngIf="!ctrl.modalImage">
           <div class="text-center">

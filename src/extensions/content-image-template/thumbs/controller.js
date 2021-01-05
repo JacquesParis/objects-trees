@@ -6,28 +6,30 @@ function newFunction() {
       // eslint-disable-next-line no-void
       void this.backGroundInit();
     },
-    async backGroundInit() {},
-    async showImg(imageTree, imageIndex) {
+    async backGroundInit() {
+      return;
+      /*
+      for (const image of this.ctrl.dataNode.images) {
+        await image.treeNode.waitForReady();
+        this.ctrl.refresh();
+      }*/
+    },
+    async showImg(imageIndex) {
+      if (0 > imageIndex) {
+        imageIndex = this.ctrl.dataTree.treeNode.images.length - 1;
+      }
+      if (imageIndex >= this.ctrl.dataTree.treeNode.images.length) {
+        imageIndex = 0;
+      }
       this.modalIndex = imageIndex;
-      if (0 < this.modalIndex) {
-        this.modalPrevious = this.ctrl.dataTree.treeNode.images[
-          this.modalIndex - 1
-        ];
-      } else {
-        this.modalPrevious = null;
-      }
-      if (this.ctrl.dataTree.treeNode.images.length - 1 > this.modalIndex) {
-        this.modalNext = this.ctrl.dataTree.treeNode.images[
-          this.modalIndex + 1
-        ];
-      } else {
-        this.modalNext = null;
-      }
+      const imageTree = this.ctrl.dataTree.treeNode.images[imageIndex];
       this.modalImage = imageTree.treeNode;
       this.modalTitle = imageTree.treeNode.imageTitle
         ? imageTree.treeNode.imageTitle
         : '';
+      console.log(imageIndex);
       if (imageTree.original) {
+        //  await imageTree.original.waitForReady();
         this.modalImage = imageTree.original;
       }
       this.ctrl.refresh();
