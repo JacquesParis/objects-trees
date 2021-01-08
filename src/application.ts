@@ -135,7 +135,7 @@ export class ObjectTreesApplication extends RestApplication {
 
     //    app.configureFileUpload(options.fileStorageDirectory);
 
-    app.bind(RestBindings.REQUEST_BODY_PARSER_OPTIONS).to({limit: '50mb'});
+    app.bind(RestBindings.REQUEST_BODY_PARSER_OPTIONS).to({limit: '500mb'});
 
     // Customize @loopback/boot Booter Conventions here
     app.bootOptions = {
