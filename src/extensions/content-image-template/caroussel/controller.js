@@ -7,12 +7,13 @@ function newFunction() {
       void this.backGroundInit();
     },
     async backGroundInit() {
+      /*
       if (this.ctrl.dataNode && this.ctrl.dataNode.images) {
         for (const image of this.ctrl.dataNode.images) {
           await image.treeNode.waitForReady();
           this.ctrl.refresh();
         }
-      }
+      }*/
     },
   };
 }

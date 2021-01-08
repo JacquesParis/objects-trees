@@ -1,6 +1,7 @@
 import {inject} from '@loopback/context';
 import {service} from '@loopback/core';
 import {
+  ApplicationService,
   CurrentContext,
   CURRENT_CONTEXT,
 } from './../services/application.service';
@@ -14,7 +15,9 @@ export class EntityDefinitionInterceptor extends AbstractEntityInterceptor<
     @service(EntityDefinitionService)
     protected entityDefinitionService: EntityDefinitionService,
     @inject(CURRENT_CONTEXT) public ctx: CurrentContext,
+    @service(ApplicationService)
+    protected applicationService: ApplicationService,
   ) {
-    super(entityDefinitionService, ctx);
+    super(entityDefinitionService, ctx, applicationService);
   }
 }

@@ -68,6 +68,7 @@ export class TransientEntityService
     resource: EntityName,
     objectType: string,
     transientFunction: (entity: T, ctx: CurrentContext) => Promise<void>,
+    methods: ('PUT' | 'POST' | 'PATCH' | 'GET')[] = [],
   ) {
     this.registerTransientEntityService(
       resource,
@@ -80,6 +81,16 @@ export class TransientEntityService
             TransientEntityService.name,
             resource + '.' + objectType + ': ' + functionDescription,
           );
+          if (0 < methods.length) {
+            this.description.description =
+              resource +
+              '.' +
+              objectType +
+              '.' +
+              methods.join('|') +
+              ': ' +
+              functionDescription;
+          }
         }
         public providerId: string;
         public serviceId: string;
@@ -88,6 +99,11 @@ export class TransientEntityService
           entity: IRestEntity,
           ctx: CurrentContext,
         ): Promise<void> {
+          if (0 < methods.length) {
+            if (-1 === indexOf(methods, ctx.uriContext?.uri?.value?.method)) {
+              return;
+            }
+          }
           if (-1 < indexOf(entity.entityCtx?.implementedTypes, objectType)) {
             return transientFunction(entity as T, ctx);
           }

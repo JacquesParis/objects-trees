@@ -299,10 +299,10 @@ export class ObjectTreesApplication extends RestApplication {
 
     app.service(ApplicationService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ApplicationService>(ApplicationService);
+
     app.service(ContentEntityService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ContentEntityService>(ContentEntityService);
-    /*    app.service(ActionEntityService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<ActionEntityService>(ActionEntityService);*/
+
     app.service(ObjectTypeService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ObjectTypeService>(ObjectTypeService);
 
@@ -317,6 +317,7 @@ export class ObjectTreesApplication extends RestApplication {
     app.service(ObjectNodeContentService, {
       defaultScope: BindingScope.SINGLETON,
     });
+
     await app.getService<ObjectNodeContentService>(ObjectNodeContentService);
     app.service(ObjectTreeService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ObjectTreeService>(ObjectTreeService);

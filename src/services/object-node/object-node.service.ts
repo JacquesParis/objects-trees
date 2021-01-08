@@ -10,15 +10,20 @@ import {
 } from '@loopback/repository';
 import {concat, find, merge, pick, some} from 'lodash';
 import {ApplicationError} from '../../helper/application-error';
-import {ObjectNode} from '../../models';
+import {EntityName} from '../../models';
 import {ObjectNodeRelations} from '../../models/object-node.model';
 import {ObjectSubType} from '../../models/object-sub-type.model';
 import {ObjectType} from '../../models/object-type.model';
 import {ObjectNodeRepository} from '../../repositories';
-import {CurrentContext, ExpectedValue} from '../application.service';
+import {
+  CurrentContext,
+  EntityActionType,
+  ExpectedValue,
+} from '../application.service';
 import {ContentEntityService} from '../content-entity/content-entity.service';
 import {ObjectTypeService} from '../object-type.service';
-import {NodeContext} from './../application.service';
+import {ObjectNode} from './../../models/object-node.model';
+import {ApplicationService, NodeContext} from './../application.service';
 
 export enum ParentNodeType {
   node = 'node',
@@ -30,12 +35,38 @@ export enum ParentNodeType {
 export class ObjectNodeService {
   constructor(
     @repository(ObjectNodeRepository)
-    public objectNodeRepository: ObjectNodeRepository,
+    private objectNodeRepository: ObjectNodeRepository,
     @service(ObjectTypeService)
-    public objectTypeService: ObjectTypeService,
+    private objectTypeService: ObjectTypeService,
     @service(ContentEntityService)
-    public contentEntityService: ContentEntityService,
-  ) {}
+    private contentEntityService: ContentEntityService,
+    @service(ApplicationService) private applicationService: ApplicationService,
+  ) {
+    this.applicationService.entityActions[
+      'ObjectNodeController.prototype.create'
+    ] = {
+      entityName: EntityName.objectNode,
+      entityActionType: EntityActionType.create,
+    };
+    this.applicationService.entityActions[
+      'ObjectNodeController.prototype.updateById'
+    ] = {
+      entityName: EntityName.objectNode,
+      entityActionType: EntityActionType.update,
+    };
+    this.applicationService.entityActions[
+      'ObjectNodeController.prototype.deleteById'
+    ] = {
+      entityName: EntityName.objectNode,
+      entityActionType: EntityActionType.delete,
+    };
+    this.applicationService.entityActions[
+      'ObjectNodeController.prototype.findById'
+    ] = {
+      entityName: EntityName.objectNode,
+      entityActionType: EntityActionType.read,
+    };
+  }
 
   public findOrderedNodes(filter: Filter<ObjectNode>): Promise<ObjectNode[]> {
     const orderedFilter: Filter<ObjectNode> = merge(

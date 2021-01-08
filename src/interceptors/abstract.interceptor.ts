@@ -20,7 +20,7 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
   protected async getUriParts(
     invocationCtx: InvocationContext,
     ctx: CurrentContext,
-  ): Promise<{baseUri: string; objectUri: string}> {
+  ): Promise<{baseUri: string; objectUri: string; method: string}> {
     return ctx.uriContext.uri.getOrSetValue(async () => {
       const httpReq: Request = (await invocationCtx.get(
         RestBindings.Http.REQUEST,
@@ -41,6 +41,7 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
       return {
         baseUri: baseUri,
         objectUri: objectUri,
+        method: httpReq.method,
       };
     });
   }

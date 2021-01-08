@@ -1,3 +1,4 @@
+import {IRestEntity} from '@jacquesparis/objects-model';
 import {
   InvocationContext,
   InvocationResult,
@@ -6,13 +7,22 @@ import {
 import {isObject} from 'lodash';
 import {RestEntity} from '../models';
 import {CurrentContext} from '../services/application.service';
+import {EntityName} from './../models/entity-name';
+import {
+  ApplicationService,
+  EntityActionType,
+} from './../services/application.service';
 import {AbstractEntityInterceptorInterface} from './abstract-entity-interceptor.service';
 import {AbstractInterceptor} from './abstract.interceptor';
 
 export abstract class AbstractEntityInterceptor<
   T extends AbstractEntityInterceptorInterface
 > extends AbstractInterceptor {
-  constructor(protected abstractEntityService: T, public ctx: CurrentContext) {
+  constructor(
+    protected abstractEntityService: T,
+    protected ctx: CurrentContext,
+    protected applicationService: ApplicationService,
+  ) {
     super();
   }
   value() {
@@ -24,11 +34,61 @@ export abstract class AbstractEntityInterceptor<
   ) {
     // eslint-disable-next-line no-useless-catch
     try {
+      //      invocationCtx.targetName = 'ObjectTypeController.prototype.find'
+      let result = undefined;
+
       // Add pre-invocation logic here
-      const result = await next();
+      if (
+        this.abstractEntityService.interceptRequest &&
+        invocationCtx.targetName &&
+        invocationCtx.targetName in this.applicationService.entityActions
+      ) {
+        const entityName: EntityName = this.applicationService.entityActions[
+          invocationCtx.targetName
+        ].entityName;
+        const entityActionType: EntityActionType = this.applicationService
+          .entityActions[invocationCtx.targetName].entityActionType;
+        let entityId: string | undefined = undefined;
+        let entity: IRestEntity | undefined = undefined;
+        switch (entityActionType) {
+          case EntityActionType.create:
+            entity = invocationCtx.args[0];
+            break;
+          case EntityActionType.update:
+            entityId = invocationCtx.args[0];
+            entity = invocationCtx.args[1];
+            break;
+          case EntityActionType.delete:
+            entityId = invocationCtx.args[0];
+            break;
+          case EntityActionType.read:
+            entityId = invocationCtx.args[0];
+            break;
+        }
+        const interceptionResult = await this.abstractEntityService.interceptRequest(
+          entityName,
+          entityActionType,
+          entityId,
+          entity,
+          this.ctx,
+        );
+        if (false === interceptionResult) {
+          return;
+        }
+        if (true !== interceptionResult) {
+          result = interceptionResult;
+        }
+      }
+      // invocation
+      if (undefined === result) {
+        result = await next();
+      }
       // Add post-invocation logic here
       if (Array.isArray(result)) {
-        if (result.length > 0) {
+        if (
+          this.abstractEntityService.completeReturnedEntities &&
+          result.length > 0
+        ) {
           if (result[0]?.uri) {
             const uriParts = await this.getUriParts(invocationCtx, this.ctx);
             const entityName = this.getEntityName(
@@ -45,7 +105,7 @@ export abstract class AbstractEntityInterceptor<
         }
       } else if (isObject(result)) {
         const entity: RestEntity = result as RestEntity;
-        if (entity?.uri) {
+        if (this.abstractEntityService.completeReturnedEntity && entity?.uri) {
           const uriParts = await this.getUriParts(invocationCtx, this.ctx);
           const entityName = this.getEntityName(entity.uri, uriParts.baseUri);
 

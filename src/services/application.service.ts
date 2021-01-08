@@ -7,12 +7,27 @@ import {ObjectSubType} from '../models/object-sub-type.model';
 import {ObjectType} from '../models/object-type.model';
 import {ApplicationError} from './../helper/application-error';
 import {TreatmentDescription} from './../integration/extension-description';
+import {EntityName} from './../models/entity-name';
 import {ObjectTree} from './../models/object-tree.model';
 import {ObjectTypeRelations} from './../models/object-type.model';
 import {
   AccessRightsPermissions,
   AccessRightsSet,
 } from './access-rights/access-rights.const';
+
+export enum EntityActionType {
+  create = 'create',
+  read = 'read',
+  update = 'update',
+  delete = 'delete',
+}
+
+export class EntityActions {
+  [controllerName: string]: {
+    entityName: EntityName;
+    entityActionType: EntityActionType;
+  };
+}
 
 export class MethodContext {
   entity: ExpectedValue<IRestEntity> = new ExpectedValue<IRestEntity>();
@@ -66,6 +81,7 @@ export class UriContext {
   uri: ExpectedValue<{
     baseUri: string;
     objectUri: string;
+    method: string;
   }> = new ExpectedValue();
 }
 
@@ -221,7 +237,7 @@ export class ApplicationService {
     USER: 'ContentUser',
     JSON: '',
   };
-  configSummary: TreatmentDescription;
+  public configSummary: TreatmentDescription;
 
   public get repositoryType(): ExpectedValue<ObjectType> {
     return this.extensions.ObjectTreeProvider.types.repository;
@@ -272,6 +288,8 @@ export class ApplicationService {
     return this.extensions.AccessRightsProvider.types
       .accessRightsAccessManagers;
   }
+
+  public entityActions: EntityActions = {};
 
   private extensions: {
     [key: string]: ApplicationExtensionContext;

@@ -1,5 +1,6 @@
 import {ObjectTreesApplicationInterface} from '../../application';
 import {ExtensionProvider} from '../../integration/extension.provider';
+import {EntityInterceptProvider} from './../../services/entity-intercept/entity-intercept.provider';
 import {InsideRestProvider} from './../../services/inside-rest/inside-rest.provider';
 import {TransientEntityProvider} from './../../services/transient-entity/transient-entity.provider';
 import {ContentImageProvider} from './../content-image/content-image.provider';
@@ -20,6 +21,7 @@ export class ContentImageThumbProvider extends ExtensionProvider {
       ContentImageProvider,
       TransientEntityProvider,
       InsideRestProvider,
+      EntityInterceptProvider,
     );
 
     this.services.push({cls: ContentImageThumbService});
