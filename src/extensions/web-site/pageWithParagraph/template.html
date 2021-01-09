@@ -4,18 +4,14 @@
       {{dataNode.pageTitle}}
     </h5>
     <p class="card-text">
-      <ng-container *ngIf="pageTree.paragraphTrees; else noParagraphTrees">
+      <ng-container
+        *ngTemplateOutlet="paragraphs;context:{paragraphTrees:[dataTree]}"
+      ></ng-container>
+      <ng-container *ngIf="!dataTree.paragraphTrees && dataTree.pageTrees">
         <ng-container
-          *ngTemplateOutlet="paragraphs;context:{paragraphTrees:[pageTree]}"
+          *ngTemplateOutlet="subPages;context:{pageTrees:[dataTree]}"
         ></ng-container>
       </ng-container>
-      <ng-template #noParagraphTrees>
-        <ng-container *ngIf="pageTree.pageTrees">
-          <ng-container
-            *ngTemplateOutlet="subPages;context:{pageTrees:[pageTree]}"
-          ></ng-container>
-        </ng-container>
-      </ng-template>
     </p>
   </div>
 </div>

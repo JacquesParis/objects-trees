@@ -76,10 +76,15 @@ export class ObjectNodeService {
     return this.objectNodeRepository.find(orderedFilter);
   }
 
-  public searchByTreeId(treeId: string): Promise<ObjectNode[]> {
-    return this.findOrderedNodes({
-      where: {parentTreeId: treeId},
-    });
+  public searchByTreeId(
+    treeId: string,
+    objectTypeId?: string,
+  ): Promise<ObjectNode[]> {
+    const where: Where<ObjectNode> = {parentTreeId: treeId};
+    if (objectTypeId) {
+      where.objectTypeId = objectTypeId;
+    }
+    return this.findOrderedNodes({where});
   }
 
   public searchByTreeIds(treeIds: string[]): Promise<ObjectNode[]> {
@@ -175,6 +180,31 @@ export class ObjectNodeService {
         merge({ownerId: ownerId}, errorContext, {
           namespace: namespaceType,
           namespaceName: namespaceName,
+        }),
+      );
+    }
+    return 1 === nodes.length ? nodes[0] : <ObjectNode>(<unknown>null);
+  }
+
+  public async searchTreeOfNamespaceId(
+    namespaceId: string,
+    treeType: string,
+    treeName: string,
+    errorContext = {},
+  ): Promise<ObjectNode> {
+    const nodes = await this.findOrderedNodes({
+      where: {
+        objectTypeId: treeType,
+        name: treeName,
+        parentNamespaceId: namespaceId,
+        tree: true,
+      },
+    });
+    if (1 < nodes.length) {
+      throw ApplicationError.tooMany(
+        merge({namespaceId}, errorContext, {
+          tree: treeType,
+          treeName: treeName,
         }),
       );
     }

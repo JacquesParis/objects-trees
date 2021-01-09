@@ -37,6 +37,15 @@ interface OneOfTreeOption {
   ownerType?: string;
   treeType: string;
 }
+interface OneOfNodeOption {
+  namespaceName?: string;
+  namespaceType?: string;
+  ownerName?: string;
+  ownerType?: string;
+  treeType?: string;
+  treeName?: string;
+  nodeType: string;
+}
 
 export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
   public providerId: string = ENTITY_DEFINITION_PROVIDER;
@@ -103,6 +112,19 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
       for (const key of Object.keys(properties)) {
         for (const option of Object.keys(properties[key])) {
           switch (option) {
+            case 'oneOfNode':
+              properties[key].oneOf = await this.oneOfNode(
+                properties[key].oneOfNode,
+                ctx,
+              );
+              delete properties[key].oneOfNode;
+              if (
+                !properties[key].oneOf ||
+                0 === properties[key].oneOf.length
+              ) {
+                delete properties[key].oneOf;
+              }
+              break;
             case 'oneOfTree':
               properties[key].oneOf = await this.oneOfTree(
                 properties[key].oneOfTree,
@@ -213,13 +235,116 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
       } catch (error) {}
     }
     return result;
-    /*[
-      {
-        enum: [
-          'Repository/public/Category/templates/TravelStoryTemplate/travelStory',
-        ],
-        title: 'public - templates - travelStory',
-      },
-    ];*/
+  }
+
+  protected async oneOfNode(
+    oneOfNodeOptions: OneOfNodeOption[],
+    ctx: NodeContext,
+  ): Promise<{enum: string[]; title: string}[]> {
+    const result = [];
+    const objectNode: ObjectNode | undefined = ctx.node.value
+      ? ctx.node.value
+      : ctx.parent.value
+      ? ctx.parent.value
+      : undefined;
+    for (const oneOfNodeOption of oneOfNodeOptions) {
+      try {
+        let owner: ObjectNode | undefined = undefined;
+        if (oneOfNodeOption.ownerType && oneOfNodeOption.ownerName) {
+          owner = await this.objectNodeService.searchOwner(
+            oneOfNodeOption.ownerType,
+            oneOfNodeOption.ownerName,
+          );
+        } else if (objectNode) {
+          owner = await ctx.owner.getOrSetValue(async () =>
+            this.objectNodeService.searchById(objectNode.parentOwnerId),
+          );
+        }
+        if (!owner) {
+          continue;
+        }
+        let namespace: ObjectNode | undefined = undefined;
+        if (oneOfNodeOption.namespaceType && oneOfNodeOption.namespaceName) {
+          namespace = await this.objectNodeService.searchNamespaceOfOwnerId(
+            owner.id as string,
+            oneOfNodeOption.namespaceType,
+            oneOfNodeOption.namespaceName,
+          );
+        } else if (
+          objectNode &&
+          !(oneOfNodeOption.ownerType && oneOfNodeOption.ownerName)
+        ) {
+          namespace = await ctx.namespace.getOrSetValue(async () =>
+            this.objectNodeService.searchById(objectNode.parentNamespaceId),
+          );
+        }
+        if (!namespace) {
+          continue;
+        }
+        let tree: ObjectNode | undefined = undefined;
+        if (oneOfNodeOption.treeType && oneOfNodeOption.treeName) {
+          tree = await this.objectNodeService.searchTreeOfNamespaceId(
+            namespace.id as string,
+            oneOfNodeOption.treeType,
+            oneOfNodeOption.treeName,
+          );
+        } else if (
+          objectNode &&
+          !(
+            oneOfNodeOption.ownerType &&
+            oneOfNodeOption.ownerName &&
+            oneOfNodeOption.namespaceType &&
+            oneOfNodeOption.namespaceName
+          )
+        ) {
+          tree = await ctx.namespace.getOrSetValue(async () =>
+            this.objectNodeService.searchById(objectNode.parentTreeId),
+          );
+        }
+        if (!tree) {
+          continue;
+        }
+        const nodes = await this.objectNodeService.searchByTreeId(
+          tree.id as string,
+          oneOfNodeOption.nodeType,
+        );
+        for (const node of nodes) {
+          const nodeId =
+            'node/' +
+            owner.objectTypeId +
+            '/' +
+            owner.name +
+            '/' +
+            namespace.objectTypeId +
+            '/' +
+            namespace.name +
+            '/' +
+            tree.objectTypeId +
+            '/' +
+            tree.name +
+            '/' +
+            oneOfNodeOption.nodeType +
+            '/' +
+            node.name;
+
+          if (!some(result, (choice) => choice.enum[0] === nodeId)) {
+            ctx.references[nodeId] = new ExpectedValue(node);
+            result.push({
+              enum: [nodeId],
+              title:
+                owner.name +
+                ' - ' +
+                namespace.name +
+                ' - ' +
+                tree.name +
+                ' - ' +
+                node.name,
+            });
+          }
+        }
+        // eslint-disable-next-line no-empty
+      } catch (error) {}
+    }
+    return result;
   }
 }
