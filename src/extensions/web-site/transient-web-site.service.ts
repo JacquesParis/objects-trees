@@ -517,5 +517,13 @@ export class TransientWebSiteService {
     const paragraphTrees =
       entity.childrenByImplentedTypeId[PARAGRAPH_TYPE.name];
     entity.paragraphTrees = paragraphTrees ? paragraphTrees : [];
+    entity.parentPageTitle = entity.treeNode.pageTitle
+      ? entity.treeNode.pageTitle
+      : entity.parentPageTitle;
+    for (const paragraphTree of entity.paragraphTrees) {
+      paragraphTree.parentPageTitle = paragraphTree.treeNode.pageTitle
+        ? paragraphTree.treeNode.pageTitle
+        : entity.parentPageTitle;
+    }
   }
 }

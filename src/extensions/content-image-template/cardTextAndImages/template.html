@@ -24,7 +24,11 @@
               class="card-title"
               *ngIf="dataNode.paragraphTitle && '' !== dataNode.paragraphTitle"
             >
-              {{dataNode.paragraphTitle}}
+              {{dataNode.paragraphTitle}}<span
+                class="ml-2 float-right badge badge-secondary"
+                *ngIf="dataTree.parentPageTitle && dataTree.parentPageTitle!==dataNode.paragraphTitle"
+                >{{dataTree.parentPageTitle}}</span
+              >
             </h6>
             <p
               class="card-text"
