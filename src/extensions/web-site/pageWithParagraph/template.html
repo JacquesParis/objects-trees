@@ -1,7 +1,10 @@
 <div class="card">
   <div class="card-body">
-    <h5 class="card-title" *ngIf="dataNode.pageTitle">
-      {{dataNode.pageTitle}}
+    <h5
+      class="card-title"
+      *ngIf="(dataNode.pageTitle || dataNode.menuTitle) as pageTitle"
+    >
+      {{pageTitle}}
     </h5>
     <p class="card-text">
       <ng-container
