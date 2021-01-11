@@ -21,22 +21,22 @@ function newFunction() {
       }
     },
     getPageTreeTemplate(pageNode, templateNode, siteTemplateNode) {
-      if (pageNode && pageNode.pageTemplateObjectTree) {
-        return pageNode.pageTemplateObjectTree;
+      if (pageNode && pageNode.pageTemplateTree) {
+        return pageNode.pageTemplateTree;
       }
-      if (templateNode && templateNode.pageTemplateObjectTree) {
-        return templateNode.pageTemplateObjectTree;
+      if (templateNode && templateNode.pageTemplateTree) {
+        return templateNode.pageTemplateTree;
       }
-      return siteTemplateNode.pageTemplateObjectTree;
+      return siteTemplateNode.pageTemplateTree;
     },
     getParagraphTreeTemplate(pageNode, templateNode, siteTemplateNode) {
-      if (pageNode && pageNode.paragraphTemplateObjectTree) {
-        return pageNode.paragraphTemplateObjectTree;
+      if (pageNode && pageNode.paragraphTemplateTree) {
+        return pageNode.paragraphTemplateTree;
       }
-      if (templateNode && templateNode.paragraphTemplateObjectTree) {
-        return templateNode.paragraphTemplateObjectTree;
+      if (templateNode && templateNode.paragraphTemplateTree) {
+        return templateNode.paragraphTemplateTree;
       }
-      return siteTemplateNode.paragraphTemplateObjectTree;
+      return siteTemplateNode.paragraphTemplateTree;
     },
   };
 }

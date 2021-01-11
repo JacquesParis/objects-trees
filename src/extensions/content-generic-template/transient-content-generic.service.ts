@@ -45,7 +45,7 @@ export class TransientContentGenericService {
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ) {
-    for (const key of Object.keys(objectNode)) {
+    for (let key of Object.keys(objectNode)) {
       if (
         key + 'Id' in objectNode &&
         objectNode[key].entityCtx &&
@@ -55,6 +55,13 @@ export class TransientContentGenericService {
             TEMPLATE_VIEW_TYPE.name,
           )
       ) {
+        if (key.endsWith('Tree')) {
+          key = key.substr(0, key.length - 4) + 'ObjectTree';
+        } else if (key.endsWith('Node')) {
+          key = key.substr(0, key.length - 4) + 'ObjectNode';
+        } else if (key.endsWith('Type')) {
+          key = key.substr(0, key.length - 4) + 'ObjectType';
+        }
         await this.addTemplateConfiguration(
           objectNode.entityCtx?.jsonSchema,
           key + 'Id',
@@ -96,7 +103,8 @@ export class TransientContentGenericService {
           }
           await this.addTemplateConfigurationProperties(
             template,
-            templateParentJsonPath + '.' + templateKeyId,
+            templateParentJsonPath,
+            'model.' + templateKeyId,
             templateTreeId,
             templateRefJsonSchema,
             ctx,
@@ -108,7 +116,8 @@ export class TransientContentGenericService {
 
   private async addTemplateConfigurationProperties(
     templateView: ObjectNode,
-    templateJsonPath: string,
+    modelPath: string,
+    expressionPath: string,
     templateObjectTreeId: string,
     jsonSchema: IJsonSchema | undefined,
     ctx: CurrentContext,
@@ -140,10 +149,11 @@ export class TransientContentGenericService {
           templateView.contentGenericTemplate.refererConfig,
         );
         addCondition(
-          templateJsonPath + "=='" + templateObjectTreeId + "'",
+          expressionPath + "=='" + templateObjectTreeId + "'",
           jsonSchema.properties.templatesConfigurations.properties[
             templateView.name
           ],
+          modelPath,
         );
 
         if (

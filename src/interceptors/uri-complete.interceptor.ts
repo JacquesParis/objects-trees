@@ -51,9 +51,14 @@ export class UriCompleteInterceptor extends AbstractInterceptor {
         optional: true,
       });
       const method = httpReq?.method;
-      if ('GET' === method || 'POST' === method || 'PATCH' === method) {
+      if (
+        'GET' === method ||
+        'POST' === method ||
+        'PUT' === method ||
+        'PATCH' === method
+      ) {
         await this.getUriParts(invocationCtx, this.ctx);
-        this.uriCompleteService.addUri(result, this.ctx);
+        this.uriCompleteService.completeReturnedEntity(result, this.ctx);
       }
       // eslint-disable-next-line no-empty
     } catch (error) {}

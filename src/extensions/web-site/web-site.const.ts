@@ -307,27 +307,6 @@ export const WEB_SITE_WITH_MENU_TEMPLATE_TYPE: ObjectTypeDefinition = {
   contentType: '',
 };
 
-export const PARAGRAPH_TYPE: ObjectTypeDefinition = {
-  name: 'Paragraph',
-  definition: {
-    properties: {
-      paragraphTitle: {
-        title: 'Paragraph title',
-        type: 'string',
-      },
-    },
-  },
-  contentType: '',
-};
-
-export const TEXT_PARAGRAPH_TYPE: ObjectTypeDefinition = {
-  name: 'TextParagraph',
-  definition: {
-    properties: {},
-  },
-  contentType: 'ContentText',
-};
-
 export const PAGE_TYPE: ObjectTypeDefinition = {
   name: 'Page',
   inheritedTypesIds: [],
@@ -342,6 +321,59 @@ export const PAGE_TYPE: ObjectTypeDefinition = {
   contentType: 'ContentText',
 };
 
+export const PARAGRAPH_TYPE: ObjectTypeDefinition = {
+  name: 'Paragraph',
+  definition: {
+    properties: {
+      paragraphTitle: {
+        title: 'Paragraph title',
+        type: 'string',
+      },
+    },
+  },
+  contentType: '',
+};
+
+export const PARAGRAPH_WITH_PAGE_LINK: ObjectTypeDefinition = {
+  name: 'ParagraphWithPageLink',
+  definition: {
+    properties: {
+      linkedPageObjectTreeId: {
+        title: 'Linked page',
+        type: 'string',
+        oneOfNode: [
+          {
+            nodeType: PAGE_TYPE.name,
+          },
+        ],
+      },
+    },
+  },
+};
+
+export const TEXT_PARAGRAPH_TYPE: ObjectTypeDefinition = {
+  inheritedTypesIds: [PARAGRAPH_TYPE.name],
+  name: 'TextParagraph',
+  definition: {
+    properties: {},
+  },
+  contentType: 'ContentText',
+};
+
+export const PARAGRAPH_CONTAINER_TYPE: ObjectTypeDefinition = {
+  inheritedTypesIds: [],
+  name: 'ParagraphContainer',
+};
+
+export const SECTION_PARAGRAPH_TYPE: ObjectTypeDefinition = {
+  inheritedTypesIds: [PARAGRAPH_TYPE.name, PARAGRAPH_CONTAINER_TYPE.name],
+  name: 'SectionParagraph',
+  definition: {
+    properties: {},
+  },
+  contentType: '',
+};
+
 export const PAGE_WITH_SUB_PAGE_TYPE: ObjectTypeDefinition = {
   inheritedTypesIds: [PAGE_TYPE.name],
   name: 'PageWithSubPage',
@@ -353,8 +385,13 @@ export const PAGE_WITH_PARAGRAPH_TYPE: ObjectTypeDefinition = {
 };
 
 export const PAGE_WITH_TEXT_PARAGRAPH_TYPE: ObjectTypeDefinition = {
-  inheritedTypesIds: [PAGE_TYPE.name],
+  inheritedTypesIds: [PAGE_WITH_PARAGRAPH_TYPE.name],
   name: 'PageWithTextParagraph',
+};
+
+export const PAGE_WITH_SECTION_PARAGRAPH_TYPE: ObjectTypeDefinition = {
+  inheritedTypesIds: [PAGE_WITH_PARAGRAPH_TYPE.name],
+  name: 'PageWithSectionParagraph',
 };
 
 export const WELCOME_PAGE_TYPE: ObjectTypeDefinition = {
@@ -422,51 +459,39 @@ export const CALENDAR_ENTRY_TYPE: ObjectTypeDefinition = {
 export const CATEGORY_MENU_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: REPOSITORY_CATEGORY_TYPE.name,
   subTypeName: MENU_TEMPLATE_TYPE.name,
-  name: MENU_TEMPLATE_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
   tree: true,
 };
 
 export const PAGE_WITH_TEXT_PARAGRAPH_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: PAGE_WITH_TEXT_PARAGRAPH_TYPE.name,
   subTypeName: TEXT_PARAGRAPH_TYPE.name,
-  name: TEXT_PARAGRAPH_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
-  tree: false,
+};
+
+export const PARAGRAPH_CONTAINER_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: PARAGRAPH_CONTAINER_TYPE.name,
+  subTypeName: TEXT_PARAGRAPH_TYPE.name,
+};
+
+export const PAGE_WITH_SECTION_PARAGRAPH_SECTION_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: PAGE_WITH_SECTION_PARAGRAPH_TYPE.name,
+  subTypeName: SECTION_PARAGRAPH_TYPE.name,
 };
 
 export const CATEGORY_PAGE_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: REPOSITORY_CATEGORY_TYPE.name,
   subTypeName: PAGE_TEMPLATE_TYPE.name,
-  name: PAGE_TEMPLATE_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
   tree: true,
 };
 
 export const CATEGORY_PARAGRAPH_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: REPOSITORY_CATEGORY_TYPE.name,
   subTypeName: PARAGRAPH_TEMPLATE_TYPE.name,
-  name: PARAGRAPH_TEMPLATE_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
   tree: true,
 };
 
 export const WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: WEB_SITE_VIEW_TYPE.name,
   subTypeName: WELCOME_PAGE_TYPE.name,
-  name: 'Welcome page',
-  acl: false,
-  namespace: false,
-  owner: false,
-  tree: false,
   min: 1,
   max: 1,
 };

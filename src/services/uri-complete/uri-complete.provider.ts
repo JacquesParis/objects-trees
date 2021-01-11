@@ -18,6 +18,7 @@ export class UriCompleteProvider extends ExtensionProvider {
       description: {
         postTreatment: new RunnerTreatmentDescription(
           'Add Uri references to Entities base on the id and the type of Entity',
+          ['UriCompleteService'],
         ),
       },
     });

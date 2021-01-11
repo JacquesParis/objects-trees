@@ -7,6 +7,8 @@ import {
 import {TEMPLATE_VIEW_TYPE} from './../content-generic-template/content-generic-template.const';
 import {
   PAGE_TYPE,
+  PAGE_WITH_PARAGRAPH_TYPE,
+  PARAGRAPH_CONTAINER_TYPE,
   PARAGRAPH_TYPE,
   TEXT_PARAGRAPH_TYPE,
 } from './../web-site/web-site.const';
@@ -26,9 +28,6 @@ export const CATEGORY_IMAGE_GALLERY_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: REPOSITORY_CATEGORY_TYPE.name,
   subTypeName: IMAGE_GALLERY_TEMPLATE_TYPE.name,
   name: IMAGE_GALLERY_TEMPLATE_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
   tree: true,
 };
 
@@ -48,31 +47,26 @@ export const PAGE_WITH_GALLERY_TYPE: ObjectTypeDefinition = {
 };
 
 export const PAGE_WITH_GALLERY_PARAGRAPH_TYPE: ObjectTypeDefinition = {
-  inheritedTypesIds: [PAGE_TYPE.name],
+  inheritedTypesIds: [PAGE_WITH_PARAGRAPH_TYPE.name],
   name: 'PageWithGalleryParagraph',
 };
 
 export const PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE: ObjectTypeDefinition = {
-  inheritedTypesIds: [PAGE_TYPE.name],
+  inheritedTypesIds: [PAGE_WITH_PARAGRAPH_TYPE.name],
   name: 'PageWithGalleryTextParagraph',
 };
 
 export const PAGE_WITH_GALLERY_PARAGRAPH_GALLERY_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: PAGE_WITH_GALLERY_PARAGRAPH_TYPE.name,
   subTypeName: GALLERY_PARAGRAPH_TYPE.name,
-  name: GALLERY_PARAGRAPH_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
-  tree: false,
 };
 
 export const PAGE_WITH_GALLERY_TEXT_PARAGRAPH_GALLERY_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE.name,
   subTypeName: GALLERY_TEXT_PARAGRAPH_TYPE.name,
-  name: GALLERY_TEXT_PARAGRAPH_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
-  tree: false,
+};
+
+export const PARAGRAPH_CONTAINER_GALLERY_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: PARAGRAPH_CONTAINER_TYPE.name,
+  subTypeName: GALLERY_TEXT_PARAGRAPH_TYPE.name,
 };

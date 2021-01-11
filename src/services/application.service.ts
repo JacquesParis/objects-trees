@@ -83,6 +83,9 @@ export class UriContext {
     objectUri: string;
     method: string;
   }> = new ExpectedValue();
+  returnedEntity: ExpectedValue<
+    IRestEntity | IRestEntity[]
+  > = new ExpectedValue<IRestEntity | IRestEntity[]>();
 }
 
 export class CurrentContext {

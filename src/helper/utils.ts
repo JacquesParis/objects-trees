@@ -1,7 +1,7 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
 /* eslint-disable no-empty */
 import fs from 'fs';
-import {camelCase, intersection, kebabCase} from 'lodash';
+import {camelCase, intersection, isObject, isString, kebabCase} from 'lodash';
 import path from 'path';
 import {ObjectTree} from '../models';
 import {ObjectNode} from './../models/object-node.model';
@@ -100,7 +100,7 @@ export function doesTreeImplementOneOfType(
   return intersection(tree.entityCtx?.implementedTypes, types).length > 0;
 }
 
-export function addCondition(condition: string, schema: IJsonSchema) {
+export function addConditionOldVersion(condition: string, schema: IJsonSchema) {
   if (!schema['x-schema-form']) {
     schema['x-schema-form'] = {};
   }
@@ -108,6 +108,53 @@ export function addCondition(condition: string, schema: IJsonSchema) {
   if (schema.properties) {
     for (const key of Object.keys(schema.properties)) {
       addCondition(condition, schema.properties[key]);
+    }
+  }
+}
+
+export function addCondition(
+  condition: string,
+  schema: IJsonSchema,
+  modelPath = 'model',
+) {
+  condition = condition.replace('[arrayIndex]', '[arrayIndices]');
+  let expresion =
+    'model = ' + modelPath.replace('[arrayIndex]', '[arrayIndices]') + ';\r\n';
+  expresion += 'var result = ' + condition + ';\r\n';
+
+  //  function anonymous(model,arrayIndices
+  if (!schema['x-schema-form']) {
+    schema['x-schema-form'] = {};
+  }
+  if (isString(schema['x-schema-form'].condition)) {
+    schema['x-schema-form'].condition = {
+      functionBody:
+        'return ' +
+        schema['x-schema-form'].condition.replace(
+          '[arrayIndex]',
+          '[arrayIndices]',
+        ),
+    };
+  }
+  if (!isObject(schema['x-schema-form'].condition)) {
+    schema['x-schema-form'].condition = {};
+  }
+  if (isString(schema['x-schema-form'].condition.functionBody)) {
+    expresion +=
+      'var previousResultFct = (model,arrayIndices) =>{' +
+      '\r\n' +
+      schema['x-schema-form'].condition.functionBody +
+      '\r\n' +
+      '}' +
+      ';\r\n' +
+      'result = result && previousResultFct(model,arrayIndices);\r\n';
+  }
+  schema['x-schema-form'].condition.functionBody =
+    expresion + '\r\n' + 'return result';
+
+  if (schema.properties) {
+    for (const key of Object.keys(schema.properties)) {
+      addCondition(condition, schema.properties[key], modelPath);
     }
   }
 }

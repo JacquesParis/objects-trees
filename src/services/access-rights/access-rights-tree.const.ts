@@ -1,5 +1,6 @@
 export enum AccessRightsTreeScope {
   searchOwner = 'searchOwner',
   searchNamespace = 'searchNamespace',
-  searchTreeNode = 'searchTreeNode',
+  searchTree = 'searchTree',
+  searchNode = 'searchNode',
 }

@@ -78,11 +78,17 @@ export class ObjectNodeService {
 
   public searchByTreeId(
     treeId: string,
-    objectTypeId?: string,
+    options: {
+      objectTypeId?: string;
+      name?: string;
+    } = {},
   ): Promise<ObjectNode[]> {
     const where: Where<ObjectNode> = {parentTreeId: treeId};
-    if (objectTypeId) {
-      where.objectTypeId = objectTypeId;
+    if (options.objectTypeId) {
+      where.objectTypeId = options.objectTypeId;
+    }
+    if (options.name) {
+      where.name = options.name;
     }
     return this.findOrderedNodes({where});
   }
@@ -150,7 +156,7 @@ export class ObjectNodeService {
     if (!owner) {
       throw ApplicationError.notFound({owner: ownerType, ownerNale: ownerName});
     }
-    return this.searchNamespaceOfOwnerId(
+    const namespace = await this.searchNamespaceOfOwnerId(
       owner.id as string,
       namespaceType,
       namespaceName,
@@ -159,6 +165,14 @@ export class ObjectNodeService {
         ownerName: ownerName,
       },
     );
+    if (
+      !namespace &&
+      ownerType === namespaceType &&
+      ownerName === namespaceName
+    ) {
+      return owner;
+    }
+    return namespace;
   }
 
   public async searchNamespaceOfOwnerId(
@@ -251,7 +265,7 @@ export class ObjectNodeService {
     });
   }
 
-  public async searchTreeNode(
+  public async searchTree(
     ownerType: string,
     ownerName: string,
     namespaceType: string,
@@ -288,6 +302,15 @@ export class ObjectNodeService {
         ownerName: ownerName,
       });
     }
+
+    if (
+      0 === nodes.length &&
+      treeType === namespaceType &&
+      treeName === namespaceName
+    ) {
+      return namespace;
+    }
+
     return 1 === nodes.length ? nodes[0] : <ObjectNode>(<unknown>null);
   }
 
@@ -395,10 +418,10 @@ export class ObjectNodeService {
     }
 
     if (
-      objectSubType.max &&
+      Number.isInteger(objectSubType.max) &&
       brothers.filter(
         (brother) => brother.objectTypeId === objectSubType.subObjectTypeId,
-      ).length >= objectSubType.max
+      ).length >= (objectSubType.max as number)
     ) {
       throw ApplicationError.tooMany({
         objectType: objectSubType.subObjectTypeId,

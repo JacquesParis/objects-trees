@@ -33,6 +33,12 @@ export class TransientUriReferenceService implements TransientEntityInterface {
       key.endsWith('ObjectTypeUri')
     );
   }
+  private getObjectReferenceAttributeName(key: string, ctx: CurrentContext) {
+    return key
+      .replace('ObjectTreeUri', 'Tree')
+      .replace('ObjectNodeUri', 'Node')
+      .replace('ObjectTypeUri', 'Type');
+  }
 
   private isExcludedKey(key: string, ctx: CurrentContext) {
     return -1 < indexOf(['aclList', 'entityCtx'], key);
@@ -50,12 +56,38 @@ export class TransientUriReferenceService implements TransientEntityInterface {
         this.isUriObjectReference(key, ctx)
       ) {
         const uri = entity[key];
-        const attribute = key.substr(0, key.length - 3);
-        if (undefined === entity[attribute]) {
+        const defaultAttribute = key.substr(0, key.length - 3);
+        const newAttribute = this.getObjectReferenceAttributeName(key, ctx);
+        let ref: IRestEntity | undefined = undefined;
+        let insertRef = false;
+        if (undefined !== entity[defaultAttribute]) {
+          ref = entity[defaultAttribute];
+        } else {
           try {
-            entity[attribute] = await this.insideRestService.read(uri, ctx);
-          } catch (error) {
-            entity[attribute] = error.message;
+            ref = await this.insideRestService.read(uri, ctx);
+            if (
+              EntityName.objectTree === ref.entityCtx?.entityType &&
+              isObject(ctx.uriContext?.returnedEntity?.value) &&
+              !isArray(ctx.uriContext?.returnedEntity?.value) &&
+              EntityName.objectTree ===
+                ctx.uriContext?.returnedEntity?.value?.entityCtx?.entityType &&
+              !ref.aliasUri &&
+              ref.treeNode &&
+              ref.treeNode.parentTreeId ===
+                ctx.uriContext.returnedEntity.value.treeNode.id
+            ) {
+              insertRef = false;
+            } else {
+              insertRef = true;
+            }
+            // eslint-disable-next-line no-empty
+          } catch (error) {}
+          if (ref?.id && ref.uri) {
+            entity[newAttribute + 'Id'] = ref.id;
+            entity[newAttribute + 'Uri'] = ref.uri;
+            if (insertRef) {
+              entity[newAttribute] = ref;
+            }
           }
         }
       }

@@ -13,6 +13,13 @@ type EntityType = {
 
 @injectable({scope: BindingScope.SINGLETON})
 export class UriCompleteService {
+  public completeReturnedEntity(
+    result: EntityType | EntityType[],
+    ctx: CurrentContext,
+  ) {
+    this.addUri(result, ctx);
+    ctx.uriContext.returnedEntity.value = result;
+  }
   public addUri(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result: EntityType | EntityType[] | any,

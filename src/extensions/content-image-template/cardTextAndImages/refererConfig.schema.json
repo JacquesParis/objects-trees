@@ -19,6 +19,55 @@
           }
        ]
     },
+    "paragraphBreakLine": {
+      "type": "string",
+      "title": "Display paragraph in full width",
+      "default": "xl",
+      "oneOf":[
+        {"enum": ["none"], "title": "never"},
+        {"enum": ["xs"], "title": "for small phones - screens less than 576px wide"},
+        {"enum": ["sm"], "title": "for phones - screens less than 768px wide"},
+        {"enum": ["md"], "title": "for tablets - screens equal to or greater than 768px wide"},
+        {"enum": ["lg"], "title": "for small laptops - screens equal to or greater than 992px wide"},
+        {"enum": ["xl"], "title": "always"}
+        ]
+    },
+    "paragraphMaxWidth": {"type": "number",
+      "title": "Large screen paragraph Width",
+      "default": 6,
+      "oneOf":[
+        {"enum": [12], "title": "Full space width"},
+          {"enum": [9], "title": "3/4 space width"},
+        {"enum": [8], "title": "2/3 space width"},
+        {"enum": [6], "title": "Half space width"},
+        {"enum": [4], "title": "1/3 space width"},
+        {"enum": [3], "title": "1/4 space width"},
+        {"enum": [2], "title": "1/6 space width"},
+        {"enum": [1], "title": "1/12 space width"}],
+        "x-schema-form": {
+          "condition": {
+            "functionBody": "return !model.templatesConfigurations.cardTextAndImages.paragraphBreakLine || model.templatesConfigurations.cardTextAndImages.paragraphBreakLine!=='xl'"
+          }
+        }
+      },
+      "paragraphMinWidth": {"type": "number",
+        "title": "Small screen paragraph Width",
+        "default": 6,
+        "oneOf":[
+          {"enum": [12], "title": "Full space width"},
+            {"enum": [9], "title": "3/4 space width"},
+          {"enum": [8], "title": "2/3 space width"},
+          {"enum": [6], "title": "Half space width"},
+          {"enum": [4], "title": "1/3 space width"},
+          {"enum": [3], "title": "1/4 space width"},
+          {"enum": [2], "title": "1/6 space width"},
+          {"enum": [1], "title": "1/12 space width"}],
+          "x-schema-form": {
+            "condition": {
+              "functionBody": "return !model.templatesConfigurations.cardTextAndImages.paragraphBreakLine || model.templatesConfigurations.cardTextAndImages.paragraphBreakLine!=='xl'"
+            }
+          }
+        },
     "imageGalleryPosition": {
       "type": "string",
       "title": "Image gallery Position",
@@ -28,6 +77,62 @@
         {"enum": ["before"], "title": "Before the text"},
         {"enum": ["left"], "title": "On left side of the text"},
         {"enum": ["right"], "title": "On right side of the text"}]
+    },
+    "galleryMaxWidth": {
+      "type": "number",
+      "title": "Large screen gallery Width",
+      "default": 6,
+      "oneOf":[
+        {"enum": [12], "title": "Full paragraphe width"},
+          {"enum": [9], "title": "3/4 paragraphe width"},
+        {"enum": [8], "title": "2/3 paragraphe width"},
+        {"enum": [6], "title": "Half paragraphe width"},
+        {"enum": [4], "title": "1/3 paragraphe width"},
+        {"enum": [3], "title": "1/4 paragraphe width"},
+        {"enum": [2], "title": "1/6 paragraphe width"},
+        {"enum": [1], "title": "1/12 paragraphe width"}],
+        "x-schema-form": {
+          "condition": {
+            "functionBody": "return model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='right' || model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='left'"
+          }
+        }
+    },
+    "galleryMinWidth": {
+      "type": "number",
+      "title": "Small screen gallery Width",
+      "default": 4,
+      "oneOf":[
+        {"enum": [12], "title": "Full paragraphe width"},
+          {"enum": [9], "title": "3/4 paragraphe width"},
+        {"enum": [8], "title": "2/3 paragraphe width"},
+        {"enum": [6], "title": "Half paragraphe width"},
+        {"enum": [4], "title": "1/3 paragraphe width"},
+        {"enum": [3], "title": "1/4 paragraphe width"},
+        {"enum": [2], "title": "1/6 paragraphe width"},
+        {"enum": [1], "title": "1/12 paragraphe width"}],
+        "x-schema-form": {
+          "condition": {
+            "functionBody": "return model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='right' || model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='left'"
+          }
+        }
+    },
+    "galleryBreakLine": {
+      "type": "string",
+      "title": "Display gallery in a new line",
+      "default": "sm",
+      "oneOf":[
+        {"enum": ["none"], "title": "never"},
+        {"enum": ["xs"], "title": "for small phones - screens less than 576px wide"},
+        {"enum": ["sm"], "title": "for phones - screens less than 768px wide"},
+        {"enum": ["md"], "title": "for tablets - screens equal to or greater than 768px wide"},
+        {"enum": ["lg"], "title": "for small laptops - screens equal to or greater than 992px wide"},
+        {"enum": ["xl"], "title": "always"}
+        ],
+        "x-schema-form": {
+          "condition": {
+            "functionBody": "return model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='right' || model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='left'"
+          }
+        }
     }
   }
 }

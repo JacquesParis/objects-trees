@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import {IRestEntity} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
 import {assign} from 'lodash';
@@ -192,24 +193,26 @@ export class ContentImageThumbService {
         //return hasNewNodes;
         return;
       }
-      await this.objectNodeService.add(
-        {
-          name: 'original',
-          parentNodeId: imageTree.treeNode.id,
-          objectTypeId: IMAGE_ORIGINAL_TYPE.name,
-          contentImage: {
-            base64: imageTree.treeNode.contentImage.base64,
-            size: imageTree.treeNode.contentImage.size,
-            name: imageTree.treeNode.contentImage.name,
-            type: imageTree.treeNode.contentImage.type,
+      try {
+        await this.objectNodeService.add(
+          {
+            name: 'original',
+            parentNodeId: imageTree.treeNode.id,
+            objectTypeId: IMAGE_ORIGINAL_TYPE.name,
+            contentImage: {
+              base64: imageTree.treeNode.contentImage.base64,
+              size: imageTree.treeNode.contentImage.size,
+              name: imageTree.treeNode.contentImage.name,
+              type: imageTree.treeNode.contentImage.type,
+            },
           },
-        },
-        CurrentContext.get({
-          nodeContext: {
-            parent: new ExpectedValue<ObjectNode>(imageTree.treeNode),
-          },
-        }),
-      );
+          CurrentContext.get({
+            nodeContext: {
+              parent: new ExpectedValue<ObjectNode>(imageTree.treeNode),
+            },
+          }),
+        );
+      } catch (error) {}
       hasNewNodes = true;
       const newSize = await this.changeImgSize(
         imageTree.treeNode.contentImage,
@@ -251,24 +254,26 @@ export class ContentImageThumbService {
         imageTree.treeNode.contentImage,
         200,
       );
-      await this.objectNodeService.add(
-        {
-          name: 'thumb',
-          parentNodeId: imageTree.treeNode.id,
-          objectTypeId: IMAGE_THUMB_TYPE.name,
-          contentImage: {
-            base64: newSize.base64,
-            size: newSize.size,
-            name: imageTree.treeNode.contentImage.name,
-            type: imageTree.treeNode.contentImage.type,
+      try {
+        await this.objectNodeService.add(
+          {
+            name: 'thumb',
+            parentNodeId: imageTree.treeNode.id,
+            objectTypeId: IMAGE_THUMB_TYPE.name,
+            contentImage: {
+              base64: newSize.base64,
+              size: newSize.size,
+              name: imageTree.treeNode.contentImage.name,
+              type: imageTree.treeNode.contentImage.type,
+            },
           },
-        },
-        CurrentContext.get({
-          nodeContext: {
-            parent: new ExpectedValue<ObjectNode>(imageTree.treeNode),
-          },
-        }),
-      );
+          CurrentContext.get({
+            nodeContext: {
+              parent: new ExpectedValue<ObjectNode>(imageTree.treeNode),
+            },
+          }),
+        );
+      } catch (error) {}
     }
 
     //   if (reloadTree && hasNewNodes) {

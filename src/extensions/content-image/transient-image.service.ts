@@ -84,17 +84,14 @@ export class TransientImageService {
     ctx: CurrentContext,
   ) {
     const images = [];
-    if (
-      !objectNode.imageGalleryObjectTree &&
-      objectNode.imageGalleryObjectTreeUri
-    ) {
-      objectNode.imageGalleryObjectTree = (await this.insideRestService.read(
+    if (!objectNode.imageGalleryTree && objectNode.imageGalleryObjectTreeUri) {
+      objectNode.imageGalleryTree = (await this.insideRestService.read(
         objectNode.imageGalleryObjectTreeUri,
         ctx,
       )) as ObjectTree;
     }
-    if (objectNode.imageGalleryObjectTree?.children) {
-      for (const image of objectNode.imageGalleryObjectTree.children) {
+    if (objectNode.imageGalleryTree?.children) {
+      for (const image of objectNode.imageGalleryTree.children) {
         images.push(image);
       }
     }

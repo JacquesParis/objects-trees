@@ -50,6 +50,9 @@ export const IMAGE_GALLERY_SELECTOR_TYPE: ObjectTypeDefinition = {
         items: {
           type: 'string',
         },
+        'x-schema-form': {
+          condition: 'false',
+        },
       },
     },
   },

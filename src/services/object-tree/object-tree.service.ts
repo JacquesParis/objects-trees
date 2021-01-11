@@ -1,5 +1,6 @@
 import {service} from '@loopback/core';
 import * as _ from 'lodash';
+import {find} from 'lodash';
 import {ObjectTreeDefinition} from '../../integration/extension.provider';
 import {ObjectNode} from '../../models';
 import {ObjectTree} from '../../models/object-tree.model';
@@ -240,7 +241,7 @@ export class ObjectTreeService {
     await this.ready;
     const tree: ObjectNode = await ctx.treeContext.treeNode.getOrSetValue(
       async () => {
-        return this.objectNodeService.searchTreeNode(
+        return this.objectNodeService.searchTree(
           ownerType,
           ownerName,
           namespaceType,
@@ -286,6 +287,45 @@ export class ObjectTreeService {
       ctx,
     );
     return this.buildTreeFromNodes(objectNodes[0], objectNodes, ctx);
+  }
+
+  public async getNode(
+    ownerType: string,
+    ownerName: string,
+    namespaceType: string,
+    namespaceName: string,
+    treeType: string,
+    treeName: string,
+    nodeType: string,
+    nodeName: string,
+    ctx: CurrentContext,
+  ): Promise<ObjectTree> {
+    const objectNodes: ObjectNode[] = await this.getTreeNodes(
+      ownerType,
+      ownerName,
+      namespaceType,
+      namespaceName,
+      treeType,
+      treeName,
+      ctx,
+    );
+    const treeNode = find(
+      objectNodes,
+      (node) => node.name === nodeName && node.objectTypeId === nodeType,
+    );
+    if (!treeNode) {
+      throw ApplicationError.notFound({
+        node: nodeType,
+        nodeName: nodeName,
+        tree: treeType,
+        treeName: treeName,
+        namespace: namespaceType,
+        namespaceName: namespaceName,
+        owner: ownerType,
+        ownerName: ownerName,
+      });
+    }
+    return this.buildTreeFromNodes(treeNode, objectNodes, ctx);
   }
 
   public async getNamespaceNodes(

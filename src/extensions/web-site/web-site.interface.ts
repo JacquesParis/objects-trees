@@ -18,11 +18,11 @@ export interface ParagraphTemplateChoice {
   templatesConfigurations?: {[templateName: string]: Object};
 }
 export interface WebSiteTemplate extends TemplateView {
-  pageTemplateObjectTree: PageTemplate;
+  pageTemplateTree: PageTemplate;
 }
 
 export interface WebSiteView extends ObjectNode {
-  webSiteObjectTree: WebSiteTemplate;
+  webSiteTree: WebSiteTemplate;
 }
 
 export interface MenuEntryTree extends ObjectTree {
@@ -54,7 +54,7 @@ export interface WebSiteViewWithMenuTree
 }
 
 export interface WebSiteViewWithMenu extends WebSiteView {
-  webSiteObjectTree: WebSiteWitHMenuTemplate;
+  webSiteTree: WebSiteWitHMenuTemplate;
   menuTitle: string;
   menuEntries: {
     [menuKey: string]: string;
@@ -70,7 +70,7 @@ export interface PageTemplate extends TemplateView {}
 export interface MenuTemplate extends TemplateView {}
 
 export interface WebSiteWitHMenuTemplate extends WebSiteTemplate {
-  menuObjectTree: MenuTemplate;
+  menuTree: MenuTemplate;
   menuEntries: {
     entryKey: string;
     entryName: string;

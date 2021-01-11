@@ -1,61 +1,65 @@
-<ng-container
-  *ngIf="ctrl.getGalleryObjectTree(dataNode, templateNode, siteTemplateNode) as galleryObjectTree"
->
+<ng-container *ngIf="dataNode.linkedPageTree; else card">
+  <a href="{{getPageHref(dataNode.linkedPageTree)}}">
+    <ng-container *ngTemplateOutlet="card"></ng-container>
+  </a>
+</ng-container>
+
+<ng-template #card>
   <ng-container
-    *ngIf="ctrl.getGalleriePosition(dataNode, templateNode, siteTemplateNode) as galleriePosition"
+    *ngIf="ctrl.getGalleryObjectTree(dataNode, templateNode, siteTemplateNode) as galleryObjectTree"
   >
-    <div class="card">
-      <div class="row no-gutters">
-        <div class="col-12" *ngIf="'before'===galleriePosition">
-          <ng-container *ngTemplateOutlet="cardImg"></ng-container>
-        </div>
-        <div
-          class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-6"
-          *ngIf="'left'===galleriePosition"
-        >
-          <ng-container *ngTemplateOutlet="cardImg"></ng-container>
-        </div>
-        <div
-          class="col"
-          *ngIf="(dataNode.paragraphTitle && '' !== dataNode.paragraphTitle) || (dataNode.contentText && '' !== dataNode.contentText)"
-        >
-          <div class="card-body">
-            <h6
-              class="card-title"
-              *ngIf="dataNode.paragraphTitle && '' !== dataNode.paragraphTitle"
-            >
-              {{dataNode.paragraphTitle}}<span
-                class="ml-2 float-right badge badge-secondary"
-                *ngIf="dataTree.parentPageTitle && dataTree.parentPageTitle!==dataNode.paragraphTitle"
-                >{{dataTree.parentPageTitle}}</span
+    <ng-container
+      *ngIf="ctrl.getGalleriePosition(dataNode, templateNode, siteTemplateNode) as galleriePosition"
+    >
+      <div
+        class="card {{ctrl.getParagraphColClass(dataNode, templateNode, siteTemplateNode)}}"
+      >
+        <div class="row no-gutters">
+          <div class="col-12" *ngIf="'before'===galleriePosition">
+            <ng-container *ngTemplateOutlet="cardImg"></ng-container>
+          </div>
+          <div
+            class="col"
+            *ngIf="(dataNode.paragraphTitle && '' !== dataNode.paragraphTitle) || (dataNode.contentText && '' !== dataNode.contentText)"
+          >
+            <div class="card-body">
+              <div
+                class="{{ctrl.getGalleryColClass(dataNode, templateNode, siteTemplateNode)}}"
+                *ngIf="'left'===galleriePosition || 'right'===galleriePosition"
               >
-            </h6>
-            <p
-              class="card-text"
-              *ngIf="dataNode.contentText && '' !== dataNode.contentText"
-              [innerHtml]="dataNode.contentText"
-            ></p>
+                <ng-container *ngTemplateOutlet="cardImg"></ng-container>
+              </div>
+              <h6
+                class="card-title"
+                *ngIf="dataNode.paragraphTitle && '' !== dataNode.paragraphTitle"
+              >
+                {{dataNode.paragraphTitle}}<span
+                  class="ml-2 float-right badge badge-secondary"
+                  *ngIf="dataTree.parentPageTitle && dataTree.parentPageTitle!==dataNode.paragraphTitle"
+                  >{{dataTree.parentPageTitle}}</span
+                >
+              </h6>
+              <p
+                class="card-text"
+                *ngIf="dataNode.contentText && '' !== dataNode.contentText"
+                [innerHtml]="dataNode.contentText"
+              ></p>
+            </div>
+          </div>
+          <div class="col-12" *ngIf="'after'===galleriePosition">
+            <ng-container *ngTemplateOutlet="cardImg"></ng-container>
           </div>
         </div>
-        <div
-          class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-6"
-          *ngIf="'right'===galleriePosition"
-        >
-          <ng-container *ngTemplateOutlet="cardImg"></ng-container>
-        </div>
-        <div class="col-12" *ngIf="'after'===galleriePosition">
-          <ng-container *ngTemplateOutlet="cardImg"></ng-container>
-        </div>
       </div>
-    </div>
+    </ng-container>
+    <ng-template #cardImg>
+      <div class="card-img">
+        <div
+          template
+          [dataTree]="dataTree"
+          [templateTree]="galleryObjectTree"
+        ></div>
+      </div>
+    </ng-template>
   </ng-container>
-  <ng-template #cardImg>
-    <div class="card-img">
-      <div
-        template
-        [dataTree]="dataTree"
-        [templateTree]="galleryObjectTree"
-      ></div>
-    </div>
-  </ng-template>
-</ng-container>
+</ng-template>

@@ -5,13 +5,11 @@ import {ExtensionProvider} from '../../integration/extension.provider';
 import {POST_TYPE} from '../post/post.const';
 import {
   CALENDAR_ENTRY_TYPE,
-  WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE,
   WELCOME_PAGE_TYPE,
 } from '../web-site/web-site.const';
 import {ContentImageTemplateProvider} from './../content-image-template/content-image-template.provider';
 import {
   IMAGE_GALLERIES_TYPE,
-  IMAGE_GALLERY_SELECTOR_TYPE,
   IMAGE_GALLERY_TYPE,
   IMAGE_TYPE,
 } from './../content-image/content-image.const';
@@ -26,7 +24,14 @@ import {
   TRAVEL_STORY_PROVIDER,
   TRAVEL_STORY_TEMPLATE_TYPE,
   TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE,
+  TRAVEL_STORY_TRAVEL_STORY_WELCOME_PAGE_SUBTYPE,
   TRAVEL_STORY_TYPE,
+  TRAVEL_STORY_WELCOME_MENU_ENTRY_TYPE,
+  TRAVEL_STORY_WELCOME_MENU_TEXT_PARAGRAPH_SUBTYPE,
+  TRAVEL_STORY_WELCOME_MENU_TYPE,
+  TRAVEL_STORY_WELCOME_MENU_WECLOME_MENU_ENTRY_SUBTYPE,
+  TRAVEL_STORY_WELCOME_PAGE_TRAVEL_STORY_WELCOME_MENU_SUBTYPE,
+  TRAVEL_STORY_WELCOME_PAGE_TYPE,
 } from './travel-story-type.const';
 export class TravelStoryTypeProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
@@ -37,6 +42,9 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       TRAVEL_STORY_POST_TYPE,
       TRAVEL_STORY_TEMPLATE_TYPE,
       TRAVEL_STORY_POST_ROOT_TYPE,
+      TRAVEL_STORY_WELCOME_PAGE_TYPE,
+      TRAVEL_STORY_WELCOME_MENU_TYPE,
+      TRAVEL_STORY_WELCOME_MENU_ENTRY_TYPE,
     );
 
     this.objectSubTypes.push(
@@ -45,6 +53,10 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       TRAVEL_STORY_POST_TRAVEL_STORY_POST_SUBTYPE,
       CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE,
       TRAVEL_STORY_IMAGE_GALLERIES_SUBTYPE,
+      TRAVEL_STORY_TRAVEL_STORY_WELCOME_PAGE_SUBTYPE,
+      TRAVEL_STORY_WELCOME_PAGE_TRAVEL_STORY_WELCOME_MENU_SUBTYPE,
+      TRAVEL_STORY_WELCOME_MENU_WECLOME_MENU_ENTRY_SUBTYPE,
+      TRAVEL_STORY_WELCOME_MENU_TEXT_PARAGRAPH_SUBTYPE,
     );
 
     this.objectTrees.travelStory = {
@@ -90,7 +102,10 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               paragraphTypeName: 'Display images with Caroussel',
               paragraphTemplateObjectTreeId:
                 'tree/Repository/public/RepositoryCategory/templates/ParagraphTemplate/cardTextAndImages',
-              paragraphTypes: [IMAGE_GALLERY_SELECTOR_TYPE.name],
+              paragraphTypes: [
+                TRAVEL_STORY_POST_ROOT_TYPE.name,
+                TRAVEL_STORY_POST_TYPE.name,
+              ],
               templatesConfigurations: {
                 cardTextAndImages: {
                   imageGalleryObjectTreeId:
@@ -104,12 +119,35 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               paragraphTypeName: 'Display images in thumb',
               paragraphTemplateObjectTreeId:
                 'tree/Repository/public/RepositoryCategory/templates/ParagraphTemplate/cardTextAndImages',
-              paragraphTypes: [IMAGE_GALLERY_SELECTOR_TYPE.name],
+              paragraphTypes: [
+                TRAVEL_STORY_POST_ROOT_TYPE.name,
+                TRAVEL_STORY_POST_TYPE.name,
+              ],
               templatesConfigurations: {
                 cardTextAndImages: {
                   imageGalleryObjectTreeId:
                     'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/thumbs',
                   imageGalleryPosition: 'after',
+                },
+              },
+            },
+            {
+              paragraphTypeKey: 'welcomeMenuThumb',
+              paragraphTypeName: 'Menu little card',
+              paragraphTemplateObjectTreeId:
+                'tree/Repository/public/RepositoryCategory/templates/ParagraphTemplate/cardTextAndImages',
+              paragraphTypes: ['TravelStoryWelcomeMenuEntry'],
+              templatesConfigurations: {
+                cardTextAndImages: {
+                  imageGalleryObjectTreeId:
+                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/caroussel',
+                  paragraphBreakLine: 'xs',
+                  paragraphMaxWidth: 3,
+                  paragraphMinWidth: 6,
+                  galleryBreakLine: 'none',
+                  galleryMaxWidth: 6,
+                  galleryMinWidth: 6,
+                  imageGalleryPosition: 'right',
                 },
               },
             },
@@ -308,15 +346,64 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               },
             ],
           },
-          [WELCOME_PAGE_TYPE.name]: {
-            [WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE.name as string]: [
+          [TRAVEL_STORY_WELCOME_PAGE_TYPE.name]: {
+            [WELCOME_PAGE_TYPE.name as string]: [
               {
                 treeNode: {
                   pageTitle: "Ma page d'accueil",
                   contentText:
                     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vel tristique velit. Curabitur porttitor nisl nec leo hendrerit blandit. Integer pharetra convallis efficitur. Aliquam non consectetur dolor, vitae eleifend risus. Quisque elementum nisl a urna dignissim, ut euismod enim convallis. Nam facilisis, neque nec ultricies sollicitudin, metus lorem convallis ex, a bibendum sem ex vitae velit. Aenean mattis orci neque, quis laoreet leo suscipit quis. Etiam vitae turpis ac augue consectetur bibendum. Cras varius odio semper ultrices bibendum. Suspendisse dignissim sem at lobortis imperdiet. Donec nec imperdiet turpis. Aenean mattis dui nec turpis euismod dapibus.↵↵Proin tempus, orci sit amet fermentum fringilla, risus metus aliquet enim, sed malesuada ipsum turpis vitae mi. Phasellus molestie justo sed malesuada congue. Nam malesuada massa sit amet diam accumsan consequat. Donec non tempor tellus, vitae posuere enim. Vivamus posuere scelerisque varius. Nunc a mollis risus, quis porta mi. Curabitur venenatis porta ullamcorper. Donec libero turpis, mattis eget elit sit amet, lobortis bibendum ligula. Praesent imperdiet dui odio, sed ultricies turpis congue vel. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aliquam magna quam, varius at libero at, feugiat varius lacus. Vestibulum rutrum auctor libero a bibendum. In sit amet odio nibh. Duis lobortis, quam et scelerisque pellentesque, mauris metus mattis justo, eu convallis nunc sem in ante. Aliquam sit amet consequat ex.',
                 },
-                children: {},
+                children: {
+                  [TRAVEL_STORY_WELCOME_MENU_TYPE.name]: {
+                    ['Menu']: [
+                      {
+                        treeNode: {},
+                        children: {
+                          [TRAVEL_STORY_WELCOME_MENU_ENTRY_TYPE.name]: {
+                            ['Stories']: [
+                              {
+                                treeNode: {
+                                  paragraphTemplateChoice: 'welcomeMenuThumb',
+                                  linkedPageObjectTreeId:
+                                    'node/Tenant/Demonstration/TravelStory/TravelStoryExample/TravelStory/TravelStoryExample/TravelStoryPostRoot/Stories',
+                                  imageGalleryObjectTreeId:
+                                    'tree/Tenant/Demonstration/TravelStory/TravelStoryExample/ImageGallery/Ipsum3',
+                                  selectedImages: [
+                                    'Eliot peper',
+                                    'Laura Chouette',
+                                  ],
+                                  contentText:
+                                    'Retrouvez notre récit quotidien',
+                                  paragraphTitle: 'Notre  périple',
+                                },
+                                children: {},
+                              },
+                            ],
+                            ['Images']: [
+                              {
+                                treeNode: {
+                                  paragraphTemplateChoice: 'welcomeMenuThumb',
+                                  linkedPageObjectTreeId:
+                                    'node/Tenant/Demonstration/TravelStory/TravelStoryExample/TravelStory/TravelStoryExample/TravelStoryPost/Post%202.3',
+                                  imageGalleryObjectTreeId:
+                                    'tree/Tenant/Demonstration/TravelStory/TravelStoryExample/ImageGallery/Ipsum3',
+                                  selectedImages: [
+                                    'Ksenia makagonov',
+                                    'Brian quid',
+                                  ],
+                                  contentText: 'Parcourir les photos',
+                                  paragraphTitle: 'Nos photos',
+                                },
+                                children: {},
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
               },
             ],
           },

@@ -15,16 +15,23 @@ import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post.const';
 import {
   CALENDAR_ENTRY_TYPE,
   MENU_ENTRY_TYPE,
-  PAGE_WITH_PARAGRAPH_TYPE,
   PAGE_WITH_TEXT_PARAGRAPH_TYPE,
+  PARAGRAPH_WITH_PAGE_LINK,
+  SECTION_PARAGRAPH_TYPE,
+  TEXT_PARAGRAPH_TYPE,
   WEB_SITE_VIEW_WITH_MENU_TYPE,
   WEB_SITE_WITH_MENU_TEMPLATE_TYPE,
   WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE,
+  WELCOME_PAGE_TYPE,
 } from '../web-site/web-site.const';
 import {
   PUBLIC_OBJECT_NAME,
   TEMPLATES_OBJECT_NAME,
 } from './../../services/object-tree/object-tree.const';
+import {
+  GALLERY_TEXT_PARAGRAPH_TYPE,
+  PAGE_WITH_GALLERY_TYPE,
+} from './../content-image-template/content-image-template.const';
 import {IMAGE_GALLERIES_TYPE} from './../content-image/content-image.const';
 import {
   PAGE_WITH_SUB_PAGE_TYPE,
@@ -70,6 +77,23 @@ export const TRAVEL_STORY_TYPE: ObjectTypeDefinition = {
   contentType: '',
 };
 
+export const TRAVEL_STORY_WELCOME_PAGE_TYPE: ObjectTypeDefinition = {
+  name: 'TravelStoryWelcomePage',
+  inheritedTypesIds: [
+    PAGE_WITH_GALLERY_TYPE.name,
+    PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE.name,
+    WELCOME_PAGE_TYPE.name,
+  ],
+};
+
+export const TRAVEL_STORY_WELCOME_MENU_TYPE: ObjectTypeDefinition = {
+  name: 'TravelStoryWelcomeMenu',
+  inheritedTypesIds: [
+    SECTION_PARAGRAPH_TYPE.name,
+    PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
+  ],
+};
+
 export const TRAVEL_STORY_POST_TYPE: ObjectTypeDefinition = {
   name: 'TravelStoryPost',
   inheritedTypesIds: [
@@ -78,7 +102,6 @@ export const TRAVEL_STORY_POST_TYPE: ObjectTypeDefinition = {
     CALENDAR_ENTRY_TYPE.name,
     POST_WITH_GALLERY_TYPE.name,
     PAGE_WITH_SUB_PAGE_TYPE.name,
-    PAGE_WITH_PARAGRAPH_TYPE.name,
     PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
     PAGE_WITH_TEXT_PARAGRAPH_TYPE.name,
     PAGE_WITH_GALLERY_PARAGRAPH_TYPE.name,
@@ -95,6 +118,31 @@ export const TRAVEL_STORY_POST_ROOT_TYPE: ObjectTypeDefinition = {
   inheritedTypesIds: [TRAVEL_STORY_POST_TYPE.name],
 };
 
+export const TRAVEL_STORY_WELCOME_MENU_ENTRY_TYPE: ObjectTypeDefinition = {
+  name: 'TravelStoryWelcomeMenuEntry',
+  inheritedTypesIds: [
+    GALLERY_TEXT_PARAGRAPH_TYPE.name,
+    PARAGRAPH_WITH_PAGE_LINK.name,
+    PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
+  ],
+  definition: {
+    properties: {
+      linkedPageObjectTreeId: {
+        title: 'Linked page',
+        type: 'string',
+        oneOfNode: [
+          {
+            nodeType: TRAVEL_STORY_POST_ROOT_TYPE.name,
+          },
+          {
+            nodeType: TRAVEL_STORY_POST_TYPE.name,
+          },
+        ],
+      },
+    },
+  },
+};
+
 export const FOLDER_TRAVEL_STORY_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: FOLDER_TYPE.name,
   subTypeName: TRAVEL_STORY_TYPE.name,
@@ -108,19 +156,22 @@ export const FOLDER_TRAVEL_STORY_SUBTYPE: ObjectSubTypeDefintion = {
 export const TRAVEL_STORY_IMAGE_GALLERIES_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: TRAVEL_STORY_TYPE.name,
   subTypeName: IMAGE_GALLERIES_TYPE.name,
-  name: IMAGE_GALLERIES_TYPE.name,
   max: 1,
   min: 1,
+};
+
+export const TRAVEL_STORY_TRAVEL_STORY_WELCOME_PAGE_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: TRAVEL_STORY_TYPE.name,
+  subTypeName: TRAVEL_STORY_WELCOME_PAGE_TYPE.name,
+  name: WELCOME_PAGE_TYPE.name,
+  min: 1,
+  max: 1,
 };
 
 export const TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: TRAVEL_STORY_TYPE.name,
   subTypeName: TRAVEL_STORY_POST_ROOT_TYPE.name,
   name: TRAVEL_STORY_POST_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
-  tree: false,
   min: 1,
   max: 1,
 };
@@ -128,19 +179,28 @@ export const TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE: ObjectSubTypeDefintion
 export const TRAVEL_STORY_POST_TRAVEL_STORY_POST_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: TRAVEL_STORY_POST_TYPE.name,
   subTypeName: TRAVEL_STORY_POST_TYPE.name,
-  name: TRAVEL_STORY_POST_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
-  tree: false,
 };
 
 export const CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: REPOSITORY_CATEGORY_TYPE.name,
   subTypeName: TRAVEL_STORY_TEMPLATE_TYPE.name,
-  name: TRAVEL_STORY_TEMPLATE_TYPE.name,
-  acl: false,
-  namespace: false,
-  owner: false,
   tree: true,
+};
+
+export const TRAVEL_STORY_WELCOME_PAGE_TRAVEL_STORY_WELCOME_MENU_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: TRAVEL_STORY_WELCOME_PAGE_TYPE.name,
+  subTypeName: TRAVEL_STORY_WELCOME_MENU_TYPE.name,
+};
+
+export const TRAVEL_STORY_WELCOME_MENU_WECLOME_MENU_ENTRY_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: TRAVEL_STORY_WELCOME_MENU_TYPE.name,
+  subTypeName: TRAVEL_STORY_WELCOME_MENU_ENTRY_TYPE.name,
+  name: GALLERY_TEXT_PARAGRAPH_TYPE.name,
+};
+
+export const TRAVEL_STORY_WELCOME_MENU_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: TRAVEL_STORY_WELCOME_MENU_TYPE.name,
+  subTypeName: TEXT_PARAGRAPH_TYPE.name,
+  name: TEXT_PARAGRAPH_TYPE.name,
+  max: 0,
 };

@@ -15,7 +15,7 @@ package WebSiteProvider{
   class WebSiteView < ObjectNode >{
     string webSiteObjectTreeId
   }
-  WebSiteView -->"1" WebSiteTemplate: webSiteObjectTree
+  WebSiteView -->"1" WebSiteTemplate: webSiteTree
 
   WebSiteView <|-- WebSiteViewWithMenu
   class WebSiteViewWithMenu < ObjectNode >{
@@ -23,7 +23,7 @@ package WebSiteProvider{
     Object menuEntries
     string webSiteObjectTreeId
   }
-  WebSiteViewWithMenu -->"1" WebSiteWitHMenuTemplate: webSiteObjectTree
+  WebSiteViewWithMenu -->"1" WebSiteWitHMenuTemplate: webSiteTree
 
 
   TemplateView <|-- PageTemplate
@@ -34,7 +34,7 @@ package WebSiteProvider{
   class WebSiteTemplate < ObjectNode >{
     string pageTemplateObjectTreeId
   }
-  WebSiteTemplate -->"1" PageTemplate: pageTemplateObjectTree
+  WebSiteTemplate -->"1" PageTemplate: pageTemplateTree
 
   TemplateView <|-- MenuTemplate
   class MenuTemplate < ObjectNode >
@@ -56,7 +56,7 @@ package WebSiteProvider{
     string menuObjectTreeId
   }
 
-  WebSiteWitHMenuTemplate-->"1" MenuTemplate: menuObjectTree
+  WebSiteWitHMenuTemplate-->"1" MenuTemplate: menuTree
 
   WebSiteWitHMenuTemplate*--"0..n" TMenuEntry: menuEntries[]
 

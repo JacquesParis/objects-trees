@@ -129,7 +129,7 @@ export class ObjectTreeController {
 
   @authorize({
     resource: AccessRightsEntity.objectTree,
-    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchTreeNode],
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchTree],
   })
   @get(
     '/object-trees/tree/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/{treeType}/{treeName}/nodes',
@@ -171,7 +171,7 @@ export class ObjectTreeController {
 
   @authorize({
     resource: AccessRightsEntity.objectTree,
-    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchTreeNode],
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchTree],
   })
   @get(
     '/object-trees/tree/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/{treeType}/{treeName}',
@@ -285,130 +285,48 @@ export class ObjectTreeController {
     );
   }
 
-  /*
-  @post('/object-trees/{ownerType}/{ownerName}', {
-    responses: {
-      '200': {
-        description: 'ObjectNode model instance',
-        content: {'application/json': {schema: getModelSchemaRef(ObjectNode)}},
-      },
-    },
+  @authorize({
+    resource: AccessRightsEntity.objectTree,
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchNode],
   })
-  async create(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(ObjectNode, {
-            title: 'NewObjectNode',
-            exclude: ['id'],
-          }),
-        },
-      },
-    })
-    objectNode: Omit<ObjectNode, 'id'>,
-  ): Promise<ObjectNode> {
-    return this.objectNodeRepository.create(objectNode);
-  }
-
-  @get('/object-trees/{ownerType}/{ownerName}/count', {
-    responses: {
-      '200': {
-        description: 'ObjectNode model count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async count(
-    @param.where(ObjectNode) where?: Where<ObjectNode>,
-  ): Promise<Count> {
-    return this.objectNodeRepository.count(where);
-  }
-
-  @patch('/object-trees/{ownerType}/{ownerName}', {
-    responses: {
-      '200': {
-        description: 'ObjectNode PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(ObjectNode, {partial: true}),
-        },
-      },
-    })
-    objectNode: ObjectNode,
-    @param.where(ObjectNode) where?: Where<ObjectNode>,
-  ): Promise<Count> {
-    return this.objectNodeRepository.updateAll(objectNode, where);
-  }
-
-  @get('/object-trees/{ownerType}/{ownerName}/{id}', {
-    responses: {
-      '200': {
-        description: 'ObjectNode model instance',
-        content: {
-          'application/json': {
-            schema: getModelSchemaRef(ObjectNode, {includeRelations: true}),
+  @get(
+    '/object-trees/node/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/{treeType}/{treeName}/{nodeType}/{nodeName}',
+    {
+      responses: {
+        '200': {
+          description: 'ObjectTree model',
+          content: {
+            'application/json': {
+              schema: {
+                items: getModelSchemaRef(ObjectTree),
+              },
+            },
           },
         },
       },
     },
-  })
-  async findById(
-    @param.path.string('id') id: string,
-    @param.filter(ObjectNode, {exclude: 'where'})
-    filter?: FilterExcludingWhere<ObjectNode>,
-  ): Promise<ObjectNode> {
-    return this.objectNodeRepository.findById(id, filter);
+  )
+  async findNode(
+    @param.path.string('ownerType') ownerType: string,
+    @param.path.string('ownerName') ownerName: string,
+    @param.path.string('namespaceType') namespaceType: string,
+    @param.path.string('namespaceName') namespaceName: string,
+    @param.path.string('treeType') treeType: string,
+    @param.path.string('treeName') treeName: string,
+    @param.path.string('nodeType') nodeType: string,
+    @param.path.string('nodeName') nodeName: string,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<ObjectTree> {
+    return this.objectTreeService.getNode(
+      ownerType,
+      ownerName,
+      namespaceType,
+      namespaceName,
+      treeType,
+      treeName,
+      nodeType,
+      nodeName,
+      ctx,
+    );
   }
-
-  @patch('/object-trees/{ownerType}/{ownerName}/{id}', {
-    responses: {
-      '204': {
-        description: 'ObjectNode PATCH success',
-      },
-    },
-  })
-  async updateById(
-    @param.path.string('id') id: string,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(ObjectNode, {partial: true}),
-        },
-      },
-    })
-    objectNode: ObjectNode,
-  ): Promise<void> {
-    await this.objectNodeRepository.updateById(id, objectNode);
-  }
-
-  @put('/object-trees/{ownerType}/{ownerName}/{id}', {
-    responses: {
-      '204': {
-        description: 'ObjectNode PUT success',
-      },
-    },
-  })
-  async replaceById(
-    @param.path.string('id') id: string,
-    @requestBody() objectNode: ObjectNode,
-  ): Promise<void> {
-    await this.objectNodeRepository.replaceById(id, objectNode);
-  }*/
-  /*
-  @del('/object-trees/id/{treeId}/nodes/{id}', {
-    responses: {
-      '204': {
-        description: 'ObjectNode DELETE success',
-      },
-    },
-  })
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.objectNodeRepository.deleteById(id);
-  }*/
 }

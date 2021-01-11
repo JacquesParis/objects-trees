@@ -62,10 +62,10 @@ export class AccessRightsTreeService
             );
           });
           break;
-        case AccessRightsTreeScope.searchTreeNode:
+        case AccessRightsTreeScope.searchTree:
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           treeNode = await ctx.treeContext.treeNode.getOrSetValue(async () => {
-            return this.objectNodeService.searchTreeNode(
+            return this.objectNodeService.searchTree(
               context.invocationContext.args[0],
               context.invocationContext.args[1],
               context.invocationContext.args[2],
@@ -74,6 +74,30 @@ export class AccessRightsTreeService
               context.invocationContext.args[5],
             );
           });
+          break;
+        case AccessRightsTreeScope.searchNode:
+          {
+            const originalTreeNode = await this.objectNodeService.searchTree(
+              context.invocationContext.args[0],
+              context.invocationContext.args[1],
+              context.invocationContext.args[2],
+              context.invocationContext.args[3],
+              context.invocationContext.args[4],
+              context.invocationContext.args[5],
+            );
+            if (originalTreeNode) {
+              const treeNodes = await this.objectNodeService.searchByTreeId(
+                originalTreeNode.id as string,
+                {
+                  objectTypeId: context.invocationContext.args[6],
+                  name: context.invocationContext.args[7],
+                },
+              );
+              if (treeNodes && 1 === treeNodes.length) {
+                treeNode = treeNodes[0];
+              }
+            }
+          }
           break;
       }
     } else {

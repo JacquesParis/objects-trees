@@ -31,8 +31,6 @@
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content" *ngIf="ctrl.modalImage">
       <div class="modal-header">
-        <h5 class="modal-title" *ngIf="ctrl.modalTitle">{{ctrl.modalTitle}}</h5>
-
         <div
           class="btn-group btn-group-sm"
           role="group"
@@ -53,6 +51,9 @@
             &gt;
           </button>
         </div>
+        <h5 class="modal-title mx-4" *ngIf="ctrl.modalTitle">
+          {{ctrl.modalTitle}}
+        </h5>
         <button
           type="button"
           class="close"

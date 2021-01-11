@@ -18,6 +18,7 @@ import {
   PAGE_WITH_PARAGRAPH_TYPE,
   PAGE_WITH_SUB_PAGE_TYPE,
   PAGE_WITH_TEMPLATE_CHOICE,
+  PARAGRAPH_CONTAINER_TYPE,
   PARAGRAPH_TYPE,
   PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE,
   WEB_SITE_PROVIDER,
@@ -128,6 +129,15 @@ export class TransientWebSiteService {
       PAGE_WITH_PARAGRAPH_TYPE.name,
       this.completePageWithParagraphTree.bind(this),
     );
+
+    this.transientEntityService.registerTransientEntityTypeFunction<ObjectTree>(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Add paragraphTrees field, list of paragraphs',
+      EntityName.objectTree,
+      PARAGRAPH_CONTAINER_TYPE.name,
+      this.completeParagraphContainerTree.bind(this),
+    );
   }
 
   addTemplatesConfigurationsReferences(objectNode: ObjectNode) {
@@ -179,14 +189,11 @@ export class TransientWebSiteService {
     webSiteWiewTree: ObjectNodeTree<WebSiteView>,
     ctx: CurrentContext,
   ): Promise<void> {
-    const welcomePage: ObjectTree | undefined = find(
-      webSiteWiewTree.children,
-      (child) =>
-        -1 < indexOf(child.entityCtx?.implementedTypes, WELCOME_PAGE_TYPE.name),
-    );
-    if (welcomePage) {
-      webSiteWiewTree.welcomePageId = welcomePage.id;
-      webSiteWiewTree.welcomePageUri = welcomePage.uri;
+    const welcomePages: ObjectTree[] =
+      webSiteWiewTree.childrenByImplentedTypeId[WELCOME_PAGE_TYPE.name];
+    if (welcomePages && 0 < welcomePages.length) {
+      webSiteWiewTree.welcomePageId = welcomePages[0].id;
+      webSiteWiewTree.welcomePageUri = welcomePages[0].uri;
     }
   }
 
@@ -200,13 +207,13 @@ export class TransientWebSiteService {
       id: webSiteViewWithMenuTree.treeNode.id + '/menuEntries',
     };
 
-    const webSiteObjectTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
+    const webSiteTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
       webSiteViewWithMenuTree.treeNode.webSiteObjectTreeUri,
       ctx,
     )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
 
     if (webSiteViewWithMenuTree.treeNode.menuEntries) {
-      for (const menuEntry of webSiteObjectTree.treeNode.menuEntries) {
+      for (const menuEntry of webSiteTree.treeNode.menuEntries) {
         if (webSiteViewWithMenuTree.treeNode.menuEntries[menuEntry.entryKey]) {
           const children: MenuTree[] = this.lookForMenuEntries(
             webSiteViewWithMenuTree.children,
@@ -303,7 +310,7 @@ export class TransientWebSiteService {
       entryKey: string;
       entryName: string;
       entryTypes: string[];
-    }[] = objectNode.webSiteObjectTree?.treeNode?.menuEntries;
+    }[] = objectNode.webSiteTree?.treeNode?.menuEntries;
     if (menuEntriesProperty && templateMenuEntries) {
       for (const menuEntry of templateMenuEntries) {
         menuEntriesProperty.properties[menuEntry.entryKey] = {
@@ -325,7 +332,7 @@ export class TransientWebSiteService {
       );
       if (treeNode.webSiteObjectTreeId) {
         const templatePath = treeNode.webSiteObjectTreeId.split('/');
-        const templateTree = await this.objectNodeService.searchTreeNode(
+        const templateTree = await this.objectNodeService.searchTree(
           templatePath[1],
           templatePath[2],
           templatePath[3],
@@ -405,7 +412,7 @@ export class TransientWebSiteService {
       );
       if (treeNode.webSiteObjectTreeId) {
         const templatePath = treeNode.webSiteObjectTreeId.split('/');
-        const templateTree = await this.objectNodeService.searchTreeNode(
+        const templateTree = await this.objectNodeService.searchTree(
           templatePath[1],
           templatePath[2],
           templatePath[3],
@@ -418,9 +425,15 @@ export class TransientWebSiteService {
           const oneOf: {enum: {[0]: string}; title: string}[] = [];
           for (const paragraphTemplateChoice of templateTree.paragraphTemplateChoices) {
             if (
+              /*
               doesTreeImplementOneOfType(
                 objectNode,
                 paragraphTemplateChoice.paragraphTypes,
+              )*/
+              -1 <
+              indexOf(
+                paragraphTemplateChoice.paragraphTypes,
+                objectNode.objectTypeId,
               )
             ) {
               oneOf.push({
@@ -431,6 +444,10 @@ export class TransientWebSiteService {
           }
           if (0 < oneOf.length) {
             objectNode.entityCtx.jsonSchema.properties.paragraphTemplateChoice.oneOf = oneOf;
+
+            if (1 === oneOf.length) {
+              objectNode.paragraphTemplateChoice = oneOf[0].enum[0];
+            }
 
             if (objectNode.paragraphTemplateChoice) {
               const paragraphTemplateChoice: ParagraphTemplateChoice = find(
@@ -469,6 +486,9 @@ export class TransientWebSiteService {
                 ctx,
               );
             }
+          } else {
+            delete objectNode.entityCtx.jsonSchema.properties
+              .paragraphTemplateChoice;
           }
         }
       }
@@ -525,5 +545,12 @@ export class TransientWebSiteService {
         ? paragraphTree.treeNode.pageTitle
         : entity.parentPageTitle;
     }
+  }
+
+  async completeParagraphContainerTree(
+    entity: ObjectTree,
+    ctx: CurrentContext,
+  ): Promise<void> {
+    return this.completePageWithParagraphTree(entity, ctx);
   }
 }

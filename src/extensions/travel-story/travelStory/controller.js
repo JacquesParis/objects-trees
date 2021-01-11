@@ -8,13 +8,13 @@ function newFunction() {
     },
     async backGroundInit() {},
     getPageTreeTemplate(pageNode, templateNode, siteTemplateNode) {
-      if (pageNode && pageNode.pageTemplateObjectTree) {
-        return pageNode.pageTemplateObjectTree;
+      if (pageNode && pageNode.pageTemplateTree) {
+        return pageNode.pageTemplateTree;
       }
-      if (templateNode && templateNode.pageTemplateObjectTree) {
-        return templateNode.pageTemplateObjectTree;
+      if (templateNode && templateNode.pageTemplateTree) {
+        return templateNode.pageTemplateTree;
       }
-      return siteTemplateNode.pageTemplateObjectTree;
+      return siteTemplateNode.pageTemplateTree;
     },
   };
 }

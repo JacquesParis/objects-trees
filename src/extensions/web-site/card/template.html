@@ -1,8 +1,16 @@
-<div class="card">
-  <div class="card-body">
-    <h6 class="card-title" *ngIf="dataNode.paragraphTitle">
-      {{dataNode.paragraphTitle}}
-    </h6>
-    <p class="card-text">{{dataNode.contentText}}</p>
+<ng-container *ngIf="dataNode.linkedPageTree; else card">
+  <a href="{{getPageHref(dataNode.linkedPageTree)}}">
+    <ng-container *ngTemplateOutlet="card"></ng-container>
+  </a>
+</ng-container>
+
+<ng-template #card>
+  <div class="card">
+    <div class="card-body">
+      <h6 class="card-title" *ngIf="dataNode.paragraphTitle">
+        {{dataNode.paragraphTitle}}
+      </h6>
+      <p class="card-text">{{dataNode.contentText}}</p>
+    </div>
   </div>
-</div>
+</ng-template>

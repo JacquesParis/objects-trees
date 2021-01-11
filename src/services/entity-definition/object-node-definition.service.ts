@@ -211,17 +211,17 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
         for (const tree of trees) {
           const treeId =
             'tree/' +
-            owner.objectTypeId +
+            encodeURIComponent(owner.objectTypeId) +
             '/' +
-            owner.name +
+            encodeURIComponent(owner.name) +
             '/' +
-            namespace.objectTypeId +
+            encodeURIComponent(namespace.objectTypeId) +
             '/' +
-            namespace.name +
+            encodeURIComponent(namespace.name) +
             '/' +
-            oneOfTreeOption.treeType +
+            encodeURIComponent(oneOfTreeOption.treeType) +
             '/' +
-            tree.name;
+            encodeURIComponent(tree.name);
 
           if (!some(result, (choice) => choice.enum[0] === treeId)) {
             ctx.references[treeId] = new ExpectedValue(tree);
@@ -306,26 +306,26 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
         }
         const nodes = await this.objectNodeService.searchByTreeId(
           tree.id as string,
-          oneOfNodeOption.nodeType,
+          {objectTypeId: oneOfNodeOption.nodeType},
         );
         for (const node of nodes) {
           const nodeId =
             'node/' +
-            owner.objectTypeId +
+            encodeURIComponent(owner.objectTypeId) +
             '/' +
-            owner.name +
+            encodeURIComponent(owner.name) +
             '/' +
-            namespace.objectTypeId +
+            encodeURIComponent(namespace.objectTypeId) +
             '/' +
-            namespace.name +
+            encodeURIComponent(namespace.name) +
             '/' +
-            tree.objectTypeId +
+            encodeURIComponent(tree.objectTypeId) +
             '/' +
-            tree.name +
+            encodeURIComponent(tree.name) +
             '/' +
-            oneOfNodeOption.nodeType +
+            encodeURIComponent(oneOfNodeOption.nodeType) +
             '/' +
-            node.name;
+            encodeURIComponent(node.name);
 
           if (!some(result, (choice) => choice.enum[0] === nodeId)) {
             ctx.references[nodeId] = new ExpectedValue(node);

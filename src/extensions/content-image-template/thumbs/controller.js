@@ -24,9 +24,13 @@ function newFunction() {
       this.modalIndex = imageIndex;
       const imageTree = this.ctrl.dataTree.treeNode.images[imageIndex];
       this.modalImage = imageTree.treeNode;
-      this.modalTitle = imageTree.treeNode.imageTitle
-        ? imageTree.treeNode.imageTitle
-        : '';
+      this.modalTitle =
+        imageTree.treeNode.imageTitle ||
+        this.ctrl.dataNode.paragraphTitle ||
+        this.ctrl.dataNode.pageTitle ||
+        this.ctrl.dataNode.menuTitle ||
+        this.ctrl.dataTree.parentPageTitle ||
+        '';
       console.log(imageIndex);
       if (imageTree.original) {
         //  await imageTree.original.waitForReady();
