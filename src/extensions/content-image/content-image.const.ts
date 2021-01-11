@@ -51,7 +51,7 @@ export const IMAGE_GALLERY_SELECTOR_TYPE: ObjectTypeDefinition = {
           type: 'string',
         },
         'x-schema-form': {
-          condition: 'false',
+          condition: 'undefined !== embededCondition',
         },
       },
     },

@@ -141,6 +141,7 @@ export function addCondition(
   }
   if (isString(schema['x-schema-form'].condition.functionBody)) {
     expresion +=
+      'var embededCondition = true;\r\n' +
       'var previousResultFct = (model,arrayIndices) =>{' +
       '\r\n' +
       schema['x-schema-form'].condition.functionBody +
