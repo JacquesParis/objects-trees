@@ -77,6 +77,18 @@ export class TransientUriReferenceService implements TransientEntityInterface {
                 ctx.uriContext.returnedEntity.value.treeNode.id
             ) {
               insertRef = false;
+            } else if (
+              EntityName.objectTree === ref.entityCtx?.entityType &&
+              isObject(ctx.uriContext?.returnedEntity?.value) &&
+              !isArray(ctx.uriContext?.returnedEntity?.value) &&
+              EntityName.objectNode ===
+                ctx.uriContext?.returnedEntity?.value?.entityCtx?.entityType &&
+              !ref.aliasUri && // parent of a new tree, not loaded
+              ref.treeNode &&
+              ref.treeNode.parentTreeId ===
+                ctx.uriContext.returnedEntity.value.parentTreeId
+            ) {
+              insertRef = false;
             } else {
               insertRef = true;
             }
