@@ -445,7 +445,7 @@ export class TransientWebSiteService {
           if (0 < oneOf.length) {
             objectNode.entityCtx.jsonSchema.properties.paragraphTemplateChoice.oneOf = oneOf;
 
-            if (1 === oneOf.length) {
+            if (!objectNode.paragraphTemplateChoice) {
               objectNode.paragraphTemplateChoice = oneOf[0].enum[0];
             }
 

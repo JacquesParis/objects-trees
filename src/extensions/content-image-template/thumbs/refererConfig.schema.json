@@ -1,0 +1,53 @@
+{
+  "type":"object",
+  "title":"thumbs configuration",
+  "properties": {
+    "imageBreakLine": {
+      "type": "string",
+      "title": "Display image in separate lines",
+      "default": "xs",
+      "oneOf":[
+        {"enum": ["none"], "title": "never"},
+        {"enum": ["xs"], "title": "for small phones - screens less than 576px wide"},
+        {"enum": ["sm"], "title": "for phones - screens less than 768px wide"},
+        {"enum": ["md"], "title": "for tablets - screens equal to or greater than 768px wide"},
+        {"enum": ["lg"], "title": "for small laptops - screens equal to or greater than 992px wide"},
+        {"enum": ["xl"], "title": "always"}
+        ]
+    },
+    "imageMaxWidth": {
+      "type": "number",
+      "title": "Large screen image Width",
+      "default": 3,
+      "oneOf":[
+        {"enum": [12], "title": "Full paragraphe width"},
+          {"enum": [9], "title": "3/4 paragraphe width"},
+        {"enum": [8], "title": "2/3 paragraphe width"},
+        {"enum": [6], "title": "Half paragraphe width"},
+        {"enum": [4], "title": "1/3 paragraphe width"},
+        {"enum": [3], "title": "1/4 paragraphe width"},
+        {"enum": [2], "title": "1/6 paragraphe width"},
+        {"enum": [1], "title": "1/12 paragraphe width"}],
+        "x-schema-form": {
+          "condition": "model.templatesConfigurations.thumbs.imageBreakLine!=='xl'"
+        }
+    },
+    "imageMinWidth": {
+      "type": "number",
+      "title": "Small screen image Width",
+      "default": 3,
+      "oneOf":[
+        {"enum": [12], "title": "Full paragraphe width"},
+          {"enum": [9], "title": "3/4 paragraphe width"},
+        {"enum": [8], "title": "2/3 paragraphe width"},
+        {"enum": [6], "title": "Half paragraphe width"},
+        {"enum": [4], "title": "1/3 paragraphe width"},
+        {"enum": [3], "title": "1/4 paragraphe width"},
+        {"enum": [2], "title": "1/6 paragraphe width"},
+        {"enum": [1], "title": "1/12 paragraphe width"}],
+        "x-schema-form": {
+          "condition": "model.templatesConfigurations.thumbs.imageBreakLine!=='xl'"
+        }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 <ng-container *ngIf="dataNode.linkedPageTree; else card">
-  <a href="{{getPageHref(dataNode.linkedPageTree)}}">
+  <a href="{{getPageHref(dataNode.linkedPageTree)}}" class="paragraphLink">
     <ng-container *ngTemplateOutlet="card"></ng-container>
   </a>
 </ng-container>
@@ -23,27 +23,31 @@
             *ngIf="(dataNode.paragraphTitle && '' !== dataNode.paragraphTitle) || (dataNode.contentText && '' !== dataNode.contentText)"
           >
             <div class="card-body">
-              <div
-                class="{{ctrl.getGalleryColClass(dataNode, templateNode, siteTemplateNode)}}"
-                *ngIf="'left'===galleriePosition || 'right'===galleriePosition"
-              >
-                <ng-container *ngTemplateOutlet="cardImg"></ng-container>
-              </div>
-              <h6
-                class="card-title"
+              <h2
+                class="card-title {{ctrl.titleClass(dataNode, templateNode, siteTemplateNode)}}"
                 *ngIf="dataNode.paragraphTitle && '' !== dataNode.paragraphTitle"
               >
                 {{dataNode.paragraphTitle}}<span
-                  class="ml-2 float-right badge badge-secondary"
-                  *ngIf="dataTree.parentPageTitle && dataTree.parentPageTitle!==dataNode.paragraphTitle"
-                  >{{dataTree.parentPageTitle}}</span
+                  class="ml-2 float-right badge badge-secondary badge-light badge-pill font-weight-light font-italic"
+                  *ngIf="ctrl.displayParentPageTitle(dataTree, dataNode, templateNode, siteTemplateNode) as parentPageTitle"
+                  >{{parentPageTitle}}</span
                 >
-              </h6>
-              <p
-                class="card-text"
-                *ngIf="dataNode.contentText && '' !== dataNode.contentText"
-                [innerHtml]="dataNode.contentText"
-              ></p>
+              </h2>
+              <div>
+                <div
+                  class="{{ctrl.getGalleryColClass(dataNode, templateNode, siteTemplateNode)}}"
+                  *ngIf="'left'===galleriePosition || 'right'===galleriePosition"
+                  [class.pr-0]="'right'===galleriePosition"
+                  [class.pl-0]="'left'===galleriePosition"
+                >
+                  <ng-container *ngTemplateOutlet="cardImg"></ng-container>
+                </div>
+                <p
+                  class="card-text {{ctrl.contentClass(dataNode, templateNode, siteTemplateNode)}}"
+                  *ngIf="dataNode.contentText && '' !== dataNode.contentText"
+                  [innerHtml]="dataNode.contentText"
+                ></p>
+              </div>
             </div>
           </div>
           <div class="col-12" *ngIf="'after'===galleriePosition">

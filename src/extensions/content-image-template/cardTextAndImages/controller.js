@@ -37,6 +37,9 @@ function newFunction() {
       ) {
         return 'none';
       }
+      if (!dataNode || !dataNode.images || 0 === dataNode.images.length) {
+        return 'none';
+      }
 
       return this.searchConfig(
         [dataNode, templateNode, siteTemplateNode],
@@ -107,11 +110,22 @@ function newFunction() {
       );
     },
 
+    paragraphKeepProportion(dataNode, templateNode, siteTemplateNode) {
+      return this.searchConfig(
+        [dataNode, templateNode, siteTemplateNode],
+        'cardTextAndImages',
+        'paragraphKeepProportion',
+        false,
+      );
+    },
+
     getParagraphColClass(dataNode, templateNode, siteTemplateNode) {
       return this.ctrl.getColFloatClass(
         this.paragraphMinWidth(dataNode, templateNode, siteTemplateNode),
         this.paragraphMaxWidth(dataNode, templateNode, siteTemplateNode),
         this.paragraphBreakLine(dataNode, templateNode, siteTemplateNode),
+        'left',
+        this.paragraphKeepProportion(dataNode, templateNode, siteTemplateNode),
       );
     },
 
@@ -121,6 +135,37 @@ function newFunction() {
         this.galleryMaxWidth(dataNode, templateNode, siteTemplateNode),
         this.galleryBreakLine(dataNode, templateNode, siteTemplateNode),
         this.getGalleriePosition(dataNode, templateNode, siteTemplateNode),
+      );
+    },
+
+    displayParentPageTitle(dataTree, dataNode, templateNode, siteTemplateNode) {
+      return dataTree.parentPageTitle &&
+        dataTree.parentPageTitle !== dataNode.paragraphTitle &&
+        this.searchConfig(
+          [dataNode, templateNode, siteTemplateNode],
+          'cardTextAndImages',
+          'displayParentPageTitle',
+          true,
+        )
+        ? dataTree.parentPageTitle
+        : false;
+    },
+
+    titleClass(dataNode, templateNode, siteTemplateNode) {
+      return this.searchConfig(
+        [dataNode, templateNode, siteTemplateNode],
+        'cardTextAndImages',
+        'titleClass',
+        '',
+      );
+    },
+
+    contentClass(dataNode, templateNode, siteTemplateNode) {
+      return this.searchConfig(
+        [dataNode, templateNode, siteTemplateNode],
+        'cardTextAndImages',
+        'contentClass',
+        '',
       );
     },
   };

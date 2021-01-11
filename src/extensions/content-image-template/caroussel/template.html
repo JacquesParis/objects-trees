@@ -1,5 +1,12 @@
+<img
+  *ngIf="ready && 1 === dataNode.images.length"
+  [src]="getImgSrc({uri:dataNode.images[0].treeNode.contentImageUri})"
+  class="img-fluid"
+  alt="{{dataNode.images}}"
+/>
+
 <div
-  *ngIf="ready"
+  *ngIf="ready && 1 < dataNode.images.length"
   class="carousel slide"
   data-ride="carousel"
   id="caroussel_images_{{dataNode.id}}"
@@ -24,8 +31,11 @@
           class="d-block w-100"
           alt="{{image.treeNode.name}}"
         />
-        <div class="carousel-caption d-none d-md-block">
-          <h5>{{image.treeNode.name}}</h5>
+        <div
+          class="carousel-caption d-none d-md-block"
+          *ngIf="image.treeNode.imageTitle as imageTitle"
+        >
+          <h5>{{imageTitle}}</h5>
           <!-- <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>-->
         </div>
       </ng-container>

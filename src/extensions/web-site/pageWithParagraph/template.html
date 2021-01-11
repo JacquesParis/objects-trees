@@ -1,11 +1,11 @@
 <div class="card">
   <div class="card-body">
-    <h5
+    <h1
       class="card-title"
       *ngIf="(dataNode.pageTitle || dataNode.menuTitle) as pageTitle"
     >
       {{pageTitle}}
-    </h5>
+    </h1>
     <p class="card-text">
       <ng-container
         *ngTemplateOutlet="paragraphs;context:{paragraphTrees:[dataTree]}"

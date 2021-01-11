@@ -45,9 +45,7 @@
         {"enum": [2], "title": "1/6 space width"},
         {"enum": [1], "title": "1/12 space width"}],
         "x-schema-form": {
-          "condition": {
-            "functionBody": "return !model.templatesConfigurations.cardTextAndImages.paragraphBreakLine || model.templatesConfigurations.cardTextAndImages.paragraphBreakLine!=='xl'"
-          }
+          "condition": "!model.templatesConfigurations.cardTextAndImages.paragraphBreakLine || model.templatesConfigurations.cardTextAndImages.paragraphBreakLine!=='xl'"
         }
       },
       "paragraphMinWidth": {"type": "number",
@@ -63,9 +61,16 @@
           {"enum": [2], "title": "1/6 space width"},
           {"enum": [1], "title": "1/12 space width"}],
           "x-schema-form": {
-            "condition": {
-              "functionBody": "return !model.templatesConfigurations.cardTextAndImages.paragraphBreakLine || model.templatesConfigurations.cardTextAndImages.paragraphBreakLine!=='xl'"
-            }
+            "condition": "!model.templatesConfigurations.cardTextAndImages.paragraphBreakLine || model.templatesConfigurations.cardTextAndImages.paragraphBreakLine!=='xl'"
+          }
+        },
+
+      "paragraphKeepProportion": {
+        "type": "boolean",
+        "title": "Keep paragraph width proportion",
+        "default": false,
+          "x-schema-form": {
+            "condition": "!model.templatesConfigurations.cardTextAndImages.paragraphBreakLine || model.templatesConfigurations.cardTextAndImages.paragraphBreakLine!=='xl'"
           }
         },
     "imageGalleryPosition": {
@@ -92,9 +97,7 @@
         {"enum": [2], "title": "1/6 paragraphe width"},
         {"enum": [1], "title": "1/12 paragraphe width"}],
         "x-schema-form": {
-          "condition": {
-            "functionBody": "return model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='right' || model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='left'"
-          }
+          "condition": "model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='right' || model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='left'"
         }
     },
     "galleryMinWidth": {
@@ -111,9 +114,7 @@
         {"enum": [2], "title": "1/6 paragraphe width"},
         {"enum": [1], "title": "1/12 paragraphe width"}],
         "x-schema-form": {
-          "condition": {
-            "functionBody": "return model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='right' || model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='left'"
-          }
+          "condition": "model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='right' || model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='left'"
         }
     },
     "galleryBreakLine": {
@@ -129,10 +130,23 @@
         {"enum": ["xl"], "title": "always"}
         ],
         "x-schema-form": {
-          "condition": {
-            "functionBody": "return model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='right' || model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='left'"
-          }
+          "condition": "model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='right' || model.templatesConfigurations.cardTextAndImages.imageGalleryPosition==='left'"
         }
+    },
+    "displayParentPageTitle": {
+      "type": "boolean",
+      "title": "Remind paragraph page title on right side",
+      "default": true
+    },
+    "titleClass": {
+      "type": "string",
+      "title": "Paragraph title class",
+      "default": ""
+    },
+    "contentClass": {
+      "type": "string",
+      "title": "Paragraph text class",
+      "default": ""
     }
   }
 }
