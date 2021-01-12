@@ -1,6 +1,6 @@
 import {service} from '@loopback/core';
 import * as _ from 'lodash';
-import {find} from 'lodash';
+import {find, indexOf} from 'lodash';
 import {ObjectTreeDefinition} from '../../integration/extension.provider';
 import {ObjectNode} from '../../models';
 import {ObjectTree} from '../../models/object-tree.model';
@@ -309,9 +309,11 @@ export class ObjectTreeService {
       treeName,
       ctx,
     );
+    const types = await this.objectTypeService.getImplementingTypes(nodeType);
     const treeNode = find(
       objectNodes,
-      (node) => node.name === nodeName && node.objectTypeId === nodeType,
+      (node) =>
+        node.name === nodeName && -1 < indexOf(types, node.objectTypeId),
     );
     if (!treeNode) {
       throw ApplicationError.notFound({
@@ -390,6 +392,27 @@ export class ObjectTreeService {
       }
     }
     return children;
+  }
+
+  public async getChildrenByImplentedTypeId(
+    tree: ObjectTree,
+  ): Promise<{
+    [objectTypeId: string]: ObjectTree[];
+  }> {
+    const result: {[objectTypeId: string]: ObjectTree[]} = {};
+
+    for (const child of tree.children) {
+      const implementedTypes: string[] = await this.objectTypeService.getImplementedTypes(
+        child.treeNode.objectTypeId,
+      );
+      for (const implementedType of implementedTypes) {
+        if (!(implementedType in result)) {
+          result[implementedType] = [];
+        }
+        result[implementedType].push(child);
+      }
+    }
+    return result;
   }
 
   public async loadChildrenNodes(

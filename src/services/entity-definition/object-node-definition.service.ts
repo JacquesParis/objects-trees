@@ -211,13 +211,29 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
         for (const tree of trees) {
           const treeId =
             'tree/' +
-            encodeURIComponent(owner.objectTypeId) +
+            encodeURIComponent(
+              oneOfTreeOption.ownerType
+                ? oneOfTreeOption.ownerType
+                : owner.objectTypeId,
+            ) +
             '/' +
-            encodeURIComponent(owner.name) +
+            encodeURIComponent(
+              oneOfTreeOption.ownerName
+                ? oneOfTreeOption.ownerName
+                : owner.name,
+            ) +
             '/' +
-            encodeURIComponent(namespace.objectTypeId) +
+            encodeURIComponent(
+              oneOfTreeOption.namespaceType
+                ? oneOfTreeOption.namespaceType
+                : namespace.objectTypeId,
+            ) +
             '/' +
-            encodeURIComponent(namespace.name) +
+            encodeURIComponent(
+              oneOfTreeOption.namespaceName
+                ? oneOfTreeOption.namespaceName
+                : namespace.name,
+            ) +
             '/' +
             encodeURIComponent(oneOfTreeOption.treeType) +
             '/' +
@@ -306,22 +322,48 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
         }
         const nodes = await this.objectNodeService.searchByTreeId(
           tree.id as string,
-          {objectTypeId: oneOfNodeOption.nodeType},
+          {
+            objectTypeIds: await this.objectTypeService.getImplementingTypes(
+              oneOfNodeOption.nodeType,
+            ),
+          },
         );
         for (const node of nodes) {
           const nodeId =
             'node/' +
-            encodeURIComponent(owner.objectTypeId) +
+            encodeURIComponent(
+              oneOfNodeOption.ownerType
+                ? oneOfNodeOption.ownerType
+                : owner.objectTypeId,
+            ) +
             '/' +
-            encodeURIComponent(owner.name) +
+            encodeURIComponent(
+              oneOfNodeOption.ownerName
+                ? oneOfNodeOption.ownerName
+                : owner.name,
+            ) +
             '/' +
-            encodeURIComponent(namespace.objectTypeId) +
+            encodeURIComponent(
+              oneOfNodeOption.namespaceType
+                ? oneOfNodeOption.namespaceType
+                : namespace.objectTypeId,
+            ) +
             '/' +
-            encodeURIComponent(namespace.name) +
+            encodeURIComponent(
+              oneOfNodeOption.namespaceName
+                ? oneOfNodeOption.namespaceName
+                : namespace.name,
+            ) +
             '/' +
-            encodeURIComponent(tree.objectTypeId) +
+            encodeURIComponent(
+              oneOfNodeOption.treeType
+                ? oneOfNodeOption.treeType
+                : tree.objectTypeId,
+            ) +
             '/' +
-            encodeURIComponent(tree.name) +
+            encodeURIComponent(
+              oneOfNodeOption.treeName ? oneOfNodeOption.treeName : tree.name,
+            ) +
             '/' +
             encodeURIComponent(oneOfNodeOption.nodeType) +
             '/' +

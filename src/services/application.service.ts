@@ -318,6 +318,12 @@ export class ApplicationService {
   }> = new ExpectedValue<{
     [nameId: string]: ObjectType & ObjectTypeRelations;
   }>();
+  public implementedTypes: ExpectedValue<{
+    [type: string]: string[];
+  }> = new ExpectedValue();
+  public implementingTypes: ExpectedValue<{
+    [type: string]: string[];
+  }> = new ExpectedValue();
   public getExtensionContext<T extends ApplicationExtensionContext>(
     extensionNameOrClass: string | {name: string},
   ): T {

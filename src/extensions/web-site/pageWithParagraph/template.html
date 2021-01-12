@@ -10,9 +10,11 @@
       <ng-container
         *ngTemplateOutlet="paragraphs;context:{paragraphTrees:[dataTree]}"
       ></ng-container>
-      <ng-container *ngIf="!dataTree.paragraphTrees && dataTree.pageTrees">
+      <ng-container
+        *ngIf="!dataTree.paragraphTrees && dataTree.pageTrees && 0<dataTree.pageTrees.length"
+      >
         <ng-container
-          *ngTemplateOutlet="subPages;context:{pageTrees:[dataTree]}"
+          *ngTemplateOutlet="subPages;context:dataTree"
         ></ng-container>
       </ng-container>
     </p>

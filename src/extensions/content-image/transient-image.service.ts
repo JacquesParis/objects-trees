@@ -1,18 +1,20 @@
 import {service} from '@loopback/core';
 import {filter, indexOf} from 'lodash';
 import {addCondition} from '../../helper';
+import {ObjectTreeService} from '../../services';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectTree} from './../../models/object-tree.model';
 import {CurrentContext} from './../../services/application.service';
 import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
-import {ObjectNodeService} from './../../services/object-node/object-node.service';
 import {TransientEntityService} from './../../services/transient-entity/transient-entity.service';
 import {
   CONTENT_IMAGE_PROVIDER,
+  DISPLAYED_IMAGE_GALLERY_TYPE,
   IMAGE_GALLERY_REFERRER_TYPE,
   IMAGE_GALLERY_SELECTOR_TYPE,
   IMAGE_GALLERY_TYPE,
+  IMAGE_TYPE,
 } from './content-image.const';
 import {ContentImageService} from './content-image.definition';
 export class TransientImageService {
@@ -21,10 +23,10 @@ export class TransientImageService {
     protected transientEntityService: TransientEntityService,
     @service(InsideRestService)
     private insideRestService: InsideRestService,
-    @service(ObjectNodeService)
-    private objectNodeService: ObjectNodeService,
     @service(ContentImageService)
     private contentImageService: ContentImageService,
+    @service(ObjectTreeService)
+    private objectTreeService: ObjectTreeService,
   ) {
     this.transientEntityService.registerTransientEntityTypeFunction(
       CONTENT_IMAGE_PROVIDER,
@@ -42,6 +44,24 @@ export class TransientImageService {
       IMAGE_GALLERY_TYPE.name,
       this.completeImageGalleryTypeNode.bind(this),
     );
+    this.transientEntityService.registerTransientEntityTypeFunction(
+      CONTENT_IMAGE_PROVIDER,
+      TransientImageService.name,
+      'Add all images of the gallery as referenced images',
+      EntityName.objectTree,
+      DISPLAYED_IMAGE_GALLERY_TYPE.name,
+      this.completeDisplayedImageGalleryTree.bind(this),
+    );
+  }
+
+  public async completeDisplayedImageGalleryTree(
+    entity: ObjectTree,
+    ctx: CurrentContext,
+  ) {
+    const images: ObjectTree[] = (
+      await this.objectTreeService.getChildrenByImplentedTypeId(entity)
+    )[IMAGE_TYPE.name];
+    entity.images = images ? images : [];
   }
 
   public async completeImageGalleryTypeNode(

@@ -99,6 +99,9 @@ export class TransientTreeService implements TransientEntityInterface {
             '/' +
             objectTree.treeName,
         );
+      } else {
+        objectTree.nodeName = objectTree.treeNode.name;
+        objectTree.nodeType = objectTree.treeNode.objectTypeId;
       }
     }
 

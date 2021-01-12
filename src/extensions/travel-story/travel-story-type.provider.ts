@@ -17,15 +17,20 @@ import {WebSiteProvider} from './../web-site/web-site.provider';
 import {
   CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE,
   FOLDER_TRAVEL_STORY_SUBTYPE,
-  TRAVEL_STORY_IMAGE_GALLERIES_SUBTYPE,
+  TRAVEL_STORY_IMAGE_GALLERIES_TRAVEL_STORY_IMAGE_GALLERY_SUBTYPE,
+  TRAVEL_STORY_IMAGE_GALLERIES_TYPE,
+  TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE,
+  TRAVEL_STORY_IMAGE_GALLERY_TYPE,
   TRAVEL_STORY_POST_ROOT_TYPE,
   TRAVEL_STORY_POST_TRAVEL_STORY_POST_SUBTYPE,
   TRAVEL_STORY_POST_TYPE,
   TRAVEL_STORY_PROVIDER,
   TRAVEL_STORY_TEMPLATE_TYPE,
+  TRAVEL_STORY_TRAVEL_STORY_IMAGE_GALLERIES_SUBTYPE,
   TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE,
   TRAVEL_STORY_TRAVEL_STORY_WELCOME_PAGE_SUBTYPE,
   TRAVEL_STORY_TYPE,
+  TRAVEL_STORY_WELCOME_MENU_TEXT_PARAGRAPH_SUBTYPE,
 
   //TRAVEL_STORY_WELCOME_MENU_TEXT_PARAGRAPH_SUBTYPE,
   //TRAVEL_STORY_WELCOME_MENU_TYPE,
@@ -44,8 +49,10 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       TRAVEL_STORY_TEMPLATE_TYPE,
       TRAVEL_STORY_POST_ROOT_TYPE,
       TRAVEL_STORY_WELCOME_PAGE_TYPE,
-      // TRAVEL_STORY_WELCOME_MENU_TYPE,
       TRAVEL_STORY_WELCOME_PARAGRAPH_TYPE,
+      TRAVEL_STORY_IMAGE_GALLERIES_TYPE,
+      TRAVEL_STORY_IMAGE_GALLERY_TYPE,
+      TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE,
     );
 
     this.objectSubTypes.push(
@@ -53,11 +60,24 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE,
       TRAVEL_STORY_POST_TRAVEL_STORY_POST_SUBTYPE,
       CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE,
-      TRAVEL_STORY_IMAGE_GALLERIES_SUBTYPE,
+      TRAVEL_STORY_TRAVEL_STORY_IMAGE_GALLERIES_SUBTYPE,
       TRAVEL_STORY_TRAVEL_STORY_WELCOME_PAGE_SUBTYPE,
       TRAVEL_STORY_WELCOME_PAGE_TRAVEL_STORY_WELCOME_MENU_SUBTYPE,
-      //  TRAVEL_STORY_WELCOME_MENU_WECLOME_MENU_ENTRY_SUBTYPE,
-      //  TRAVEL_STORY_WELCOME_MENU_TEXT_PARAGRAPH_SUBTYPE,
+      TRAVEL_STORY_WELCOME_MENU_TEXT_PARAGRAPH_SUBTYPE,
+      TRAVEL_STORY_IMAGE_GALLERIES_TRAVEL_STORY_IMAGE_GALLERY_SUBTYPE,
+    );
+
+    this.migrations.push(
+      {
+        parentType: TRAVEL_STORY_TYPE.name,
+        previousType: IMAGE_GALLERIES_TYPE.name,
+        newType: TRAVEL_STORY_IMAGE_GALLERIES_TYPE.name,
+      },
+      {
+        parentType: TRAVEL_STORY_IMAGE_GALLERIES_TYPE.name,
+        previousType: IMAGE_GALLERY_TYPE.name,
+        newType: TRAVEL_STORY_IMAGE_GALLERY_TYPE.name,
+      },
     );
 
     this.objectTrees.travelStory = {
@@ -95,6 +115,15 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               entryName: 'Calendar',
               menuEntryLabelKey: 'calendarDate',
               entryTypes: [CALENDAR_ENTRY_TYPE.name],
+            },
+            {
+              entryKey: 'galleries',
+              entryName: 'Galleries',
+              menuEntryLabelKey: 'menuTitle',
+              entryTypes: [
+                TRAVEL_STORY_IMAGE_GALLERY_TYPE.name,
+                TRAVEL_STORY_IMAGE_GALLERIES_TYPE.name,
+              ],
             },
           ],
           paragraphTemplateChoices: [
@@ -217,7 +246,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
     };
 
     this.objectTrees.travelStoryExample = {
-      reset: true,
+      reset: false,
       parentNode: () => this.appCtx.demonstrationExamplesNode.value,
       treeNodeName: 'TravelStoryExample',
       treeNodeTypeId: TRAVEL_STORY_TYPE.name,
@@ -230,18 +259,19 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
             home: 'Accueil',
             story: 'Récit',
             calendar: 'Calendrier',
+            galleries: 'Galleries',
           },
         },
         children: {
-          [IMAGE_GALLERIES_TYPE.name]: {
+          [TRAVEL_STORY_IMAGE_GALLERIES_TYPE.name]: {
             [IMAGE_GALLERIES_TYPE.name]: [
               {
-                treeNode: {},
+                treeNode: {menuTitle: 'All galleries'},
                 children: {
-                  [IMAGE_GALLERY_TYPE.name]: {
+                  [TRAVEL_STORY_IMAGE_GALLERY_TYPE.name]: {
                     ['Ipsum3']: [
                       {
-                        treeNode: {},
+                        treeNode: {menuTitle: 'Ispum3'},
                         children: {
                           [IMAGE_TYPE.name]: {
                             ['Eliot peper']: [
@@ -419,7 +449,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                       {
                         treeNode: {
                           linkedPageObjectTreeId:
-                            'node/Tenant/Demonstration/TravelStory/TravelStoryExample/TravelStory/TravelStoryExample/TravelStoryPostRoot/Stories',
+                            'node/Tenant/Demonstration/TravelStory/TravelStoryExample/TravelStory/TravelStoryExample/Page/Stories',
                           imageGalleryObjectTreeId:
                             'tree/Tenant/Demonstration/TravelStory/TravelStoryExample/ImageGallery/Ipsum3',
                           selectedImages: ['Eliot peper'],
@@ -434,7 +464,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                       {
                         treeNode: {
                           linkedPageObjectTreeId:
-                            'node/Tenant/Demonstration/TravelStory/TravelStoryExample/TravelStory/TravelStoryExample/TravelStoryPost/Post%202.3',
+                            '/node/Tenant/Demonstration/TravelStory/TravelStoryExample/TravelStory/TravelStoryExample/Page/ImageGalleries',
                           imageGalleryObjectTreeId:
                             'tree/Tenant/Demonstration/TravelStory/TravelStoryExample/ImageGallery/Ipsum3',
                           selectedImages: ['Brian quid'],

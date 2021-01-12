@@ -9,6 +9,7 @@ import {ObjectTree} from '../../models/object-tree.model';
 import {ObjectNodeService} from '../object-node/object-node.service';
 import {ObjectNode} from './../../models/object-node.model';
 import {CurrentContext} from './../application.service';
+import {ObjectTypeService} from './../object-type.service';
 import {AccessRightsAbstractService} from './access-rights-abtract.service';
 import {AccessRightsTreeScope} from './access-rights-tree.const';
 import {AccessRightsScope, ACCESS_RIGHT_PROVIDER} from './access-rights.const';
@@ -26,6 +27,8 @@ export class AccessRightsTreeService
     protected accessRightsService: AccessRightsService,
     @service(ObjectNodeService)
     protected objectNodeService: ObjectNodeService,
+    @service(ObjectTypeService)
+    protected objectTypeService: ObjectTypeService,
   ) {
     super(
       ACCESS_RIGHT_PROVIDER,
@@ -86,10 +89,13 @@ export class AccessRightsTreeService
               context.invocationContext.args[5],
             );
             if (originalTreeNode) {
+              const types = await this.objectTypeService.getImplementingTypes(
+                context.invocationContext.args[6],
+              );
               const treeNodes = await this.objectNodeService.searchByTreeId(
                 originalTreeNode.id as string,
                 {
-                  objectTypeId: context.invocationContext.args[6],
+                  objectTypeIds: types,
                   name: context.invocationContext.args[7],
                 },
               );

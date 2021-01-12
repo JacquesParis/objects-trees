@@ -127,6 +127,12 @@ export abstract class ExtensionProvider {
     name: string;
   }[] = [];
 
+  migrations: {
+    parentType: string;
+    previousType: string;
+    newType: string;
+  }[] = [];
+
   public async setContext(appCtx: ApplicationService): Promise<void> {
     this.appCtx = appCtx;
     this.objectTreeService = await this.app.getService<ObjectTreeService>(
@@ -250,6 +256,17 @@ export abstract class ExtensionProvider {
       );
     }
   }
+
+  public async migrateBeforeBoot(): Promise<void> {
+    for (const migration of this.migrations) {
+      await this.objectNodeService.migrate(
+        migration.parentType,
+        migration.previousType,
+        migration.newType,
+      );
+    }
+  }
+
   async boot(): Promise<void> {
     console.log('Booting ' + this.name + '.');
     for (const nodeField in this.objectTrees) {

@@ -1,15 +1,14 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
-import {find, indexOf, isObject} from 'lodash';
-import {doesTreeImplementOneOfType} from '../../helper';
+import {find, indexOf, intersection, isObject} from 'lodash';
 import {EntityName} from '../../models';
-import {CurrentContext} from '../../services';
+import {CurrentContext, ObjectTypeService} from '../../services';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectNodeTree, ObjectTree} from './../../models/object-tree.model';
-import {ObjectNodeDefinitionService} from './../../services/entity-definition/object-node-definition.service';
 import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
 import {TransientUriReferenceService} from './../../services/inside-rest/transient-uri-reference.service';
 import {ObjectNodeService} from './../../services/object-node/object-node.service';
+import {ObjectTreeService} from './../../services/object-tree/object-tree.service';
 import {TransientEntityService} from './../../services/transient-entity/transient-entity.service';
 import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {TransientContentGenericService} from './../content-generic-template/transient-content-generic.service';
@@ -47,13 +46,15 @@ export class TransientWebSiteService {
     private insideRestService: InsideRestService,
     @service(ObjectNodeService)
     private objectNodeService: ObjectNodeService,
-    @service(ObjectNodeDefinitionService)
-    private objectNodeDefinitionService: ObjectNodeDefinitionService,
+    @service(ObjectTypeService)
+    private objectTypeService: ObjectTypeService,
     @service(UriCompleteService) private uriCompleteService: UriCompleteService,
     @service(TransientUriReferenceService)
     private transientUriReferenceService: TransientUriReferenceService,
     @service(TransientContentGenericService)
     private transientContentGenericService: TransientContentGenericService,
+    @service(ObjectTreeService)
+    private objectTreeService: ObjectTreeService,
   ) {
     this.transientEntityService.registerTransientEntityTypeFunction(
       WEB_SITE_PROVIDER,
@@ -189,8 +190,9 @@ export class TransientWebSiteService {
     webSiteWiewTree: ObjectNodeTree<WebSiteView>,
     ctx: CurrentContext,
   ): Promise<void> {
-    const welcomePages: ObjectTree[] =
-      webSiteWiewTree.childrenByImplentedTypeId[WELCOME_PAGE_TYPE.name];
+    const welcomePages: ObjectTree[] = (
+      await this.objectTreeService.getChildrenByImplentedTypeId(webSiteWiewTree)
+    )[WELCOME_PAGE_TYPE.name];
     if (welcomePages && 0 < welcomePages.length) {
       webSiteWiewTree.welcomePageId = welcomePages[0].id;
       webSiteWiewTree.welcomePageUri = welcomePages[0].uri;
@@ -215,7 +217,7 @@ export class TransientWebSiteService {
     if (webSiteViewWithMenuTree.treeNode.menuEntries) {
       for (const menuEntry of webSiteTree.treeNode.menuEntries) {
         if (webSiteViewWithMenuTree.treeNode.menuEntries[menuEntry.entryKey]) {
-          const children: MenuTree[] = this.lookForMenuEntries(
+          const children: MenuTree[] = await this.lookForMenuEntries(
             webSiteViewWithMenuTree.children,
             menuEntry.entryTypes,
             webSiteViewWithMenuTree,
@@ -254,20 +256,25 @@ export class TransientWebSiteService {
     }
   }
 
-  protected lookForMenuEntries(
+  protected async lookForMenuEntries(
     trees: ObjectTree[],
     entryTypes: string[],
     webSiteViewWithMenuTree: WebSiteViewWithMenuTree,
     entryKey: string,
     menuEntryLabelKey: string,
-  ): MenuTree[] {
+  ): Promise<MenuTree[]> {
     const parentMenuTrees: MenuTree[] = [];
     for (const tree of trees) {
       if (
         !!tree.treeNode[menuEntryLabelKey] &&
-        doesTreeImplementOneOfType(tree, entryTypes)
+        intersection(
+          await this.objectTypeService.getImplementedTypes(
+            tree.treeNode.objectTypeId,
+          ),
+          entryTypes,
+        ).length > 0
       ) {
-        const children = this.lookForMenuEntries(
+        const children = await this.lookForMenuEntries(
           tree.children,
           entryTypes,
           webSiteViewWithMenuTree,
@@ -295,6 +302,16 @@ export class TransientWebSiteService {
           singleMenu: 0 === children.length,
           menuTitle: tree.treeNode[menuEntryLabelKey],
         } as MenuTree);
+      } else {
+        parentMenuTrees.push(
+          ...(await this.lookForMenuEntries(
+            tree.children,
+            entryTypes,
+            webSiteViewWithMenuTree,
+            entryKey,
+            menuEntryLabelKey,
+          )),
+        );
       }
     }
     return parentMenuTrees;
@@ -345,10 +362,12 @@ export class TransientWebSiteService {
           const oneOf: {enum: {[0]: string}; title: string}[] = [];
           for (const pageTemplateChoice of templateTree.pageTemplateChoices) {
             if (
-              doesTreeImplementOneOfType(
-                objectNode,
+              intersection(
+                await this.objectTypeService.getImplementedTypes(
+                  objectNode.objectTypeId,
+                ),
                 pageTemplateChoice.pageTypes,
-              )
+              ).length > 0
             ) {
               oneOf.push({
                 enum: [pageTemplateChoice.pageTypeKey],
@@ -526,7 +545,9 @@ export class TransientWebSiteService {
     entity: ObjectTree,
     ctx: CurrentContext,
   ): Promise<void> {
-    const pageTrees = entity.childrenByImplentedTypeId[PAGE_TYPE.name];
+    const pageTrees: ObjectTree[] = (
+      await this.objectTreeService.getChildrenByImplentedTypeId(entity)
+    )[PAGE_TYPE.name];
     entity.pageTrees = pageTrees ? pageTrees : [];
   }
 
@@ -534,8 +555,9 @@ export class TransientWebSiteService {
     entity: ObjectTree,
     ctx: CurrentContext,
   ): Promise<void> {
-    const paragraphTrees =
-      entity.childrenByImplentedTypeId[PARAGRAPH_TYPE.name];
+    const paragraphTrees: ObjectTree[] = (
+      await this.objectTreeService.getChildrenByImplentedTypeId(entity)
+    )[PARAGRAPH_TYPE.name];
     entity.paragraphTrees = paragraphTrees ? paragraphTrees : [];
     entity.parentPageTitle = entity.treeNode.pageTitle
       ? entity.treeNode.pageTitle

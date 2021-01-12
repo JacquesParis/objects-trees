@@ -1,6 +1,6 @@
 import {service} from '@loopback/core';
 import {DataObject, repository} from '@loopback/repository';
-import _, {isArray, omitBy, uniq} from 'lodash';
+import _, {indexOf, isArray, omitBy, uniq} from 'lodash';
 import {ObjectSubType} from '../models';
 import {ObjectTypeRepository} from '../repositories';
 import {ApplicationError} from './../helper/application-error';
@@ -109,6 +109,52 @@ export class ObjectTypeService {
     return (await this.searchAll())[id];
   }
 
+  public async getImplementedTypes(type: string): Promise<string[]> {
+    const implementedTypes: {
+      [type: string]: string[];
+    } = await this.appCtx.implementedTypes.getOrSetValue(async () => {
+      const result: {
+        [type: string]: string[];
+      } = {};
+      const allTypes = await this.searchAll();
+      for (const knownType in allTypes) {
+        result[knownType] = [];
+        const objectType = allTypes[knownType];
+        if (objectType?.entityCtx?.implementedTypes) {
+          result[knownType].push(...objectType.entityCtx.implementedTypes);
+        }
+      }
+      return result;
+    });
+
+    return implementedTypes[type];
+  }
+
+  public async getImplementingTypes(type: string): Promise<string[]> {
+    const implementingTypes: {
+      [type: string]: string[];
+    } = await this.appCtx.implementingTypes.getOrSetValue(async () => {
+      const result: {
+        [type: string]: string[];
+      } = {};
+      const allTypes = await this.searchAll();
+      for (const knownType in allTypes) {
+        result[knownType] = [];
+        for (const subType in allTypes) {
+          if (
+            -1 <
+            indexOf(allTypes[subType]?.entityCtx?.implementedTypes, knownType)
+          ) {
+            result[knownType].push(subType);
+          }
+        }
+      }
+      return result;
+    });
+
+    return implementingTypes[type];
+  }
+
   public async search(
     ctx: CurrentContext,
   ): Promise<(ObjectType & ObjectTypeRelations)[]> {
@@ -124,7 +170,7 @@ export class ObjectTypeService {
     if (type.extended) {
       return;
     }
-    let implementedTypes: string[] = [type.name];
+    const implementedTypes: string[] = [type.name];
     type.extended = true;
     if (isArray(type.inheritedTypesIds)) {
       for (const inheritedTypeName of type.inheritedTypesIds) {
@@ -139,9 +185,9 @@ export class ObjectTypeService {
           });
         }
         this.extendsType(parentType, allTypes);
-        implementedTypes = implementedTypes.concat(
-          ...(parentType.entityCtx?.implementedTypes as string[]),
-        );
+        if (parentType.entityCtx?.implementedTypes) {
+          implementedTypes.push(...parentType.entityCtx.implementedTypes);
+        }
         if (!type.contentType || '' === type.contentType) {
           type.contentType = parentType.contentType;
         }
@@ -212,6 +258,12 @@ export class ObjectTypeService {
   private resetCache() {
     this.appCtx.allTypes.value = (undefined as unknown) as {
       [nameId: string]: ObjectType & ObjectTypeRelations;
+    };
+    this.appCtx.implementedTypes.value = (undefined as unknown) as {
+      [type: string]: string[];
+    };
+    this.appCtx.implementingTypes.value = (undefined as unknown) as {
+      [type: string]: string[];
     };
   }
 

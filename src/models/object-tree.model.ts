@@ -34,6 +34,7 @@ export class ObjectTree implements IObjectTree {
     return result;
   }
 
+  /*
   public get childrenByImplentedTypeId(): {
     [objectTypeId: string]: ObjectTree[];
   } {
@@ -49,7 +50,8 @@ export class ObjectTree implements IObjectTree {
       }
     }
     return result;
-  }
+  }*/
+
   async init(
     allNodes: ObjectNode[],
     //   contentEntityService: ContentEntityService,

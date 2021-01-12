@@ -331,6 +331,10 @@ export class ObjectTreesApplication extends RestApplication {
     }
 
     for (const provider of this.extensionProviders) {
+      await provider.migrateBeforeBoot();
+    }
+
+    for (const provider of this.extensionProviders) {
       await provider.boot();
     }
 

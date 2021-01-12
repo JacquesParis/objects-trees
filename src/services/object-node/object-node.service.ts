@@ -68,6 +68,26 @@ export class ObjectNodeService {
     };
   }
 
+  public async migrate(
+    parentType: string,
+    previousType: string,
+    newType: string,
+  ) {
+    const whereParents: Where<ObjectNode> = {objectTypeId: parentType};
+    const whereChilds: Where<ObjectNode> = {
+      parentNodeId: {
+        inq: (await this.objectNodeRepository.find({where: whereParents})).map(
+          (node) => node.id,
+        ),
+      },
+      objectTypeId: previousType,
+    };
+    await this.objectNodeRepository.updateAll(
+      {objectTypeId: newType},
+      whereChilds,
+    );
+  }
+
   public findOrderedNodes(filter: Filter<ObjectNode>): Promise<ObjectNode[]> {
     const orderedFilter: Filter<ObjectNode> = merge(
       {order: ['index ASC']},
@@ -81,6 +101,7 @@ export class ObjectNodeService {
     options: {
       objectTypeId?: string;
       name?: string;
+      objectTypeIds?: string[];
     } = {},
   ): Promise<ObjectNode[]> {
     const where: Where<ObjectNode> = {parentTreeId: treeId};
@@ -89,6 +110,9 @@ export class ObjectNodeService {
     }
     if (options.name) {
       where.name = options.name;
+    }
+    if (options.objectTypeIds) {
+      where.objectTypeId = {inq: options.objectTypeIds};
     }
     return this.findOrderedNodes({where});
   }
@@ -137,8 +161,11 @@ export class ObjectNodeService {
     ownerType: string,
     ownerName: string,
   ): Promise<ObjectNode> {
+    const types: string[] = await this.objectTypeService.getImplementingTypes(
+      ownerType,
+    );
     const nodes = await this.findOrderedNodes({
-      where: {objectTypeId: ownerType, name: ownerName, owner: true},
+      where: {objectTypeId: {inq: types}, name: ownerName, owner: true},
     });
     if (1 < nodes.length) {
       throw ApplicationError.tooMany({owner: ownerType, ownerName: ownerName});
@@ -181,9 +208,12 @@ export class ObjectNodeService {
     namespaceName: string,
     errorContext = {},
   ): Promise<ObjectNode> {
+    const types: string[] = await this.objectTypeService.getImplementingTypes(
+      namespaceType,
+    );
     const nodes = await this.findOrderedNodes({
       where: {
-        objectTypeId: namespaceType,
+        objectTypeId: {inq: types},
         name: namespaceName,
         parentOwnerId: ownerId,
         namespace: true,
@@ -286,9 +316,12 @@ export class ObjectNodeService {
       });
     }
 
+    const types: string[] = await this.objectTypeService.getImplementingTypes(
+      treeType,
+    );
     const nodes = await this.findOrderedNodes({
       where: {
-        objectTypeId: treeType,
+        objectTypeId: {inq: types},
         name: treeName,
         parentNamespaceId: namespace.id,
         tree: true,

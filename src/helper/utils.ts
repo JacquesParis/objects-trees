@@ -1,10 +1,8 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
 /* eslint-disable no-empty */
 import fs from 'fs';
-import {camelCase, intersection, isObject, isString, kebabCase} from 'lodash';
+import {camelCase, isObject, isString, kebabCase} from 'lodash';
 import path from 'path';
-import {ObjectTree} from '../models';
-import {ObjectNode} from './../models/object-node.model';
 export function toKebabCase(str: string) {
   return kebabCase(str);
 }
@@ -93,12 +91,13 @@ export function json(dirName: string, name: string): IJsonSchema {
   );
 }
 
+/*
 export function doesTreeImplementOneOfType(
   tree: ObjectTree | ObjectNode,
   types: string[],
 ): boolean {
   return intersection(tree.entityCtx?.implementedTypes, types).length > 0;
-}
+}*/
 
 export function addConditionOldVersion(condition: string, schema: IJsonSchema) {
   if (!schema['x-schema-form']) {

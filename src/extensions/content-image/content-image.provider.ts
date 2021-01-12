@@ -3,6 +3,7 @@ import {ExtensionProvider} from '../../integration/extension.provider';
 import {ActionImageService} from './action-image.service';
 import {
   CONTENT_IMAGE_PROVIDER,
+  DISPLAYED_IMAGE_GALLERY_TYPE,
   IMAGE_GALLERIES_IMAGE_GALLERY_SUBTYPE,
   IMAGE_GALLERIES_TYPE,
   IMAGE_GALLERY_IMAGE_SUBTYPE,
@@ -38,6 +39,7 @@ export class ContentImageProvider extends ExtensionProvider {
       IMAGE_GALLERY_REFERRER_TYPE,
       IMAGE_TYPE,
       IMAGE_GALLERY_SELECTOR_TYPE,
+      DISPLAYED_IMAGE_GALLERY_TYPE,
     );
 
     this.objectSubTypes.push(

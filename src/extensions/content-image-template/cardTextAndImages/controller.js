@@ -3,6 +3,9 @@ function newFunction() {
     ctrl: undefined,
     async init(ctrl) {
       this.ctrl = ctrl;
+      if (!ctrl.dataNode.images && ctrl.dataTree.images) {
+        ctrl.dataNode.images = ctrl.dataTree.images;
+      }
       // eslint-disable-next-line no-void
       void this.backGroundInit();
     },

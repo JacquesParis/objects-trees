@@ -8,11 +8,6 @@ function newFunction() {
     },
     async backGroundInit() {
       return;
-      /*
-      for (const image of this.ctrl.dataNode.images) {
-        await image.treeNode.waitForReady();
-        this.ctrl.refresh();
-      }*/
     },
     async showImg(imageIndex) {
       if (0 > imageIndex) {

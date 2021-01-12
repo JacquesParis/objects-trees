@@ -21,6 +21,15 @@ export const IMAGE_GALLERY_TYPE: ObjectTypeDefinition = {
   contentType: '',
 };
 
+export const DISPLAYED_IMAGE_GALLERY_TYPE: ObjectTypeDefinition = {
+  name: 'DisplayedImageGallery',
+  inheritedTypesIds: [IMAGE_GALLERY_TYPE.name],
+  definition: {
+    properties: {},
+  },
+  contentType: '',
+};
+
 export const IMAGE_GALLERY_REFERRER_TYPE: ObjectTypeDefinition = {
   name: 'ImageGalleryReferrer',
   definition: {
