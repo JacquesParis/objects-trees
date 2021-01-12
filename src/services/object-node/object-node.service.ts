@@ -286,9 +286,12 @@ export class ObjectNodeService {
     treeType: string,
     errorContext = {},
   ): Promise<ObjectNode[]> {
+    const types: string[] = await this.objectTypeService.getImplementingTypes(
+      treeType,
+    );
     return this.findOrderedNodes({
       where: {
-        objectTypeId: treeType,
+        objectTypeId: {inq: types},
         parentNamespaceId: namespaceId,
         tree: true,
       },
