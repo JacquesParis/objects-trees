@@ -118,6 +118,9 @@ export class TransientTreeService implements TransientEntityInterface {
           child.entityCtx = {entityType: EntityName.objectTree};
         }
         child.entityCtx.loaded = false;
+        if (child.treeNode?.entityCtx) {
+          child.treeNode.entityCtx.loaded = false;
+        }
       }
     }
   }
