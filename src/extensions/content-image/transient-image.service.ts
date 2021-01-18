@@ -31,7 +31,7 @@ export class TransientImageService {
     this.transientEntityService.registerTransientEntityTypeFunction(
       CONTENT_IMAGE_PROVIDER,
       TransientImageService.name,
-      'Add referenced images field and its json schema definition',
+      'Add referenced images field and its json schema definition. Add load Images method',
       EntityName.objectNode,
       IMAGE_GALLERY_REFERRER_TYPE.name,
       this.completeImageGalleryReferrerNode.bind(this),
@@ -64,7 +64,14 @@ export class TransientImageService {
     entity.images = images ? images : [];
   }
 
-  public async completeImageGalleryTypeNode(
+  protected async completeImageGalleryTypeNode(
+    objectNode: ObjectNode,
+    ctx: CurrentContext,
+  ) {
+    await this.addLoadImagesJsonShemaMethod(objectNode, ctx);
+  }
+
+  public async addLoadImagesJsonShemaMethod(
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ) {
@@ -164,6 +171,9 @@ export class TransientImageService {
       } else {
         delete objectNode.entityCtx.jsonSchema.properties.selectedImages;
       }
+    }
+    if (objectNode.imageGalleryTree) {
+      await this.addLoadImagesJsonShemaMethod(objectNode, ctx);
     }
   }
 }
