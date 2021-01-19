@@ -23,6 +23,7 @@ export const OBJECT_NODE_SCHEMA: IJsonSchema = {
       type: 'string',
       // tslint:disable-next-line: object-literal-sort-keys
       title: 'Name',
+      description: 'Only alphanumeric characters, -, _ or . are allowed.',
       default: '',
       minLength: 3,
       required: true,

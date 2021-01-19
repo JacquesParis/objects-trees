@@ -246,7 +246,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
     };
 
     this.objectTrees.travelStoryExample = {
-      reset: false,
+      reset: true,
       parentNode: () => this.appCtx.demonstrationExamplesNode.value,
       treeNodeName: 'TravelStoryExample',
       treeNodeTypeId: TRAVEL_STORY_TYPE.name,
@@ -274,7 +274,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                         treeNode: {menuTitle: 'Ispum3'},
                         children: {
                           [IMAGE_TYPE.name]: {
-                            ['Eliot peper']: [
+                            ['EliotPeper']: [
                               {
                                 treeNode: {
                                   contentImage: {
@@ -288,7 +288,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                                 children: {},
                               },
                             ],
-                            ['Laura Chouette']: [
+                            ['LauraChouette']: [
                               {
                                 treeNode: {
                                   contentImage: {
@@ -302,7 +302,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                                 children: {},
                               },
                             ],
-                            ['Ksenia makagonov']: [
+                            ['KseniaMakagonov']: [
                               {
                                 treeNode: {
                                   contentImage: {
@@ -316,7 +316,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                                 children: {},
                               },
                             ],
-                            ['Brian quid']: [
+                            ['BrianQuid']: [
                               {
                                 treeNode: {
                                   contentImage: {
@@ -349,7 +349,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                 },
                 children: {
                   [TRAVEL_STORY_POST_TYPE.name]: {
-                    ['Post 1']: [
+                    ['Post1']: [
                       {
                         treeNode: {
                           menuTitle: 'Lorem ipsum 1',
@@ -361,7 +361,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                         children: {},
                       },
                     ],
-                    ['Post 2']: [
+                    ['Post2']: [
                       {
                         treeNode: {
                           menuTitle: 'Lorem ipsum 2',
@@ -372,7 +372,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                         },
                         children: {
                           [TRAVEL_STORY_POST_TYPE.name]: {
-                            ['Post 2.1']: [
+                            ['Post2.1']: [
                               {
                                 treeNode: {
                                   menuTitle: 'Lorem ipsum 2.1',
@@ -383,7 +383,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                                 children: {},
                               },
                             ],
-                            ['Post 2.2']: [
+                            ['Post2.2']: [
                               {
                                 treeNode: {
                                   paragraphTitle: 'Content ipsum dolor 2.2',
@@ -393,7 +393,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                                 children: {},
                               },
                             ],
-                            ['Post 2.3']: [
+                            ['Post2.3']: [
                               {
                                 treeNode: {
                                   menuTitle: 'Lorem ipsum 2.3',
@@ -408,7 +408,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                         },
                       },
                     ],
-                    ['Post 3']: [
+                    ['Post3']: [
                       {
                         treeNode: {
                           paragraphTemplateChoice: 'carousselRight',
@@ -417,7 +417,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                           menuTitle: 'Lorem ipsum 3',
                           pageTitle: 'Lorem ipsum dolor 3',
                           paragraphTitle: 'Lorem ipsum dolor 3',
-                          selectedImages: ['Brian quid', 'Laura Chouette'],
+                          selectedImages: ['BrianQuid', 'LauraChouette'],
                           contentText:
                             'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum semper ligula eu mattis sollicitudin. Donec a commodo sem. Nulla faucibus, dolor at ornare congue, quam nibh porta nisi, eu faucibus tellus nunc et tellus. Sed fermentum finibus orci, at sagittis nisl ultrices tincidunt. Nullam consectetur et eros vel ultrices. Mauris vel laoreet metus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam iaculis lectus in velit iaculis accumsan. Proin pharetra felis sed dolor efficitur, a placerat leo faucibus. Aenean commodo tellus elit, faucibus auctor nulla elementum ac. Vestibulum sagittis, urna a facilisis tristique, neque nisi elementum dolor, non lobortis neque enim et risus. Aliquam accumsan tincidunt nulla. Donec sit amet nisi a nibh hendrerit dapibus ac vitae dui. Donec diam orci, egestas ut sagittis vel, lobortis id metus. Vivamus pulvinar vestibulum lacinia.↵↵Vivamus quis ex eu est pretium interdum. Integer elementum pellentesque pulvinar. Etiam posuere orci ut placerat mollis. Cras ut molestie risus, non luctus diam. Phasellus lacinia sit amet ligula cursus condimentum. Ut ac nulla est. Integer mi magna, sodales ultricies semper ac, bibendum eget risus. Morbi hendrerit ultricies pretium. Donec viverra orci laoreet, molestie dui quis, luctus eros. Suspendisse potenti. Aliquam dignissim vestibulum magna, ac fringilla velit auctor ac. Duis sit amet leo id est vehicula convallis ut id magna. Nullam semper euismod maximus. Proin lobortis facilisis felis ac vestibulum. Sed imperdiet tellus mattis, eleifend tortor ac, lobortis elit. Maecenas vehicula luctus nibh.',
                         },
@@ -445,14 +445,14 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                         treeNode: {},
                         children: {*/
                   [TRAVEL_STORY_WELCOME_PARAGRAPH_TYPE.name]: {
-                    ['Stories']: [
+                    ['WelcomeStories']: [
                       {
                         treeNode: {
                           linkedPageObjectTreeId:
                             'node/Tenant/Demonstration/TravelStory/TravelStoryExample/TravelStory/TravelStoryExample/Page/Stories',
                           imageGalleryObjectTreeId:
                             'tree/Tenant/Demonstration/TravelStory/TravelStoryExample/ImageGallery/Ipsum3',
-                          selectedImages: ['Eliot peper'],
+                          selectedImages: ['EliotPeper'],
                           contentText: 'Retrouvez notre récit quotidien',
                           paragraphTitle: 'Notre  périple',
                           paragraphTemplateChoice: 'welcomeMenuThumb2',
@@ -460,14 +460,14 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                         children: {},
                       },
                     ],
-                    ['Images']: [
+                    ['WelcomeImages']: [
                       {
                         treeNode: {
                           linkedPageObjectTreeId:
                             '/node/Tenant/Demonstration/TravelStory/TravelStoryExample/TravelStory/TravelStoryExample/Page/ImageGalleries',
                           imageGalleryObjectTreeId:
                             'tree/Tenant/Demonstration/TravelStory/TravelStoryExample/ImageGallery/Ipsum3',
-                          selectedImages: ['Brian quid'],
+                          selectedImages: ['BrianQuid'],
                           contentText: 'Parcourir les photos',
                           paragraphTitle: 'Nos photos',
                           paragraphTemplateChoice: 'welcomeMenuThumb2',

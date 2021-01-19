@@ -130,6 +130,19 @@ export class ObjectTypeService {
     return implementedTypes[type];
   }
 
+  public async getImplementingCommonTypes(type: string): Promise<string[]> {
+    const types: Set<string> = new Set<string>();
+    for (const implementedType of await this.getImplementedTypes(type)) {
+      for (const implementingType of await this.getImplementingTypes(
+        implementedType,
+      )) {
+        types.add(implementingType);
+      }
+    }
+
+    return new Array(...types.values());
+  }
+
   public async getImplementingTypes(type: string): Promise<string[]> {
     const implementingTypes: {
       [type: string]: string[];

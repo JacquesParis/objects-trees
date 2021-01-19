@@ -102,6 +102,24 @@ export class ApplicationError implements IObjectError, HttpErrors.HttpError {
     );
   }
 
+  public static format(
+    format: string,
+    fields: {[field: string]: any},
+  ): ApplicationError {
+    return new ApplicationError(
+      new HttpErrors[APPLICATION_ERRORS[ApplicationErrors.FORMAT].statusCode](
+        'Format error. Format expected ' +
+          format +
+          ' for ' +
+          Object.keys(fields)
+            .map((key) => key + ' ' + fields[key])
+            .join(', '),
+      ),
+      APPLICATION_ERRORS[ApplicationErrors.FORMAT].errorCode,
+      merge({format}, fields),
+    );
+  }
+
   public static tooMany(fields: {[field: string]: any}): ApplicationError {
     return new ApplicationError(
       new HttpErrors[

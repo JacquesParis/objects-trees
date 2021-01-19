@@ -377,14 +377,29 @@ export class ObjectNodeService {
     objectNode: DataObject<ObjectNode>,
     name: string,
   ) {
-    if (!objectNode.owner && !objectNode.namespace && !objectNode.tree) {
-      return;
+    if (!name || !name.match(/^[A-Z|a-z|0-9|\.-_]+$/g)) {
+      throw ApplicationError.format('alphanumeric or - or _ or .', {
+        name: name,
+      });
+    }
+    const types = await this.objectTypeService.getImplementingCommonTypes(
+      objectNode.objectTypeId as string,
+    );
+    const otherNodes: ObjectNode[] = await this.findOrderedNodes({
+      where: {
+        parentTreeId: objectNode.parentTreeId,
+        objectTypeId: {inq: types},
+        name: name,
+      },
+    });
+    if (otherNodes && 0 < otherNodes.length) {
+      throw ApplicationError.conflict({name: name});
     }
     if (objectNode.tree) {
       const otherTrees: ObjectNode[] = await this.findOrderedNodes({
         where: {
           parentNamespaceId: objectNode.parentNamespaceId,
-          objectTypeId: objectNode.objectTypeId,
+          objectTypeId: {inq: types},
           name: name,
           tree: true,
         },
@@ -397,7 +412,7 @@ export class ObjectNodeService {
       const otherNamespaces: ObjectNode[] = await this.findOrderedNodes({
         where: {
           parentOwnerId: objectNode.parentOwnerId,
-          objectTypeId: objectNode.objectTypeId,
+          objectTypeId: {inq: types},
           name: name,
           namespace: true,
         },
@@ -409,7 +424,7 @@ export class ObjectNodeService {
     if (objectNode.owner) {
       const otherOwners: ObjectNode[] = await this.findOrderedNodes({
         where: {
-          objectTypeId: objectNode.objectTypeId,
+          objectTypeId: {inq: types},
           name: name,
           owner: true,
         },
@@ -606,6 +621,15 @@ export class ObjectNodeService {
           'tree',
         ]),
       );
+    }
+    const brothers = await nodeContext.brothers.getOrSetValue(async () =>
+      this.searchByParentId(objectNode.parentNodeId as string),
+    );
+    objectNodeForUpdate.index = 10;
+    for (const brother of brothers) {
+      if (brother.index && brother.index + 10 > objectNodeForUpdate.index) {
+        objectNodeForUpdate.index = brother.index + 10;
+      }
     }
     const result = await this.objectNodeRepository.create(objectNodeForUpdate);
 
