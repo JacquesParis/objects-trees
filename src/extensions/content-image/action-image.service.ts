@@ -89,27 +89,6 @@ export class ActionImageService {
         ctx.nodeContext.node.value,
         ctx.nodeContext.objectType.value,
       );
-      /*
-      const childCtx: CurrentContext = CurrentContext.get({
-        nodeContext: {
-          parent: ctx.nodeContext.node,
-          parentType: ctx.nodeContext.objectType,
-        },
-      });
-      const nameParts = image.name.split('.');
-      if (1 < nameParts.length) {
-        nameParts.pop();
-      }
-
-      await this.objectNodeService.add(
-        {
-          name: nameParts.join('.'),
-          parentNodeId: gallery.id,
-          objectTypeId: IMAGE_TYPE.name,
-          contentImage: image,
-        },
-        childCtx,
-      );*/
     }
   }
 
