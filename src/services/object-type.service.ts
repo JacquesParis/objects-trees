@@ -127,7 +127,7 @@ export class ObjectTypeService {
       return result;
     });
 
-    return implementedTypes[type];
+    return type in implementedTypes ? implementedTypes[type] : [];
   }
 
   public async getImplementingCommonTypes(type: string): Promise<string[]> {
@@ -152,7 +152,7 @@ export class ObjectTypeService {
       }
       return types;
     });
-    return implementingCommonTypes[type];
+    return type in implementingCommonTypes ? implementingCommonTypes[type] : [];
   }
 
   public async getImplementingTypes(type: string): Promise<string[]> {
@@ -177,7 +177,7 @@ export class ObjectTypeService {
       return result;
     });
 
-    return implementingTypes[type];
+    return type in implementingTypes ? implementingTypes[type] : [];
   }
 
   public async search(
