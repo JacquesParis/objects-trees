@@ -196,7 +196,7 @@ export class ContentImageThumbService {
       try {
         await this.objectNodeService.add(
           {
-            name: 'original',
+            name: 'original_' + imageTree.treeNode.name,
             parentNodeId: imageTree.treeNode.id,
             objectTypeId: IMAGE_ORIGINAL_TYPE.name,
             contentImage: {
@@ -212,8 +212,8 @@ export class ContentImageThumbService {
             },
           }),
         );
+        hasNewNodes = true;
       } catch (error) {}
-      hasNewNodes = true;
       const newSize = await this.changeImgSize(
         imageTree.treeNode.contentImage,
         800,
@@ -249,7 +249,6 @@ export class ContentImageThumbService {
         //   return hasNewNodes;
         return;
       }
-      hasNewNodes = true;
       const newSize = await this.changeImgSize(
         imageTree.treeNode.contentImage,
         200,
@@ -257,7 +256,7 @@ export class ContentImageThumbService {
       try {
         await this.objectNodeService.add(
           {
-            name: 'thumb',
+            name: 'thumb_' + imageTree.treeNode.name,
             parentNodeId: imageTree.treeNode.id,
             objectTypeId: IMAGE_THUMB_TYPE.name,
             contentImage: {
@@ -273,6 +272,7 @@ export class ContentImageThumbService {
             },
           }),
         );
+        hasNewNodes = true;
       } catch (error) {}
     }
 

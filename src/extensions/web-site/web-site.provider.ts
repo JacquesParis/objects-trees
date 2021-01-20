@@ -6,6 +6,7 @@ import {ContentGenericTemplateProvider} from '../content-generic-template/conten
 import {UriCompleteProvider} from './../../services/uri-complete/uri-complete.provider';
 import {TransientWebSiteService} from './transient-web-site.service';
 import {
+  ADMIN_ENTRY_TYPE,
   CALENDAR_ENTRY_TYPE,
   CATEGORY_MENU_TEMPLATE_SUBTYPE,
   CATEGORY_PAGE_TEMPLATE_SUBTYPE,
@@ -49,6 +50,7 @@ export class WebSiteProvider extends ExtensionProvider {
     );
 
     this.objectTypes.push(
+      ADMIN_ENTRY_TYPE,
       WEB_SITE_TEMPLATE_TYPE,
       WEB_SITE_WITH_MENU_TEMPLATE_TYPE,
       WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,

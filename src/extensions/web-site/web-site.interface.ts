@@ -32,6 +32,7 @@ export interface MenuEntryTree extends ObjectTree {
   singleMenu: boolean;
   pageTreeId?: string;
   pageTreeUri?: string;
+  adminEntry: boolean;
 }
 
 export interface MenuTree extends ObjectNodeTree<MenuEntry> {
@@ -41,6 +42,7 @@ export interface MenuTree extends ObjectNodeTree<MenuEntry> {
   children: MenuTree[];
   singleMenu: boolean;
   menuTitle: string;
+  adminEntry: boolean;
 }
 
 export interface WebSiteViewWithMenuTree
@@ -76,6 +78,7 @@ export interface WebSiteWitHMenuTemplate extends WebSiteTemplate {
     entryName: string;
     menuEntryLabelKey: string;
     entryTypes: string[];
+    adminEntry?: boolean;
   }[];
 }
 

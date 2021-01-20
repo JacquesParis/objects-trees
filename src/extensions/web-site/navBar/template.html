@@ -23,7 +23,7 @@
           >
             <li class="nav-item">
               <a
-                href="{{getPageHref(siteTree.menuEntries[menuEntry.entryKey].pageTree)}}"
+                href="{{ctrl.getHref(siteTree.menuEntries[menuEntry.entryKey])}}"
                 class="nav-link"
                 [class.disabled]="siteTree.menuEntries[menuEntry.entryKey].disabled"
               >
@@ -59,7 +59,7 @@
         </ng-template>
         <ng-template #navbarDropdownItems let-menuEntries="menuEntries">
           <ng-container *ngFor="let menuTree of menuEntries.children">
-            <a class="dropdown-item" href="{{getPageHref(menuTree.pageTree)}}"
+            <a class="dropdown-item" href="{{ctrl.getHref(menuTree)}}"
               >{{menuTree.menuTitle}}</a
             >
             <div class="ml-2">

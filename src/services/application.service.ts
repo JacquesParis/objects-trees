@@ -324,6 +324,9 @@ export class ApplicationService {
   public implementingTypes: ExpectedValue<{
     [type: string]: string[];
   }> = new ExpectedValue();
+  implementingCommonTypes: ExpectedValue<{
+    [type: string]: string[];
+  }> = new ExpectedValue();
   public getExtensionContext<T extends ApplicationExtensionContext>(
     extensionNameOrClass: string | {name: string},
   ): T {

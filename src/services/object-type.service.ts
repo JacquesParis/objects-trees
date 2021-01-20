@@ -131,16 +131,28 @@ export class ObjectTypeService {
   }
 
   public async getImplementingCommonTypes(type: string): Promise<string[]> {
-    const types: Set<string> = new Set<string>();
-    for (const implementedType of await this.getImplementedTypes(type)) {
-      for (const implementingType of await this.getImplementingTypes(
-        implementedType,
-      )) {
-        types.add(implementingType);
+    const implementingCommonTypes: {
+      [type: string]: string[];
+    } = await this.appCtx.implementingCommonTypes.getOrSetValue(async () => {
+      const types: {[type: string]: string[]} = {};
+      const allTypes = await this.searchAll();
+      for (const knownType in allTypes) {
+        types[knownType] = [];
+        for (const implementedType of await this.getImplementedTypes(
+          knownType,
+        )) {
+          for (const implementingType of await this.getImplementingTypes(
+            implementedType,
+          )) {
+            if (-1 === indexOf(types[knownType], implementingType)) {
+              types[knownType].push(implementingType);
+            }
+          }
+        }
       }
-    }
-
-    return new Array(...types.values());
+      return types;
+    });
+    return implementingCommonTypes[type];
   }
 
   public async getImplementingTypes(type: string): Promise<string[]> {

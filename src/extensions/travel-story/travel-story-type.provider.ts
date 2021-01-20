@@ -125,6 +125,13 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                 TRAVEL_STORY_IMAGE_GALLERIES_TYPE.name,
               ],
             },
+            {
+              entryKey: 'admin',
+              entryName: 'Galleries',
+              menuEntryLabelKey: 'adminTitle',
+              adminEntry: true,
+              entryTypes: [TRAVEL_STORY_TYPE.name],
+            },
           ],
           paragraphTemplateChoices: [
             {
@@ -255,11 +262,13 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
           webSiteObjectTreeId:
             'tree/Repository/public/RepositoryCategory/templates/TravelStoryTemplate/travelStory',
           menuTitle: 'Example',
+          adminTitle: 'Admin',
           menuEntries: {
             home: 'Accueil',
             story: 'Récit',
             calendar: 'Calendrier',
             galleries: 'Galleries',
+            admin: 'Admin',
           },
         },
         children: {
@@ -438,12 +447,6 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vel tristique velit. Curabitur porttitor nisl nec leo hendrerit blandit. Integer pharetra convallis efficitur. Aliquam non consectetur dolor, vitae eleifend risus. Quisque elementum nisl a urna dignissim, ut euismod enim convallis. Nam facilisis, neque nec ultricies sollicitudin, metus lorem convallis ex, a bibendum sem ex vitae velit. Aenean mattis orci neque, quis laoreet leo suscipit quis. Etiam vitae turpis ac augue consectetur bibendum. Cras varius odio semper ultrices bibendum. Suspendisse dignissim sem at lobortis imperdiet. Donec nec imperdiet turpis. Aenean mattis dui nec turpis euismod dapibus.↵↵Proin tempus, orci sit amet fermentum fringilla, risus metus aliquet enim, sed malesuada ipsum turpis vitae mi. Phasellus molestie justo sed malesuada congue. Nam malesuada massa sit amet diam accumsan consequat. Donec non tempor tellus, vitae posuere enim. Vivamus posuere scelerisque varius. Nunc a mollis risus, quis porta mi. Curabitur venenatis porta ullamcorper. Donec libero turpis, mattis eget elit sit amet, lobortis bibendum ligula. Praesent imperdiet dui odio, sed ultricies turpis congue vel. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aliquam magna quam, varius at libero at, feugiat varius lacus. Vestibulum rutrum auctor libero a bibendum. In sit amet odio nibh. Duis lobortis, quam et scelerisque pellentesque, mauris metus mattis justo, eu convallis nunc sem in ante. Aliquam sit amet consequat ex.',
                 },
                 children: {
-                  /*
-                  [TRAVEL_STORY_WELCOME_MENU_TYPE.name]: {
-                    ['Menu']: [
-                      {
-                        treeNode: {},
-                        children: {*/
                   [TRAVEL_STORY_WELCOME_PARAGRAPH_TYPE.name]: {
                     ['WelcomeStories']: [
                       {
@@ -475,11 +478,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                         children: {},
                       },
                     ],
-                  } /*
-                        },
-                      },
-                    ],
-                  },*/,
+                  },
                 },
               },
             ],

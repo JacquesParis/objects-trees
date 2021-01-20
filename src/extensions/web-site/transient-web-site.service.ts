@@ -218,11 +218,12 @@ export class TransientWebSiteService {
       for (const menuEntry of webSiteTree.treeNode.menuEntries) {
         if (webSiteViewWithMenuTree.treeNode.menuEntries[menuEntry.entryKey]) {
           const children: MenuTree[] = await this.lookForMenuEntries(
-            webSiteViewWithMenuTree.children,
+            [webSiteViewWithMenuTree],
             menuEntry.entryTypes,
             webSiteViewWithMenuTree,
             menuEntry.entryKey,
             menuEntry.menuEntryLabelKey ? menuEntry.menuEntryLabelKey : 'name',
+            !!menuEntry.adminEntry,
           );
           webSiteViewWithMenuTree.menuEntries[menuEntry.entryKey] = ({
             entityCtx: webSiteViewWithMenuTree.entityCtx,
@@ -239,6 +240,7 @@ export class TransientWebSiteService {
             singleMenu:
               0 === children.length ||
               (1 === children.length && children[0].singleMenu),
+            adminEntry: !!menuEntry.adminEntry,
           } as unknown) as MenuEntryTree;
           if (
             webSiteViewWithMenuTree.menuEntries[menuEntry.entryKey]
@@ -262,6 +264,7 @@ export class TransientWebSiteService {
     webSiteViewWithMenuTree: WebSiteViewWithMenuTree,
     entryKey: string,
     menuEntryLabelKey: string,
+    adminEntry: boolean,
   ): Promise<MenuTree[]> {
     const parentMenuTrees: MenuTree[] = [];
     for (const tree of trees) {
@@ -280,6 +283,7 @@ export class TransientWebSiteService {
           webSiteViewWithMenuTree,
           entryKey,
           menuEntryLabelKey,
+          adminEntry,
         );
         parentMenuTrees.push({
           entityCtx: tree.entityCtx,
@@ -300,6 +304,7 @@ export class TransientWebSiteService {
           treeNode: tree.treeNode as MenuEntry,
           children: children,
           singleMenu: 0 === children.length,
+          adminEntry: adminEntry,
           menuTitle: tree.treeNode[menuEntryLabelKey],
         } as MenuTree);
       } else {
@@ -310,6 +315,7 @@ export class TransientWebSiteService {
             webSiteViewWithMenuTree,
             entryKey,
             menuEntryLabelKey,
+            adminEntry,
           )),
         );
       }

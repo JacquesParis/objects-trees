@@ -15,9 +15,19 @@ import {
 export const WEB_SITE_PROVIDER = 'WebSiteProvider';
 export const WEB_SITE_NAME = 'WebSiteService';
 
+export const ADMIN_ENTRY_TYPE: ObjectTypeDefinition = {
+  name: 'AdminEntry',
+  definition: {
+    properties: {adminTitle: {type: 'string', title: 'Admin menu label'}},
+  },
+};
+
 export const WEB_SITE_VIEW_TYPE: ObjectTypeDefinition = {
   name: 'WebSiteView',
-  inheritedTypesIds: [TEMPLATE_REFERER_WITH_CONFIGURATION_TYPE.name],
+  inheritedTypesIds: [
+    TEMPLATE_REFERER_WITH_CONFIGURATION_TYPE.name,
+    ADMIN_ENTRY_TYPE.name,
+  ],
   definition: {
     properties: {
       webSiteObjectTreeId: {
@@ -291,6 +301,11 @@ export const WEB_SITE_WITH_MENU_TEMPLATE_TYPE: ObjectTypeDefinition = {
               type: 'string',
               title: 'Menu entry label key',
               default: 'name',
+            },
+            adminEntry: {
+              type: 'boolean',
+              title: 'Redirect to the admin tool',
+              default: false,
             },
             entryTypes: {
               type: 'array',

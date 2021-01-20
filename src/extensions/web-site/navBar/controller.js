@@ -9,6 +9,13 @@ function newFunction() {
     async backGroundInit() {
       this.ctrl.document.body.style.paddingTop = '3.5rem';
     },
+    getHref(menuTree) {
+      if (menuTree.adminEntry) {
+        return this.ctrl.getAdminHref(menuTree.pageTree);
+      } else {
+        return this.ctrl.getPageHref(menuTree.pageTree);
+      }
+    },
   };
 }
 newFunction();
