@@ -8,7 +8,7 @@ import {
   repository,
   Where,
 } from '@loopback/repository';
-import {concat, find, merge, pick, some} from 'lodash';
+import {concat, find, isArray, merge, pick, some} from 'lodash';
 import {ApplicationError} from '../../helper/application-error';
 import {EntityName} from '../../models';
 import {ObjectNodeRelations} from '../../models/object-node.model';
@@ -385,6 +385,9 @@ export class ObjectNodeService {
     const types = await this.objectTypeService.getImplementingCommonTypes(
       objectNode.objectTypeId as string,
     );
+    if (!isArray(types)) {
+      throw ApplicationError.notFound({type: objectNode.objectTypeId});
+    }
     const otherNodes: ObjectNode[] = await this.findOrderedNodes({
       where: {
         parentTreeId: objectNode.parentTreeId,
