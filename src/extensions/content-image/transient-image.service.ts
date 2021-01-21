@@ -149,7 +149,9 @@ export class TransientImageService {
             );
             objectNode.entityCtx.jsonSchema.properties.selectedImages.items.enumNames.push(
               image.treeNode.name +
-                '<span class="imageSelect"><img src="' +
+                '<span class="imageSelect"><img onclick="showImg(\'' +
+                image.treeNode.contentImageUri +
+                '\')" src="' +
                 image.treeNode.contentImageUri +
                 '" ></span>',
             );
