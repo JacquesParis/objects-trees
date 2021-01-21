@@ -127,7 +127,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
             },
             {
               entryKey: 'admin',
-              entryName: 'Galleries',
+              entryName: 'Administration',
               menuEntryLabelKey: 'adminTitle',
               adminEntry: true,
               entryTypes: [TRAVEL_STORY_TYPE.name],
