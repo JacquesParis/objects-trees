@@ -91,7 +91,7 @@ export class ContentGenericTemplateService extends ContentExtensionService<
           properties: {
             templateAngular: {
               type: 'string',
-              title: 'Template',
+              title: 'Template Angular',
               default: '',
               required: true,
               'x-schema-form': {

@@ -30,9 +30,9 @@ export function contentGenericTemplate(
     },
   };
   try {
-    genericTemplate.templateAngular = templateAngular(
+    genericTemplate.templateAngular = template(
       path.join(dirName, name),
-      'template',
+      'angular.template',
     );
   } catch (error) {}
   try {
@@ -73,7 +73,7 @@ export function base64(
   );
 }
 
-export function templateAngular(dirName: string, name: string): string {
+export function template(dirName: string, name: string): string {
   return fs.readFileSync(path.join(dirName, name + '.html'), 'utf8');
 }
 export function controller(dirName: string, name: string): string {
