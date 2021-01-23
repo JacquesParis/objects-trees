@@ -45,7 +45,7 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
     if (!objectTree.entityCtx.preview) {
       objectTree.entityCtx.preview = {
         icon: '',
-        template: '<span class="child-tree-preview">{{dataNode.name}}</span>',
+        html: '<span class="child-tree-preview">{{dataNode.name}}</span>',
       };
     }
     // _.merge({}, this.entityDefinition, objectType.definition, this.entityDefinition, objectType.contentDefinition),
@@ -55,14 +55,18 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
         objectTree.treeNode.objectTypeId,
       );
     });
-    if (treeType.iconView && '' !== treeType.iconView) {
+    if (
+      objectTree.entityCtx.preview &&
+      treeType.iconView &&
+      '' !== treeType.iconView
+    ) {
       objectTree.entityCtx.preview.icon = treeType.iconView;
     }
     if (treeType.templateView && '' !== treeType.templateView) {
-      objectTree.entityCtx.preview.template = treeType.templateView;
+      objectTree.entityCtx.preview.html = treeType.templateView;
     }
     objectTree.entityCtx.preview.html = this.mustacheService.parse(
-      objectTree.entityCtx.preview.template as string,
+      objectTree.entityCtx.preview.html as string,
       {
         dataTree: objectTree,
         dataNode: objectTree.treeNode,
