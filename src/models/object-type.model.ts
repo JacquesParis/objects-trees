@@ -38,6 +38,18 @@ export class ObjectType extends RestEntity implements IObjectType {
   })
   definition: IJsonSchema;
 
+  @property({
+    type: 'string',
+    required: false,
+  })
+  templateView: string;
+
+  @property({
+    type: 'string',
+    required: false,
+  })
+  iconView: string;
+
   contentDefinition?: IJsonSchema;
 
   @hasMany(() => ObjectSubType)

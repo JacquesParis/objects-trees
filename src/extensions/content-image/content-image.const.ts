@@ -74,6 +74,9 @@ export const IMAGE_TYPE: ObjectTypeDefinition = {
     properties: {},
   },
   contentType: 'ContentImage',
+  iconView: 'far fa-image',
+  templateView:
+    '<span class="child-tree-preview"><span class="child-image-name">{{dataNode.name}}</span><img src="{{dataNode.contentImageUri}}"/></span>',
 };
 
 export const IMAGE_GALLERIES_IMAGE_GALLERY_SUBTYPE: ObjectSubTypeDefintion = {

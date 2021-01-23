@@ -36,7 +36,15 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
     const objectTree = entity as ObjectTree;
     //this.entityCtx?.entityDefinition
     if (!objectTree.entityCtx) {
-      objectTree.entityCtx = {entityType: EntityName.objectTree};
+      objectTree.entityCtx = {
+        entityType: EntityName.objectTree,
+      };
+    }
+    if (!objectTree.entityCtx.preview) {
+      objectTree.entityCtx.preview = {
+        icon: '',
+        template: '<span class="child-tree-preview">{{dataNode.name}}</span>',
+      };
     }
     // _.merge({}, this.entityDefinition, objectType.definition, this.entityDefinition, objectType.contentDefinition),
 
@@ -45,6 +53,12 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
         objectTree.treeNode.objectTypeId,
       );
     });
+    if (treeType.iconView && '' !== treeType.iconView) {
+      objectTree.entityCtx.preview.icon = treeType.iconView;
+    }
+    if (treeType.templateView && '' !== treeType.templateView) {
+      objectTree.entityCtx.preview.template = treeType.templateView;
+    }
     objectTree.entityCtx.implementedTypes =
       treeType.entityCtx?.implementedTypes;
     if (!objectTree.entityCtx.actions) {

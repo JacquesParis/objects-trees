@@ -19,6 +19,8 @@ const defaultObjectTypeFilter = {
     name: true,
     contentType: true,
     uri: true,
+    iconView: true,
+    templateView: true,
   },
   include: [
     {
@@ -220,6 +222,12 @@ export class ObjectTypeService {
           type.definition = parentType.definition;
         } else {
           type.definition = _.merge({}, parentType.definition, type.definition);
+        }
+        if (!type.iconView || '' === type.iconView) {
+          type.iconView = parentType.iconView;
+        }
+        if (!type.templateView || '' === type.templateView) {
+          type.templateView = parentType.templateView;
         }
         if (parentType.objectSubTypes) {
           for (const parentSubType of parentType.objectSubTypes) {
