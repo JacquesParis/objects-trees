@@ -4,12 +4,14 @@ import {RunnerTreatmentDescription} from './../../integration/extension-descript
 import {EntityDefinitionInterceptor} from './../../interceptors/entity-definition.interceptor';
 import {ENTITY_DEFINITION_PROVIDER} from './entity-definition.cont';
 import {EntityDefinitionService} from './entity-definition.service';
+import {MustacheService} from './mustache.service';
 import {ObjectNodeDefinitionService} from './object-node-definition.service';
 import {ObjectTreeDefinitionService} from './object-tree-definition.service';
 
 export class EntityDefinitionProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(ENTITY_DEFINITION_PROVIDER, app);
+    this.services.push({cls: MustacheService});
     this.services.push({cls: EntityDefinitionService});
     this.services.push({cls: ObjectNodeDefinitionService});
     this.services.push({cls: ObjectTreeDefinitionService});

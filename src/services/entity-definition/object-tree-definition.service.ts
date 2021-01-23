@@ -11,6 +11,7 @@ import {
   EntityDefinitionInterface,
   EntityDefinitionService,
 } from './entity-definition.service';
+import {MustacheService} from './mustache.service';
 import {ObjectNodeDefinitionService} from './object-node-definition.service';
 
 export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
@@ -23,6 +24,7 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
     protected objectNodeDefinitionService: ObjectNodeDefinitionService,
     @service(EntityDefinitionService)
     protected entityDefinitionService: EntityDefinitionService,
+    @service(MustacheService) protected mustacheService: MustacheService,
   ) {
     this.entityDefinitionService.registerEntityDefinitionService(
       EntityName.objectTree,
@@ -59,6 +61,13 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
     if (treeType.templateView && '' !== treeType.templateView) {
       objectTree.entityCtx.preview.template = treeType.templateView;
     }
+    objectTree.entityCtx.preview.html = this.mustacheService.parse(
+      objectTree.entityCtx.preview.template as string,
+      {
+        dataTree: objectTree,
+        dataNode: objectTree.treeNode,
+      },
+    );
     objectTree.entityCtx.implementedTypes =
       treeType.entityCtx?.implementedTypes;
     if (!objectTree.entityCtx.actions) {
