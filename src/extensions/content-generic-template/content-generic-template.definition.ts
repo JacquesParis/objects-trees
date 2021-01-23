@@ -22,7 +22,7 @@ export class GenericTemplate extends Entity {
   @property({
     type: 'string',
   })
-  template: string;
+  templateAngular: string;
   @property({
     type: 'string',
   })
@@ -89,7 +89,7 @@ export class ContentGenericTemplateService extends ContentExtensionService<
           type: 'object',
           title: 'Layout definition',
           properties: {
-            template: {
+            templateAngular: {
               type: 'string',
               title: 'Template',
               default: '',

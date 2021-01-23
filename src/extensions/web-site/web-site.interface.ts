@@ -64,7 +64,7 @@ export interface WebSiteViewWithMenu extends WebSiteView {
 }
 
 export interface TemplateView extends ObjectNode {
-  template: string;
+  templateAngular: string;
 }
 
 export interface PageTemplate extends TemplateView {}

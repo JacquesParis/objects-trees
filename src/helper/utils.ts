@@ -14,9 +14,9 @@ export function toCamelCase(str: string) {
 export function contentGenericTemplate(
   dirName: string,
   name: string,
-): {template: string; scss: string; controller: string} {
+): {templateAngular: string; scss: string; controller: string} {
   const genericTemplate = {
-    template: '',
+    templateAngular: '',
     scss: '',
     controller: `function newFunction() {
       return {
@@ -30,7 +30,10 @@ export function contentGenericTemplate(
     },
   };
   try {
-    genericTemplate.template = template(path.join(dirName, name), 'template');
+    genericTemplate.templateAngular = templateAngular(
+      path.join(dirName, name),
+      'template',
+    );
   } catch (error) {}
   try {
     genericTemplate.scss = scss(path.join(dirName, name), 'style');
@@ -70,7 +73,7 @@ export function base64(
   );
 }
 
-export function template(dirName: string, name: string): string {
+export function templateAngular(dirName: string, name: string): string {
   return fs.readFileSync(path.join(dirName, name + '.html'), 'utf8');
 }
 export function controller(dirName: string, name: string): string {
