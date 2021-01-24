@@ -10,7 +10,7 @@ export class ExpressServer {
   private lbApp: ObjectTreesApplicationInterface;
   private server: Server;
 
-  constructor(restApp: RestApplication) {
+  constructor(restApp: RestApplication, rootDirectory: string) {
     this.app = express();
     this.lbApp = (restApp as unknown) as ObjectTreesApplicationInterface;
     this.app.use('/api', this.lbApp.requestHandler);
@@ -22,19 +22,24 @@ export class ExpressServer {
     this.app.use(
       '/admin',
       express.static(
-        path.join(__dirname, '../node_modules/@jacquesparis/objects-angular'),
+        path.join(rootDirectory, 'node_modules/@jacquesparis/objects-angular'),
       ),
     );
     this.app.use(
       '/objectsites',
       express.static(
         path.join(
-          __dirname,
-          '../node_modules/@jacquesparis/objects-angular/objectsites',
+          rootDirectory,
+          'node_modules/@jacquesparis/objects-angular/objectsites',
         ),
       ),
     );
   }
+
+  public static(basePath: string, dirName: string) {
+    this.app.use(basePath, express.static(dirName));
+  }
+
   async boot() {
     await this.lbApp.boot();
     await this.lbApp.bootObjectTrees();
