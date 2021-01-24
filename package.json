@@ -49,6 +49,7 @@
   ],
   "dependencies": {
     "@jacquesparis/objects-model": "file:../objects-model",
+    "@jacquesparis/objects-angular": "file:../../master/objects-angular/dist",
     "@loopback/authentication": "^7.0.2",
     "@loopback/authentication-jwt": "^0.7.2",
     "@loopback/authorization": "^0.7.2",
