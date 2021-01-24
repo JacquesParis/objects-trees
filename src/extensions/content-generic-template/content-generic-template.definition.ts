@@ -22,6 +22,10 @@ export class GenericTemplate extends Entity {
   @property({
     type: 'string',
   })
+  templateMustache: string;
+  @property({
+    type: 'string',
+  })
   templateAngular: string;
   @property({
     type: 'string',
@@ -89,6 +93,15 @@ export class ContentGenericTemplateService extends ContentExtensionService<
           type: 'object',
           title: 'Layout definition',
           properties: {
+            templateMustache: {
+              type: 'string',
+              title: 'Template Mustache',
+              default: '',
+              required: true,
+              'x-schema-form': {
+                type: 'textarea',
+              },
+            },
             templateAngular: {
               type: 'string',
               title: 'Template Angular',

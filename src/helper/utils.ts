@@ -1,8 +1,10 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
+import {Response} from '@loopback/rest';
 /* eslint-disable no-empty */
 import fs from 'fs';
 import {camelCase, isObject, isString, kebabCase} from 'lodash';
 import path from 'path';
+import {GeneratedViewInterface} from './../services/action-entity/action-entity.service';
 export function toKebabCase(str: string) {
   return kebabCase(str);
 }
@@ -14,8 +16,14 @@ export function toCamelCase(str: string) {
 export function contentGenericTemplate(
   dirName: string,
   name: string,
-): {templateAngular: string; scss: string; controller: string} {
+): {
+  templateMustache: string;
+  templateAngular: string;
+  scss: string;
+  controller: string;
+} {
   const genericTemplate = {
+    templateMustache: '',
     templateAngular: '',
     scss: '',
     controller: `function newFunction() {
@@ -29,6 +37,12 @@ export function contentGenericTemplate(
       properties: {},
     },
   };
+  try {
+    genericTemplate.templateMustache = template(
+      path.join(dirName, name),
+      'mustache.template',
+    );
+  } catch (error) {}
   try {
     genericTemplate.templateAngular = template(
       path.join(dirName, name),
@@ -158,6 +172,62 @@ export function addCondition(
   if (schema.properties) {
     for (const key of Object.keys(schema.properties)) {
       addCondition(condition, schema.properties[key], modelPath);
+    }
+  }
+}
+
+export function outputResponse(
+  response: Response,
+  generatedView: GeneratedViewInterface,
+): Response {
+  switch (generatedView.type) {
+    case 'file': {
+      const fileView: {
+        filePath: string;
+        fileName: string;
+      } = generatedView.file as {
+        filePath: string;
+        fileName: string;
+      };
+      response.download(fileView.filePath, fileView.fileName);
+      return response;
+    }
+    case 'base64': {
+      const base64View: {
+        name: string;
+        base64: string;
+        type?: string;
+      } = generatedView.base64 as {
+        name: string;
+        base64: string;
+        type?: string;
+      };
+      response.header(
+        'Content-Disposition',
+        'attachment; filename="' + base64View.name + '"',
+      );
+      if (base64View.type) {
+        response.type(base64View.type);
+      }
+      response.send(Buffer.from(base64View.base64, 'base64'));
+      return response;
+    }
+    case 'json': {
+      response.json(generatedView.json);
+      return response;
+    }
+    case 'text': {
+      const textView: {
+        response: string;
+        contentType?: string;
+      } = generatedView.text as {response: string; contentType?: string};
+      response.set('Content-Type', 'text/html');
+      response.send(textView.response);
+      return response;
+    }
+    default: {
+      response.json(generatedView);
+      return response;
     }
   }
 }

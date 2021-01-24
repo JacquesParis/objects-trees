@@ -10,6 +10,7 @@ export enum AccessRightsScope {
   update = 'update',
   delete = 'delete',
   method = 'method',
+  view = 'view',
 }
 export enum AccessRightsMgt {
   access = 'access',

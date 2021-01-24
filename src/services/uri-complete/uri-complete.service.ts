@@ -20,6 +20,13 @@ export class UriCompleteService {
     this.addUri(result, ctx);
     ctx.uriContext.returnedEntity.value = result;
   }
+
+  public getUri(entityName: EntityName, id: string, ctx: CurrentContext) {
+    const baseUri = ctx.uriContext.uri.value.baseUri;
+    const objectUri = '/' + this.getEntityUri(entityName) + '/';
+    return baseUri + objectUri + id;
+  }
+
   public addUri(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result: EntityType | EntityType[] | any,

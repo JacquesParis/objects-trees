@@ -4,6 +4,7 @@ import {ExtensionProvider} from '../../integration/extension.provider';
 import {TransientUriReferenceProvider} from '../../services/inside-rest/transient-uri-reference.provider';
 import {ContentGenericTemplateProvider} from '../content-generic-template/content-generic-template.provider';
 import {UriCompleteProvider} from './../../services/uri-complete/uri-complete.provider';
+import {ActionWebSiteService} from './action-web-site.service';
 import {TransientWebSiteService} from './transient-web-site.service';
 import {
   ADMIN_ENTRY_TYPE,
@@ -48,6 +49,10 @@ export class WebSiteProvider extends ExtensionProvider {
       TransientUriReferenceProvider,
       ContentGenericTemplateProvider,
     );
+    this.services.push(
+      {cls: TransientWebSiteService},
+      {cls: ActionWebSiteService},
+    );
 
     this.objectTypes.push(
       ADMIN_ENTRY_TYPE,
@@ -85,8 +90,6 @@ export class WebSiteProvider extends ExtensionProvider {
       PAGE_WITH_SECTION_PARAGRAPH_SECTION_PARAGRAPH_SUBTYPE,
       PARAGRAPH_CONTAINER_TEXT_PARAGRAPH_SUBTYPE,
     );
-
-    this.services.push({cls: TransientWebSiteService});
 
     this.objectTrees.navBar = {
       reset: false,

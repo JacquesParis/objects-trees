@@ -139,7 +139,14 @@ export class AccessRightsService implements ServiceDescripiton {
           }
         }
         if (context.scopes && 'method' === context.scopes[0]) {
-          context.scopes[0] = await this.actionEntityService.getAuthorizationContext(
+          context.scopes[0] = await this.actionEntityService.getMethodAuthorizationContext(
+            metadata.resource as EntityName,
+            context.invocationContext.args,
+            ctx,
+          );
+        }
+        if (context.scopes && 'view' === context.scopes[0]) {
+          context.scopes[0] = await this.actionEntityService.getViewAuthorizationContext(
             metadata.resource as EntityName,
             context.invocationContext.args,
             ctx,

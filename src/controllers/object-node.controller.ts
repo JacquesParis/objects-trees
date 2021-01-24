@@ -202,7 +202,7 @@ export class ObjectNodeController {
               'attachment; filename="' + (text as any).name + '"',
             );
             if ((text as any).type) {
-              response.contentType = (text as any).type;
+              response.type((text as any).type);
             }
             response.send(Buffer.from((text as any).base64, 'base64'));
             return response;
@@ -210,9 +210,8 @@ export class ObjectNodeController {
           response.json(text);
           return response;
         } else {
-          response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          response.write(text);
-          response.end();
+          response.set('Content-Type', 'text/plain');
+          response.send(text);
           return response;
         }
       }

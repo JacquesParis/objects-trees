@@ -253,7 +253,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
     };
 
     this.objectTrees.travelStoryExample = {
-      reset: true,
+      reset: false,
       parentNode: () => this.appCtx.demonstrationExamplesNode.value,
       treeNodeName: 'TravelStoryExample',
       treeNodeTypeId: TRAVEL_STORY_TYPE.name,

@@ -28,7 +28,7 @@ export class ActionImageService {
     @service(ObjectTypeService)
     private objectTypeService: ObjectTypeService,
   ) {
-    this.actionEntityService.registerNewActionTypeFunction(
+    this.actionEntityService.registerNewMethodFunction(
       CONTENT_IMAGE_PROVIDER,
       ActionImageService.name,
       'Load and create several Image entities in an Image Gallery',
@@ -38,7 +38,7 @@ export class ActionImageService {
       this.loadImageGalleryNode.bind(this),
       'create',
     );
-    this.actionEntityService.registerNewActionTypeFunction(
+    this.actionEntityService.registerNewMethodFunction(
       CONTENT_IMAGE_PROVIDER,
       ActionImageService.name,
       'Load and create several Image entities in a referenced Image Gallery',

@@ -3,16 +3,16 @@ import {ActionEntityService} from '../action-entity/action-entity.service';
 import {CurrentContext, ExpectedValue} from '../application.service';
 import {EntityName} from './../../models/entity-name';
 import {ObjectTree} from './../../models/object-tree.model';
-import {ActionEntityInterface} from './../action-entity/action-entity.service';
+import {MethodAndViewEntityInterface} from './../action-entity/action-entity.service';
 import {ObjectNodeService} from './../object-node/object-node.service';
 import {OBJECT_TREE_PROVIDER} from './object-tree.const';
-export class ActionTreeService implements ActionEntityInterface {
+export class ActionTreeService implements MethodAndViewEntityInterface {
   constructor(
     @service(ActionEntityService)
     protected actionEntityService: ActionEntityService,
     @service(ObjectNodeService) protected objectNodeService: ObjectNodeService,
   ) {
-    this.actionEntityService.registerNewAction(
+    this.actionEntityService.registerNewMethodOrView(
       EntityName.objectTree,
       'sort',
       this,
@@ -22,7 +22,7 @@ export class ActionTreeService implements ActionEntityInterface {
   serviceId: string = ActionTreeService.name;
   description = 'Sort tree children nodes';
   accessRightsScope = 'create';
-  async runAction(
+  async runMethod(
     objectTree: ObjectTree,
     childrenIds: string[],
     ctx: CurrentContext,
@@ -49,7 +49,7 @@ export class ActionTreeService implements ActionEntityInterface {
         (undefined === b.treeNode?.index ? 1000 : b.treeNode.index),
     );
   }
-  async hasAction(
+  async hasMethod(
     objectTree: ObjectTree,
     ctx: CurrentContext,
   ): Promise<boolean> {

@@ -16,6 +16,20 @@ function newFunction() {
       }
       return siteTemplateNode.pageTemplateTree;
     },
+    async initMustache() {
+      this.ctrl.navHtml = await this.ctrl.loadHtml(
+        this.ctrl.dataTree,
+        this.ctrl.templateNode.menuTree,
+      );
+      this.ctrl.pageHtml = await this.ctrl.loadHtml(
+        this.ctrl.pageTree,
+        this.getPageTreeTemplate(
+          this.ctrl.pageNode,
+          this.ctrl.templateNode,
+          this.ctrl.siteTemplateNode,
+        ),
+      );
+    },
   };
 }
 newFunction();
