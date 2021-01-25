@@ -1,3 +1,4 @@
+export * from './application';
 export * from './application.component';
 export * from './boot.component';
 export * from './constants';
@@ -11,6 +12,7 @@ export * from './extensions/post/post.provider';
 export * from './extensions/travel-story/travel-story-type.provider';
 export * from './extensions/web-site/web-site.provider';
 export * from './helper';
+export * from './integration/object-trees-application.config';
 export * from './interceptors';
 export * from './local';
 export * from './main';
