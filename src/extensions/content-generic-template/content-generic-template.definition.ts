@@ -23,6 +23,10 @@ export class GenericTemplate extends Entity {
     type: 'string',
   })
   templateMustache: string;
+
+  @property({type: 'array', default: [], itemType: 'string'})
+  templatesMustache: string[];
+
   @property({
     type: 'string',
   })
@@ -31,6 +35,10 @@ export class GenericTemplate extends Entity {
     type: 'string',
   })
   scss: string;
+  @property({
+    type: 'string',
+  })
+  css: string;
   @property({
     type: 'string',
   })
@@ -98,6 +106,23 @@ export class ContentGenericTemplateService extends ContentExtensionService<
               title: 'Template Mustache',
               default: '',
               required: true,
+              'x-schema-form': {
+                type: 'textarea',
+              },
+            },
+            templatesMustache: {
+              type: 'array',
+              title: 'Recursive template Mustache',
+              default: [],
+              required: false,
+              items: {
+                type: 'string',
+              },
+            },
+            css: {
+              type: 'string',
+              title: 'Mustache css',
+              default: '',
               'x-schema-form': {
                 type: 'textarea',
               },

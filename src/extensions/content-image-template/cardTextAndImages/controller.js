@@ -10,6 +10,86 @@ function newFunction() {
       void this.backGroundInit();
     },
     async backGroundInit() {},
+    async initMustache() {
+      if (!this.ctrl.dataNode.images && this.ctrl.dataTree.images) {
+        this.ctrl.dataNode.images = this.ctrl.dataTree.images;
+      }
+      if (
+        this.ctrl.dataNode.linkedPageTreeId &&
+        !this.ctrl.dataNode.linkedPageTree
+      ) {
+        this.ctrl.dataNode.linkedPageTree = await this.ctrl.getObjectTree(
+          this.ctrl.dataNode.linkedPageTreeId,
+        );
+      }
+      if (this.ctrl.dataNode.linkedPageTree) {
+        this.ctrl.linkedPageTreeHref = this.ctrl.getPageHref(
+          this.ctrl.dataNode.linkedPageTree,
+        );
+      }
+      this.ctrl.galleryObjectTree = this.getGalleryObjectTree(
+        this.ctrl.dataNode,
+        this.ctrl.templateNode,
+        this.ctrl.siteTemplateNode,
+      );
+      this.ctrl.galleriePosition = this.getGalleriePosition(
+        this.ctrl.dataNode,
+        this.ctrl.templateNode,
+        this.ctrl.siteTemplateNode,
+      );
+      this.ctrl.paragraphColClass = this.getParagraphColClass(
+        this.ctrl.dataNode,
+        this.ctrl.templateNode,
+        this.ctrl.siteTemplateNode,
+      );
+      this.ctrl[this.ctrl.galleriePosition + 'GalleriePosition'] = true;
+      this.ctrl.hasCardBody =
+        (this.ctrl.dataNode.paragraphTitle &&
+          '' !== this.ctrl.dataNode.paragraphTitle) ||
+        (this.ctrl.dataNode.contentText &&
+          '' !== this.ctrl.dataNode.contentText);
+      if (
+        !this.ctrl.hasCardBody &&
+        (this.ctrl.leftGalleriePosition || this.ctrl.rightGalleriePosition)
+      ) {
+        this.ctrl.galleriePosition = 'after';
+        this.ctrl.leftGalleriePosition = this.ctrl.rightGalleriePosition = false;
+        this.ctrl.afterGalleriePosition = true;
+      }
+      this.ctrl.hasAnyContent =
+        this.ctrl.hasCardBody || !this.ctrl.noneGalleriePosition;
+      this.ctrl.hasCardTitle =
+        this.ctrl.dataNode.paragraphTitle &&
+        '' !== this.ctrl.dataNode.paragraphTitle;
+      this.ctrl.titleClass = this.titleClass(
+        this.ctrl.dataNode,
+        this.ctrl.templateNode,
+        this.ctrl.siteTemplateNode,
+      );
+      this.ctrl.parentPageTitle = this.displayParentPageTitle(
+        this.ctrl.dataTree,
+        this.ctrl.dataNode,
+        this.ctrl.templateNode,
+        this.ctrl.siteTemplateNode,
+      );
+      this.ctrl.galleryColClass = this.getGalleryColClass(
+        this.ctrl.dataNode,
+        this.ctrl.templateNode,
+        this.ctrl.siteTemplateNode,
+      );
+      this.ctrl.hasContentText =
+        this.ctrl.dataNode.contentText && '' !== this.ctrl.dataNode.contentText;
+      this.ctrl.contentClass = this.contentClass(
+        this.ctrl.dataNode,
+        this.ctrl.templateNode,
+        this.ctrl.siteTemplateNode,
+      );
+
+      this.ctrl.cardImgAjax = await this.ctrl.loadAjax(
+        this.ctrl.dataTree,
+        this.ctrl.galleryObjectTree,
+      );
+    },
 
     searchConfigInObject(object, configName, configKey) {
       if (

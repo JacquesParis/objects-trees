@@ -28,6 +28,7 @@ export class InsideRestService {
     @inject('services.InsideRestRepository')
     private insideRestRepository: InsideRestRepository,
   ) {}
+
   async read(
     uri: string,
     ctx: CurrentContext,

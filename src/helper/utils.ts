@@ -16,16 +16,30 @@ export function toCamelCase(str: string) {
 export function contentGenericTemplate(
   dirName: string,
   name: string,
+  templateIds: string[] = [],
 ): {
+  templatesMustache: {[templateId: string]: string};
   templateMustache: string;
   templateAngular: string;
   scss: string;
+  css: string;
   controller: string;
+  refererConfig: IJsonSchema;
 } {
-  const genericTemplate = {
+  const genericTemplate: {
+    templatesMustache: {[templateId: string]: string};
+    templateMustache: string;
+    templateAngular: string;
+    scss: string;
+    css: string;
+    controller: string;
+    refererConfig: IJsonSchema;
+  } = {
     templateMustache: '',
+    templatesMustache: {},
     templateAngular: '',
     scss: '',
+    css: '',
     controller: `function newFunction() {
       return {
         async init(component) {},
@@ -43,6 +57,12 @@ export function contentGenericTemplate(
       'mustache.template',
     );
   } catch (error) {}
+  for (const templateId of templateIds) {
+    genericTemplate.templatesMustache[templateId] = template(
+      path.join(dirName, name),
+      templateId + '.mustache.template',
+    );
+  }
   try {
     genericTemplate.templateAngular = template(
       path.join(dirName, name),
@@ -51,6 +71,9 @@ export function contentGenericTemplate(
   } catch (error) {}
   try {
     genericTemplate.scss = scss(path.join(dirName, name), 'style');
+  } catch (error) {}
+  try {
+    genericTemplate.css = css(path.join(dirName, name), 'style');
   } catch (error) {}
   try {
     genericTemplate.controller = controller(
@@ -96,6 +119,9 @@ export function controller(dirName: string, name: string): string {
 
 export function scss(dirName: string, name: string): string {
   return fs.readFileSync(path.join(dirName, name + '.scss'), 'utf8');
+}
+export function css(dirName: string, name: string): string {
+  return fs.readFileSync(path.join(dirName, name + '.css'), 'utf8');
 }
 
 export function jsonschema(dirName: string, name: string): IJsonSchema {

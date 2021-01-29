@@ -98,7 +98,9 @@ export class WebSiteProvider extends ExtensionProvider {
       treeNodeTypeId: MENU_TEMPLATE_TYPE.name,
       tree: {
         treeNode: {
-          contentGenericTemplate: contentGenericTemplate(__dirname, 'navBar'),
+          contentGenericTemplate: contentGenericTemplate(__dirname, 'navBar', [
+            'navbarDropdownItems',
+          ]),
         },
         children: {},
       },
@@ -127,6 +129,7 @@ export class WebSiteProvider extends ExtensionProvider {
           contentGenericTemplate: contentGenericTemplate(
             __dirname,
             'pageWithParagraph',
+            ['pages', 'paragraphs'],
           ),
         },
         children: {},

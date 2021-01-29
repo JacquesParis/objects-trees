@@ -25,7 +25,11 @@ export class MustacheService {
     Mustache.parse(template);
   }
 
-  public parse(template: string, object: Object) {
-    return Mustache.render(template, object);
+  public parse(
+    template: string,
+    object: Object,
+    templates: {[templateId: string]: string} = {},
+  ) {
+    return Mustache.render(template, object, templates);
   }
 }

@@ -82,6 +82,7 @@ export class ContentImageTemplateProvider extends ExtensionProvider {
           contentGenericTemplate: contentGenericTemplate(
             __dirname,
             'cardTextAndImages',
+            ['card', 'cardImg'],
           ),
         },
         children: {},

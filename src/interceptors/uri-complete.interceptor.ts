@@ -46,10 +46,6 @@ export class UriCompleteInterceptor extends AbstractInterceptor {
     next: () => ValueOrPromise<InvocationResult>,
   ): Promise<ValueOrPromise<InvocationResult>> {
     await this.getUriParts(invocationCtx, this.ctx);
-    console.log(
-      this.ctx.uriContext.uri.value.method,
-      this.ctx.uriContext.uri.value.objectUri,
-    );
 
     const result = await next();
     try {
@@ -67,11 +63,6 @@ export class UriCompleteInterceptor extends AbstractInterceptor {
         this.uriCompleteService.completeReturnedEntity(result, this.ctx);
       }
 
-      console.log(
-        'done',
-        this.ctx.uriContext.uri.value.method,
-        this.ctx.uriContext.uri.value.objectUri,
-      );
       // eslint-disable-next-line no-empty
     } catch (error) {}
     return result;

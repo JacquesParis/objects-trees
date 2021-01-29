@@ -1,0 +1,33 @@
+{{#hasAnyContent}}
+<div class="card {{paragraphColClass}}">
+  <div class="row no-gutters">
+    {{#beforeGalleriePosition}}
+    <div class="col-12">{{> cardImg}}</div>
+    {{/beforeGalleriePosition}} {{#hasCardBody}}
+    <div class="col">
+      <div class="card-body">
+        {{#hasCardTitle}}
+        <h2 class="card-title {{titleClass}}">
+          {{dataNode.paragraphTitle}}{{#parentPageTitle}}<span
+            class="ml-2 float-right badge badge-secondary badge-light badge-pill font-weight-light font-italic"
+            >{{parentPageTitle}}</span
+          >{{/parentPageTitle}}
+        </h2>
+        {{/hasCardTitle}}
+        <div>
+          {{#leftGalleriePosition}}
+          <div class="pl-0 {{galleryColClass}}">{{> cardImg}}</div>
+          {{/leftGalleriePosition}} {{#rightGalleriePosition}}
+          <div class="pr-0 {{galleryColClass}}">{{> cardImg}}</div>
+          {{/rightGalleriePosition}} {{#hasContentText}}
+          <p class="card-text {{contentClass}}">{{dataNode.contentText}}</p>
+          {{/hasContentText}}
+        </div>
+      </div>
+    </div>
+    {{/hasCardBody}} {{#afterGalleriePosition}}
+    <div class="col-12">{{> cardImg}}</div>
+    {{/afterGalleriePosition}}
+  </div>
+</div>
+{{/hasAnyContent}}

@@ -1,4 +1,6 @@
 import {service} from '@loopback/core';
+import * as css from 'css';
+import {contentGenericTemplate} from '../../helper';
 import {ObjectNode} from '../../models';
 import {
   ActionEntityService,
@@ -15,7 +17,6 @@ import {InsideRestService} from './../../services/inside-rest/inside-rest.servic
 import {TransientUriReferenceService} from './../../services/inside-rest/transient-uri-reference.service';
 import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {WEB_SITE_PROVIDER, WEB_SITE_VIEW_TYPE} from './web-site.const';
-
 export class GenericObjectComponent {
   siteTree: ObjectTree;
   siteNode: ObjectNode;
@@ -35,26 +36,213 @@ export class GenericObjectComponent {
     private ctx: CurrentContext,
   ) {}
 
-  async loadHtml(
+  async loadAjax(
     dataTree: ObjectTree,
     templateTree: ObjectTree,
   ): Promise<string> {
     const viewId =
       this.siteTree.id +
-      '/view/html/' +
+      '/view/ajax/' +
       this.pageNode.id +
       '/' +
       dataTree.id +
       '/' +
       templateTree.id;
+    /*
+    console.log(
+      'from',
+      this.dataNode.name,
+      'template',
+      this.templateNode.name,
+      'include',
+      dataTree.treeNode.name,
+      'template',
+      templateTree.treeNode.name,
+      viewId,
+    );
+    */
     return ((await this.insideRestService.read(
       this.uriCompleteService.getUri(EntityName.objectTree, viewId, this.ctx),
       this.ctx,
     )) as unknown) as string;
   }
+
+  public getPageHref(page: ObjectTree): string {
+    const viewId =
+      this.siteTree.id + '/view/html' + (page ? '/' + page.treeNode.id : '');
+    return this.uriCompleteService.getUri(
+      EntityName.objectTree,
+      viewId,
+      this.ctx,
+    );
+  }
+
+  public getAdminHref(page: ObjectTree): string {
+    return (
+      '/admin/#/admin/owner/' +
+      page.ownerType +
+      '/' +
+      page.ownerName +
+      '/namespace/' +
+      page.namespaceType +
+      '/' +
+      page.namespaceName
+    );
+  }
+
+  public async getObjectNode(nodeId: string): Promise<ObjectNode> {
+    return (await this.insideRestService.read(
+      this.uriCompleteService.getUri(EntityName.objectNode, nodeId, this.ctx),
+      this.ctx,
+    )) as ObjectNode;
+  }
+
+  public async getObjectTree(treeId: string): Promise<ObjectTree> {
+    return (await this.insideRestService.read(
+      this.uriCompleteService.getUri(EntityName.objectTree, treeId, this.ctx),
+      this.ctx,
+    )) as ObjectTree;
+  }
+
+  public getImgSrc(controlValue: {
+    base64?: string;
+    type?: string;
+    uri?: string;
+  }): string {
+    return controlValue?.base64 && controlValue.type
+      ? 'data:' + controlValue.type + ';base64,' + controlValue.base64
+      : (controlValue?.uri as string);
+  }
+
+  public getImgBackground(controlValue: {
+    base64?: string;
+    type?: string;
+    uri?: string;
+  }): string {
+    return controlValue?.base64 && controlValue?.type
+      ? "url('" +
+          'data:' +
+          controlValue.type +
+          ';base64,' +
+          controlValue.base64 +
+          "')"
+      : "url('" + controlValue?.uri + "')";
+  }
+
+  public getColSizes(
+    minWidth: 1 | 2 | 3 | 4 | 6 | 8 | 9 | 12,
+    maxWith: 1 | 2 | 3 | 4 | 6 | 8 | 9 | 12,
+    breakSize: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl',
+    keepProportion = false,
+  ) {
+    const sizes = {
+      xs: 576,
+      sm: 768,
+      md: 992,
+      lg: 1200,
+      xl: 1400,
+    };
+    const breakingSize =
+      'none' === breakSize
+        ? sizes.xs
+        : Math.min(
+            ...Object.values(sizes).filter((size) => size > sizes[breakSize]),
+          );
+    const returnedSizes: {
+      xs?: number;
+      sm?: number;
+      md?: number;
+      lg?: number;
+      xl?: number;
+    } = {};
+    for (const size in sizes) {
+      if (sizes[size as 'xs' | 'sm' | 'md' | 'lg' | 'xl'] < breakingSize) {
+        returnedSizes[size as 'xs' | 'sm' | 'md' | 'lg' | 'xl'] = 12;
+      } else {
+        returnedSizes[size as 'xs' | 'sm' | 'md' | 'lg' | 'xl'] = Math.round(
+          minWidth +
+            ((maxWith - minWidth) *
+              (sizes[size as 'xs' | 'sm' | 'md' | 'lg' | 'xl'] -
+                breakingSize)) /
+              (sizes.xl - breakingSize),
+        );
+        if (keepProportion) {
+          returnedSizes[size as 'xs' | 'sm' | 'md' | 'lg' | 'xl'] =
+            Math.round(
+              (returnedSizes[
+                size as 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+              ] as number) / maxWith,
+            ) * maxWith;
+        }
+      }
+    }
+    return returnedSizes;
+  }
+
+  getColClass(
+    minWidth: 1 | 2 | 3 | 4 | 6 | 8 | 9 | 12,
+    maxWith: 1 | 2 | 3 | 4 | 6 | 8 | 9 | 12,
+    breakSize: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl',
+    keepProportion = false,
+  ) {
+    const colSizes = this.getColSizes(
+      minWidth,
+      maxWith,
+      breakSize,
+      keepProportion,
+    );
+    const returnedClasses = [];
+    for (const size in colSizes) {
+      returnedClasses.push(
+        'col-' +
+          size +
+          '-' +
+          colSizes[size as 'xs' | 'sm' | 'md' | 'lg' | 'xl'],
+      );
+    }
+    return returnedClasses.join(' ').replace('col-xs', 'col');
+  }
+
+  public getColFloatClass(
+    minWidth: 1 | 2 | 3 | 4 | 6 | 8 | 9 | 12,
+    maxWith: 1 | 2 | 3 | 4 | 6 | 8 | 9 | 12,
+    breakSize: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl',
+    side = 'left',
+    keepProportion = false,
+  ) {
+    const colSizes = this.getColSizes(
+      minWidth,
+      maxWith,
+      breakSize,
+      keepProportion,
+    );
+    const returnedClasses = [];
+    for (const size in colSizes) {
+      const sizeClass = 'xs' === size ? '' : '-' + size;
+      returnedClasses.push(
+        'col' +
+          sizeClass +
+          '-' +
+          colSizes[size as 'xs' | 'sm' | 'md' | 'lg' | 'xl'] +
+          (colSizes[size as 'xs' | 'sm' | 'md' | 'lg' | 'xl'] !== 12
+            ? ' float' + sizeClass + '-' + side
+            : ''),
+      );
+    }
+    return returnedClasses.join(' ');
+  }
 }
 
 export class ActionWebSiteService {
+  doc: {
+    templatesMustache: {[templateId: string]: string};
+    templateMustache: string;
+    templateAngular: string;
+    scss: string;
+    css: string;
+    controller: string;
+    refererConfig: import('E:/dev/newSites/objects-model/lib/index').IJsonSchema;
+  };
   constructor(
     @service(ActionEntityService)
     protected actionEntityService: ActionEntityService,
@@ -71,6 +259,16 @@ export class ActionWebSiteService {
     this.actionEntityService.registerNewViewFunction(
       WEB_SITE_PROVIDER,
       ActionWebSiteService.name,
+      'Build ajax view',
+      EntityName.objectTree,
+      'ajax',
+      WEB_SITE_VIEW_TYPE.name,
+      this.ajaxWebSiteViewTree.bind(this),
+      'read',
+    );
+    this.actionEntityService.registerNewViewFunction(
+      WEB_SITE_PROVIDER,
+      ActionWebSiteService.name,
       'Build html view',
       EntityName.objectTree,
       'html',
@@ -78,9 +276,29 @@ export class ActionWebSiteService {
       this.htmlWebSiteViewTree.bind(this),
       'read',
     );
+    this.doc = contentGenericTemplate(__dirname, 'doc');
   }
 
   public async htmlWebSiteViewTree(
+    entity: ObjectTree,
+    args: {0?: string; 1?: string; 2?: string},
+    ctx: CurrentContext,
+  ): Promise<GeneratedViewInterface> {
+    const result: GeneratedViewInterface = await this.ajaxWebSiteViewTree(
+      entity,
+      args,
+      ctx,
+    );
+    if (result.text) {
+      result.text.response = this.mustacheService.parse(
+        this.doc.templateMustache,
+        result.text,
+      );
+    }
+    return result;
+  }
+
+  public async ajaxWebSiteViewTree(
     entity: ObjectTree,
     args: {0?: string; 1?: string; 2?: string},
     ctx: CurrentContext,
@@ -197,12 +415,57 @@ export class ActionWebSiteService {
       .templateMustache
       ? genericObject.templateNode.contentGenericTemplate.templateMustache
       : 'missing mustache for ' + genericObject.templateNode.name;
+    let templateCss: string = genericObject.templateNode.contentGenericTemplate
+      .css
+      ? genericObject.templateNode.contentGenericTemplate.css
+      : '';
+    let response: string =
+      '<div class="template_' +
+      genericObject.templateNode.name +
+      '">' +
+      this.mustacheService.parse(
+        mustache,
+        genericObject,
+        genericObject.templateNode.contentGenericTemplate.templatesMustache
+          ? genericObject.templateNode.contentGenericTemplate.templatesMustache
+          : {},
+      ) +
+      '</div>';
+    if ('' !== templateCss) {
+      const cssObject: css.Stylesheet = css.parse(templateCss);
+      if (cssObject.stylesheet) {
+        for (const oneRule of cssObject.stylesheet.rules) {
+          const rule = oneRule as css.Rule;
+          if (rule.selectors) {
+            for (const index in rule.selectors) {
+              rule.selectors[index] =
+                '.template_' +
+                genericObject.templateNode.name +
+                ' ' +
+                rule.selectors[index];
+            }
+          }
+        }
+      }
+      templateCss = css.stringify(cssObject);
+      response =
+        `
+        <style type="text/css">
+        ` +
+        templateCss +
+        `
+        </style>
+        ` +
+        response;
+    }
+
+    //console.log('GET', entity.id, pageTreeId, dataTreeId, response);
 
     return {
       type: 'text',
       text: {
         contentType: 'text/html',
-        response: this.mustacheService.parse(mustache, genericObject),
+        response: response,
       },
     };
   }

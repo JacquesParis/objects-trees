@@ -38,6 +38,58 @@ function newFunction() {
       }
       return siteTemplateNode.paragraphTemplateTree;
     },
+    async initMustache() {
+      this.ctrl.pageTitle =
+        this.ctrl.dataNode.pageTitle || this.ctrl.dataNode.menuTitle;
+      this.ctrl.paragraphTrees = [this.ctrl.dataTree];
+      this.ctrl.hasPageTrees =
+        !this.ctrl.dataTree.paragraphTrees &&
+        this.ctrl.dataTree.pageTrees &&
+        0 < this.ctrl.dataTree.pageTrees.length;
+      if (this.ctrl.hasPageTrees) {
+        await this.initPageTrees(this.ctrl.dataTree);
+      }
+      await this.initParagraphTrees(this.ctrl.dataTree);
+    },
+
+    async initPageTrees(dataTree) {
+      for (const childTree of dataTree.pageTrees) {
+        const pageTreeTemplate = this.getPageTreeTemplate(
+          childTree.treeNode,
+          this.ctrl.templateNode,
+          this.ctrl.siteTemplateNode,
+        );
+        childTree.pageAjax = await this.ctrl.loadAjax(
+          childTree,
+          pageTreeTemplate,
+        );
+        if (childTree.pageTrees && 0 < childTree.pageTrees.length) {
+          childTree.hasPageTrees = true;
+          await this.initPageTrees(childTree);
+        } else {
+          childTree.hasPageTrees = false;
+        }
+      }
+    },
+    async initParagraphTrees(dataTree) {
+      const paragraphTreeTemplate = this.getParagraphTreeTemplate(
+        dataTree.treeNode,
+        this.ctrl.templateNode,
+        this.ctrl.siteTemplateNode,
+      );
+      dataTree.paragraphAjax = await this.ctrl.loadAjax(
+        dataTree,
+        paragraphTreeTemplate,
+      );
+      if (dataTree.paragraphTrees && 0 < dataTree.paragraphTrees.length) {
+        dataTree.hasParagraphTrees = true;
+        for (const childTree of dataTree.paragraphTrees) {
+          await this.initParagraphTrees(childTree);
+        }
+      } else {
+        dataTree.hasParagraphTrees = false;
+      }
+    },
   };
 }
 newFunction();

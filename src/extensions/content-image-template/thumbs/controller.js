@@ -26,12 +26,50 @@ function newFunction() {
         this.ctrl.dataNode.menuTitle ||
         this.ctrl.dataTree.parentPageTitle ||
         '';
-      console.log(imageIndex);
       if (imageTree.original) {
         //  await imageTree.original.waitForReady();
         this.modalImage = imageTree.original;
       }
       this.ctrl.refresh();
+    },
+    async initMustache() {
+      if (!this.ctrl.dataNode.images && this.ctrl.dataTree.images) {
+        this.ctrl.dataNode.images = this.ctrl.dataTree.images;
+      }
+      this.ctrl.colClass = this.ctrl.getColClass(6, 3, 'xs');
+      if (this.ctrl.dataNode.images) {
+        this.ctrl.singleImage = 1 === this.ctrl.dataNode.images.length;
+        for (const imageIndex in this.ctrl.dataNode.images) {
+          this.ctrl.dataNode.images[imageIndex].index = imageIndex;
+          this.ctrl.dataNode.images[imageIndex].imageClass =
+            0 === imageIndex ? ' active' : '';
+          this.ctrl.dataNode.images[imageIndex].imgSrc = this.ctrl.getImgSrc({
+            uri: this.ctrl.dataNode.images[imageIndex].treeNode.contentImageUri,
+          });
+          if (this.ctrl.dataNode.images[imageIndex].original) {
+            this.ctrl.dataNode.images[
+              imageIndex
+            ].imgBackground = this.ctrl.getImgBackground({
+              uri: this.ctrl.dataNode.images[imageIndex].original
+                .contentImageUri,
+            });
+          } else {
+            this.ctrl.dataNode.images[
+              imageIndex
+            ].imgBackground = this.ctrl.getImgBackground({
+              uri: this.ctrl.dataNode.images[imageIndex].treeNode
+                .contentImageUri,
+            });
+          }
+          this.ctrl.dataNode.images[imageIndex].modalTitle =
+            this.ctrl.dataNode.images[imageIndex].treeNode.imageTitle ||
+            this.ctrl.dataNode.paragraphTitle ||
+            this.ctrl.dataNode.pageTitle ||
+            this.ctrl.dataNode.menuTitle ||
+            this.ctrl.dataTree.parentPageTitle ||
+            '';
+        }
+      }
     },
   };
 }

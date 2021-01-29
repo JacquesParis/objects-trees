@@ -1,0 +1,11 @@
+<div class="card">
+  <div class="card-body">
+    {{#pageTitle}}
+    <h1 class="card-title">{{pageTitle}}</h1>
+    {{/pageTitle}}
+    <p class="card-text">
+      {{> paragraphs}} {{#hasPageTrees}} {{#dataTree}}{{> pages}} {{/dataTree}}
+      {{/hasPageTrees}}
+    </p>
+  </div>
+</div>
