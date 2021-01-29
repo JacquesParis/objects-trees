@@ -7,6 +7,7 @@ import {
   service,
 } from '@loopback/core';
 import {indexOf, isFunction, isString} from 'lodash';
+import {GeneratedResponse} from '../../helper/generated-response';
 import {EntityName} from '../../models/entity-name';
 import {CurrentContext} from '../application.service';
 import {ObjectNodeService} from '../object-node/object-node.service';
@@ -14,7 +15,7 @@ import {ApplicationError} from './../../helper/application-error';
 import {TreatmentDescription} from './../../integration/extension-description';
 import {ObjectTreeService} from './../object-tree/object-tree.service';
 import {ObjectTypeService} from './../object-type.service';
-
+/*
 export interface GeneratedViewInterface {
   type: 'file' | 'base64' | 'json' | 'text';
   file?: {
@@ -28,7 +29,7 @@ export interface GeneratedViewInterface {
   };
   json?: Object;
   text?: {response: string; contentType?: string};
-}
+}*/
 export interface MethodAndViewEntityInterface {
   providerId: string;
   serviceId: string;
@@ -226,7 +227,7 @@ export class ActionEntityService {
       entity: T,
       args: {0?: string; 1?: string; 2?: string},
       ctx: CurrentContext,
-    ) => Promise<GeneratedViewInterface>,
+    ) => Promise<GeneratedResponse>,
     functionAccessRightsScope = 'read',
   ) {
     const objectTypeService = this.objectTypeService;
@@ -396,7 +397,7 @@ export class ActionEntityService {
     viewId: string,
     args: {[0]?: string; [1]?: string; [2]?: string},
     ctx: CurrentContext,
-  ): Promise<GeneratedViewInterface> {
+  ): Promise<GeneratedResponse> {
     const view = await this.getView(entityType, id, viewId, ctx);
     if (!view) {
       throw ApplicationError.notImplemented({

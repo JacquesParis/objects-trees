@@ -1,11 +1,13 @@
+import {IJsonSchema} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
 import * as css from 'css';
 import {contentGenericTemplate} from '../../helper';
-import {ObjectNode} from '../../models';
 import {
-  ActionEntityService,
-  GeneratedViewInterface,
-} from '../../services/action-entity/action-entity.service';
+  GeneratedResponse,
+  TextGeneratedResponse,
+} from '../../helper/generated-response';
+import {ObjectNode} from '../../models';
+import {ActionEntityService} from '../../services/action-entity/action-entity.service';
 import {ObjectNodeService} from '../../services/object-node/object-node.service';
 import {ObjectTypeService} from '../../services/object-type.service';
 import {ApplicationError} from './../../helper/application-error';
@@ -237,11 +239,13 @@ export class ActionWebSiteService {
   doc: {
     templatesMustache: {[templateId: string]: string};
     templateMustache: string;
+    headerScript: string;
+    footerScript: string;
     templateAngular: string;
     scss: string;
     css: string;
     controller: string;
-    refererConfig: import('E:/dev/newSites/objects-model/lib/index').IJsonSchema;
+    refererConfig: IJsonSchema;
   };
   constructor(
     @service(ActionEntityService)
@@ -283,16 +287,16 @@ export class ActionWebSiteService {
     entity: ObjectTree,
     args: {0?: string; 1?: string; 2?: string},
     ctx: CurrentContext,
-  ): Promise<GeneratedViewInterface> {
-    const result: GeneratedViewInterface = await this.ajaxWebSiteViewTree(
+  ): Promise<GeneratedResponse> {
+    const result: GeneratedResponse = await this.ajaxWebSiteViewTree(
       entity,
       args,
       ctx,
     );
-    if (result.text) {
-      result.text.response = this.mustacheService.parse(
+    if (result instanceof TextGeneratedResponse) {
+      result.response = this.mustacheService.parse(
         this.doc.templateMustache,
-        result.text,
+        result.response,
       );
     }
     return result;
@@ -302,7 +306,7 @@ export class ActionWebSiteService {
     entity: ObjectTree,
     args: {0?: string; 1?: string; 2?: string},
     ctx: CurrentContext,
-  ): Promise<GeneratedViewInterface> {
+  ): Promise<GeneratedResponse> {
     const genericObject: GenericObjectComponent = new GenericObjectComponent(
       this.insideRestService,
       this.uriCompleteService,
@@ -461,12 +465,6 @@ export class ActionWebSiteService {
 
     //console.log('GET', entity.id, pageTreeId, dataTreeId, response);
 
-    return {
-      type: 'text',
-      text: {
-        contentType: 'text/html',
-        response: response,
-      },
-    };
+    return new TextGeneratedResponse(response);
   }
 }

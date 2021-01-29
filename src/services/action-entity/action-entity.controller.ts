@@ -10,7 +10,7 @@ import {
   Response,
   RestBindings,
 } from '@loopback/rest';
-import {outputResponse} from '../../helper';
+import {GeneratedResponse} from '../../helper/generated-response';
 import {EntityName} from '../../models/entity-name';
 import {ObjectNode} from '../../models/object-node.model';
 import {
@@ -19,10 +19,7 @@ import {
 } from '../access-rights/access-rights.const';
 import {CurrentContext, CURRENT_CONTEXT} from '../application.service';
 import {ObjectTree} from './../../models/object-tree.model';
-import {
-  ActionEntityService,
-  GeneratedViewInterface,
-} from './action-entity.service';
+import {ActionEntityService} from './action-entity.service';
 
 export class ActionEntityController {
   constructor(
@@ -41,14 +38,14 @@ export class ActionEntityController {
     @inject(RestBindings.Http.RESPONSE) response: Response,
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<Response> {
-    const generatedView: GeneratedViewInterface = await this.actionEntityService.generateView(
+    const generatedView: GeneratedResponse = await this.actionEntityService.generateView(
       EntityName.objectNode,
       id,
       viewId,
       {},
       ctx,
     );
-    return outputResponse(response, generatedView);
+    return generatedView.getResponse(response);
   }
   @get('/object-nodes/{id}/view/{viewId}/{arg1}')
   async generateNodeViewWith1Arg(
@@ -58,14 +55,14 @@ export class ActionEntityController {
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
     @param.path.string('arg1') arg1?: string,
   ): Promise<Response> {
-    const generatedView: GeneratedViewInterface = await this.actionEntityService.generateView(
+    const generatedView: GeneratedResponse = await this.actionEntityService.generateView(
       EntityName.objectNode,
       id,
       viewId,
       [arg1],
       ctx,
     );
-    return outputResponse(response, generatedView);
+    return generatedView.getResponse(response);
   }
   @get('/object-nodes/{id}/view/{viewId}/{arg1}/{arg2}')
   async generateNodeViewWith2Args(
@@ -76,14 +73,14 @@ export class ActionEntityController {
     @param.path.string('arg1') arg1?: string,
     @param.path.string('arg2') arg2?: string,
   ): Promise<Response> {
-    const generatedView: GeneratedViewInterface = await this.actionEntityService.generateView(
+    const generatedView: GeneratedResponse = await this.actionEntityService.generateView(
       EntityName.objectNode,
       id,
       viewId,
       [arg1, arg2],
       ctx,
     );
-    return outputResponse(response, generatedView);
+    return generatedView.getResponse(response);
   }
   @get('/object-nodes/{id}/view/{viewId}/{arg1}/{arg2}/{arg3}')
   async generateNodeViewWith3Args(
@@ -95,14 +92,14 @@ export class ActionEntityController {
     @param.path.string('arg2') arg2?: string,
     @param.path.string('arg3') arg3?: string,
   ): Promise<Response> {
-    const generatedView: GeneratedViewInterface = await this.actionEntityService.generateView(
+    const generatedView: GeneratedResponse = await this.actionEntityService.generateView(
       EntityName.objectNode,
       id,
       viewId,
       [arg1, arg2, arg3],
       ctx,
     );
-    return outputResponse(response, generatedView);
+    return generatedView.getResponse(response);
   }
 
   @authorize({
@@ -117,14 +114,14 @@ export class ActionEntityController {
     @inject(RestBindings.Http.RESPONSE) response: Response,
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<Response> {
-    const generatedView: GeneratedViewInterface = await this.actionEntityService.generateView(
+    const generatedView: GeneratedResponse = await this.actionEntityService.generateView(
       EntityName.objectTree,
       id,
       viewId,
       {},
       ctx,
     );
-    return outputResponse(response, generatedView);
+    return generatedView.getResponse(response);
   }
   @get('/object-trees/{id}/view/{viewId}/{arg1}')
   async generateTreeViewWith1Arg(
@@ -134,14 +131,14 @@ export class ActionEntityController {
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
     @param.path.string('arg1') arg1?: string,
   ): Promise<Response> {
-    const generatedView: GeneratedViewInterface = await this.actionEntityService.generateView(
+    const generatedView: GeneratedResponse = await this.actionEntityService.generateView(
       EntityName.objectTree,
       id,
       viewId,
       [arg1],
       ctx,
     );
-    return outputResponse(response, generatedView);
+    return generatedView.getResponse(response);
   }
   @get('/object-trees/{id}/view/{viewId}/{arg1}/{arg2}')
   async generateTreeViewWith2Args(
@@ -152,14 +149,14 @@ export class ActionEntityController {
     @param.path.string('arg1') arg1?: string,
     @param.path.string('arg2') arg2?: string,
   ): Promise<Response> {
-    const generatedView: GeneratedViewInterface = await this.actionEntityService.generateView(
+    const generatedView: GeneratedResponse = await this.actionEntityService.generateView(
       EntityName.objectTree,
       id,
       viewId,
       [arg1, arg2],
       ctx,
     );
-    return outputResponse(response, generatedView);
+    return generatedView.getResponse(response);
   }
   @get('/object-trees/{id}/view/{viewId}/{arg1}/{arg2}/{arg3}')
   async generateTreeViewWith3Args(
@@ -171,14 +168,14 @@ export class ActionEntityController {
     @param.path.string('arg2') arg2?: string,
     @param.path.string('arg3') arg3?: string,
   ): Promise<Response> {
-    const generatedView: GeneratedViewInterface = await this.actionEntityService.generateView(
+    const generatedView: GeneratedResponse = await this.actionEntityService.generateView(
       EntityName.objectTree,
       id,
       viewId,
       [arg1, arg2, arg3],
       ctx,
     );
-    return outputResponse(response, generatedView);
+    return generatedView.getResponse(response);
   }
   @authorize({
     resource: AccessRightsEntity.objectNode,

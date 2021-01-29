@@ -23,6 +23,14 @@ export class GenericTemplate extends Entity {
     type: 'string',
   })
   templateMustache: string;
+  @property({
+    type: 'string',
+  })
+  headerScript: string;
+  @property({
+    type: 'string',
+  })
+  footerScript: string;
 
   @property({type: 'array', default: [], itemType: 'string'})
   templatesMustache: string[];
@@ -104,6 +112,24 @@ export class ContentGenericTemplateService extends ContentExtensionService<
             templateMustache: {
               type: 'string',
               title: 'Template Mustache',
+              default: '',
+              required: true,
+              'x-schema-form': {
+                type: 'textarea',
+              },
+            },
+            headerScript: {
+              type: 'string',
+              title: 'Script javascript ajouté au header',
+              default: '',
+              required: true,
+              'x-schema-form': {
+                type: 'textarea',
+              },
+            },
+            footerScript: {
+              type: 'string',
+              title: 'Script javascript ajouté en bas de page',
               default: '',
               required: true,
               'x-schema-form': {

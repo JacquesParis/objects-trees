@@ -1,5 +1,5 @@
 <script type="text/javascript">
-  function thumbs_showImg(dataNodeId, imageIndex) {
+  function thumbsShowImg(document, dataNodeId, imageIndex) {
     let images = document.querySelectorAll(
       '#row-imag_{{dataNode.id}} .card-img-top',
     );
@@ -27,7 +27,7 @@
       <div class="m-2 img-thumbnail">
         <div class="card imgThumb">
           <img
-            onclick="thumbs_showImg('{{dataNode.id}}', {{index}})"
+            onclick="thumbsShowImg(document, '{{dataNode.id}}', {{index}})"
             data-toggle="modal"
             data-target="#modalImgGal{{dataNode.id}}"
             class="card-img-top"
@@ -59,14 +59,14 @@
           <button
             type="button"
             class="btn btn-secondary"
-            onclick="thumbs_showImg('{{dataNode.id}}', Number.parseInt(document.getElementById('modalImgGal{{dataNode.id}}').getAttribute('data-thumbs-modalIndex'))-1)"
+            onclick="thumbsShowImg(document, '{{dataNode.id}}', Number.parseInt(document.getElementById('modalImgGal{{dataNode.id}}').getAttribute('data-thumbs-modalIndex'))-1)"
           >
             &lt;
           </button>
           <button
             type="button"
             class="btn btn-secondary"
-            onclick="thumbs_showImg('{{dataNode.id}}', Number.parseInt(document.getElementById('modalImgGal{{dataNode.id}}').getAttribute('data-thumbs-modalIndex'))+1)"
+            onclick="thumbsShowImg(document, '{{dataNode.id}}', Number.parseInt(document.getElementById('modalImgGal{{dataNode.id}}').getAttribute('data-thumbs-modalIndex'))+1)"
           >
             &gt;
           </button>

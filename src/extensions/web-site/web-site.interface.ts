@@ -66,6 +66,8 @@ export interface WebSiteViewWithMenu extends WebSiteView {
 export interface TemplateView extends ObjectNode {
   templateAngular: string;
   templateMustache: string;
+  headerScript: string;
+  footerScript: string;
   templatesMustache: {[templateId: string]: string};
 }
 

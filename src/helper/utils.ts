@@ -1,10 +1,8 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
-import {Response} from '@loopback/rest';
 /* eslint-disable no-empty */
 import fs from 'fs';
 import {camelCase, isObject, isString, kebabCase} from 'lodash';
 import path from 'path';
-import {GeneratedViewInterface} from './../services/action-entity/action-entity.service';
 export function toKebabCase(str: string) {
   return kebabCase(str);
 }
@@ -20,6 +18,8 @@ export function contentGenericTemplate(
 ): {
   templatesMustache: {[templateId: string]: string};
   templateMustache: string;
+  headerScript: string;
+  footerScript: string;
   templateAngular: string;
   scss: string;
   css: string;
@@ -29,6 +29,8 @@ export function contentGenericTemplate(
   const genericTemplate: {
     templatesMustache: {[templateId: string]: string};
     templateMustache: string;
+    headerScript: string;
+    footerScript: string;
     templateAngular: string;
     scss: string;
     css: string;
@@ -38,6 +40,8 @@ export function contentGenericTemplate(
     templateMustache: '',
     templatesMustache: {},
     templateAngular: '',
+    headerScript: '',
+    footerScript: '',
     scss: '',
     css: '',
     controller: `function newFunction() {
@@ -56,6 +60,12 @@ export function contentGenericTemplate(
       path.join(dirName, name),
       'mustache.template',
     );
+  } catch (error) {}
+  try {
+    genericTemplate.headerScript = script(path.join(dirName, name), 'header');
+  } catch (error) {}
+  try {
+    genericTemplate.footerScript = script(path.join(dirName, name), 'footer');
   } catch (error) {}
   for (const templateId of templateIds) {
     genericTemplate.templatesMustache[templateId] = template(
@@ -76,10 +86,7 @@ export function contentGenericTemplate(
     genericTemplate.css = css(path.join(dirName, name), 'style');
   } catch (error) {}
   try {
-    genericTemplate.controller = controller(
-      path.join(dirName, name),
-      'controller',
-    );
+    genericTemplate.controller = script(path.join(dirName, name), 'controller');
   } catch (error) {}
   /*
   try {
@@ -113,7 +120,7 @@ export function base64(
 export function template(dirName: string, name: string): string {
   return fs.readFileSync(path.join(dirName, name + '.html'), 'utf8');
 }
-export function controller(dirName: string, name: string): string {
+export function script(dirName: string, name: string): string {
   return fs.readFileSync(path.join(dirName, name + '.js'), 'utf8');
 }
 
@@ -202,6 +209,7 @@ export function addCondition(
   }
 }
 
+/*
 export function outputResponse(
   response: Response,
   generatedView: GeneratedViewInterface,
@@ -257,3 +265,4 @@ export function outputResponse(
     }
   }
 }
+*/
