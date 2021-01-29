@@ -1,25 +1,3 @@
-<script type="text/javascript">
-  function thumbsShowImg(document, dataNodeId, imageIndex) {
-    let images = document.querySelectorAll(
-      '#row-imag_{{dataNode.id}} .card-img-top',
-    );
-    if (0 > imageIndex) {
-      imageIndex = images.length - 1;
-    }
-    if (imageIndex >= images.length) {
-      imageIndex = 0;
-    }
-    document
-      .querySelector('#modalImgGal{{dataNode.id}}')
-      .setAttribute('data-thumbs-modalIndex', '' + imageIndex);
-    document.querySelector(
-      '#modalImgGal{{dataNode.id}} .modal-title',
-    ).innerHTML = images[imageIndex].getAttribute('data-thumbs-modalTitle');
-    document.querySelector('#modalImgGal{{dataNode.id}} .imgFullScreen').style[
-      'background-image'
-    ] = images[imageIndex].getAttribute('data-thumbs-imgBackground');
-  }
-</script>
 <div class="container">
   <div class="row d-flex justify-content-center" id="row-imag_{{dataNode.id}}">
     {{#dataNode.images}}

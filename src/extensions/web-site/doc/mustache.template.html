@@ -7,9 +7,22 @@
       integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
       crossorigin="anonymous"
     />
+    {{#hasCss}}
+    <style type="text/css">
+      {{#cssArray}}
+        {{&.}}
+      {{/cssArray}}
+    </style>
+    {{/hasCss}} {{#hasHeaderScripts}}
+    <script type="text/javascript">
+      {{#headerScriptsArray}}
+        {{&.}}
+      {{/headerScriptsArray}}
+    </script>
+    {{/hasHeaderScripts}}
   </head>
   <body>
-    {{&response}}
+    {{&body}}
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
       integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
@@ -25,5 +38,12 @@
       integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
       crossorigin="anonymous"
     ></script>
+    {{#hasFooterScripts}}
+    <script type="text/javascript">
+      {{#footerScriptsArray}}
+        {{&.}}
+      {{/footerScriptsArray}}
+    </script>
+    {{/hasFooterScripts}}
   </body>
 </html>

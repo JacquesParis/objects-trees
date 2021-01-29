@@ -36,8 +36,8 @@ export class Base64GeneratedResponse extends GeneratedResponse {
   }
 }
 
-export class JsonGeneratedResponse extends GeneratedResponse {
-  constructor(public json: Object) {
+export class JsonGeneratedResponse<T> extends GeneratedResponse {
+  constructor(public json: T) {
     super();
   }
   getResponse(response: Response): Response {
