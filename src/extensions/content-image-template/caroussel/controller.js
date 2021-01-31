@@ -1,5 +1,3 @@
-const {isString} = require('lodash');
-
 function newFunction() {
   return {
     ctrl: undefined,
@@ -15,12 +13,14 @@ function newFunction() {
       }
       if (this.ctrl.dataNode.images) {
         this.ctrl.singleImage = 1 === this.ctrl.dataNode.images.length;
-        for (const imageIndex in this.ctrl.dataNode.images) {
-          this.ctrl.dataNode.images[imageIndex].index = isString(imageIndex)
-            ? Number.parseInt(imageIndex)
-            : imageIndex;
+        for (
+          let imageIndex = 0;
+          imageIndex < this.ctrl.dataNode.images.length;
+          imageIndex++
+        ) {
+          this.ctrl.dataNode.images[imageIndex].index = imageIndex;
           this.ctrl.dataNode.images[imageIndex].imageClass =
-            0 === imageIndex || '0' === imageIndex ? ' active' : '';
+            0 === imageIndex ? ' active' : '';
           this.ctrl.dataNode.images[imageIndex].imgSrc = this.ctrl.getImgSrc({
             uri: this.ctrl.dataNode.images[imageIndex].treeNode.contentImageUri,
           });
