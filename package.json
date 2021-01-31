@@ -30,8 +30,8 @@
     "migrate": "node ./dist/migrate",
     "prestart": "npm run clean && npm run build",
     "start": "node main.js",
-    "dev": "npm uninstall @jacquesparis/objects-model @jacquesparis/objects-angular && npm install --save ../objects-model ../objects-angular/dist",
-    "update": "npm uninstall @jacquesparis/objects-model @jacquesparis/objects-angular && npm install --save @jacquesparis/objects-model @jacquesparis/objects-angular",
+    "dev": "npm uninstall @jacquesparis/objects-model @jacquesparis/objects-angular @jacquesparis/objects-website && npm install --save ../objects-model ../objects-angular/dist ../objects-website ",
+    "update": "npm uninstall @jacquesparis/objects-model @jacquesparis/objects-angular @jacquesparis/objects-website  && npm install --save @jacquesparis/objects-model @jacquesparis/objects-angular @jacquesparis/objects-website ",
     "lib": "npm update && npm run build && git add -A && git commit -m \"lib\" && git push origin HEAD && npm publish --access=public"
   },
   "repository": {
@@ -50,6 +50,7 @@
   "dependencies": {
     "@jacquesparis/objects-angular": "file:../objects-angular/dist",
     "@jacquesparis/objects-model": "file:../objects-model",
+    "@jacquesparis/objects-website": "file:../objects-website",
     "@loopback/authentication": "^7.0.2",
     "@loopback/authentication-jwt": "^0.7.2",
     "@loopback/authorization": "^0.7.2",

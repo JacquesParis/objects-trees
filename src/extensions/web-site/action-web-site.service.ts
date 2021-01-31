@@ -1,4 +1,12 @@
-import {IJsonSchema} from '@jacquesparis/objects-model';
+import {
+  IJsonSchema,
+  IObjectNode,
+  IObjectTree,
+} from '@jacquesparis/objects-model';
+import {
+  AjaxResult,
+  WebsiteGenerationService,
+} from '@jacquesparis/objects-website';
 import {service} from '@loopback/core';
 import {contentGenericTemplate} from '../../helper';
 import {
@@ -8,7 +16,6 @@ import {
 import {ActionEntityService} from '../../services/action-entity/action-entity.service';
 import {ObjectNodeService} from '../../services/object-node/object-node.service';
 import {ObjectTypeService} from '../../services/object-type.service';
-import {ApplicationError} from './../../helper/application-error';
 import {
   HtmlGeneratedResponse,
   JsonGeneratedResponse,
@@ -20,12 +27,10 @@ import {MustacheService} from './../../services/entity-definition/mustache.servi
 import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
 import {TransientUriReferenceService} from './../../services/inside-rest/transient-uri-reference.service';
 import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
-import {AjaxGeneratedResult} from './modele/ajax-generated-result';
-import {AjaxResult} from './modele/ajax-result';
 import {WEB_SITE_PROVIDER, WEB_SITE_VIEW_TYPE} from './web-site.const';
 
 export class ActionWebSiteService {
-  doc: {
+  protected doc: {
     templatesMustache: {[templateId: string]: string};
     templateMustache: string;
     headerScript: string;
@@ -36,6 +41,7 @@ export class ActionWebSiteService {
     controller: string;
     refererConfig: IJsonSchema;
   };
+  protected websiteGenerationService: WebsiteGenerationService;
   constructor(
     @service(ActionEntityService)
     protected actionEntityService: ActionEntityService,
@@ -49,6 +55,7 @@ export class ActionWebSiteService {
     @service(InsideRestService) private insideRestService: InsideRestService,
     @service(MustacheService) private mustacheService: MustacheService,
   ) {
+    this.websiteGenerationService = WebsiteGenerationService.get();
     this.actionEntityService.registerNewViewFunction(
       WEB_SITE_PROVIDER,
       ActionWebSiteService.name,
@@ -103,23 +110,58 @@ export class ActionWebSiteService {
     args: {0?: string; 1?: string; 2?: string},
     ctx: CurrentContext,
   ): Promise<GeneratedResponse> {
-    const genericObject: AjaxGeneratedResult = new AjaxGeneratedResult(
-      this.mustacheService,
-      this.insideRestService,
-      this.uriCompleteService,
-      ctx,
+    const ajaxResult: AjaxResult = await this.websiteGenerationService.getAjaxContent(
+      {
+        getCachedOrRemoteObjectById: async (
+          treeId: string,
+        ): Promise<IObjectTree> => {
+          return (await this.insideRestService.read(
+            this.uriCompleteService.getUri(EntityName.objectTree, treeId, ctx),
+            ctx,
+          )) as IObjectTree;
+        },
+      },
+      {
+        getCachedOrRemoteObjectById: async (
+          nodeId: string,
+        ): Promise<IObjectNode> => {
+          return (await this.insideRestService.read(
+            this.uriCompleteService.getUri(EntityName.objectNode, nodeId, ctx),
+            ctx,
+          )) as IObjectNode;
+        },
+      },
+      {
+        getPageHref: (page: IObjectTree): string => {
+          const viewId =
+            entity.id +
+            '/view/html' +
+            (page ? '/' + (page.treeNode as IObjectNode).id : '');
+          return this.uriCompleteService.getUri(
+            EntityName.objectTree,
+            viewId,
+            ctx,
+          );
+        },
+        getAdminHref: (page: IObjectTree): string => {
+          return (
+            '/admin/#/admin/owner/' +
+            page.ownerType +
+            '/' +
+            page.ownerName +
+            '/namespace/' +
+            page.namespaceType +
+            '/' +
+            page.namespaceName
+          );
+        },
+      },
+      entity.id,
+      args[0],
+      args[1],
+      args[2],
     );
 
-    try {
-      await genericObject.init(entity.id, args[0], args[1], args[2]);
-    } catch (error) {
-      throw ApplicationError.notFound({
-        url: entity.aliasUri ? entity.aliasUri : entity.uri,
-      });
-    }
-
-    return new JsonGeneratedResponse<AjaxResult>(
-      await genericObject.generate(),
-    );
+    return new JsonGeneratedResponse<AjaxResult>(ajaxResult);
   }
 }
