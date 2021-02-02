@@ -1,6 +1,6 @@
 import {IRestEntity} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
-import {cloneDeep, indexOf} from 'lodash';
+import {indexOf} from 'lodash';
 import {TreatmentDescription} from '../../integration/extension-description';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
@@ -126,7 +126,7 @@ class NodeIntercept implements EntityInterceptorInterface {
     entity: IRestEntity | undefined,
     ctx: CurrentContext,
   ): Promise<boolean | IRestEntity> {
-    const requestEntity = cloneDeep(entity);
+    const requestEntity = entity;
     if (entityId) {
       entity = await this.objectNodeService.searchById(entityId);
     }

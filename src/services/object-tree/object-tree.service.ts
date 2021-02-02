@@ -363,7 +363,7 @@ export class ObjectTreeService {
     );
   }
 
-  public async gettNamespaceTree(
+  public async getNamespaceTree(
     ownerType: string,
     ownerName: string,
     namespaceType: string,

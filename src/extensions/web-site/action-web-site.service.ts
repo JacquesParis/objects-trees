@@ -84,19 +84,25 @@ export class ActionWebSiteService {
     args: {0?: string; 1?: string; 2?: string},
     ctx: CurrentContext,
   ): Promise<GeneratedResponse> {
-    let result: GeneratedResponse = await this.ajaxWebSiteViewTree(
+    const result: GeneratedResponse = await this.ajaxWebSiteViewTree(
       entity,
       args,
       ctx,
     );
-    if (result instanceof TextGeneratedResponse) {
+    return this.getHtmlDocFromAjaxResult(result);
+  }
+  public getHtmlDocFromAjaxResult(
+    response: GeneratedResponse,
+  ): GeneratedResponse {
+    let result: GeneratedResponse = (undefined as unknown) as GeneratedResponse;
+    if (response instanceof TextGeneratedResponse) {
       result = new HtmlGeneratedResponse(
         this.mustacheService.parse(this.doc.templateMustache, {
-          body: result.response,
+          body: response.response,
         }),
       );
-    } else if (result instanceof JsonGeneratedResponse) {
-      const docParts: AjaxResult = result.json;
+    } else if (response instanceof JsonGeneratedResponse) {
+      const docParts: AjaxResult = response.json;
 
       result = new HtmlGeneratedResponse(
         this.mustacheService.parse(this.doc.templateMustache, docParts),
@@ -105,10 +111,95 @@ export class ActionWebSiteService {
     return result;
   }
 
+  public getPageHref(
+    page: IObjectTree,
+    site: ObjectTree,
+    ctx: CurrentContext,
+  ): string {
+    const viewId =
+      site.id +
+      '/view/html' +
+      (page ? '/' + (page.treeNode as IObjectNode).id : '');
+    return this.uriCompleteService.getUri(EntityName.objectTree, viewId, ctx);
+  }
+  public getAdminHref(
+    page: IObjectTree,
+    site: ObjectTree,
+    ctx: CurrentContext,
+  ): string {
+    return (
+      '/admin/#/admin/owner/' +
+      page.ownerType +
+      '/' +
+      page.ownerName +
+      '/namespace/' +
+      page.namespaceType +
+      '/' +
+      page.namespaceName
+    );
+  }
+
+  public async getWebSiteAjaxResponse(
+    webSiteTree: ObjectTree,
+    getPageHref: (
+      page: IObjectTree,
+      site: ObjectTree,
+      ctx: CurrentContext,
+    ) => string,
+    getAdminHref: (
+      page: IObjectTree,
+      site: ObjectTree,
+      ctx: CurrentContext,
+    ) => string,
+    ctx: CurrentContext,
+  ) {
+    return this.ajaxWebSiteViewTree(
+      webSiteTree,
+      {},
+      ctx,
+      getPageHref,
+      getAdminHref,
+    );
+  }
+
+  public async getWebSitePageAjaxResponse(
+    webSiteTree: ObjectTree,
+    pageNodeId: string,
+    getPageHref: (
+      page: IObjectTree,
+      site: ObjectTree,
+      ctx: CurrentContext,
+    ) => string,
+    getAdminHref: (
+      page: IObjectTree,
+      site: ObjectTree,
+      ctx: CurrentContext,
+    ) => string,
+    ctx: CurrentContext,
+  ) {
+    return this.ajaxWebSiteViewTree(
+      webSiteTree,
+      {0: pageNodeId},
+      ctx,
+      getPageHref,
+      getAdminHref,
+    );
+  }
+
   public async ajaxWebSiteViewTree(
     entity: ObjectTree,
     args: {0?: string; 1?: string; 2?: string},
     ctx: CurrentContext,
+    getPageHref: (
+      page: IObjectTree,
+      site: ObjectTree,
+      ctx: CurrentContext,
+    ) => string = this.getPageHref.bind(this),
+    getAdminHref: (
+      page: IObjectTree,
+      site: ObjectTree,
+      ctx: CurrentContext,
+    ) => string = this.getAdminHref.bind(this),
   ): Promise<GeneratedResponse> {
     const ajaxResult: AjaxResult = await this.websiteGenerationService.getAjaxContent(
       {
@@ -133,27 +224,10 @@ export class ActionWebSiteService {
       },
       {
         getPageHref: (page: IObjectTree): string => {
-          const viewId =
-            entity.id +
-            '/view/html' +
-            (page ? '/' + (page.treeNode as IObjectNode).id : '');
-          return this.uriCompleteService.getUri(
-            EntityName.objectTree,
-            viewId,
-            ctx,
-          );
+          return getPageHref(page, entity, ctx);
         },
         getAdminHref: (page: IObjectTree): string => {
-          return (
-            '/admin/#/admin/owner/' +
-            page.ownerType +
-            '/' +
-            page.ownerName +
-            '/namespace/' +
-            page.namespaceType +
-            '/' +
-            page.namespaceName
-          );
+          return getAdminHref(page, entity, ctx);
         },
       },
       entity.id,

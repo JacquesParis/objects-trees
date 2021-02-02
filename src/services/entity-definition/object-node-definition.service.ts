@@ -93,7 +93,6 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
       {},
       OBJECT_NODE_SCHEMA,
       objectType.definition,
-      OBJECT_NODE_SCHEMA,
       objectType.contentDefinition,
     );
 

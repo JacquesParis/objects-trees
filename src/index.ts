@@ -8,6 +8,7 @@ export * from './extensions/content-generic-template/content-generic-template.pr
 export * from './extensions/content-image-template/content-image-template.provider';
 export * from './extensions/content-image-thumb/content-image-thumb.provider';
 export * from './extensions/content-image/content-image.provider';
+export * from './extensions/home-page/home-page.provider';
 export * from './extensions/post/post.provider';
 export * from './extensions/travel-story/travel-story-type.provider';
 export * from './extensions/web-site/web-site.provider';

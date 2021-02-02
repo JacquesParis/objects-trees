@@ -377,8 +377,8 @@ export class ObjectNodeService {
     objectNode: DataObject<ObjectNode>,
     name: string,
   ) {
-    if (!name || !name.match(/^[A-Z|a-z|0-9|\.-_]+$/g)) {
-      throw ApplicationError.format('alphanumeric or - or _ or .', {
+    if (!name || !name.match(/^[A-Z|a-z|0-9|:$\.-_]+$/g)) {
+      throw ApplicationError.format('alphanumeric or - or _ or . or $', {
         name: name,
       });
     }

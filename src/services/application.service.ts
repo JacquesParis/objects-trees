@@ -82,6 +82,8 @@ export class UriContext {
     baseUri: string;
     objectUri: string;
     method: string;
+    host: string;
+    protocol: string;
   }> = new ExpectedValue();
   returnedEntity: ExpectedValue<
     IRestEntity | IRestEntity[]

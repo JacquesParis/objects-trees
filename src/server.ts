@@ -13,12 +13,11 @@ export class ExpressServer {
   constructor(restApp: RestApplication, rootDirectory: string) {
     this.app = express();
     this.lbApp = (restApp as unknown) as ObjectTreesApplicationInterface;
+
     this.app.use('/api', this.lbApp.requestHandler);
 
     this.initApplication(this.lbApp);
 
-    // Serve static files in the public folder
-    this.app.use(express.static('public'));
     this.app.use(
       '/admin',
       express.static(
@@ -34,6 +33,9 @@ export class ExpressServer {
         ),
       ),
     );
+
+    // Serve static files in the public folder
+    this.app.use('/', this.lbApp.requestHandler);
   }
 
   public static(basePath: string, dirName: string) {

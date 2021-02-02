@@ -276,7 +276,7 @@ export class ObjectTreeController {
     @param.path.string('namespaceName') namespaceName: string,
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectTree> {
-    return this.objectTreeService.gettNamespaceTree(
+    return this.objectTreeService.getNamespaceTree(
       ownerType,
       ownerName,
       namespaceType,
