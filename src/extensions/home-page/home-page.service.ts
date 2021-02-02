@@ -62,9 +62,9 @@ export class HomePageService {
     if (!host) {
       return false;
     }
-    const path = requestEntity.path ? requestEntity.path : '';
+    requestEntity.path = requestEntity.path ? requestEntity.path : '';
 
-    requestEntity.name = host + '$' + path;
+    requestEntity.name = host + '$' + requestEntity.path;
 
     return true;
   }
@@ -78,15 +78,19 @@ export class HomePageService {
     if (requestEntity.name) {
       delete requestEntity.name;
     }
-    const host =
+    requestEntity.host =
       !!requestEntity.host && '' !== requestEntity.host
         ? requestEntity.host
         : entity.host;
-    if (!host) {
+    if (!requestEntity.host) {
       return false;
     }
-    const path = requestEntity.path ? requestEntity.path : entity.path;
-    requestEntity.name = host + '$' + path;
+    requestEntity.path = requestEntity.path
+      ? requestEntity.path
+      : entity.path
+      ? entity.path
+      : '';
+    requestEntity.name = requestEntity.host + '$' + requestEntity.path;
     return true;
   }
 
