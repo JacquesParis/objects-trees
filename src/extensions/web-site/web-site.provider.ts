@@ -54,6 +54,9 @@ export class WebSiteProvider extends ExtensionProvider {
       {cls: ActionWebSiteService},
     );
 
+    app.addStaticDir('bootstrap', 'node_modules/bootstrap/dist');
+    app.addStaticDir('jquery', 'node_modules/jquery/dist');
+
     this.objectTypes.push(
       ADMIN_ENTRY_TYPE,
       WEB_SITE_TEMPLATE_TYPE,

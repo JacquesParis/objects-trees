@@ -10,9 +10,10 @@ export class ExpressServer {
   private lbApp: ObjectTreesApplicationInterface;
   private server: Server;
 
-  constructor(restApp: RestApplication, rootDirectory: string) {
+  constructor(restApp: RestApplication, protected rootDirectory: string) {
     this.app = express();
     this.lbApp = (restApp as unknown) as ObjectTreesApplicationInterface;
+    this.lbApp.addStaticDir = this.static.bind(this);
 
     this.app.use('/api', this.lbApp.requestHandler);
 
@@ -34,12 +35,19 @@ export class ExpressServer {
       ),
     );
 
-    // Serve static files in the public folder
+    const staticDirs = this.lbApp.getStaticDirs();
+    for (const staticPath in staticDirs) {
+      this.static(staticPath, staticDirs[staticPath]);
+    }
+
     this.app.use('/', this.lbApp.requestHandler);
   }
 
   public static(basePath: string, dirName: string) {
-    this.app.use(basePath, express.static(dirName));
+    this.app.use(
+      basePath.startsWith('/') ? basePath : '/' + basePath,
+      express.static(path.join(this.rootDirectory, dirName)),
+    );
   }
 
   async boot() {

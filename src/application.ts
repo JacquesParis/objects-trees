@@ -108,6 +108,8 @@ export abstract class ObjectTreesApplicationInterface extends BootMixin(
   ): void;
   public abstract bootObjectTrees(): Promise<void>;
   public abstract getService<T>(t: {name: string}): Promise<T>;
+  public abstract addStaticDir(basePath: string, dirName: string): void;
+  public abstract getStaticDirs(): {[basePath: string]: string};
 }
 
 export class ObjectTreesApplication extends RestApplication {
@@ -120,6 +122,7 @@ export class ObjectTreesApplication extends RestApplication {
   })[] = [];
 
   protected extensionProviders: ExtensionProvider[] = [];
+  protected staticDir: {[basePath: string]: string} = {};
   constructor(config?: ObjectTreesApplicationConfig, parent?: Context) {
     super(config, parent);
     const app = (this as unknown) as ObjectTreesApplicationInterface;
@@ -229,6 +232,14 @@ export class ObjectTreesApplication extends RestApplication {
     this.addProviders(app, config.extensions);
 
     console.log('Application initialized !');
+  }
+
+  public addStaticDir(basePath: string, dirName: string): void {
+    this.staticDir[basePath] = dirName;
+  }
+
+  public getStaticDirs(): {[basePath: string]: string} {
+    return this.staticDir;
   }
 
   private addProviders(
@@ -381,9 +392,9 @@ export class ObjectTreesApplication extends RestApplication {
           interceptors[index]
         ].preTreatment?.services as string[]) {
           treatment.runnerId += ' and ' + serviceName;
-          const service: ServiceDescripiton = await this.getService<
-            ServiceDescripiton
-          >({name: serviceName});
+          const service: ServiceDescripiton = await this.getService<ServiceDescripiton>(
+            {name: serviceName},
+          );
           if (service.getPreTraitmentDescription) {
             treatment.subTreatments.push(
               ...service.getPreTraitmentDescription(),
@@ -403,9 +414,9 @@ export class ObjectTreesApplication extends RestApplication {
       );
       for (const serviceName of description.services) {
         treatment.runnerId += ' and ' + serviceName;
-        const service: ServiceDescripiton = await this.getService<
-          ServiceDescripiton
-        >({name: serviceName});
+        const service: ServiceDescripiton = await this.getService<ServiceDescripiton>(
+          {name: serviceName},
+        );
         if (service.getTraitmentDescription) {
           treatment.subTreatments.push(...service.getTraitmentDescription());
         }
@@ -445,9 +456,9 @@ export class ObjectTreesApplication extends RestApplication {
           interceptors[index]
         ].postTreatment?.services as string[]) {
           treatment.runnerId += ' and ' + serviceName;
-          const service: ServiceDescripiton = await this.getService<
-            ServiceDescripiton
-          >({name: serviceName});
+          const service: ServiceDescripiton = await this.getService<ServiceDescripiton>(
+            {name: serviceName},
+          );
           if (service.getPostTraitmentDescription) {
             treatment.subTreatments.push(
               ...service.getPostTraitmentDescription(),
