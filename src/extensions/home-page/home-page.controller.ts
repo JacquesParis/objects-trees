@@ -23,6 +23,18 @@ export class HomePageController {
     );
     return generatedView.getResponse(response);
   }
+  @get('/site/{siteName}')
+  async getLoadingPageOfSite(
+    @param.path.string('siteName') siteName: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.getLoadingPageResponse(
+      ctx,
+      siteName,
+    );
+    return generatedView.getResponse(response);
+  }
   @get('/page/{name}')
   async getWebSitePageResponse(
     @param.path.string('name') name: string,
@@ -32,6 +44,20 @@ export class HomePageController {
     const generatedView: GeneratedResponse = await this.homePageService.getWebSitePageResponse(
       name,
       ctx,
+    );
+    return generatedView.getResponse(response);
+  }
+  @get('/site/{siteName}/{name}')
+  async getWebSitePageOfSiteResponse(
+    @param.path.string('siteName') siteName: string,
+    @param.path.string('name') name: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.getWebSitePageResponse(
+      name,
+      ctx,
+      siteName,
     );
     return generatedView.getResponse(response);
   }

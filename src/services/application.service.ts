@@ -6,6 +6,7 @@ import {ObjectNode} from '../models/object-node.model';
 import {ObjectSubType} from '../models/object-sub-type.model';
 import {ObjectType} from '../models/object-type.model';
 import {ApplicationError} from './../helper/application-error';
+import {HtmlGeneratedResponse} from './../helper/generated-response';
 import {TreatmentDescription} from './../integration/extension-description';
 import {EntityName} from './../models/entity-name';
 import {ObjectTree} from './../models/object-tree.model';
@@ -39,9 +40,7 @@ export class NodeContext {
   namespace: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   parent: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   parentType: ExpectedValue<ObjectType> = new ExpectedValue<ObjectType>();
-  objectSubType: ExpectedValue<ObjectSubType> = new ExpectedValue<
-    ObjectSubType
-  >();
+  objectSubType: ExpectedValue<ObjectSubType> = new ExpectedValue<ObjectSubType>();
   objectType: ExpectedValue<ObjectType> = new ExpectedValue<ObjectType>();
   brothers: ExpectedValue<ObjectNode[]> = new ExpectedValue<ObjectNode[]>();
   references: {
@@ -57,17 +56,13 @@ export class TreeContext {
 
 export class AccessRightsContext {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  rights: ExpectedValue<AccessRightsPermissions> = new ExpectedValue<
-    AccessRightsPermissions
-  >();
+  rights: ExpectedValue<AccessRightsPermissions> = new ExpectedValue<AccessRightsPermissions>();
   user: ExpectedValue<Principal> = new ExpectedValue<Principal>();
   treeRootNodeId: ExpectedValue<string> = new ExpectedValue<string>();
   aclTrees: ExpectedValue<{[aclId: string]: ObjectTree}> = new ExpectedValue<{
     [aclId: string]: ObjectTree;
   }>();
-  rootRights: ExpectedValue<AccessRightsSet> = new ExpectedValue<
-    AccessRightsSet
-  >();
+  rootRights: ExpectedValue<AccessRightsSet> = new ExpectedValue<AccessRightsSet>();
   authorization: ExpectedValue<string> = new ExpectedValue<string>();
 }
 
@@ -90,6 +85,14 @@ export class UriContext {
   > = new ExpectedValue<IRestEntity | IRestEntity[]>();
 }
 
+export class WebSiteContext {
+  webSiteTree: ExpectedValue<ObjectTree> = new ExpectedValue<ObjectTree>();
+  webSitePageNode: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
+  pageBaseUri: ExpectedValue<string> = new ExpectedValue<string>();
+  siteBaseUriTree: ExpectedValue<ObjectTree> = new ExpectedValue<ObjectTree>();
+  cachedPage: ExpectedValue<HtmlGeneratedResponse> = new ExpectedValue<HtmlGeneratedResponse>();
+}
+
 export class CurrentContext {
   public nodeContext: NodeContext = new NodeContext();
   public treeContext: TreeContext = new TreeContext();
@@ -97,6 +100,7 @@ export class CurrentContext {
   public typeContext: TypeContext = new TypeContext();
   public uriContext: UriContext = new UriContext();
   public methodContext: MethodContext = new MethodContext();
+  public webSiteContext: WebSiteContext = new WebSiteContext();
   public static get(value: DataObject<CurrentContext>): CurrentContext {
     const ctx = new CurrentContext();
     if (value) {

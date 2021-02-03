@@ -29,8 +29,18 @@ export const WEB_SITE_VIEW_URL_TYPE: ObjectTypeDefinition = {
   },
 };
 
-export const WEB_SITE_VIEW_WEB_SITE_URL_SUBTYPE: ObjectSubTypeDefintion = {
+export const PAGE_CACHE_TYPE: ObjectTypeDefinition = {
+  name: 'PageCache',
+  contentType: 'ContentPageCache',
+};
+
+export const WEB_SITE_VIEW_WEB_SITE_VIEW_URL_SUBTYPE: ObjectSubTypeDefintion = {
   typeName: WEB_SITE_VIEW_TYPE.name,
   subTypeName: WEB_SITE_VIEW_URL_TYPE.name,
   owner: true,
+};
+
+export const WEB_SITE_VIEW_URL_PAGE_CACHE_SUBTYPE: ObjectSubTypeDefintion = {
+  typeName: WEB_SITE_VIEW_URL_TYPE.name,
+  subTypeName: PAGE_CACHE_TYPE.name,
 };

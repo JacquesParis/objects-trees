@@ -93,8 +93,8 @@ export class ActionWebSiteService {
   }
   public getHtmlDocFromAjaxResult(
     response: GeneratedResponse,
-  ): GeneratedResponse {
-    let result: GeneratedResponse = (undefined as unknown) as GeneratedResponse;
+  ): HtmlGeneratedResponse {
+    let result: HtmlGeneratedResponse = (undefined as unknown) as HtmlGeneratedResponse;
     if (response instanceof TextGeneratedResponse) {
       result = new HtmlGeneratedResponse(
         this.mustacheService.parse(this.doc.templateMustache, {
