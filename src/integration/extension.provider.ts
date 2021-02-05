@@ -26,6 +26,8 @@ import {ObjectNodeService} from '../services/object-node/object-node.service';
 import {ObjectTreeService} from '../services/object-tree/object-tree.service';
 import {ObjectTypeService} from '../services/object-type.service';
 import {DataEntity} from './../models/data-entity.model';
+import {AccessRightsScope} from './../services/access-rights/access-rights.const';
+import {AccessRightsService} from './../services/access-rights/access-rights.service';
 import {
   InterceptorDescription,
   RunnerTreatmentDescription,
@@ -35,10 +37,13 @@ export type ExtensionProviderClass = new (
   app: ObjectTreesApplicationInterface,
 ) => ExtensionProvider;
 
-export type ObjectTypeDefinition = Partial<ObjectType> & {name: string};
+export type ObjectTypeDefinition = Partial<ObjectType> & {
+  name: string;
+  forcedAccessRights?: {[scope in AccessRightsScope]?: boolean};
+};
 
 export type CalculatedString = string | (() => string);
-export type ObjectSubTypeDefintion = Partial<ObjectSubType> & {
+export type ObjectSubTypeDefinition = Partial<ObjectSubType> & {
   typeName: CalculatedString;
   subTypeName: CalculatedString;
 };
@@ -78,7 +83,7 @@ export abstract class ExtensionProvider {
 
   objectTypes: ObjectTypeDefinition[] = [];
 
-  objectSubTypes: ObjectSubTypeDefintion[] = [];
+  objectSubTypes: ObjectSubTypeDefinition[] = [];
 
   objectTrees: {
     [nodeField: string]: {
@@ -133,6 +138,10 @@ export abstract class ExtensionProvider {
     newType: string;
   }[] = [];
 
+  private _forcedAccessRightsByObjectType: {
+    [objectTypeId: string]: {[scope in AccessRightsScope]?: boolean};
+  } = {};
+
   public async setContext(appCtx: ApplicationService): Promise<void> {
     this.appCtx = appCtx;
     this.objectTreeService = await this.app.getService<ObjectTreeService>(
@@ -151,7 +160,7 @@ export abstract class ExtensionProvider {
   }
 
   public async beforeBoot(): Promise<void> {
-    console.log('Initialising ' + this.name + '.');
+    console.log('Initializing ' + this.name + '.');
     for (const dataSource of this.dataSources) {
       let name = dataSource.name;
       if (name.startsWith('datasources.')) {
@@ -223,6 +232,14 @@ export abstract class ExtensionProvider {
       }
       await this.ctx.types[typeField].getOrSetValue(
         async (): Promise<ObjectType> => {
+          if ('forcedAccessRights' in objectType) {
+            this._forcedAccessRightsByObjectType[
+              objectType.name
+            ] = objectType.forcedAccessRights as {
+              [scope in AccessRightsScope]?: boolean;
+            };
+            delete objectType.forcedAccessRights;
+          }
           return this.objectTypeService.registerApplicationType(objectType);
         },
       );
@@ -269,6 +286,19 @@ export abstract class ExtensionProvider {
 
   async boot(): Promise<void> {
     console.log('Booting ' + this.name + '.');
+
+    const accessRightsService: AccessRightsService = await this.app.getService<AccessRightsService>(
+      AccessRightsService,
+    );
+    if (accessRightsService) {
+      for (const objectTypeId in this._forcedAccessRightsByObjectType) {
+        accessRightsService.addForcedAccessRightsForObjectType(
+          objectTypeId,
+          this._forcedAccessRightsByObjectType[objectTypeId],
+        );
+      }
+    }
+
     for (const nodeField in this.objectTrees) {
       if (!this.ctx.nodes[nodeField]) {
         this.ctx.nodes[nodeField] = new ExpectedValue<ObjectNode>();

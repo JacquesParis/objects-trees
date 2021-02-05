@@ -14,7 +14,7 @@ import {
 export class TransientNodeService implements TransientEntityInterface {
   public providerId: string = TRANSIENT_ENTITY_PROVIDER;
   serviceId: string = TransientNodeService.name;
-  description = this.getPostTraitmentDescription.bind(this);
+  description = this.getPostTreatmentDescription.bind(this);
   constructor(
     @service(ObjectTypeService)
     private objectTypeService: ObjectTypeService,
@@ -28,14 +28,14 @@ export class TransientNodeService implements TransientEntityInterface {
       this,
     );
   }
-  getPostTraitmentDescription(): TreatmentDescription {
+  getPostTreatmentDescription(): TreatmentDescription {
     const treatment: TreatmentDescription = new TreatmentDescription(
       TRANSIENT_ENTITY_PROVIDER,
       TransientNodeService.name,
       'objectNode: Add Node Content Data',
     );
     treatment.subTreatments.push(
-      ...this.contentEntityService.getPostTraitmentDescription(),
+      ...this.contentEntityService.getPostTreatmentDescription(),
     );
     return treatment;
   }

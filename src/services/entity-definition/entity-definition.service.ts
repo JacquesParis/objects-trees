@@ -3,7 +3,7 @@ import {BindingScope, injectable, service} from '@loopback/core';
 import {EntityName} from '../../models';
 import {CurrentContext} from '../application.service';
 import {
-  ServiceDescripiton,
+  ServiceDescription,
   TreatmentDescription,
 } from './../../integration/extension-description';
 import {AbstractEntityInterceptorInterface} from './../../interceptors/abstract-entity-interceptor.service';
@@ -21,7 +21,7 @@ export interface EntityDefinitionInterface {
 
 @injectable({scope: BindingScope.SINGLETON})
 export class EntityDefinitionService
-  implements AbstractEntityInterceptorInterface, ServiceDescripiton {
+  implements AbstractEntityInterceptorInterface, ServiceDescription {
   private entityDefinitions: {
     [resource in EntityName]?: EntityDefinitionInterface;
   } = {};
@@ -33,7 +33,7 @@ export class EntityDefinitionService
     this.entityDefinitions[resource] = entityDefinition;
   }
 
-  getPostTraitmentDescription(): TreatmentDescription[] {
+  getPostTreatmentDescription(): TreatmentDescription[] {
     const treatments: TreatmentDescription[] = [];
     for (const resource in this.entityDefinitions) {
       treatments.push(

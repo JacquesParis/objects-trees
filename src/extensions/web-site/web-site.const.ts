@@ -1,5 +1,5 @@
 import {
-  ObjectSubTypeDefintion,
+  ObjectSubTypeDefinition,
   ObjectTypeDefinition,
 } from '../../integration/extension.provider';
 import {ObjectTypeName} from '../../services/application.service';
@@ -50,6 +50,7 @@ export const WEB_SITE_VIEW_TYPE: ObjectTypeDefinition = {
       },
     },
   },
+  iconView: 'fas fa-globe',
 };
 
 export const WEB_SITE_VIEW_WITH_MENU_TYPE: ObjectTypeDefinition = {
@@ -334,6 +335,7 @@ export const PAGE_TYPE: ObjectTypeDefinition = {
     },
   },
   contentType: 'ContentText',
+  iconView: 'far fa-file-alt',
 };
 
 export const PARAGRAPH_TYPE: ObjectTypeDefinition = {
@@ -373,6 +375,7 @@ export const TEXT_PARAGRAPH_TYPE: ObjectTypeDefinition = {
     properties: {},
   },
   contentType: 'ContentText',
+  iconView: 'fas fa-align-left',
 };
 
 export const PARAGRAPH_CONTAINER_TYPE: ObjectTypeDefinition = {
@@ -455,6 +458,7 @@ export const MENU_ENTRY_TYPE: ObjectTypeDefinition = {
     },
   },
   contentType: '',
+  iconView: 'fas fa-bars',
 };
 
 export const CALENDAR_ENTRY_TYPE: ObjectTypeDefinition = {
@@ -471,40 +475,40 @@ export const CALENDAR_ENTRY_TYPE: ObjectTypeDefinition = {
   contentType: '',
 };
 
-export const CATEGORY_MENU_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
+export const CATEGORY_MENU_TEMPLATE_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: REPOSITORY_CATEGORY_TYPE.name,
   subTypeName: MENU_TEMPLATE_TYPE.name,
   tree: true,
 };
 
-export const PAGE_WITH_TEXT_PARAGRAPH_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
+export const PAGE_WITH_TEXT_PARAGRAPH_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: PAGE_WITH_TEXT_PARAGRAPH_TYPE.name,
   subTypeName: TEXT_PARAGRAPH_TYPE.name,
 };
 
-export const PARAGRAPH_CONTAINER_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
+export const PARAGRAPH_CONTAINER_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: PARAGRAPH_CONTAINER_TYPE.name,
   subTypeName: TEXT_PARAGRAPH_TYPE.name,
 };
 
-export const PAGE_WITH_SECTION_PARAGRAPH_SECTION_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
+export const PAGE_WITH_SECTION_PARAGRAPH_SECTION_PARAGRAPH_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: PAGE_WITH_SECTION_PARAGRAPH_TYPE.name,
   subTypeName: SECTION_PARAGRAPH_TYPE.name,
 };
 
-export const CATEGORY_PAGE_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
+export const CATEGORY_PAGE_TEMPLATE_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: REPOSITORY_CATEGORY_TYPE.name,
   subTypeName: PAGE_TEMPLATE_TYPE.name,
   tree: true,
 };
 
-export const CATEGORY_PARAGRAPH_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
+export const CATEGORY_PARAGRAPH_TEMPLATE_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: REPOSITORY_CATEGORY_TYPE.name,
   subTypeName: PARAGRAPH_TEMPLATE_TYPE.name,
   tree: true,
 };
 
-export const WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE: ObjectSubTypeDefintion = {
+export const WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: WEB_SITE_VIEW_TYPE.name,
   subTypeName: WELCOME_PAGE_TYPE.name,
   min: 1,

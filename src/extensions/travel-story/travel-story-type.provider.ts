@@ -152,8 +152,8 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               },
             },
             {
-              paragraphTypeKey: 'carousselRight',
-              paragraphTypeName: 'Display images with Caroussel',
+              paragraphTypeKey: 'carouselRight',
+              paragraphTypeName: 'Display images with Carousel',
               paragraphTemplateObjectTreeId:
                 'tree/Repository/public/RepositoryCategory/templates/ParagraphTemplate/cardTextAndImages',
               paragraphTypes: [
@@ -163,7 +163,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               templatesConfigurations: {
                 cardTextAndImages: {
                   imageGalleryObjectTreeId:
-                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/caroussel',
+                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/carousel',
                   imageGalleryPosition: 'right',
                 },
               },
@@ -177,7 +177,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               templatesConfigurations: {
                 cardTextAndImages: {
                   imageGalleryObjectTreeId:
-                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/caroussel',
+                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/carousel',
                   paragraphBreakLine: 'xs',
                   paragraphMaxWidth: 3,
                   paragraphMinWidth: 6,
@@ -201,7 +201,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               templatesConfigurations: {
                 cardTextAndImages: {
                   imageGalleryObjectTreeId:
-                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/caroussel',
+                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/carousel',
                   paragraphBreakLine: 'sm',
                   paragraphMaxWidth: 4,
                   paragraphMinWidth: 4,
@@ -225,7 +225,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               templatesConfigurations: {
                 cardTextAndImages: {
                   imageGalleryObjectTreeId:
-                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/caroussel',
+                    'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/carousel',
                   paragraphBreakLine: 'md',
                   paragraphMaxWidth: 6,
                   paragraphMinWidth: 6,
@@ -420,7 +420,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                     ['Post3']: [
                       {
                         treeNode: {
-                          paragraphTemplateChoice: 'carousselRight',
+                          paragraphTemplateChoice: 'carouselRight',
                           imageGalleryObjectTreeId:
                             'tree/Tenant/Demonstration/TravelStory/TravelStoryExample/ImageGallery/Ipsum3',
                           menuTitle: 'Lorem ipsum 3',

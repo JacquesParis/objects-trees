@@ -8,9 +8,10 @@ import {EntityName} from '../../models/entity-name';
 import {ObjectTree} from '../../models/object-tree.model';
 import {ObjectNodeService} from '../object-node/object-node.service';
 import {ObjectNode} from './../../models/object-node.model';
+import {ObjectType} from './../../models/object-type.model';
 import {CurrentContext} from './../application.service';
 import {ObjectTypeService} from './../object-type.service';
-import {AccessRightsAbstractService} from './access-rights-abtract.service';
+import {AccessRightsAbstractService} from './access-rights-abstract.service';
 import {AccessRightsTreeScope} from './access-rights-tree.const';
 import {AccessRightsScope, ACCESS_RIGHT_PROVIDER} from './access-rights.const';
 import {
@@ -218,6 +219,22 @@ export class AccessRightsTreeService
     } else {
       tree.children = [];
     }
+    const objectType: ObjectType = await this.objectTypeService.searchById(
+      tree.treeNode.objectTypeId,
+    );
+    tree.childrenEntityCtx = {};
+    if (objectType?.objectSubTypes) {
+      for (const subType of objectType.objectSubTypes) {
+        tree.childrenEntityCtx[subType.subObjectTypeId] = {
+          aclCtx: {
+            rights: await this.accessRightsService.getForcedAccessRightsForObjectType(
+              subType.subObjectTypeId,
+            ),
+          },
+        };
+      }
+    }
+
     await this.accessRightsService.cleanReturnedEntity(
       EntityName.objectNode,
       tree.treeNode,

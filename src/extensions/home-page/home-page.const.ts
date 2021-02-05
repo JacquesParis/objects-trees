@@ -1,5 +1,5 @@
 import {ObjectTypeDefinition} from '../../integration/extension.provider';
-import {ObjectSubTypeDefintion} from './../../integration/extension.provider';
+import {ObjectSubTypeDefinition} from './../../integration/extension.provider';
 import {WEB_SITE_VIEW_TYPE} from './../web-site/web-site.const';
 export const HOME_PAGE_PROVIDER = 'HomePageProvider';
 
@@ -27,20 +27,41 @@ export const WEB_SITE_VIEW_URL_TYPE: ObjectTypeDefinition = {
       },
     },
   },
+  templateView:
+    '<span class="child-tree-preview">http://{{dataNode.host}}{{#dataNode.path}}/site/{{dataNode.path}}{{/dataNode.path}}</span>',
+  iconView: 'fas fa-globe-europe',
 };
 
 export const PAGE_CACHE_TYPE: ObjectTypeDefinition = {
   name: 'PageCache',
   contentType: 'ContentPageCache',
+  forcedAccessRights: {create: false, update: false},
+  definition: {
+    properties: {
+      name: {
+        type: 'string',
+        'x-schema-form': {
+          condition: 'false',
+        },
+        required: false,
+      },
+      pageUrl: {
+        type: 'string',
+        title: 'Page url',
+      },
+    },
+  },
+  templateView: '<span class="child-tree-preview">{{dataNode.pageUrl}}</span>',
+  iconView: 'fas fa-database',
 };
 
-export const WEB_SITE_VIEW_WEB_SITE_VIEW_URL_SUBTYPE: ObjectSubTypeDefintion = {
+export const WEB_SITE_VIEW_WEB_SITE_VIEW_URL_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: WEB_SITE_VIEW_TYPE.name,
   subTypeName: WEB_SITE_VIEW_URL_TYPE.name,
   owner: true,
 };
 
-export const WEB_SITE_VIEW_URL_PAGE_CACHE_SUBTYPE: ObjectSubTypeDefintion = {
+export const WEB_SITE_VIEW_URL_PAGE_CACHE_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: WEB_SITE_VIEW_URL_TYPE.name,
   subTypeName: PAGE_CACHE_TYPE.name,
 };

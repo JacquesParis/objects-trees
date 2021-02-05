@@ -4,7 +4,7 @@ import {indexOf, isFunction, isString} from 'lodash';
 import {EntityName} from '../../models';
 import {ApplicationService, CurrentContext} from '../application.service';
 import {
-  ServiceDescripiton,
+  ServiceDescription,
   TreatmentDescription,
 } from './../../integration/extension-description';
 import {AbstractEntityInterceptorInterface} from './../../interceptors/abstract-entity-interceptor.service';
@@ -22,7 +22,7 @@ export interface TransientEntityInterface {
 
 @injectable({scope: BindingScope.SINGLETON})
 export class TransientEntityService
-  implements AbstractEntityInterceptorInterface, ServiceDescripiton {
+  implements AbstractEntityInterceptorInterface, ServiceDescription {
   private transientEntitys: {
     [resource in EntityName]?: TransientEntityInterface[];
   } = {};
@@ -37,7 +37,7 @@ export class TransientEntityService
     this.transientEntitys[resource]?.push(transientEntity);
   }
 
-  getPostTraitmentDescription(): TreatmentDescription[] {
+  getPostTreatmentDescription(): TreatmentDescription[] {
     const treatments: TreatmentDescription[] = [];
     for (const resource in this.transientEntitys) {
       for (const transientEntity of this.transientEntitys[

@@ -74,7 +74,7 @@ export class ObjectNodeService {
     newType: string,
   ) {
     const whereParents: Where<ObjectNode> = {objectTypeId: parentType};
-    const whereChilds: Where<ObjectNode> = {
+    const whereChildren: Where<ObjectNode> = {
       parentNodeId: {
         inq: (await this.objectNodeRepository.find({where: whereParents})).map(
           (node) => node.id,
@@ -84,7 +84,7 @@ export class ObjectNodeService {
     };
     await this.objectNodeRepository.updateAll(
       {objectTypeId: newType},
-      whereChilds,
+      whereChildren,
     );
   }
 
@@ -181,7 +181,7 @@ export class ObjectNodeService {
   ): Promise<ObjectNode> {
     const owner: ObjectNode = await this.searchOwner(ownerType, ownerName);
     if (!owner) {
-      throw ApplicationError.notFound({owner: ownerType, ownerNale: ownerName});
+      throw ApplicationError.notFound({owner: ownerType, ownerName: ownerName});
     }
     const namespace = await this.searchNamespaceOfOwnerId(
       owner.id as string,
@@ -373,7 +373,7 @@ export class ObjectNodeService {
     return this.objectNodeRepository.findById(id, filter, options);
   }
 
-  protected async checkNameAvailibility(
+  protected async checkNameAvailability(
     objectNode: DataObject<ObjectNode>,
     name: string,
   ) {
@@ -605,7 +605,7 @@ export class ObjectNodeService {
       objectNode.namespace = !!objectNode.owner || !!objectSubType.namespace;
       objectNode.tree = !!objectNode.namespace || !!objectSubType.tree;
 
-      await this.checkNameAvailibility(objectNode, <string>objectNode.name);
+      await this.checkNameAvailability(objectNode, <string>objectNode.name);
 
       objectNodeForUpdate = pick(
         objectNode,
@@ -687,7 +687,7 @@ export class ObjectNodeService {
         if (!objectNode.name) {
           throw ApplicationError.missingParameter('name');
         }
-        await this.checkNameAvailibility(node, <string>objectNode.name);
+        await this.checkNameAvailability(node, <string>objectNode.name);
       }
       const objectType = await this.objectTypeService.searchById(
         node.objectTypeId,
@@ -771,10 +771,10 @@ export class ObjectNodeService {
       },
       'node' === parentType ? {} : {[parentType]: true},
     );
-    const subChildsNodes = await this.findOrderedNodes({
+    const subChildrenNodes = await this.findOrderedNodes({
       where: whereClause,
     });
-    for (const subChildNode of subChildsNodes) {
+    for (const subChildNode of subChildrenNodes) {
       await this.removeByParent(parentType, <string>subChildNode.id, ctx);
     }
 

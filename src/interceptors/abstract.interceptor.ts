@@ -49,6 +49,7 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
         protocol: protocol as string,
         baseUri: baseUri,
         objectUri: objectUri,
+        url: baseUri + objectUri,
         method: httpReq.method,
       };
     });

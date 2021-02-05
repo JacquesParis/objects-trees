@@ -41,7 +41,7 @@ import {DbDataSource} from './datasources/db.datasource';
 import {
   InterceptorDescription,
   RunnerTreatmentDescription,
-  ServiceDescripiton,
+  ServiceDescription,
   TreatmentDescription,
 } from './integration/extension-description';
 import {
@@ -140,10 +140,10 @@ export class ObjectTreesApplication extends RestApplication {
 
     app.bind(RestBindings.REQUEST_BODY_PARSER_OPTIONS).to({limit: '500mb'});
 
-    // Customize @loopback/boot Booter Conventions here
+    // Customize @loopback/boot Boot Conventions here
     app.bootOptions = {
       controllers: {
-        // Customize ControllerBooter Conventions here
+        // Customize ControllerBoot Conventions here
         dirs: [],
         extensions: ['.controller.js'],
         nested: false,
@@ -372,7 +372,7 @@ export class ObjectTreesApplication extends RestApplication {
       .getValue(app) as string[];
 
     const preTreatmentDescription = new TreatmentDescription(
-      'CoreProdider',
+      'CoreProvider',
       ObjectTreesApplication.name,
       'Treatments on incoming request:',
     );
@@ -392,12 +392,12 @@ export class ObjectTreesApplication extends RestApplication {
           interceptors[index]
         ].preTreatment?.services as string[]) {
           treatment.runnerId += ' and ' + serviceName;
-          const service: ServiceDescripiton = await this.getService<ServiceDescripiton>(
+          const service: ServiceDescription = await this.getService<ServiceDescription>(
             {name: serviceName},
           );
-          if (service.getPreTraitmentDescription) {
+          if (service.getPreTreatmentDescription) {
             treatment.subTreatments.push(
-              ...service.getPreTraitmentDescription(),
+              ...service.getPreTreatmentDescription(),
             );
           }
         }
@@ -414,11 +414,11 @@ export class ObjectTreesApplication extends RestApplication {
       );
       for (const serviceName of description.services) {
         treatment.runnerId += ' and ' + serviceName;
-        const service: ServiceDescripiton = await this.getService<ServiceDescripiton>(
+        const service: ServiceDescription = await this.getService<ServiceDescription>(
           {name: serviceName},
         );
-        if (service.getTraitmentDescription) {
-          treatment.subTreatments.push(...service.getTraitmentDescription());
+        if (service.getTreatmentDescription) {
+          treatment.subTreatments.push(...service.getTreatmentDescription());
         }
       }
       configSummary.subTreatments.push(treatment);
@@ -431,12 +431,12 @@ export class ObjectTreesApplication extends RestApplication {
     );
     for (const treatment of (
       await this.getService<ActionEntityService>(ActionEntityService)
-    ).getTraitmentDescription()) {
+    ).getTreatmentDescription()) {
       treatmentDescription.subTreatments.push(treatment);
     }
     configSummary.subTreatments.push(treatmentDescription);*/
     const postTreatmentDescriptions = new TreatmentDescription(
-      'CoreProdider',
+      'CoreProvider',
       ObjectTreesApplication.name,
       'Treatments on returned Entity(ies):',
     );
@@ -456,12 +456,12 @@ export class ObjectTreesApplication extends RestApplication {
           interceptors[index]
         ].postTreatment?.services as string[]) {
           treatment.runnerId += ' and ' + serviceName;
-          const service: ServiceDescripiton = await this.getService<ServiceDescripiton>(
+          const service: ServiceDescription = await this.getService<ServiceDescription>(
             {name: serviceName},
           );
-          if (service.getPostTraitmentDescription) {
+          if (service.getPostTreatmentDescription) {
             treatment.subTreatments.push(
-              ...service.getPostTraitmentDescription(),
+              ...service.getPostTreatmentDescription(),
             );
           }
         }

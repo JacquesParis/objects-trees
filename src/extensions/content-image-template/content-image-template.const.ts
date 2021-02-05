@@ -1,7 +1,7 @@
 import {REPOSITORY_CATEGORY_TYPE} from '../../services';
 import {IMAGE_GALLERY_SELECTOR_TYPE} from '../content-image/content-image.const';
 import {
-  ObjectSubTypeDefintion,
+  ObjectSubTypeDefinition,
   ObjectTypeDefinition,
 } from './../../integration/extension.provider';
 import {TEMPLATE_VIEW_TYPE} from './../content-generic-template/content-generic-template.const';
@@ -24,7 +24,7 @@ export const IMAGE_GALLERY_TEMPLATE_TYPE: ObjectTypeDefinition = {
   contentType: '',
 };
 
-export const CATEGORY_IMAGE_GALLERY_TEMPLATE_SUBTYPE: ObjectSubTypeDefintion = {
+export const CATEGORY_IMAGE_GALLERY_TEMPLATE_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: REPOSITORY_CATEGORY_TYPE.name,
   subTypeName: IMAGE_GALLERY_TEMPLATE_TYPE.name,
   name: IMAGE_GALLERY_TEMPLATE_TYPE.name,
@@ -56,17 +56,17 @@ export const PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE: ObjectTypeDefinition = {
   name: 'PageWithGalleryTextParagraph',
 };
 
-export const PAGE_WITH_GALLERY_PARAGRAPH_GALLERY_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
+export const PAGE_WITH_GALLERY_PARAGRAPH_GALLERY_PARAGRAPH_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: PAGE_WITH_GALLERY_PARAGRAPH_TYPE.name,
   subTypeName: GALLERY_PARAGRAPH_TYPE.name,
 };
 
-export const PAGE_WITH_GALLERY_TEXT_PARAGRAPH_GALLERY_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
+export const PAGE_WITH_GALLERY_TEXT_PARAGRAPH_GALLERY_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE.name,
   subTypeName: GALLERY_TEXT_PARAGRAPH_TYPE.name,
 };
 
-export const PARAGRAPH_CONTAINER_GALLERY_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefintion = {
+export const PARAGRAPH_CONTAINER_GALLERY_TEXT_PARAGRAPH_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: PARAGRAPH_CONTAINER_TYPE.name,
   subTypeName: GALLERY_TEXT_PARAGRAPH_TYPE.name,
 };

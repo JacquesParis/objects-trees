@@ -9,7 +9,7 @@ import {RestEntity} from '../../models';
 import {EntityName} from '../../models/entity-name';
 import {CurrentContext} from '../application.service';
 import {AclCtx} from './../../models/acl-ctx.model';
-import {AccessRightsAbstractService} from './access-rights-abtract.service';
+import {AccessRightsAbstractService} from './access-rights-abstract.service';
 import {ACCESS_RIGHT_PROVIDER} from './access-rights.const';
 import {
   AccessRightsInterface,

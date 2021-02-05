@@ -33,7 +33,7 @@ export class ApplicationError implements IObjectError, HttpErrors.HttpError {
     );
   }
 
-  public static forbiden(): ApplicationError {
+  public static forbidden(): ApplicationError {
     return new ApplicationError(
       new HttpErrors[APPLICATION_ERRORS[ApplicationErrors.FORBIDEN].statusCode](
         'The access rights do not allow access to this resource.',

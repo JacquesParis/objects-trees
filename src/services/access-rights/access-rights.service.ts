@@ -7,12 +7,12 @@ import {
 } from '@loopback/authorization';
 import {BindingScope, injectable, service} from '@loopback/core';
 import {Principal} from '@loopback/security';
-import {cloneDeep, some} from 'lodash';
+import {cloneDeep, intersection, merge, some} from 'lodash';
 import {ObjectNode} from '../../models';
 import {ObjectNodeService} from '../object-node/object-node.service';
 import {ApplicationError} from './../../helper/application-error';
 import {
-  ServiceDescripiton,
+  ServiceDescription,
   TreatmentDescription,
 } from './../../integration/extension-description';
 import {EntityName} from './../../models/entity-name';
@@ -46,12 +46,15 @@ export interface AccessRightsInterface {
 }
 
 @injectable({scope: BindingScope.SINGLETON})
-export class AccessRightsService implements ServiceDescripiton {
+export class AccessRightsService implements ServiceDescription {
   private accessRights: {
     [resource in EntityName]?: AccessRightsInterface;
   } = {};
+  private forcedAccessRightsByObjectType: {
+    [objectTypeId: string]: {[scope in AccessRightsScope]?: boolean};
+  } = {};
 
-  getPreTraitmentDescription(): TreatmentDescription[] {
+  getPreTreatmentDescription(): TreatmentDescription[] {
     const treatments: TreatmentDescription[] = [];
     for (const resource in this.accessRights) {
       treatments.push(
@@ -68,7 +71,7 @@ export class AccessRightsService implements ServiceDescripiton {
     }
     return treatments;
   }
-  getPostTraitmentDescription(): TreatmentDescription[] {
+  getPostTreatmentDescription(): TreatmentDescription[] {
     const treatments: TreatmentDescription[] = [];
     for (const resource in this.accessRights) {
       treatments.push(
@@ -163,9 +166,9 @@ export class AccessRightsService implements ServiceDescripiton {
   async calculateRootPermissions(
     ctx: CurrentContext,
   ): Promise<AccessRightsSet> {
-    const actCtx: AccessRightsProviderContext = this.appCtx.getExtensionContext<
-      AccessRightsProviderContext
-    >(ACCESS_RIGHT_PROVIDER);
+    const actCtx: AccessRightsProviderContext = this.appCtx.getExtensionContext<AccessRightsProviderContext>(
+      ACCESS_RIGHT_PROVIDER,
+    );
     if (!ctx.accessRightsContext?.user?.value?.id) {
       return new AccessRightsSet();
     }
@@ -192,7 +195,7 @@ export class AccessRightsService implements ServiceDescripiton {
       ] as AccessRightsInterface;
       await accessRights.cleanReturnedEntity(entity, ctx);
     } else {
-      throw ApplicationError.forbiden();
+      throw ApplicationError.forbidden();
     }
   }
 
@@ -217,11 +220,34 @@ export class AccessRightsService implements ServiceDescripiton {
     }
   }
 
+  async getForcedAccessRightsForObjectType(
+    objectTypeId: string,
+  ): Promise<{[scope in AccessRightsScope]?: boolean}> {
+    let forcedAccessRights: {[scope in AccessRightsScope]?: boolean} = {};
+    const forcedAccessRightsTypes = intersection(
+      Object.keys(this.forcedAccessRightsByObjectType),
+      await this.objectTypeService.getImplementedTypes(objectTypeId),
+    );
+    for (const type of forcedAccessRightsTypes) {
+      forcedAccessRights = merge(
+        forcedAccessRights,
+        this.forcedAccessRightsByObjectType[type],
+      );
+    }
+    return forcedAccessRights;
+  }
+
   public async getNodeAccessRights(
     node: ObjectNode,
     ctx: CurrentContext,
   ): Promise<AccessRightsCRUD> {
     // TODO : disable update for object created during boot ?
+
+    //check if the rights if forced for this Node
+    const forcedAccessRights: {
+      [scope in AccessRightsScope]?: boolean;
+    } = await this.getForcedAccessRightsForObjectType(node.objectTypeId);
+
     try {
       const rights = await ctx.accessRightsContext.rights.waitForValue;
       // if node is just the root of the acl tree
@@ -230,7 +256,7 @@ export class AccessRightsService implements ServiceDescripiton {
       }
       // if owner => true
       if (rights.treeChildrenNodes.owner) {
-        return new AccessRightsCRUD(true, true, true, true);
+        return new AccessRightsCRUD(true, true, true, true, forcedAccessRights);
       }
       //Check if node is not in last def tree ACLDef
       //  => rights.treeChildrenNodes[scope]
@@ -243,14 +269,26 @@ export class AccessRightsService implements ServiceDescripiton {
       }
       // if not acl => false (as the node is part of ACL)
       if (!rights.treeChildrenNodes.access) {
-        return new AccessRightsCRUD(false, false, false, false);
+        return new AccessRightsCRUD(
+          false,
+          false,
+          false,
+          false,
+          forcedAccessRights,
+        );
       }
       // If Node = aclDef => read, write, create
       if (
         node.objectTypeId ===
         (await this.appCtx.accessRightsDefinitionType.waitForValue).id
       ) {
-        return new AccessRightsCRUD(true, true, false, true);
+        return new AccessRightsCRUD(
+          true,
+          true,
+          false,
+          true,
+          forcedAccessRights,
+        );
       }
       // If Node = Owners or children  => false
       const owners: ObjectTree = this.objectTreeService.getChildOfType(
@@ -258,7 +296,13 @@ export class AccessRightsService implements ServiceDescripiton {
         (await this.appCtx.accessRightsOwnersType.waitForValue).id as string,
       );
       if (owners && this.objectTreeService.isInTree(owners, node)) {
-        return new AccessRightsCRUD(false, false, false, false);
+        return new AccessRightsCRUD(
+          false,
+          false,
+          false,
+          false,
+          forcedAccessRights,
+        );
       }
       // If Node = Managers or children => just read
       const managers: ObjectTree = this.objectTreeService.getChildOfType(
@@ -267,13 +311,32 @@ export class AccessRightsService implements ServiceDescripiton {
           .id as string,
       );
       if (managers && this.objectTreeService.isInTree(managers, node)) {
-        return new AccessRightsCRUD(false, true, false, false);
+        return new AccessRightsCRUD(
+          false,
+          true,
+          false,
+          false,
+          forcedAccessRights,
+        );
       }
       // Else (acl and access right groups) => true
-      return new AccessRightsCRUD(true, true, true, true);
+      return new AccessRightsCRUD(true, true, true, true, forcedAccessRights);
     } catch (error) {
-      return new AccessRightsCRUD(false, false, false, false);
+      return new AccessRightsCRUD(
+        false,
+        false,
+        false,
+        false,
+        forcedAccessRights,
+      );
     }
+  }
+
+  public addForcedAccessRightsForObjectType(
+    objectTypeId: string,
+    forcedAccessRights: {[scope in AccessRightsScope]?: boolean},
+  ) {
+    this.forcedAccessRightsByObjectType[objectTypeId] = forcedAccessRights;
   }
 
   public async hasNodeAccessRights(
@@ -281,6 +344,14 @@ export class AccessRightsService implements ServiceDescripiton {
     node: ObjectNode,
     ctx: CurrentContext,
   ): Promise<boolean> {
+    //check if the rights if forced for this Node
+    const forceAccessRightsTypes = await this.getForcedAccessRightsForObjectType(
+      node.objectTypeId,
+    );
+    if (scope in forceAccessRightsTypes) {
+      return forceAccessRightsTypes[scope] as boolean;
+    }
+
     await this.loadRights(node, ctx);
     const rights: {
       [scope in AccessRightsScope]?: boolean;
@@ -406,13 +477,13 @@ export class AccessRightsService implements ServiceDescripiton {
     }
   }
   private mergeRight(
-    resetedRights: AccessRightsSet,
+    resetRights: AccessRightsSet,
     actualRights: AccessRightsSet,
     addedRights: AccessRightsSet,
   ) {
-    for (const right in resetedRights) {
-      for (const permission in resetedRights) {
-        if (!resetedRights[permission as AccessRightsPermission]) {
+    for (const right in resetRights) {
+      for (const permission in resetRights) {
+        if (!resetRights[permission as AccessRightsPermission]) {
           actualRights[permission as AccessRightsPermission] =
             actualRights[permission as AccessRightsPermission] ||
             addedRights[permission as AccessRightsPermission];

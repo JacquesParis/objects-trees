@@ -1,4 +1,5 @@
 import {IEntityContext, IObjectTree} from '@jacquesparis/objects-model';
+import {AccessRightsScope} from './../services/access-rights/access-rights.const';
 import {EntityName} from './entity-name';
 import {ObjectNode} from './object-node.model';
 
@@ -6,6 +7,13 @@ export class ObjectTree implements IObjectTree {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
   children: ObjectTree[] = [];
+  childrenEntityCtx: {
+    [objectTypeId: string]: {
+      aclCtx: {
+        rights: {[scope in AccessRightsScope]?: boolean};
+      };
+    };
+  };
   parentTree?: ObjectTree;
   uri: string;
   aliasUri?: string;
@@ -33,24 +41,6 @@ export class ObjectTree implements IObjectTree {
     }
     return result;
   }
-
-  /*
-  public get childrenByImplentedTypeId(): {
-    [objectTypeId: string]: ObjectTree[];
-  } {
-    const result: {[objectTypeId: string]: ObjectTree[]} = {};
-    for (const child of this.children) {
-      if (child.entityCtx?.implementedTypes) {
-        for (const implementedType of child.entityCtx.implementedTypes) {
-          if (!(implementedType in result)) {
-            result[implementedType] = [];
-          }
-          result[implementedType].push(child);
-        }
-      }
-    }
-    return result;
-  }*/
 
   async init(
     allNodes: ObjectNode[],

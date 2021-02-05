@@ -57,8 +57,8 @@ export class InterceptorDescription {
   postTreatment?: RunnerTreatmentDescription;
 }
 
-export interface ServiceDescripiton {
-  getPreTraitmentDescription?(): TreatmentDescription[];
-  getTraitmentDescription?(): TreatmentDescription[];
-  getPostTraitmentDescription?(): TreatmentDescription[];
+export interface ServiceDescription {
+  getPreTreatmentDescription?(): TreatmentDescription[];
+  getTreatmentDescription?(): TreatmentDescription[];
+  getPostTreatmentDescription?(): TreatmentDescription[];
 }

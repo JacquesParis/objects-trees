@@ -45,7 +45,17 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
     if (!objectTree.entityCtx.preview) {
       objectTree.entityCtx.preview = {
         icon: '',
-        html: '<span class="child-tree-preview">{{dataNode.name}}</span>',
+        html: `<span class="child-tree-preview">
+        {{#dataNode.menuTitle}}{{dataNode.menuTitle}}{{/dataNode.menuTitle}}
+        {{^dataNode.menuTitle}}
+          {{#dataNode.pageTitle}}{{dataNode.pageTitle}}{{/dataNode.pageTitle}}
+          {{^dataNode.pageTitle}}
+            {{#dataNode.paragraphTitle}}{{dataNode.paragraphTitle}}{{/dataNode.paragraphTitle}}
+            {{^dataNode.paragraphTitle}}
+              {{dataNode.name}}
+            {{/dataNode.paragraphTitle}}
+          {{/dataNode.pageTitle}}
+        {{/dataNode.menuTitle}}</span>`,
       };
     }
     // _.merge({}, this.entityDefinition, objectType.definition, this.entityDefinition, objectType.contentDefinition),
@@ -89,6 +99,17 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
       objectTree.entityCtx?.aclCtx?.rights?.create
     ) {
       for (const subType of treeType.objectSubTypes) {
+        if (
+          objectTree.childrenEntityCtx &&
+          subType.subObjectTypeId in objectTree.childrenEntityCtx &&
+          'create' in
+            objectTree.childrenEntityCtx[subType.subObjectTypeId].aclCtx
+              .rights &&
+          !objectTree.childrenEntityCtx[subType.subObjectTypeId].aclCtx.rights
+            .create
+        ) {
+          continue;
+        }
         try {
           childContext.objectSubType.value = subType;
           await this.objectNodeService.checkBrothersCondition(
@@ -112,6 +133,19 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
     const knownSubObjectTypeIds: string[] = treeType.objectSubTypes
       ? treeType.objectSubTypes.map((subType) => subType.subObjectTypeId)
       : [];
+    for (let index = knownSubObjectTypeIds.length - 1; index >= 0; index--) {
+      if (
+        objectTree.childrenEntityCtx &&
+        knownSubObjectTypeIds[index] in objectTree.childrenEntityCtx &&
+        'read' in
+          objectTree.childrenEntityCtx[knownSubObjectTypeIds[index]].aclCtx
+            .rights &&
+        !objectTree.childrenEntityCtx[knownSubObjectTypeIds[index]].aclCtx
+          .rights.read
+      ) {
+        knownSubObjectTypeIds.splice(index, 1);
+      }
+    }
     if (objectTree.children) {
       for (
         let childIndex = objectTree.children.length - 1;

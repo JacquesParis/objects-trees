@@ -2,7 +2,7 @@ import {IRestEntity} from '@jacquesparis/objects-model';
 import {BindingScope, injectable, service} from '@loopback/core';
 import {isArray, isFunction, isString} from 'lodash';
 import {
-  ServiceDescripiton,
+  ServiceDescription,
   TreatmentDescription,
 } from '../../integration/extension-description';
 import {AbstractEntityInterceptorInterface} from '../../interceptors/abstract-entity-interceptor.service';
@@ -27,7 +27,7 @@ export interface EntityInterceptorInterface {
 
 @injectable({scope: BindingScope.SINGLETON})
 export class EntityInterceptService
-  implements AbstractEntityInterceptorInterface, ServiceDescripiton {
+  implements AbstractEntityInterceptorInterface, ServiceDescription {
   private entityInterceptors: {
     [resource in EntityName]?: {
       [scope in EntityActionType]?: EntityInterceptorInterface[];
@@ -85,7 +85,7 @@ export class EntityInterceptService
     return true;
   }
 
-  getPreTraitmentDescription(): TreatmentDescription[] {
+  getPreTreatmentDescription(): TreatmentDescription[] {
     const treatments: TreatmentDescription[] = [];
     for (const resource in this.entityInterceptors) {
       for (const scope in this.entityInterceptors[resource as EntityName]) {

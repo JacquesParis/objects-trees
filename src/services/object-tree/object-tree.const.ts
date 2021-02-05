@@ -16,6 +16,7 @@ export const ROOT_TYPE: ObjectTypeDefinition = {
   inheritedTypesIds: [REPOSITORY_TYPE.name],
   definition: {properties: {}},
   contentType: '',
+  iconView: 'fas fa-robot',
 };
 
 export const FOLDER_TYPE: ObjectTypeDefinition = {
@@ -28,39 +29,10 @@ export const TENANT_TYPE: ObjectTypeDefinition = {
   name: ApplicationService.OBJECT_TYPE_NAMES.TENANT,
   inheritedTypesIds: [FOLDER_TYPE.name],
   definition: {
-    properties: {
-      /*
-      firstname: {
-        type: 'string',
-        title: 'Firstname',
-        default: '',
-        minLength: 2,
-        required: true,
-      },
-      lastname: {
-        type: 'string',
-        title: 'Lastname',
-        default: '',
-        minLength: 2,
-        required: true,
-      },
-      email: {
-        type: 'string',
-        title: 'Email',
-        default: '',
-        minLength: 2,
-        required: true,
-      },
-      address: {
-        type: 'string',
-        title: 'Address',
-        default: '',
-        minLength: 2,
-        required: false,
-      },*/
-    },
+    properties: {},
   },
   contentType: '',
+  iconView: 'far far-user-circle',
 };
 
 export const REPOSITORY_CATEGORY_TYPE = {

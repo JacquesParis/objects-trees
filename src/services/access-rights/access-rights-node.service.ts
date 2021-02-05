@@ -9,7 +9,7 @@ import {EntityName} from '../../models/entity-name';
 import {ObjectNode} from '../../models/object-node.model';
 import {CurrentContext} from '../application.service';
 import {ObjectNodeService} from '../object-node/object-node.service';
-import {AccessRightsAbstractService} from './access-rights-abtract.service';
+import {AccessRightsAbstractService} from './access-rights-abstract.service';
 import {AccessRightsScope, ACCESS_RIGHT_PROVIDER} from './access-rights.const';
 import {
   AccessRightsInterface,

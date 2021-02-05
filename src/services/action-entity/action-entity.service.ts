@@ -62,7 +62,7 @@ export class ActionEntityService {
     @service(ObjectTypeService) private objectTypeService: ObjectTypeService,
   ) {}
 
-  getTraitmentDescription(): TreatmentDescription[] {
+  getTreatmentDescription(): TreatmentDescription[] {
     const treatments: TreatmentDescription[] = [];
     for (const entityType in this.methodsAndViews) {
       for (const methodOrViewId in this.methodsAndViews[entityType]) {

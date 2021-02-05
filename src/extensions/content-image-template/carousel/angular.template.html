@@ -9,13 +9,13 @@
   *ngIf="ready && 1 < dataNode.images.length"
   class="carousel slide"
   data-ride="carousel"
-  id="caroussel_images_{{dataNode.id}}"
+  id="carousel_images_{{dataNode.id}}"
 >
   <ol class="carousel-indicators">
     <li
       *ngFor="let image of dataNode.images; let index = index;"
       [class.active]="0===index"
-      data-target="#caroussel_images_{{dataNode.id}}"
+      data-target="#carousel_images_{{dataNode.id}}"
       data-slide-to="{{index}}"
     ></li>
   </ol>
@@ -36,7 +36,6 @@
           *ngIf="image.treeNode.imageTitle as imageTitle"
         >
           <h5>{{imageTitle}}</h5>
-          <!-- <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>-->
         </div>
       </ng-container>
       <ng-template #spinner>
@@ -52,7 +51,7 @@
   </div>
   <a
     class="carousel-control-prev"
-    href="#caroussel_images_{{dataNode.id}}"
+    href="#carousel_images_{{dataNode.id}}"
     role="button"
     data-slide="prev"
   >
@@ -61,7 +60,7 @@
   </a>
   <a
     class="carousel-control-next"
-    href="#caroussel_images_{{dataNode.id}}"
+    href="#carousel_images_{{dataNode.id}}"
     role="button"
     data-slide="next"
   >

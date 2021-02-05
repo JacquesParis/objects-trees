@@ -43,17 +43,14 @@ export class ContentImageTemplateProvider extends ExtensionProvider {
       PARAGRAPH_CONTAINER_GALLERY_TEXT_PARAGRAPH_SUBTYPE,
     );
 
-    this.objectTrees.caroussel = {
+    this.objectTrees.carousel = {
       reset: false,
       parentNode: () => this.appCtx.publicTemplatesNode.value,
-      treeNodeName: 'caroussel',
+      treeNodeName: 'carousel',
       treeNodeTypeId: IMAGE_GALLERY_TEMPLATE_TYPE.name,
       tree: {
         treeNode: {
-          contentGenericTemplate: contentGenericTemplate(
-            __dirname,
-            'caroussel',
-          ),
+          contentGenericTemplate: contentGenericTemplate(__dirname, 'carousel'),
         },
         children: {},
       },

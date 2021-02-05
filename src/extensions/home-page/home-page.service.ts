@@ -240,6 +240,7 @@ export class HomePageService {
         parentNodeId: ctx.webSiteContext.siteBaseUriTree.value.id,
         name: this.getCachePageName(pageName),
         objectTypeId: PAGE_CACHE_TYPE.name,
+        pageUrl: ctx.uriContext.uri.value.url,
         contentPageCache: {
           body: ctx.webSiteContext.cachedPage.value.response,
         },

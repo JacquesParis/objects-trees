@@ -55,7 +55,7 @@ export class ContentEntityService {
   } = {};
   constructor(/* Add @inject to inject parameters */) {}
 
-  getPostTraitmentDescription(): TreatmentDescription[] {
+  getPostTreatmentDescription(): TreatmentDescription[] {
     const treatment: TreatmentDescription[] = [];
     for (const contentType of Object.keys(this.contentTypeDefinitions)) {
       treatment.push(

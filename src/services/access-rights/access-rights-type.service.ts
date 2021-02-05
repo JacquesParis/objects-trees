@@ -9,7 +9,7 @@ import {AclCtx} from './../../models/acl-ctx.model';
 import {EntityName} from './../../models/entity-name';
 import {ObjectType} from './../../models/object-type.model';
 import {ObjectTypeService} from './../object-type.service';
-import {AccessRightsAbstractService} from './access-rights-abtract.service';
+import {AccessRightsAbstractService} from './access-rights-abstract.service';
 import {ACCESS_RIGHT_PROVIDER} from './access-rights.const';
 import {
   AccessRightsInterface,

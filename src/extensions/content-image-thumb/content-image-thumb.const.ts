@@ -1,5 +1,5 @@
 import {
-  ObjectSubTypeDefintion,
+  ObjectSubTypeDefinition,
   ObjectTypeDefinition,
 } from './../../integration/extension.provider';
 import {IMAGE_TYPE} from './../content-image/content-image.const';
@@ -11,6 +11,7 @@ export const IMAGE_THUMB_TYPE: ObjectTypeDefinition = {
     properties: {},
   },
   contentType: 'ContentImage',
+  iconView: 'fas fa-compress',
 };
 
 export const IMAGE_ORIGINAL_TYPE: ObjectTypeDefinition = {
@@ -19,15 +20,16 @@ export const IMAGE_ORIGINAL_TYPE: ObjectTypeDefinition = {
     properties: {},
   },
   contentType: 'ContentImage',
+  iconView: 'fas fa-expand',
 };
 
-export const IMAGE_IMAGE_THUMB_SUBTYPE: ObjectSubTypeDefintion = {
+export const IMAGE_IMAGE_THUMB_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: IMAGE_TYPE.name,
   subTypeName: IMAGE_THUMB_TYPE.name,
   max: 1,
 };
 
-export const IMAGE_IMAGE_ORIGINAL_SUBTYPE: ObjectSubTypeDefintion = {
+export const IMAGE_IMAGE_ORIGINAL_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: IMAGE_TYPE.name,
   subTypeName: IMAGE_ORIGINAL_TYPE.name,
   max: 1,

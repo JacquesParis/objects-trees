@@ -65,7 +65,7 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
               this.ctx,
             );
           } else {
-            throw ApplicationError.forbiden();
+            throw ApplicationError.forbidden();
           }
         }
       } else if (isObject(result)) {
@@ -82,7 +82,7 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
         } else {
           const uriParts = await this.getUriParts(invocationCtx, this.ctx);
           if (-1 === ['/explorer/openapi.json/'].indexOf(uriParts.objectUri)) {
-            throw ApplicationError.forbiden();
+            throw ApplicationError.forbidden();
           }
         }
       }

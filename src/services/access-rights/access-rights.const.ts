@@ -32,8 +32,18 @@ export class AccessRightsCRUD implements IAccessRightsCRUD {
     public read: boolean = false,
     public update: boolean = false,
     _delete = false,
+    forcedValues: {
+      [scope in 'create' | 'read' | 'update' | 'delete']?: boolean;
+    } = {},
   ) {
     this.delete = _delete;
+    Object.assign(this, forcedValues);
+    /*
+    for (const scope in forcedValues) {
+      this[scope as 'create' | 'read' | 'update' | 'delete'] = forcedValues[
+        scope as 'create' | 'read' | 'update' | 'delete'
+      ] as boolean;
+    }*/
   }
 }
 

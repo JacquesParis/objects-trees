@@ -1,5 +1,5 @@
 import {
-  ObjectSubTypeDefintion,
+  ObjectSubTypeDefinition,
   ObjectTypeDefinition,
 } from './../../integration/extension.provider';
 export const CONTENT_IMAGE_PROVIDER = 'ContentImageProvider';
@@ -11,6 +11,7 @@ export const IMAGE_GALLERIES_TYPE: ObjectTypeDefinition = {
     properties: {},
   },
   contentType: '',
+  iconView: 'fas fa-photo-video',
 };
 
 export const IMAGE_GALLERY_TYPE: ObjectTypeDefinition = {
@@ -19,6 +20,7 @@ export const IMAGE_GALLERY_TYPE: ObjectTypeDefinition = {
     properties: {},
   },
   contentType: '',
+  iconView: 'far fa-images',
 };
 
 export const DISPLAYED_IMAGE_GALLERY_TYPE: ObjectTypeDefinition = {
@@ -60,7 +62,7 @@ export const IMAGE_GALLERY_SELECTOR_TYPE: ObjectTypeDefinition = {
           type: 'string',
         },
         'x-schema-form': {
-          condition: 'undefined !== embededCondition',
+          condition: 'undefined !== embeddedCondition',
         },
       },
     },
@@ -76,10 +78,10 @@ export const IMAGE_TYPE: ObjectTypeDefinition = {
   contentType: 'ContentImage',
   iconView: 'far fa-image',
   templateView:
-    '<span class="child-tree-preview"><span class="child-image-name">{{dataNode.name}}</span><img src="{{dataNode.contentImageUri}}"/></span>',
+    '<span class="child-tree-preview"><span class="child-image-name">{{dataNode.name}}</span><img style="padding-left: 10px;height: 50px;" src="{{dataNode.contentImageUri}}"/></span>',
 };
 
-export const IMAGE_GALLERIES_IMAGE_GALLERY_SUBTYPE: ObjectSubTypeDefintion = {
+export const IMAGE_GALLERIES_IMAGE_GALLERY_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: IMAGE_GALLERIES_TYPE.name,
   subTypeName: IMAGE_GALLERY_TYPE.name,
   name: IMAGE_GALLERY_TYPE.name,
@@ -89,7 +91,7 @@ export const IMAGE_GALLERIES_IMAGE_GALLERY_SUBTYPE: ObjectSubTypeDefintion = {
   tree: true,
 };
 
-export const IMAGE_GALLERY_IMAGE_SUBTYPE: ObjectSubTypeDefintion = {
+export const IMAGE_GALLERY_IMAGE_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: IMAGE_GALLERY_TYPE.name,
   subTypeName: IMAGE_TYPE.name,
   name: IMAGE_TYPE.name,
