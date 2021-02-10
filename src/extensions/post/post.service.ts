@@ -28,7 +28,7 @@ export class PostService {
     ctx: CurrentContext,
   ): Promise<void> {
     const postTrees: ObjectTree[] = (
-      await this.objectTreeService.getChildrenByImplentedTypeId(entity)
+      await this.objectTreeService.getChildrenByImplementedTypeId(entity)
     )[POST_WITH_SUB_POST_TYPE.name];
     entity.postTrees = postTrees ? postTrees : [];
   }

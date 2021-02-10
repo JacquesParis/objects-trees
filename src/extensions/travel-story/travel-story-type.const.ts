@@ -8,18 +8,24 @@ import {
   REPOSITORY_CATEGORY_TYPE,
 } from '../../services/object-tree/object-tree.const';
 import {
+  CALENDAR_ENTRIES_TYPE,
+  CALENDAR_ENTRY_TYPE,
+  CALENDAR_PAGE_TYPE,
+  CALENDAR_TYPE,
+} from '../calendar/calendar.const';
+import {
   PAGE_WITH_GALLERY_PARAGRAPH_TYPE,
   PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE,
 } from '../content-image-template/content-image-template.const';
 import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post.const';
 import {
-  CALENDAR_ENTRY_TYPE,
   MENU_ENTRY_TYPE,
   PAGE_TYPE,
   PAGE_WITH_TEXT_PARAGRAPH_TYPE,
   PARAGRAPH_WITH_PAGE_LINK,
   TEXT_PARAGRAPH_TYPE,
-  WEB_SITE_VIEW_WITH_MENU_TYPE,
+  WEB_SITE_MENU_ENTRIES_TYPE,
+  WEB_SITE_VIEW_TYPE,
   WEB_SITE_WITH_MENU_TEMPLATE_TYPE,
   WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE,
   WELCOME_PAGE_TYPE,
@@ -59,7 +65,11 @@ export const TRAVEL_STORY_TEMPLATE_TYPE = {
 
 export const TRAVEL_STORY_TYPE: ObjectTypeDefinition = {
   name: 'TravelStory',
-  inheritedTypesIds: [WEB_SITE_VIEW_WITH_MENU_TYPE.name],
+  inheritedTypesIds: [
+    WEB_SITE_VIEW_TYPE.name,
+    WEB_SITE_MENU_ENTRIES_TYPE.name,
+    CALENDAR_ENTRIES_TYPE.name,
+  ],
   definition: {
     properties: {
       webSiteObjectTreeId: {
@@ -130,15 +140,6 @@ export const TRAVEL_STORY_WELCOME_PAGE_TYPE: ObjectTypeDefinition = {
   ],
 };
 
-/*
-export const TRAVEL_STORY_WELCOME_MENU_TYPE: ObjectTypeDefinition = {
-  name: 'TravelStoryWelcomeMenu',
-  inheritedTypesIds: [
-    SECTION_PARAGRAPH_TYPE.name,
-    PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
-  ],
-};*/
-
 export const TRAVEL_STORY_POST_TYPE: ObjectTypeDefinition = {
   name: 'TravelStoryPost',
   inheritedTypesIds: [
@@ -171,6 +172,19 @@ export const TRAVEL_STORY_WELCOME_PARAGRAPH_TYPE: ObjectTypeDefinition = {
     PARAGRAPH_WITH_PAGE_LINK.name,
     PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
     TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE.name,
+  ],
+};
+
+export const TRAVEL_STORY_CALENDAR_PAGE_TYPE: ObjectTypeDefinition = {
+  name: 'TravelStoryCalendarPage',
+  inheritedTypesIds: [CALENDAR_PAGE_TYPE.name],
+};
+
+export const TRAVEL_STORY_CALENDAR_TYPE: ObjectTypeDefinition = {
+  name: 'TravelStoryCalendar',
+  inheritedTypesIds: [
+    CALENDAR_TYPE.name,
+    PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
   ],
 };
 
@@ -234,4 +248,19 @@ export const TRAVEL_STORY_IMAGE_GALLERIES_TRAVEL_STORY_IMAGE_GALLERY_SUBTYPE: Ob
   subTypeName: TRAVEL_STORY_IMAGE_GALLERY_TYPE.name,
   name: IMAGE_GALLERY_TYPE.name,
   tree: true,
+};
+
+export const TRAVEL_STORY_TRAVEL_STORY_CALENDAR_PAGE_SUBTYPE: ObjectSubTypeDefinition = {
+  typeName: TRAVEL_STORY_TYPE.name,
+  subTypeName: TRAVEL_STORY_CALENDAR_PAGE_TYPE.name,
+  name: CALENDAR_PAGE_TYPE.name,
+  min: 1,
+  max: 1,
+};
+export const TRAVEL_STORY_CALENDAR_PAGE_TRAVEL_STORY_CALENDAR_SUBTYPE: ObjectSubTypeDefinition = {
+  typeName: TRAVEL_STORY_CALENDAR_PAGE_TYPE.name,
+  subTypeName: TRAVEL_STORY_CALENDAR_TYPE.name,
+  name: CALENDAR_TYPE.name,
+  min: 1,
+  max: 1,
 };

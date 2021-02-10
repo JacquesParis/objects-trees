@@ -59,7 +59,7 @@ export class TransientImageService {
     ctx: CurrentContext,
   ) {
     const images: ObjectTree[] = (
-      await this.objectTreeService.getChildrenByImplentedTypeId(entity)
+      await this.objectTreeService.getChildrenByImplementedTypeId(entity)
     )[IMAGE_TYPE.name];
     entity.images = images ? images : [];
   }
@@ -68,10 +68,10 @@ export class TransientImageService {
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ) {
-    await this.addLoadImagesJsonShemaMethod(objectNode, ctx);
+    await this.addLoadImagesJsonSchemaMethod(objectNode, ctx);
   }
 
-  public async addLoadImagesJsonShemaMethod(
+  public async addLoadImagesJsonSchemaMethod(
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ) {
@@ -179,7 +179,7 @@ export class TransientImageService {
       }
     }
     if (objectNode.imageGalleryTree) {
-      await this.addLoadImagesJsonShemaMethod(objectNode, ctx);
+      await this.addLoadImagesJsonSchemaMethod(objectNode, ctx);
     }
   }
 }

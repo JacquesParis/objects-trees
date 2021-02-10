@@ -45,8 +45,8 @@ export interface MenuTree extends ObjectNodeTree<MenuEntry> {
   adminEntry: boolean;
 }
 
-export interface WebSiteViewWithMenuTree
-  extends ObjectNodeTree<WebSiteViewWithMenu> {
+export interface WebSiteMenuEntriesTree
+  extends ObjectNodeTree<WebSiteMenuEntries> {
   menuEntries: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [entryKey: string]: MenuEntryTree | any;
@@ -55,7 +55,7 @@ export interface WebSiteViewWithMenuTree
   };
 }
 
-export interface WebSiteViewWithMenu extends WebSiteView {
+export interface WebSiteMenuEntries extends WebSiteView {
   webSiteTree: WebSiteWitHMenuTemplate;
   menuTitle: string;
   menuEntries: {
@@ -75,15 +75,16 @@ export interface PageTemplate extends TemplateView {}
 
 export interface MenuTemplate extends TemplateView {}
 
+export interface MenuEntryDefinition {
+  entryKey: string;
+  entryName: string;
+  menuEntryLabelKey: string;
+  entryTypes: string[];
+  adminEntry?: boolean;
+}
 export interface WebSiteWitHMenuTemplate extends WebSiteTemplate {
   menuTree: MenuTemplate;
-  menuEntries: {
-    entryKey: string;
-    entryName: string;
-    menuEntryLabelKey: string;
-    entryTypes: string[];
-    adminEntry?: boolean;
-  }[];
+  menuEntries: MenuEntryDefinition[];
 }
 
 export interface Page extends ObjectNode {

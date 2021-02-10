@@ -80,6 +80,8 @@ export class UriContext {
     host: string;
     protocol: string;
     url: string;
+    acceptLanguages: string[];
+    acceptLanguage: string;
   }> = new ExpectedValue();
   returnedEntity: ExpectedValue<
     IRestEntity | IRestEntity[]

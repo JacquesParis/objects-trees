@@ -17,13 +17,13 @@ package WebSiteProvider{
   }
   WebSiteView -->"1" WebSiteTemplate: webSiteTree
 
-  WebSiteView <|-- WebSiteViewWithMenu
-  class WebSiteViewWithMenu < ObjectNode >{
+  WebSiteView <|-- WebSiteMenuEntries
+  class WebSiteMenuEntries < ObjectNode >{
     string menuTitle
     Object menuEntries
     string webSiteObjectTreeId
   }
-  WebSiteViewWithMenu -->"1" WebSiteWitHMenuTemplate: webSiteTree
+  WebSiteMenuEntries -->"1" WebSiteWitHMenuTemplate: webSiteTree
 
 
   TemplateView <|-- PageTemplate

@@ -394,7 +394,7 @@ export class ObjectTreeService {
     return children;
   }
 
-  public async getChildrenByImplentedTypeId(
+  public async getChildrenByImplementedTypeId(
     tree: ObjectTree,
   ): Promise<{
     [objectTypeId: string]: ObjectTree[];

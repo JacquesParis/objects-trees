@@ -26,6 +26,8 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
     method: string;
     host: string;
     protocol: string;
+    acceptLanguages: string[];
+    acceptLanguage: string;
   }> {
     return ctx.uriContext.uri.getOrSetValue(async () => {
       const httpReq: Request = (await invocationCtx.get(
@@ -44,6 +46,7 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
       const path = httpReq?.path;
       const baseUri = protocol + '://' + host + baseUrl;
       const objectUri = path + (path?.endsWith('/') ? '' : '/');
+      const acceptLanguages: string[] = httpReq.acceptsLanguages();
       return {
         host: host as string,
         protocol: protocol as string,
@@ -51,6 +54,8 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
         objectUri: objectUri,
         url: baseUri + objectUri,
         method: httpReq.method,
+        acceptLanguages: acceptLanguages,
+        acceptLanguage: acceptLanguages[0],
       };
     });
   }

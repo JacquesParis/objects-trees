@@ -1,0 +1,56 @@
+<div class="row">
+  {{#dataNode.calendar.months}}
+  <!-- Calendar -->
+  <div class="calendar {{calendarClass}}">
+    <div class="d-flex align-items-center">
+      <i class="fa fa-calendar fa-3x mr-3"></i>
+      <h2 class="month font-weight-bold mb-0 text-uppercase">{{monthLabel}}</h2>
+    </div>
+    <ol class="day-names list-unstyled">
+      <li class="font-weight-bold text-uppercase">
+        {{dataNode.calendar.days.0}}
+      </li>
+      <li class="font-weight-bold text-uppercase">
+        {{dataNode.calendar.days.1}}
+      </li>
+      <li class="font-weight-bold text-uppercase">
+        {{dataNode.calendar.days.2}}
+      </li>
+      <li class="font-weight-bold text-uppercase">
+        {{dataNode.calendar.days.3}}
+      </li>
+      <li class="font-weight-bold text-uppercase">
+        {{dataNode.calendar.days.4}}
+      </li>
+      <li class="font-weight-bold text-uppercase">
+        {{dataNode.calendar.days.5}}
+      </li>
+      <li class="font-weight-bold text-uppercase">
+        {{dataNode.calendar.days.6}}
+      </li>
+    </ol>
+
+    <ol class="days list-unstyled">
+      {{#days}}
+      <li {{^date}}class="outside"{{/date}}>
+        {{^date}}
+        <div class="date"></div>
+        {{/date}}
+        {{#date}}
+        <div class="date">{{date}}</div>
+        {{#events}}<a href="{{href}}">
+          <div
+            class="event all-day {{#transparent}}transparent{{/transparent}}{{^transparent}}{{event.color}}{{/transparent}} {{#begin}}begin{{/begin}} {{#end}}end{{/end}} span-{{span}}"
+          >
+            {{event.eventTitle}}
+          </div></a
+        >
+        {{/events}} {{/date}}
+      </li>
+      {{/days}}
+
+    </ol>
+  </div>
+
+  {{/dataNode.calendar.months}}
+</div>

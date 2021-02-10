@@ -2,11 +2,10 @@
 import {ObjectTreesApplicationInterface} from '../../application';
 import {contentGenericTemplate, image} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
+import {CALENDAR_ENTRY_TYPE, CALENDAR_TYPE} from '../calendar/calendar.const';
 import {POST_TYPE} from '../post/post.const';
-import {
-  CALENDAR_ENTRY_TYPE,
-  WELCOME_PAGE_TYPE,
-} from '../web-site/web-site.const';
+import {WELCOME_PAGE_TYPE} from '../web-site/web-site.const';
+import {CalendarProvider} from './../calendar/calendar.provider';
 import {ContentImageTemplateProvider} from './../content-image-template/content-image-template.provider';
 import {
   IMAGE_GALLERIES_TYPE,
@@ -17,6 +16,9 @@ import {WebSiteProvider} from './../web-site/web-site.provider';
 import {
   CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE,
   FOLDER_TRAVEL_STORY_SUBTYPE,
+  TRAVEL_STORY_CALENDAR_PAGE_TRAVEL_STORY_CALENDAR_SUBTYPE,
+  TRAVEL_STORY_CALENDAR_PAGE_TYPE,
+  TRAVEL_STORY_CALENDAR_TYPE,
   TRAVEL_STORY_IMAGE_GALLERIES_TRAVEL_STORY_IMAGE_GALLERY_SUBTYPE,
   TRAVEL_STORY_IMAGE_GALLERIES_TYPE,
   TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE,
@@ -26,6 +28,7 @@ import {
   TRAVEL_STORY_POST_TYPE,
   TRAVEL_STORY_PROVIDER,
   TRAVEL_STORY_TEMPLATE_TYPE,
+  TRAVEL_STORY_TRAVEL_STORY_CALENDAR_PAGE_SUBTYPE,
   TRAVEL_STORY_TRAVEL_STORY_IMAGE_GALLERIES_SUBTYPE,
   TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE,
   TRAVEL_STORY_TRAVEL_STORY_WELCOME_PAGE_SUBTYPE,
@@ -42,7 +45,11 @@ import {
 export class TravelStoryTypeProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(TRAVEL_STORY_PROVIDER, app);
-    this.requiredProviders.push(WebSiteProvider, ContentImageTemplateProvider);
+    this.requiredProviders.push(
+      WebSiteProvider,
+      ContentImageTemplateProvider,
+      CalendarProvider,
+    );
     this.objectTypes.push(
       TRAVEL_STORY_TYPE,
       TRAVEL_STORY_POST_TYPE,
@@ -53,6 +60,8 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       TRAVEL_STORY_IMAGE_GALLERIES_TYPE,
       TRAVEL_STORY_IMAGE_GALLERY_TYPE,
       TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE,
+      TRAVEL_STORY_CALENDAR_PAGE_TYPE,
+      TRAVEL_STORY_CALENDAR_TYPE,
     );
 
     this.objectSubTypes.push(
@@ -65,6 +74,8 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       TRAVEL_STORY_WELCOME_PAGE_TRAVEL_STORY_WELCOME_MENU_SUBTYPE,
       TRAVEL_STORY_WELCOME_MENU_TEXT_PARAGRAPH_SUBTYPE,
       TRAVEL_STORY_IMAGE_GALLERIES_TRAVEL_STORY_IMAGE_GALLERY_SUBTYPE,
+      TRAVEL_STORY_TRAVEL_STORY_CALENDAR_PAGE_SUBTYPE,
+      TRAVEL_STORY_CALENDAR_PAGE_TRAVEL_STORY_CALENDAR_SUBTYPE,
     );
 
     this.migrations.push(
@@ -97,6 +108,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
             'tree/Repository/public/RepositoryCategory/templates/ParagraphTemplate/cardTextAndImages',
           pageTemplateObjectTreeId:
             'tree/Repository/public/RepositoryCategory/templates/PageTemplate/pageWithParagraph',
+
           menuEntries: [
             {
               entryKey: 'home',
@@ -111,10 +123,16 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               entryTypes: [POST_TYPE.name],
             },
             {
+              entryKey: 'calendarDates',
+              entryName: 'Calendar dates',
+              menuEntryLabelKey: 'calendarDateRange',
+              entryTypes: [CALENDAR_ENTRY_TYPE.name],
+            },
+            {
               entryKey: 'calendar',
               entryName: 'Calendar',
-              menuEntryLabelKey: 'calendarDate',
-              entryTypes: [CALENDAR_ENTRY_TYPE.name],
+              menuEntryLabelKey: 'name',
+              entryTypes: [CALENDAR_TYPE.name],
             },
             {
               entryKey: 'galleries',
@@ -240,6 +258,13 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                 },
               },
             },
+            {
+              paragraphTypeKey: 'calendar',
+              paragraphTypeName: 'Calendar',
+              paragraphTemplateObjectTreeId:
+                'tree/Repository/public/RepositoryCategory/templates/CalendarTemplate/calendar',
+              paragraphTypes: ['TravelStoryCalendar'],
+            },
           ],
           templatesConfigurations: {
             cardTextAndImages: {
@@ -247,6 +272,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                 'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/thumbs',
             },
           },
+          calendarMenuEntryKey: 'calendar',
         },
         children: {},
       },
@@ -267,6 +293,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
             home: 'Accueil',
             story: 'Récit',
             calendar: 'Calendrier',
+            calendarDates: 'Visites',
             galleries: 'Galleries',
             admin: 'Admin',
           },

@@ -53,8 +53,8 @@ export const WEB_SITE_VIEW_TYPE: ObjectTypeDefinition = {
   iconView: 'fas fa-globe',
 };
 
-export const WEB_SITE_VIEW_WITH_MENU_TYPE: ObjectTypeDefinition = {
-  name: 'WebSiteViewWithMenu',
+export const WEB_SITE_MENU_ENTRIES_TYPE: ObjectTypeDefinition = {
+  name: 'WebSiteMenuEntries',
   inheritedTypesIds: [WEB_SITE_VIEW_TYPE.name],
   definition: {
     properties: {
@@ -459,20 +459,6 @@ export const MENU_ENTRY_TYPE: ObjectTypeDefinition = {
   },
   contentType: '',
   iconView: 'fas fa-bars',
-};
-
-export const CALENDAR_ENTRY_TYPE: ObjectTypeDefinition = {
-  name: 'CalendarEntry',
-  inheritedTypesIds: [PAGE_TYPE.name],
-  definition: {
-    properties: {
-      calendarDate: {
-        title: 'Date',
-        type: 'string',
-      },
-    },
-  },
-  contentType: '',
 };
 
 export const CATEGORY_MENU_TEMPLATE_SUBTYPE: ObjectSubTypeDefinition = {

@@ -72,6 +72,7 @@
     "lodash": "^4.17.20",
     "loopback-connector-mongodb": "^4.2.0",
     "loopback-connector-rest": "^4.0.1",
+    "moment": "^2.29.1",
     "mustache": "^4.1.0",
     "p-event": "^4.2.0",
     "sharp": "^0.27.1"

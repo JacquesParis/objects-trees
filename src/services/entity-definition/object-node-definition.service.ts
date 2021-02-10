@@ -1,6 +1,6 @@
 import {IJsonSchema, IRestEntity} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
-import {merge, some} from 'lodash';
+import {indexOf, merge, some} from 'lodash';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectType} from './../../models/object-type.model';
@@ -164,7 +164,7 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
     oneOfTreeOptions: OneOfTreeOption[],
     ctx: NodeContext,
   ): Promise<{enum: string[]; title: string}[]> {
-    const result = [];
+    const result: {enum: string[]; title: string}[] = [];
     const objectNode: ObjectNode | undefined = ctx.node.value
       ? ctx.node.value
       : ctx.parent.value
@@ -204,53 +204,88 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
         if (!namespace) {
           continue;
         }
+        const implementingTreeTypes = await this.objectTypeService.getImplementingTypes(
+          oneOfTreeOption.treeType,
+        );
+        if (-1 < indexOf(implementingTreeTypes, namespace.objectTypeId)) {
+          this.addTreeOption(
+            oneOfTreeOption,
+            owner,
+            namespace,
+            namespace,
+            result,
+            ctx,
+          );
+        }
         const trees = await this.objectNodeService.searchTreesOfNamespaceId(
           namespace.id as string,
           oneOfTreeOption.treeType,
         );
         for (const tree of trees) {
-          const treeId =
-            'tree/' +
-            encodeURIComponent(
-              oneOfTreeOption.ownerType
-                ? oneOfTreeOption.ownerType
-                : owner.objectTypeId,
-            ) +
-            '/' +
-            encodeURIComponent(
-              oneOfTreeOption.ownerName
-                ? oneOfTreeOption.ownerName
-                : owner.name,
-            ) +
-            '/' +
-            encodeURIComponent(
-              oneOfTreeOption.namespaceType
-                ? oneOfTreeOption.namespaceType
-                : namespace.objectTypeId,
-            ) +
-            '/' +
-            encodeURIComponent(
-              oneOfTreeOption.namespaceName
-                ? oneOfTreeOption.namespaceName
-                : namespace.name,
-            ) +
-            '/' +
-            encodeURIComponent(oneOfTreeOption.treeType) +
-            '/' +
-            encodeURIComponent(tree.name);
-
-          if (!some(result, (choice) => choice.enum[0] === treeId)) {
-            ctx.references[treeId] = new ExpectedValue(tree);
-            result.push({
-              enum: [treeId],
-              title: owner.name + ' - ' + namespace.name + ' - ' + tree.name,
-            });
-          }
+          this.addTreeOption(
+            oneOfTreeOption,
+            owner,
+            namespace,
+            tree,
+            result,
+            ctx,
+          );
         }
         // eslint-disable-next-line no-empty
       } catch (error) {}
     }
     return result;
+  }
+
+  protected addTreeOption(
+    oneOfTreeOption: OneOfTreeOption,
+    owner: ObjectNode,
+    namespace: ObjectNode,
+    tree: ObjectNode,
+    result: {enum: string[]; title: string}[],
+    ctx: NodeContext,
+  ) {
+    const treeId =
+      (tree.id === namespace.id ? 'namespace/' : 'tree/') +
+      encodeURIComponent(
+        oneOfTreeOption.ownerType
+          ? oneOfTreeOption.ownerType
+          : owner.objectTypeId,
+      ) +
+      '/' +
+      encodeURIComponent(
+        oneOfTreeOption.ownerName ? oneOfTreeOption.ownerName : owner.name,
+      ) +
+      '/' +
+      encodeURIComponent(
+        oneOfTreeOption.namespaceType
+          ? oneOfTreeOption.namespaceType
+          : namespace.objectTypeId,
+      ) +
+      '/' +
+      encodeURIComponent(
+        oneOfTreeOption.namespaceName
+          ? oneOfTreeOption.namespaceName
+          : namespace.name,
+      ) +
+      (tree.id === namespace.id
+        ? ''
+        : '/' +
+          encodeURIComponent(oneOfTreeOption.treeType) +
+          '/' +
+          encodeURIComponent(tree.name));
+
+    if (!some(result, (choice) => choice.enum[0] === treeId)) {
+      ctx.references[treeId] = new ExpectedValue(tree);
+      result.push({
+        enum: [treeId],
+        title:
+          owner.name +
+          ' - ' +
+          namespace.name +
+          (tree.id === namespace.id ? '' : ' - ' + tree.name),
+      });
+    }
   }
 
   protected async oneOfNode(
