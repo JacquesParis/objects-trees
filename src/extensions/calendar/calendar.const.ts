@@ -6,6 +6,8 @@ import {
 import {REPOSITORY_CATEGORY_TYPE} from './../../services/object-tree/object-tree.const';
 import {
   PAGE_TYPE,
+  PAGE_WITH_PARAGRAPH_TYPE,
+  PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE,
   WEB_SITE_MENU_ENTRIES_TYPE,
   WEB_SITE_WITH_MENU_TEMPLATE_TYPE,
 } from './../web-site/web-site.const';
@@ -22,7 +24,7 @@ export const CALENDAR_ENTRIES_TYPE: ObjectTypeDefinition = {
 };
 export const CALENDAR_TYPE: ObjectTypeDefinition = {
   name: 'Calendar',
-
+  inheritedTypesIds: [PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name],
   definition: {
     properties: {
       calendarEntriesObjectTreeId: {
@@ -43,7 +45,7 @@ export const CALENDAR_TYPE: ObjectTypeDefinition = {
 };
 export const CALENDAR_PAGE_TYPE: ObjectTypeDefinition = {
   name: 'CalendarPage',
-  inheritedTypesIds: [PAGE_TYPE.name],
+  inheritedTypesIds: [PAGE_WITH_PARAGRAPH_TYPE.name],
 };
 
 export const WEB_SITE_WITH_CALENDAR_TYPE: ObjectTypeDefinition = {

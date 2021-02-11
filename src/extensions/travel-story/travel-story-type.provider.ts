@@ -2,7 +2,10 @@
 import {ObjectTreesApplicationInterface} from '../../application';
 import {contentGenericTemplate, image} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
-import {CALENDAR_ENTRY_TYPE, CALENDAR_TYPE} from '../calendar/calendar.const';
+import {
+  CALENDAR_ENTRY_TYPE,
+  CALENDAR_PAGE_TYPE,
+} from '../calendar/calendar.const';
 import {POST_TYPE} from '../post/post.const';
 import {WELCOME_PAGE_TYPE} from '../web-site/web-site.const';
 import {CalendarProvider} from './../calendar/calendar.provider';
@@ -132,7 +135,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               entryKey: 'calendar',
               entryName: 'Calendar',
               menuEntryLabelKey: 'name',
-              entryTypes: [CALENDAR_TYPE.name],
+              entryTypes: [CALENDAR_PAGE_TYPE.name],
             },
             {
               entryKey: 'galleries',

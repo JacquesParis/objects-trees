@@ -1,7 +1,7 @@
 {
   "name": "@jacquesparis/objects-trees",
   "version": "0.0.1-SNAPSHOT.17",
-  "description": "mangage tree of objects",
+  "description": "manage tree of objects",
   "keywords": [
     "loopback-application",
     "loopback"

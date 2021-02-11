@@ -54,6 +54,11 @@ function newFunction() {
 
     async initPageTrees(dataTree) {
       for (const childTree of dataTree.pageTrees) {
+        if (!childTree.treeNode.entityCtx.loaded) {
+          childTree.treeNode = await this.ctrl.getObjectNode(
+            childTree.treeNode.id,
+          );
+        }
         const pageTreeTemplate = this.getPageTreeTemplate(
           childTree.treeNode,
           this.ctrl.templateNode,
@@ -84,6 +89,11 @@ function newFunction() {
       if (dataTree.paragraphTrees && 0 < dataTree.paragraphTrees.length) {
         dataTree.hasParagraphTrees = true;
         for (const childTree of dataTree.paragraphTrees) {
+          if (!childTree.treeNode.entityCtx.loaded) {
+            childTree.treeNode = await this.ctrl.getObjectNode(
+              childTree.treeNode.id,
+            );
+          }
           await this.initParagraphTrees(childTree);
         }
       } else {
