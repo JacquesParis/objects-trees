@@ -47,7 +47,11 @@ export class JsonGeneratedResponse<T> extends GeneratedResponse {
 }
 
 export class BodyGeneratedResponse extends GeneratedResponse {
-  constructor(public response: string, public contentType?: string) {
+  constructor(
+    public response: string,
+    public contentType?: string,
+    public noCache: boolean = true,
+  ) {
     super();
   }
   getResponse(response: Response): Response {
@@ -56,19 +60,25 @@ export class BodyGeneratedResponse extends GeneratedResponse {
     } else {
       response.set('Content-Type', 'text/html');
     }
+    if (this.noCache) {
+      response.set(
+        'Cache-Control',
+        'private,no-cache,no-store,max-age=0,must-revalidate,pre-check=0,post-check=0',
+      );
+    }
     response.send(this.response);
     return response;
   }
 }
 
 export class TextGeneratedResponse extends BodyGeneratedResponse {
-  constructor(public response: string) {
-    super(response, 'text/plain');
+  constructor(public response: string, public noCache: boolean = true) {
+    super(response, 'text/plain', noCache);
   }
 }
 
 export class HtmlGeneratedResponse extends BodyGeneratedResponse {
-  constructor(public response: string) {
-    super(response, 'text/html');
+  constructor(public response: string, public noCache: boolean = true) {
+    super(response, 'text/html', noCache);
   }
 }
