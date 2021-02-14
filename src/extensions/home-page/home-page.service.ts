@@ -4,10 +4,16 @@ import {GeneratedResponse} from '../../helper/generated-response';
 import {EntityName} from '../../models';
 import {CurrentContext} from '../../services';
 import {ApplicationError} from './../../helper/application-error';
-import {HtmlGeneratedResponse} from './../../helper/generated-response';
+import {
+  HtmlGeneratedResponse,
+  RedirectGeneratedResponse,
+} from './../../helper/generated-response';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectTree} from './../../models/object-tree.model';
-import {EntityActionType} from './../../services/application.service';
+import {
+  EntityActionType,
+  ExpectedValue,
+} from './../../services/application.service';
 import {ContentEntityService} from './../../services/content-entity/content-entity.service';
 import {NodeInterceptService} from './../../services/entity-intercept/node-intercept.service';
 import {ObjectNodeService} from './../../services/object-node/object-node.service';
@@ -21,6 +27,7 @@ import {PAGE_TYPE} from './../web-site/web-site.const';
 import {
   HOME_PAGE_PROVIDER,
   PAGE_CACHE_TYPE,
+  WEB_SITE_CACHE_LANG_TYPE,
   WEB_SITE_VIEW_URL_TYPE,
 } from './home-page.const';
 
@@ -104,27 +111,55 @@ export class HomePageService {
   }
 
   public async getWebSiteEntity(
+    lang: string,
     subPath: string | undefined,
     pageName: string,
     ctx: CurrentContext,
   ): Promise<ObjectTree> {
+    ctx.uriContext.uri.value.acceptLanguage = lang;
+
     const webSiteTree = await ctx.webSiteContext.webSiteTree.getOrSetValue(
       async () => {
         const host = ctx.uriContext.uri.value.host;
         const path = subPath ? subPath : '';
-        const uri: ObjectTree = await this.objectTreeService.getOwnerTree(
+        let langTree: ObjectTree;
+
+        const uri: ObjectNode = await this.objectNodeService.searchOwner(
           WEB_SITE_VIEW_URL_TYPE.name,
           host + '$' + path,
-          CurrentContext.get({}),
         );
-
         if (!uri) {
           throw ApplicationError.notFound({host, path});
         }
+        try {
+          langTree = await this.objectTreeService.getNamespaceTree(
+            WEB_SITE_VIEW_URL_TYPE.name,
+            host + '$' + path,
+            WEB_SITE_CACHE_LANG_TYPE.name,
+            lang,
+            CurrentContext.get({}),
+          );
+        } catch (error) {
+          await this.objectNodeService.add(
+            {
+              parentNodeId: uri.id,
+              name: lang,
+              objectTypeId: WEB_SITE_CACHE_LANG_TYPE.name,
+            },
+            CurrentContext.get({nodeContext: {parent: new ExpectedValue(uri)}}),
+          );
+          langTree = await this.objectTreeService.getNamespaceTree(
+            WEB_SITE_VIEW_URL_TYPE.name,
+            host + '$' + path,
+            WEB_SITE_CACHE_LANG_TYPE.name,
+            lang,
+            CurrentContext.get({}),
+          );
+        }
 
         ctx.webSiteContext.pageBaseUri.value =
-          path === '' ? '/page/' : '/site/' + path + '/';
-        ctx.webSiteContext.siteBaseUriTree.value = uri;
+          path === '' ? '/' + lang + '/' : '/site/' + path + '/' + lang + '/';
+        ctx.webSiteContext.siteBaseUriTree.value = langTree;
         for (const cache of ctx.webSiteContext.siteBaseUriTree.value.children) {
           if (this.getCachePageName(pageName) === cache.treeNode.name) {
             await this.contentEntityService.addTransientContent(
@@ -140,7 +175,7 @@ export class HomePageService {
         }
 
         let entity = await this.objectTreeService.loadTree(
-          uri.treeNode.parentNodeId,
+          uri.parentNodeId,
           ctx,
         );
         if (!entity) {
@@ -216,9 +251,17 @@ export class HomePageService {
 
   public async getLoadingPageResponse(
     ctx: CurrentContext,
+    lang?: string,
     siteName?: string,
   ): Promise<GeneratedResponse> {
-    const entity = await this.getWebSiteEntity(siteName, '', ctx);
+    if (!lang) {
+      return new RedirectGeneratedResponse(
+        ctx.uriContext.uri.value.baseUri +
+          ctx.uriContext.uri.value.objectUri +
+          ctx.uriContext.uri.value.acceptLanguage,
+      );
+    }
+    const entity = await this.getWebSiteEntity(lang, siteName, '', ctx);
     if (ctx.webSiteContext.cachedPage.value) {
       return ctx.webSiteContext.cachedPage.value;
     }
@@ -245,16 +288,28 @@ export class HomePageService {
           body: ctx.webSiteContext.cachedPage.value.response,
         },
       },
-      ctx,
+      CurrentContext.get({
+        nodeContext: {
+          parent: new ExpectedValue(
+            ctx.webSiteContext.siteBaseUriTree.value.treeNode,
+          ),
+        },
+      }),
     );
   }
 
   public async getWebSitePageResponse(
+    lang: string,
     pageName: string,
     ctx: CurrentContext,
     siteName?: string,
   ): Promise<GeneratedResponse> {
-    const webSiteTree = await this.getWebSiteEntity(siteName, pageName, ctx);
+    const webSiteTree = await this.getWebSiteEntity(
+      lang,
+      siteName,
+      pageName,
+      ctx,
+    );
     if (ctx.webSiteContext.cachedPage.value) {
       return ctx.webSiteContext.cachedPage.value;
     }

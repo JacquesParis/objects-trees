@@ -56,7 +56,10 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
         url: baseUri + objectUri,
         method: httpReq.method,
         acceptLanguages: acceptLanguages,
-        acceptLanguage: acceptLanguages[0],
+        acceptLanguage:
+          acceptLanguages && 0 < acceptLanguages.length
+            ? acceptLanguages[0]
+            : 'en-US',
       };
     });
   }

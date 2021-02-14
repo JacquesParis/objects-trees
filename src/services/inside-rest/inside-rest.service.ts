@@ -6,7 +6,11 @@ import {DATASTIRE_INSIDE_REST} from './inside-rest.const';
 import {InsideRestDataSource} from './inside-rest.datasource';
 
 export interface InsideRestRepository {
-  read(uri: string, authorization: string): Promise<IRestEntity>;
+  read(
+    uri: string,
+    authorization: string,
+    acceptLanguage: string,
+  ): Promise<IRestEntity>;
 }
 
 export class InsideRestRepositoryProvider
@@ -41,6 +45,7 @@ export class InsideRestService {
       ctx.insideRestContext[uri] = await this.insideRestRepository.read(
         uri,
         ctx.accessRightsContext.authorization.value,
+        ctx.uriContext.uri.value.acceptLanguage,
       );
     }
 

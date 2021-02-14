@@ -10,8 +10,11 @@ import {
 import {
   HOME_PAGE_PROVIDER,
   PAGE_CACHE_TYPE,
+  WEB_SITE_CACHE_LANG_PAGE_CACHE_SUBTYPE,
+  WEB_SITE_CACHE_LANG_TYPE,
   WEB_SITE_VIEW_URL_PAGE_CACHE_SUBTYPE,
   WEB_SITE_VIEW_URL_TYPE,
+  WEB_SITE_VIEW_URL_WEB_SITE_CACHE_LANG_SUBTYPE,
   WEB_SITE_VIEW_WEB_SITE_VIEW_URL_SUBTYPE,
 } from './home-page.const';
 import {HomePageController} from './home-page.controller';
@@ -35,10 +38,16 @@ export class HomePageProvider extends ExtensionProvider {
         services: ['HomePageService'],
       },
     });
-    this.objectTypes.push(WEB_SITE_VIEW_URL_TYPE, PAGE_CACHE_TYPE);
+    this.objectTypes.push(
+      WEB_SITE_VIEW_URL_TYPE,
+      WEB_SITE_CACHE_LANG_TYPE,
+      PAGE_CACHE_TYPE,
+    );
     this.objectSubTypes.push(
       WEB_SITE_VIEW_WEB_SITE_VIEW_URL_SUBTYPE,
       WEB_SITE_VIEW_URL_PAGE_CACHE_SUBTYPE,
+      WEB_SITE_VIEW_URL_WEB_SITE_CACHE_LANG_SUBTYPE,
+      WEB_SITE_CACHE_LANG_PAGE_CACHE_SUBTYPE,
     );
   }
 }

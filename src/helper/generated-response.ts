@@ -82,3 +82,14 @@ export class HtmlGeneratedResponse extends BodyGeneratedResponse {
     super(response, 'text/html', noCache);
   }
 }
+
+export class RedirectGeneratedResponse extends GeneratedResponse {
+  constructor(public uri: string) {
+    super();
+  }
+
+  getResponse(response: Response): Response {
+    response.redirect(this.uri);
+    return response;
+  }
+}

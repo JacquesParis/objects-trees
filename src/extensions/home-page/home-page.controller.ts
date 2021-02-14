@@ -13,6 +13,50 @@ export class HomePageController {
     public homePageService: HomePageService,
   ) {}
 
+  @get('/site/{siteName}')
+  async getLoadingPageOfSite(
+    @param.path.string('siteName') siteName: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.getLoadingPageResponse(
+      ctx,
+      undefined,
+      siteName,
+    );
+    return generatedView.getResponse(response);
+  }
+  @get('/site/{siteName}/{lang}')
+  async getLoadingLangPageOfSite(
+    @param.path.string('siteName') siteName: string,
+    @param.path.string('lang') lang: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.getLoadingPageResponse(
+      ctx,
+      lang,
+      siteName,
+    );
+    return generatedView.getResponse(response);
+  }
+  @get('/site/{siteName}/{lang}/{name}')
+  async getWebSitePageOfSiteResponse(
+    @param.path.string('siteName') siteName: string,
+    @param.path.string('lang') lang: string,
+    @param.path.string('name') name: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.getWebSitePageResponse(
+      lang,
+      name,
+      ctx,
+      siteName,
+    );
+    return generatedView.getResponse(response);
+  }
+
   @get('/')
   async getLoadingPage(
     @inject(RestBindings.Http.RESPONSE) response: Response,
@@ -23,41 +67,30 @@ export class HomePageController {
     );
     return generatedView.getResponse(response);
   }
-  @get('/site/{siteName}')
-  async getLoadingPageOfSite(
-    @param.path.string('siteName') siteName: string,
+  @get('/{lang}')
+  async getLoadingLangPage(
+    @param.path.string('lang') lang: string,
     @inject(RestBindings.Http.RESPONSE) response: Response,
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<Response> {
     const generatedView: GeneratedResponse = await this.homePageService.getLoadingPageResponse(
       ctx,
-      siteName,
+      lang,
     );
     return generatedView.getResponse(response);
   }
-  @get('/page/{name}')
+
+  @get('/{lang}/{name}')
   async getWebSitePageResponse(
+    @param.path.string('lang') lang: string,
     @param.path.string('name') name: string,
     @inject(RestBindings.Http.RESPONSE) response: Response,
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<Response> {
     const generatedView: GeneratedResponse = await this.homePageService.getWebSitePageResponse(
+      lang,
       name,
       ctx,
-    );
-    return generatedView.getResponse(response);
-  }
-  @get('/site/{siteName}/{name}')
-  async getWebSitePageOfSiteResponse(
-    @param.path.string('siteName') siteName: string,
-    @param.path.string('name') name: string,
-    @inject(RestBindings.Http.RESPONSE) response: Response,
-    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
-  ): Promise<Response> {
-    const generatedView: GeneratedResponse = await this.homePageService.getWebSitePageResponse(
-      name,
-      ctx,
-      siteName,
     );
     return generatedView.getResponse(response);
   }

@@ -14,12 +14,13 @@
           "headers": {
             "accept": "application/json",
             "content-type": "application/json",
-            "Authorization": "{authorization:string}"
+            "Authorization": "{authorization:string}",
+            "Accept-Language": "{acceptLanguage:string}"
           }
         }
       },
       "functions": {
-        "read": ["uri","authorization"]
+        "read": ["uri","authorization","acceptLanguage"]
       }
     }
   ]
