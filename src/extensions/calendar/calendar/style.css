@@ -29,19 +29,12 @@ a:hover {
 .calendar ol {
   overflow: hidden;
   margin-bottom: 0;
-}
-
-.calendar .day-names {
   border-bottom: 1px solid #eee;
 }
 
 .calendar .day-names li {
   text-transform: uppercase;
   margin-bottom: 0.5rem;
-}
-
-.calendar .days li {
-  border-bottom: 1px solid #eee;
 }
 
 .calendar .days li .date {
