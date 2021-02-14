@@ -37,7 +37,6 @@ a:hover {
 
 .calendar .days li {
   border-bottom: 1px solid #eee;
-  min-height: 8rem;
 }
 
 .calendar .days li .date {
