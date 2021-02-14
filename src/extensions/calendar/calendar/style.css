@@ -26,6 +26,11 @@ a:hover {
   width: 14.28571%;
 }
 
+.calendar ol {
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
 .calendar .day-names {
   border-bottom: 1px solid #eee;
 }

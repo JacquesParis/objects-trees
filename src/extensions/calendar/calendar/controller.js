@@ -35,6 +35,7 @@ function newFunction() {
           for (let date = 1; date <= month.monthDays; date++) {
             const newDay = {
               dayOfWeek: day,
+              lastWeekDay: day === 6 && date !== month.monthDays,
               events: [],
               date: date,
               dayId: month.id + date,
