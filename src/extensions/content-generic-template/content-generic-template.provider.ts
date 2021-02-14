@@ -1,4 +1,4 @@
-import {ObjectTreesApplicationInterface} from '../../application';
+import {ObjectTreesApplicationInterface} from '../../application.interface';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {
   CONTENT_GENERIC_PROVIDER,

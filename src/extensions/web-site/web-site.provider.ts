@@ -1,4 +1,4 @@
-import {ObjectTreesApplicationInterface} from '../../application';
+import {ObjectTreesApplicationInterface} from '../../application.interface';
 import {contentGenericTemplate} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {TransientUriReferenceProvider} from '../../services/inside-rest/transient-uri-reference.provider';

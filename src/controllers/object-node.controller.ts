@@ -65,43 +65,6 @@ export class ObjectNodeController {
     return this.objectNodeService.add(objectNode, ctx);
   }
 
-  /*
-  @authorize({
-    resource: AccessRightsEntity.objectNode,
-    scopes: [AccessRightsScope.update],
-  })
-  @post('/object-nodes/{id}/method/{methodId}', {
-    responses: {
-      '200': {
-        description: 'ObjectNode model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Object)}},
-      },
-    },
-  })
-  async runAction(
-    @param.path.string('id') id: string,
-    @param.path.string('methodId') methodId: string,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Object, {
-            title: 'Argument',
-          }),
-        },
-      },
-    })
-    args: Object,
-    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
-  ): Promise<ObjectNode> {
-    return this.actionEntityService.runAction(
-      EntityName.objectNode,
-      id,
-      methodId,
-      args,
-      ctx,
-    );
-  }*/
-
   @authenticate('jwt')
   @authorize({
     resource: AccessRightsEntity.objectNode,

@@ -265,7 +265,7 @@ export class CalendarService {
     if ('' === menuTree.eventTitle) {
       menuTree.eventTitle = menuTree.menuTitle;
     } else {
-      menuTree.menuTitle += ', ' + menuTree.eventTitle;
+      menuTree.menuTitle += ': ' + menuTree.eventTitle;
     }
     return {
       treeNode: menuTree.treeNode,

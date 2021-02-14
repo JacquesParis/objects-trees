@@ -1,4 +1,4 @@
-import {ObjectTreesApplicationInterface} from '../../application';
+import {ObjectTreesApplicationInterface} from '../../application.interface';
 import {RunnerTreatmentDescription} from '../../integration/extension-description';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {ENTITY_INTERCEPT_PROVIDER} from './entity-intercept.const';

@@ -13,7 +13,7 @@ import {
 import {Class, juggler, Repository} from '@loopback/repository';
 import * as _ from 'lodash';
 import {camelCase} from 'lodash';
-import {ObjectTreesApplicationInterface} from '../application';
+import {ObjectTreesApplicationInterface} from '../application.interface';
 import {ObjectSubType} from '../models';
 import {ObjectNode} from '../models/object-node.model';
 import {ObjectType} from '../models/object-type.model';

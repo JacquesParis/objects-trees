@@ -1,5 +1,6 @@
 export * from './application';
 export * from './application.component';
+export * from './application.interface';
 export * from './boot.component';
 export * from './constants';
 export * from './controllers';

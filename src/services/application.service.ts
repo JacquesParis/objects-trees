@@ -2,6 +2,7 @@ import {IRestEntity} from '@jacquesparis/objects-model';
 import {DataObject} from '@loopback/repository';
 import {Principal} from '@loopback/security';
 import * as _ from 'lodash';
+import {ObjectTreesApplicationInterface} from '../application.interface';
 import {ObjectNode} from '../models/object-node.model';
 import {ObjectSubType} from '../models/object-sub-type.model';
 import {ObjectType} from '../models/object-type.model';
@@ -73,6 +74,7 @@ export class TypeContext {
 }
 
 export class UriContext {
+  mainContext = false;
   uri: ExpectedValue<{
     baseUri: string;
     objectUri: string;
@@ -250,6 +252,7 @@ export class ApplicationService {
     JSON: '',
   };
   public configSummary: TreatmentDescription;
+  app: ObjectTreesApplicationInterface;
 
   public get repositoryType(): ExpectedValue<ObjectType> {
     return this.extensions.ObjectTreeProvider.types.repository;

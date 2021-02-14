@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {ObjectTreesApplicationInterface} from '../../application';
+import {ObjectTreesApplicationInterface} from '../../application.interface';
 import {contentGenericTemplate, image} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {

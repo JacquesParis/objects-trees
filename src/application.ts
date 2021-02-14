@@ -10,7 +10,6 @@ import {
   AuthorizationOptions,
   AuthorizationTags,
 } from '@loopback/authorization';
-import {BootMixin} from '@loopback/boot';
 import {
   BindingFromClassOptions,
   BindingScope,
@@ -21,15 +20,15 @@ import {
   InterceptorBindingOptions,
   Provider,
 } from '@loopback/core';
-import {ObjectType, RepositoryMixin} from '@loopback/repository';
+import {ObjectType} from '@loopback/repository';
 import {RestApplication, RestBindings} from '@loopback/rest';
 import {
   RestExplorerBindings,
   RestExplorerComponent,
 } from '@loopback/rest-explorer';
-import {ServiceMixin} from '@loopback/service-proxy';
 import {merge} from 'lodash';
 import {ApplicationComponent} from './application.component';
+import {ObjectTreesApplicationInterface} from './application.interface';
 import {ObjectTreesBootComponent} from './boot.component';
 import {AUTHORIZATION_SERVICE, DATASTORE_DB} from './constants';
 import {ObjectNodeController} from './controllers/object-node.controller';
@@ -85,32 +84,6 @@ import {UserAuthenticationService} from './services/user-authentication.service'
   public abstract repository(repoClass: any, nameOrOptions?: any): any;
   public abstract service(cls: any, nameOrOptions?: any): any;
 }*/
-
-export abstract class ObjectTreesApplicationInterface extends BootMixin(
-  ServiceMixin(RepositoryMixin(RestApplication)),
-) {
-  public abstract addInterceptor(
-    providerId: string,
-    interceptorProvider: {
-      id: string;
-      interceptor: Interceptor | Constructor<Provider<Interceptor>>;
-      nameOrOptions?: string | InterceptorBindingOptions;
-      description: InterceptorDescription;
-    },
-  ): void;
-  public abstract addController(
-    name: string,
-    controller: {
-      controllerCtor: Constructor<unknown>;
-      nameOrOptions?: string | BindingFromClassOptions | undefined;
-      description: RunnerTreatmentDescription;
-    },
-  ): void;
-  public abstract bootObjectTrees(): Promise<void>;
-  public abstract getService<T>(t: {name: string}): Promise<T>;
-  public abstract addStaticDir(basePath: string, dirName: string): void;
-  public abstract getStaticDirs(): {[basePath: string]: string};
-}
 
 export class ObjectTreesApplication extends RestApplication {
   public interceptorDescriptions: {
@@ -309,7 +282,7 @@ export class ObjectTreesApplication extends RestApplication {
     await app.boot();
 
     app.service(ApplicationService, {defaultScope: BindingScope.SINGLETON});
-    await app.getService<ApplicationService>(ApplicationService);
+    (await app.getService<ApplicationService>(ApplicationService)).app = app;
 
     app.service(ContentEntityService, {defaultScope: BindingScope.SINGLETON});
     await app.getService<ContentEntityService>(ContentEntityService);

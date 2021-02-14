@@ -1,4 +1,4 @@
-import {ObjectTreesApplicationInterface} from '../../application';
+import {ObjectTreesApplicationInterface} from '../../application.interface';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {DATASTIRE_INSIDE_REST, INSIDE_REST_PROVIDER} from './inside-rest.const';
 import {InsideRestDataSource} from './inside-rest.datasource';

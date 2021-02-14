@@ -1,5 +1,5 @@
 import {merge, omit} from 'lodash';
-import {ObjectTreesApplicationInterface} from '../../application';
+import {ObjectTreesApplicationInterface} from '../../application.interface';
 import {RunnerTreatmentDescription} from '../../integration/extension-description';
 import {ExtensionProvider} from './../../integration/extension.provider';
 import {AccessRightsInterceptor} from './../../interceptors/access-rights.interceptor';

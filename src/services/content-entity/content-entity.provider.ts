@@ -1,4 +1,4 @@
-import {ObjectTreesApplicationInterface} from '../../application';
+import {ObjectTreesApplicationInterface} from '../../application.interface';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {ObjectTreeProvider} from './../object-tree/object-tree.provider';
 import {CONTENT_ENTITY_PROVIDER} from './content-entity.const';

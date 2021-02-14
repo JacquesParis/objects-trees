@@ -66,9 +66,7 @@ export class ContentGenericTemplate extends ContentExtension<GenericTemplate> {}
 
 export type ContentGenericTemplateRelations = ContentExtensionRelations;
 
-export type ContentGenericTemplateWithRelations = ContentExtensionWithRelations<
-  GenericTemplate
->;
+export type ContentGenericTemplateWithRelations = ContentExtensionWithRelations<GenericTemplate>;
 
 export class ContentGenericTemplateRepository extends ContentExtensionRepository<
   GenericTemplate,
@@ -120,7 +118,7 @@ export class ContentGenericTemplateService extends ContentExtensionService<
             },
             headerScript: {
               type: 'string',
-              title: 'Script javascript ajouté au header',
+              title: 'Script javascript added ih the page header',
               default: '',
               required: true,
               'x-schema-form': {
@@ -129,7 +127,7 @@ export class ContentGenericTemplateService extends ContentExtensionService<
             },
             footerScript: {
               type: 'string',
-              title: 'Script javascript ajouté en bas de page',
+              title: 'Script javascript added at the page bottom',
               default: '',
               required: true,
               'x-schema-form': {

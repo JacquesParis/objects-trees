@@ -3,7 +3,7 @@ import express from 'express';
 import {Server} from 'http';
 import pEvent from 'p-event';
 import path from 'path';
-import {ObjectTreesApplicationInterface} from './application';
+import {ObjectTreesApplicationInterface} from './application.interface';
 
 export class ExpressServer {
   private app: express.Application;

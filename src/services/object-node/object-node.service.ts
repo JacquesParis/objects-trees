@@ -816,4 +816,18 @@ export class ObjectNodeService {
     await this.objectNodeRepository.deleteById(id);
     return;
   }
+
+  public async moveTo(child: ObjectNode, parent: ObjectNode) {
+    await this.objectNodeRepository.updateById(child.id, {
+      parentNodeId: parent.id as string,
+      parentACLId: (parent.acl ? parent.id : parent.parentACLId) as string,
+      parentOwnerId: (parent.owner
+        ? parent.id
+        : parent.parentOwnerId) as string,
+      parentNamespaceId: (parent.namespace
+        ? parent.id
+        : parent.parentNamespaceId) as string,
+      parentTreeId: (parent.tree ? parent.id : parent.parentTreeId) as string,
+    });
+  }
 }

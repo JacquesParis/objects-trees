@@ -38,7 +38,7 @@
         {{/date}}
         {{#date}}
         <div class="date">{{date}}</div>
-        {{#events}}<a href="{{href}}">
+        {{#events}}<a href="{{href}}" data-placement="top" title="{{event.menuTitle}}" onmouseover="openTooltip(this)" onmouseout="closeTooltip(this)">
           <div
             class="event all-day {{#transparent}}transparent{{/transparent}}{{^transparent}}{{event.color}}{{/transparent}} {{#begin}}begin{{/begin}} {{#end}}end{{/end}} span-{{span}}"
           >

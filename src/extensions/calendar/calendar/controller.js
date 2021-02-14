@@ -41,6 +41,9 @@ function newFunction() {
             };
 
             for (const event of this.ctrl.dataNode.calendar.dates) {
+              event.eventTitle = event.eventTitle.replace(/"/g, '&quot;');
+              event.menuTitle = event.menuTitle.replace(/"/g, '&quot;');
+
               if (event.fromId <= newDay.dayId && event.toId >= newDay.dayId) {
                 if (day === 0 || event.fromId === newDay.dayId) {
                   if (event.fromId === newDay.dayId) {

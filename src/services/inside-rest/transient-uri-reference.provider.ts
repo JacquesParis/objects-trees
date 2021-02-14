@@ -1,4 +1,4 @@
-import {ObjectTreesApplicationInterface} from '../../application';
+import {ObjectTreesApplicationInterface} from '../../application.interface';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {InsideRestProvider} from './inside-rest.provider';
 import {TRANSIENT_URI_PROVIDER} from './transient-uri-reference.const';

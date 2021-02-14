@@ -1,4 +1,4 @@
-import {ObjectTreesApplicationInterface} from '../../application';
+import {ObjectTreesApplicationInterface} from '../../application.interface';
 import {ExtensionProvider} from '../../integration/extension.provider';
 import {EntityInterceptProvider} from './../../services/entity-intercept/entity-intercept.provider';
 import {InsideRestProvider} from './../../services/inside-rest/inside-rest.provider';

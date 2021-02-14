@@ -29,6 +29,7 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
     acceptLanguages: string[];
     acceptLanguage: string;
   }> {
+    ctx.uriContext.mainContext = true;
     return ctx.uriContext.uri.getOrSetValue(async () => {
       const httpReq: Request = (await invocationCtx.get(
         RestBindings.Http.REQUEST,
