@@ -7,8 +7,15 @@ import {
   CALENDAR_PAGE_TYPE,
 } from '../calendar/calendar.const';
 import {POST_TYPE} from '../post/post.const';
-import {WELCOME_PAGE_TYPE} from '../web-site/web-site.const';
+import {
+  TEXT_PARAGRAPH_TYPE,
+  WELCOME_PAGE_TYPE,
+} from '../web-site/web-site.const';
 import {CalendarProvider} from './../calendar/calendar.provider';
+import {
+  GALLERY_PARAGRAPH_TYPE,
+  GALLERY_TEXT_PARAGRAPH_TYPE,
+} from './../content-image-template/content-image-template.const';
 import {ContentImageTemplateProvider} from './../content-image-template/content-image-template.provider';
 import {
   IMAGE_GALLERIES_TYPE,
@@ -26,7 +33,9 @@ import {
   TRAVEL_STORY_IMAGE_GALLERIES_TYPE,
   TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE,
   TRAVEL_STORY_IMAGE_GALLERY_TYPE,
+  TRAVEL_STORY_PARAGRAPH_TYPE,
   TRAVEL_STORY_POST_ROOT_TYPE,
+  TRAVEL_STORY_POST_TRAVEL_STORY_PARAGRAPH_SUBTYPE,
   TRAVEL_STORY_POST_TRAVEL_STORY_POST_SUBTYPE,
   TRAVEL_STORY_POST_TYPE,
   TRAVEL_STORY_PROVIDER,
@@ -37,10 +46,6 @@ import {
   TRAVEL_STORY_TRAVEL_STORY_WELCOME_PAGE_SUBTYPE,
   TRAVEL_STORY_TYPE,
   TRAVEL_STORY_WELCOME_MENU_TEXT_PARAGRAPH_SUBTYPE,
-
-  //TRAVEL_STORY_WELCOME_MENU_TEXT_PARAGRAPH_SUBTYPE,
-  //TRAVEL_STORY_WELCOME_MENU_TYPE,
-  //TRAVEL_STORY_WELCOME_MENU_WECLOME_MENU_ENTRY_SUBTYPE,
   TRAVEL_STORY_WELCOME_PAGE_TRAVEL_STORY_WELCOME_MENU_SUBTYPE,
   TRAVEL_STORY_WELCOME_PAGE_TYPE,
   TRAVEL_STORY_WELCOME_PARAGRAPH_TYPE,
@@ -65,6 +70,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE,
       TRAVEL_STORY_CALENDAR_PAGE_TYPE,
       TRAVEL_STORY_CALENDAR_TYPE,
+      TRAVEL_STORY_PARAGRAPH_TYPE,
     );
 
     this.objectSubTypes.push(
@@ -79,6 +85,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       TRAVEL_STORY_IMAGE_GALLERIES_TRAVEL_STORY_IMAGE_GALLERY_SUBTYPE,
       TRAVEL_STORY_TRAVEL_STORY_CALENDAR_PAGE_SUBTYPE,
       TRAVEL_STORY_CALENDAR_PAGE_TRAVEL_STORY_CALENDAR_SUBTYPE,
+      TRAVEL_STORY_POST_TRAVEL_STORY_PARAGRAPH_SUBTYPE,
     );
 
     this.migrations.push(
@@ -91,6 +98,36 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
         parentType: TRAVEL_STORY_IMAGE_GALLERIES_TYPE.name,
         previousType: IMAGE_GALLERY_TYPE.name,
         newType: TRAVEL_STORY_IMAGE_GALLERY_TYPE.name,
+      },
+      {
+        parentType: TRAVEL_STORY_POST_TYPE.name,
+        previousType: TEXT_PARAGRAPH_TYPE.name,
+        newType: TRAVEL_STORY_PARAGRAPH_TYPE.name,
+      },
+      {
+        parentType: TRAVEL_STORY_POST_TYPE.name,
+        previousType: GALLERY_PARAGRAPH_TYPE.name,
+        newType: TRAVEL_STORY_PARAGRAPH_TYPE.name,
+      },
+      {
+        parentType: TRAVEL_STORY_POST_TYPE.name,
+        previousType: GALLERY_TEXT_PARAGRAPH_TYPE.name,
+        newType: TRAVEL_STORY_PARAGRAPH_TYPE.name,
+      },
+      {
+        parentType: TRAVEL_STORY_POST_ROOT_TYPE.name,
+        previousType: TEXT_PARAGRAPH_TYPE.name,
+        newType: TRAVEL_STORY_PARAGRAPH_TYPE.name,
+      },
+      {
+        parentType: TRAVEL_STORY_POST_ROOT_TYPE.name,
+        previousType: GALLERY_PARAGRAPH_TYPE.name,
+        newType: TRAVEL_STORY_PARAGRAPH_TYPE.name,
+      },
+      {
+        parentType: TRAVEL_STORY_POST_ROOT_TYPE.name,
+        previousType: GALLERY_TEXT_PARAGRAPH_TYPE.name,
+        newType: TRAVEL_STORY_PARAGRAPH_TYPE.name,
       },
     );
 

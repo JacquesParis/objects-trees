@@ -4,6 +4,7 @@ import {EntityName} from '../../models/entity-name';
 import {ObjectTree} from '../../models/object-tree.model';
 import {CurrentContext} from '../application.service';
 import {ObjectTypeService} from '../object-type.service';
+import {ObjectType} from './../../models/object-type.model';
 import {NodeContext} from './../application.service';
 import {ObjectNodeService} from './../object-node/object-node.service';
 import {ENTITY_DEFINITION_PROVIDER} from './entity-definition.cont';
@@ -116,12 +117,20 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
             entity.id as string,
             childContext,
           );
-          objectTree.entityCtx.actions.creations[
-            subType.subObjectTypeId
-          ] = await this.objectNodeDefinitionService.getObjectNodeDefinition(
-            await this.objectTypeService.searchById(subType.subObjectTypeId),
-            childContext,
+          objectTree.entityCtx.actions.creations[subType.subObjectTypeId] = {
+            schema: await this.objectNodeDefinitionService.getObjectNodeDefinition(
+              await this.objectTypeService.searchById(subType.subObjectTypeId),
+              childContext,
+            ),
+          };
+          const objectType: ObjectType = await this.objectTypeService.searchById(
+            subType.subObjectTypeId,
           );
+          if (objectType.iconView) {
+            objectTree.entityCtx.actions.creations[
+              subType.subObjectTypeId
+            ].icon = objectType.iconView;
+          }
 
           // eslint-disable-next-line no-empty
         } catch (error) {}

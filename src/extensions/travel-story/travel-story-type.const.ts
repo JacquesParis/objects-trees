@@ -13,15 +13,11 @@ import {
   CALENDAR_PAGE_TYPE,
   CALENDAR_TYPE,
 } from '../calendar/calendar.const';
-import {
-  PAGE_WITH_GALLERY_PARAGRAPH_TYPE,
-  PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE,
-} from '../content-image-template/content-image-template.const';
+import {PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE} from '../content-image-template/content-image-template.const';
 import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post.const';
 import {
   MENU_ENTRY_TYPE,
   PAGE_TYPE,
-  PAGE_WITH_TEXT_PARAGRAPH_TYPE,
   PARAGRAPH_WITH_PAGE_LINK,
   TEXT_PARAGRAPH_TYPE,
   WEB_SITE_MENU_ENTRIES_TYPE,
@@ -144,8 +140,6 @@ export const TRAVEL_STORY_POST_TYPE: ObjectTypeDefinition = {
   name: 'TravelStoryPost',
   inheritedTypesIds: [
     POST_TYPE.name,
-    PAGE_WITH_TEXT_PARAGRAPH_TYPE.name,
-    PAGE_WITH_GALLERY_PARAGRAPH_TYPE.name,
     PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE.name,
     TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE.name,
     MENU_ENTRY_TYPE.name,
@@ -186,6 +180,17 @@ export const TRAVEL_STORY_CALENDAR_TYPE: ObjectTypeDefinition = {
     CALENDAR_TYPE.name,
     PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
   ],
+};
+
+export const TRAVEL_STORY_PARAGRAPH_TYPE: ObjectTypeDefinition = {
+  name: 'TravelStoryParagraph',
+  inheritedTypesIds: [GALLERY_TEXT_PARAGRAPH_TYPE.name],
+};
+
+export const TRAVEL_STORY_POST_TRAVEL_STORY_PARAGRAPH_SUBTYPE: ObjectSubTypeDefinition = {
+  typeName: TRAVEL_STORY_POST_TYPE.name,
+  subTypeName: TRAVEL_STORY_PARAGRAPH_TYPE.name,
+  name: GALLERY_TEXT_PARAGRAPH_TYPE.name,
 };
 
 export const FOLDER_TRAVEL_STORY_SUBTYPE: ObjectSubTypeDefinition = {
