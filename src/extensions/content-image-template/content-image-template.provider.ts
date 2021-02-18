@@ -17,7 +17,9 @@ import {
   PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE,
   PAGE_WITH_GALLERY_TYPE,
   PARAGRAPH_CONTAINER_GALLERY_TEXT_PARAGRAPH_SUBTYPE,
+  WEB_SITE_VIEW_WITH_IMAGE_IN_POPUP,
 } from './content-image-template.const';
+import {ContentImageTemplateService} from './content-image-template.service';
 
 export class ContentImageTemplateProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
@@ -28,6 +30,8 @@ export class ContentImageTemplateProvider extends ExtensionProvider {
       WebSiteProvider,
     );
 
+    this.services.push({cls: ContentImageTemplateService});
+
     this.objectTypes.push(
       IMAGE_GALLERY_TEMPLATE_TYPE,
       GALLERY_PARAGRAPH_TYPE,
@@ -35,6 +39,7 @@ export class ContentImageTemplateProvider extends ExtensionProvider {
       PAGE_WITH_GALLERY_TYPE,
       PAGE_WITH_GALLERY_PARAGRAPH_TYPE,
       PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE,
+      WEB_SITE_VIEW_WITH_IMAGE_IN_POPUP,
     );
     this.objectSubTypes.push(
       CATEGORY_IMAGE_GALLERY_TEMPLATE_SUBTYPE,

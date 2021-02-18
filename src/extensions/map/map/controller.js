@@ -7,7 +7,28 @@ function newFunction() {
       void this.backGroundInit();
     },
     async backGroundInit() {},
-    async initMustache() {},
+    async initMustache() {
+      if (this.ctrl.dataNode.map && this.ctrl.dataNode.map.positions) {
+        this.ctrl.hasMap = true;
+
+        for (const position of this.ctrl.dataNode.map.positions) {
+          let popup = position.popupTemplate.text;
+          for (const id in position.popupTemplate.uris) {
+            popup = popup.replaceAll(
+              id,
+              this.ctrl.getPageHref({
+                treeNode: {id: position.popupTemplate.uris[id].pageId},
+              }),
+            );
+          }
+          position.popup = popup;
+        }
+
+        this.ctrl.jsonPositions = JSON.stringify(
+          this.ctrl.dataNode.map.positions,
+        );
+      }
+    },
   };
 }
 newFunction();

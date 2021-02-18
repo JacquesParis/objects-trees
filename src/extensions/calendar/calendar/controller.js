@@ -26,6 +26,18 @@ function newFunction() {
             ? 'col-12 col-lg-6'
             : 'col-12 col-lg-6 col-xl-4';
 
+        for (const event of this.ctrl.dataNode.calendar.dates) {
+          let popup = event.popupTemplate.text;
+          for (const id in event.popupTemplate.uris) {
+            popup = popup.replaceAll(
+              id,
+              this.ctrl.getPageHref({
+                treeNode: {id: event.popupTemplate.uris[id].pageId},
+              }),
+            );
+          }
+          event.popup = popup.replaceAll('"', '&quot;');
+        }
         for (const month of this.ctrl.dataNode.calendar.months) {
           const monthDays = [];
           let day = 0;
@@ -61,7 +73,13 @@ function newFunction() {
                     end:
                       Math.min(event.toId - newDay.dayId, 6 - day) ===
                       event.toId - newDay.dayId,
-                    span: 1 + Math.min(event.toId - newDay.dayId, 6 - day),
+                    span:
+                      1 +
+                      Math.min(
+                        event.toId - newDay.dayId,
+                        6 - day,
+                        month.id + month.monthDays - newDay.dayId,
+                      ),
                   });
                 } else {
                   newDay.events.push({

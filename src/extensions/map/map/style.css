@@ -9,3 +9,12 @@
   right: 0;
   bottom: 0;
 }
+
+.map-popup .leaflet-popup-content-wrapper {
+  box-shadow: none;
+  border-radius: 4px;
+}
+
+.map-popup .leaflet-popup-close-button {
+  display: none;
+}

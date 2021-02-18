@@ -188,7 +188,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
             {
               entryKey: 'places',
               entryName: 'Places',
-              menuEntryLabelKey: 'locationName',
+              menuEntryLabelKey: 'locationPosition',
               entryTypes: [MAP_ENTRY_TYPE.name],
             },
             {

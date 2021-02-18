@@ -13,7 +13,10 @@ import {
   CALENDAR_PAGE_TYPE,
   CALENDAR_TYPE,
 } from '../calendar/calendar.const';
-import {PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE} from '../content-image-template/content-image-template.const';
+import {
+  PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE,
+  WEB_SITE_VIEW_WITH_IMAGE_IN_POPUP,
+} from '../content-image-template/content-image-template.const';
 import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post.const';
 import {
   MENU_ENTRY_TYPE,
@@ -69,6 +72,7 @@ export const TRAVEL_STORY_TYPE: ObjectTypeDefinition = {
   name: 'TravelStory',
   inheritedTypesIds: [
     WEB_SITE_VIEW_TYPE.name,
+    WEB_SITE_VIEW_WITH_IMAGE_IN_POPUP.name,
     WEB_SITE_MENU_ENTRIES_TYPE.name,
     CALENDAR_ENTRIES_TYPE.name,
     MAP_ENTRIES_TYPE.name,

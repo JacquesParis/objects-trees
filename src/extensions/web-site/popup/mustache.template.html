@@ -1,0 +1,25 @@
+<div class="card card-popup">
+  {{#hasImg}}
+  <div class="card-img-top">
+    <div class="d-flex justify-content-center" style="overflow: hidden">
+      {{#imgs}} <img src="{{uri}}" style="height: 70px"
+      {{#text}}alt="{{.}}"{{/text}}> {{/imgs}}
+    </div>
+  </div>
+  {{/hasImg}}
+  <div class="card-body">
+    {{#title}}
+    <h5 class="card-title">{{.}}</h5>
+    {{/title}} {{#subTitle}}
+    <h6 class="card-subtitle mb-2 text-muted">{{.}}</h6>
+    {{/subTitle}} {{#texts}} {{#uri}}<a href="{{.}}"
+      >{{/uri}}
+      <p class="card-text">{{text}}</p>
+      {{#uri}}</a
+    >{{/uri}} {{/texts}} {{#btns}}
+    <a href="{{uri}}" class="btn btn-primary">{{text}}</a>
+    {{/btns}} {{#links}}
+    <a href="{{uri}}" class="card-link">{{text}}</a>
+    {{/links}}
+  </div>
+</div>

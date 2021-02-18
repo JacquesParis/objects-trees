@@ -5,7 +5,7 @@ import {TransientWebSiteService} from '../web-site/transient-web-site.service';
 import {MenuEntryDefinition} from '../web-site/web-site.interface';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
-import {ObjectNodeTree} from './../../models/object-tree.model';
+import {ObjectNodeTree, ObjectTree} from './../../models/object-tree.model';
 import {CurrentContext} from './../../services/application.service';
 import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
 import {ObjectTypeService} from './../../services/object-type.service';
@@ -15,6 +15,7 @@ import {
   MenuTree,
   WebSiteWitHMenuTemplate,
 } from './../web-site/web-site.interface';
+import {WebSiteService} from './../web-site/web-site.service';
 import {
   CALENDAR_ENTRIES_TYPE,
   CALENDAR_ENTRY_TYPE,
@@ -38,6 +39,8 @@ export class CalendarService {
     protected uriCompleteService: UriCompleteService,
     @service(TransientWebSiteService)
     protected transientWebSiteService: TransientWebSiteService,
+    @service(WebSiteService)
+    private webSiteService: WebSiteService,
   ) {
     this.transientEntityService.registerTransientEntityTypeFunction(
       CALENDAR_PROVIDER,
@@ -162,6 +165,7 @@ export class CalendarService {
   }
 
   public async getCalendarMenuEntries(
+    entriesTree: ObjectTree,
     calendarMenus: MenuTree[],
     menuEntryDef: MenuEntryDefinition,
     ctx: CurrentContext,
@@ -178,7 +182,7 @@ export class CalendarService {
         key: menuEntryDef.entryKey,
         title: menuEntryDef.entryName,
       };
-      await this.buildCalendarDates(dates, calendarMenus, ctx);
+      await this.buildCalendarDates(entriesTree, dates, calendarMenus, ctx);
     }
     return dates;
   }
@@ -216,17 +220,27 @@ export class CalendarService {
               );
         calenderEntriesTree.calendarEntries[
           menuEntryDef.entryKey
-        ] = await this.getCalendarMenuEntries(menuTrees, menuEntryDef, ctx);
+        ] = await this.getCalendarMenuEntries(
+          calenderEntriesTree,
+          menuTrees,
+          menuEntryDef,
+          ctx,
+        );
       }
     }
   }
   async buildCalendarDates(
+    entriesTree: ObjectTree,
     dates: CalendarEntryDefinition,
     children: MenuTree[],
     ctx: CurrentContext,
   ) {
     for (const calendarEntry of children) {
-      const newDate = this.buildCalendarEntry(calendarEntry, ctx);
+      const newDate = await this.buildCalendarEntry(
+        entriesTree,
+        calendarEntry,
+        ctx,
+      );
       if (newDate.fromUtc?.isBefore(dates.minDateUtc)) {
         dates.minDateUtc = newDate.fromUtc;
         dates.minDate = dates.minDateUtc.format('YYYY-MM-DD');
@@ -237,15 +251,21 @@ export class CalendarService {
       }
       dates.dates.push(newDate);
       if (calendarEntry.children && 0 < calendarEntry.children.length) {
-        await this.buildCalendarDates(dates, calendarEntry.children, ctx);
+        await this.buildCalendarDates(
+          entriesTree,
+          dates,
+          calendarEntry.children,
+          ctx,
+        );
       }
     }
   }
 
-  public buildCalendarEntry(
+  public async buildCalendarEntry(
+    entriesTree: ObjectTree,
     menuTree: MenuTree,
     ctx: CurrentContext,
-  ): CalendarEntryNode {
+  ): Promise<CalendarEntryNode> {
     const range = this.getDateRange(menuTree.menuTitle);
     menuTree.range = menuTree.menuTitle;
     moment.locale(ctx.uriContext.uri.value.acceptLanguage);
@@ -278,6 +298,11 @@ export class CalendarService {
       toUtc: range.to,
       from: range.from.format('YYYY-MM-DD'),
       to: range.to.format('YYYY-MM-DD'),
+      popupTemplate: await this.webSiteService.getPopupContent(
+        entriesTree.treeNode.popupLinkLabels,
+        menuTree.treeNode,
+        ctx,
+      ),
     };
   }
 

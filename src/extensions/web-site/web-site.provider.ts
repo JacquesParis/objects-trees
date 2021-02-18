@@ -1,3 +1,4 @@
+import path from 'path';
 import {ObjectTreesApplicationInterface} from '../../application.interface';
 import {contentGenericTemplate} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
@@ -35,11 +36,13 @@ import {
   WEB_SITE_TEMPLATE_TYPE,
   WEB_SITE_VIEW_TYPE,
   WEB_SITE_VIEW_WELCOME_PAGE_SUBTYPE,
+  WEB_SITE_VIEW_WITH_POPUP,
   WEB_SITE_WITH_MENU_TEMPLATE_TYPE,
   WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,
   WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE,
   WELCOME_PAGE_TYPE,
 } from './web-site.const';
+import {WebSiteService} from './web-site.service';
 export class WebSiteProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(WEB_SITE_PROVIDER, app);
@@ -51,11 +54,16 @@ export class WebSiteProvider extends ExtensionProvider {
     this.services.push(
       {cls: TransientWebSiteService},
       {cls: ActionWebSiteService},
+      {cls: WebSiteService},
     );
 
     app.addStaticDir('bootstrap', 'node_modules/bootstrap/dist');
     app.addStaticDir('jquery', 'node_modules/jquery/dist');
     app.addStaticDir('leaflet', 'node_modules/leaflet/dist');
+    app.addStaticDir(
+      'popup/popup.css',
+      path.join(__dirname, 'popup/style.css'),
+    );
 
     this.objectTypes.push(
       ADMIN_ENTRY_TYPE,
@@ -64,6 +72,7 @@ export class WebSiteProvider extends ExtensionProvider {
       WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,
       WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE,
       WEB_SITE_VIEW_TYPE,
+      WEB_SITE_VIEW_WITH_POPUP,
       WEB_SITE_MENU_ENTRIES_TYPE,
       MENU_TEMPLATE_TYPE,
       PAGE_TEMPLATE_TYPE,

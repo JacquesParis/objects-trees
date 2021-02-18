@@ -18,6 +18,11 @@ export class MapProvider extends ExtensionProvider {
   constructor(protected app: ObjectTreesApplicationInterface) {
     super(MAP_PROVIDER, app);
 
+    app.addStaticDir(
+      'markercluster',
+      'node_modules/leaflet.markercluster/dist',
+    );
+
     this.requiredProviders.push(WebSiteProvider);
     this.services.push({cls: MapService});
     this.objectTypes.push(

@@ -25,7 +25,7 @@ import {
   WEB_SITE_VIEW_TYPE,
   WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,
   WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE,
-  WELCOME_PAGE_TYPE,
+  WELCOME_PAGE_TYPE
 } from './web-site.const';
 import {
   MenuEntry,
@@ -35,13 +35,13 @@ import {
   ParagraphTemplateChoice,
   WebSiteMenuEntriesTree,
   WebSiteView,
-  WebSiteWitHMenuTemplate,
+  WebSiteWitHMenuTemplate
 } from './web-site.interface';
 
 export class TransientWebSiteService {
   constructor(
     @service(TransientEntityService)
-    protected transientEntityService: TransientEntityService,
+    private transientEntityService: TransientEntityService,
     @service(InsideRestService)
     private insideRestService: InsideRestService,
     @service(ObjectNodeService)

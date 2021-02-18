@@ -53,6 +53,26 @@ export const WEB_SITE_VIEW_TYPE: ObjectTypeDefinition = {
   iconView: 'fas fa-globe',
 };
 
+export const WEB_SITE_VIEW_WITH_POPUP: ObjectTypeDefinition = {
+  name: 'WebSiteViewWithPopup',
+  inheritedTypesIds: [WEB_SITE_VIEW_TYPE.name],
+  definition: {
+    properties: {
+      popupLinkLabels: {
+        type: 'object',
+        title: 'Popup labels',
+        properties: {
+          pageLinkLabel: {
+            type: 'string',
+            title: 'Popup page link label',
+            default: 'Navigate to page',
+          },
+        },
+      },
+    },
+  },
+};
+
 export const WEB_SITE_MENU_ENTRIES_TYPE: ObjectTypeDefinition = {
   name: 'WebSiteMenuEntries',
   inheritedTypesIds: [WEB_SITE_VIEW_TYPE.name],

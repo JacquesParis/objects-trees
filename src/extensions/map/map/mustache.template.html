@@ -1,7 +1,14 @@
+{{#hasMap}}
 <div class="map-holder">
   <div id="map_{{dataNode.id}}" class="map-div"></div>
 </div>
 
 <script type="text/javascript">
-  displayMap('map_{{dataNode.id}}');
+  displayMap('map_{{dataNode.id}}',{
+    positions: {{&jsonPositions}}
+  });
 </script>
+{{/hasMap}} {{^hasMap}}
+
+<div class="alert alert-danger" role="alert">Missing map positions.</div>
+{{/hasMap}}

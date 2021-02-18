@@ -20,7 +20,7 @@ import {ContentImageService} from './content-image.definition';
 export class TransientImageService {
   constructor(
     @service(TransientEntityService)
-    protected transientEntityService: TransientEntityService,
+    private transientEntityService: TransientEntityService,
     @service(InsideRestService)
     private insideRestService: InsideRestService,
     @service(ContentImageService)
@@ -64,7 +64,7 @@ export class TransientImageService {
     entity.images = images ? images : [];
   }
 
-  protected async completeImageGalleryTypeNode(
+  private async completeImageGalleryTypeNode(
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ) {

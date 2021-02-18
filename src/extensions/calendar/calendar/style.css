@@ -104,3 +104,49 @@ a:hover {
 .calendar .days li.outside .date {
   color: #ddd;
 }
+
+.tooltip-inner {
+  max-width: 300px;
+  background-color: transparent;
+  color: inherit;
+}
+
+.tooltip {
+  opacity: 1;
+  padding: 10px;
+  background-color: white;
+  border: #ddd solid 1px;
+  border-radius: 4px;
+}
+.tooltip .arrow {
+  height: 16px;
+  width: 16px;
+}
+.bs-tooltip-top .arrow {
+  bottom: -17px;
+}
+.bs-tooltip-bottom .arrow {
+  top: -17px;
+}
+.bs-tooltip-right .arrow {
+  left: -17px;
+}
+.bs-tooltip-left .arrow {
+  right: -17px;
+}
+
+.bs-tooltip-top .arrow::before {
+  border-width: 8px;
+}
+.bs-tooltip-top .arrow::before {
+  border-top-color: #bbb;
+}
+.bs-tooltip-bottom .arrow::before {
+  border-bottom-color: #bbb;
+}
+.bs-tooltip-right .arrow::before {
+  border-right-color: #bbb;
+}
+.bs-tooltip-left .arrow::before {
+  border-left-color: #bbb;
+}

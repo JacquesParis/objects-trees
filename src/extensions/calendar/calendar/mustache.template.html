@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row" id="calendar_{{dataNode.id}}">
   {{#dataNode.calendar.months}}
   <!-- Calendar -->
   <div class="calendar mb-5 {{calendarClass}}">
@@ -38,7 +38,11 @@
         {{/date}}
         {{#date}}
         <div class="date">{{date}}</div>
-        {{#events}}<a href="{{href}}" data-placement="top" title="{{event.menuTitle}}" onmouseover="openTooltip(this)" onmouseout="closeTooltip(this)">
+        {{#events}}<a href="{{href}}" data-customClass="calendar-popup"
+        data-placement="top" data-html="true" data-trigger="focus" data-toggle="tooltip"
+        data-container="#calendar_{{dataNode.id}}"
+        data-title="{{&event.popup}}"
+        onclick="openTooltip(this);event.preventDefault();event.stopPropagation();" >
           <div
             class="event all-day {{#transparent}}transparent{{/transparent}}{{^transparent}}{{event.color}}{{/transparent}} {{#begin}}begin{{/begin}} {{#end}}end{{/end}} span-{{span}}"
           >
@@ -58,3 +62,7 @@
 
   {{/dataNode.calendar.months}}
 </div>
+
+<script type="text/javascript">
+  loadStyle('/popup/popup.css');
+</script>

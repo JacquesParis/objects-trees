@@ -44,9 +44,12 @@ export class ExpressServer {
   }
 
   public static(basePath: string, dirName: string) {
+    if (dirName.startsWith('node_modules/')) {
+      dirName = path.join(this.rootDirectory, dirName);
+    }
     this.app.use(
       basePath.startsWith('/') ? basePath : '/' + basePath,
-      express.static(path.join(this.rootDirectory, dirName)),
+      express.static(dirName),
     );
   }
 

@@ -11,6 +11,7 @@ import {
   PARAGRAPH_CONTAINER_TYPE,
   PARAGRAPH_TYPE,
   TEXT_PARAGRAPH_TYPE,
+  WEB_SITE_VIEW_WITH_POPUP,
 } from './../web-site/web-site.const';
 export const CONTENT_IMAGE_TEMPLATE_PROVIDER = 'ContentImageTemplateProvider';
 export const CONTENT_IMAGE_TEMPLATE = 'ContentImageTemplateService';
@@ -54,6 +55,24 @@ export const PAGE_WITH_GALLERY_PARAGRAPH_TYPE: ObjectTypeDefinition = {
 export const PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE: ObjectTypeDefinition = {
   inheritedTypesIds: [PAGE_WITH_PARAGRAPH_TYPE.name],
   name: 'PageWithGalleryTextParagraph',
+};
+
+export const WEB_SITE_VIEW_WITH_IMAGE_IN_POPUP: ObjectTypeDefinition = {
+  name: 'WebSiteViewWithImageInPopup',
+  inheritedTypesIds: [WEB_SITE_VIEW_WITH_POPUP.name],
+  definition: {
+    properties: {
+      popupLinkLabels: {
+        properties: {
+          galleryLinkLabel: {
+            type: 'string',
+            title: 'Popup gallery link label',
+            default: 'Navigate to gallery',
+          },
+        },
+      },
+    },
+  },
 };
 
 export const PAGE_WITH_GALLERY_PARAGRAPH_GALLERY_PARAGRAPH_SUBTYPE: ObjectSubTypeDefinition = {

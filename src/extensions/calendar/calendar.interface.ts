@@ -41,4 +41,8 @@ export interface CalendarEntryNode {
   toUtc: moment.Moment;
   from: string;
   to: string;
+  popupTemplate: {
+    uris: {[replaceId: string]: {pageId: string}};
+    text: string;
+  };
 }
