@@ -99,10 +99,12 @@ export class ActionWebSiteService {
       result = new HtmlGeneratedResponse(
         this.mustacheService.parse(this.doc.templateMustache, {
           body: response.response,
+          headerScript: this.doc.headerScript,
         }),
       );
     } else if (response instanceof JsonGeneratedResponse) {
-      const docParts: AjaxResult = response.json;
+      const docParts: AjaxResult & {headerScript: string} = response.json;
+      docParts.headerScript = this.doc.headerScript;
 
       result = new HtmlGeneratedResponse(
         this.mustacheService.parse(this.doc.templateMustache, docParts),

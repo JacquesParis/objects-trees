@@ -22,6 +22,8 @@ import {
   IMAGE_GALLERY_TYPE,
   IMAGE_TYPE,
 } from './../content-image/content-image.const';
+import {MAP_ENTRY_TYPE, MAP_PAGE_TYPE} from './../map/map.const';
+import {MapProvider} from './../map/map.provider';
 import {WebSiteProvider} from './../web-site/web-site.provider';
 import {
   CATEGORY_TRAVEL_STORY_TEMPLATE_SUBTYPE,
@@ -33,6 +35,9 @@ import {
   TRAVEL_STORY_IMAGE_GALLERIES_TYPE,
   TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE,
   TRAVEL_STORY_IMAGE_GALLERY_TYPE,
+  TRAVEL_STORY_MAP_PAGE_TRAVEL_STORY_MAP_SUBTYPE,
+  TRAVEL_STORY_MAP_PAGE_TYPE,
+  TRAVEL_STORY_MAP_TYPE,
   TRAVEL_STORY_PARAGRAPH_TYPE,
   TRAVEL_STORY_POST_ROOT_TYPE,
   TRAVEL_STORY_POST_TRAVEL_STORY_PARAGRAPH_SUBTYPE,
@@ -42,6 +47,7 @@ import {
   TRAVEL_STORY_TEMPLATE_TYPE,
   TRAVEL_STORY_TRAVEL_STORY_CALENDAR_PAGE_SUBTYPE,
   TRAVEL_STORY_TRAVEL_STORY_IMAGE_GALLERIES_SUBTYPE,
+  TRAVEL_STORY_TRAVEL_STORY_MAP_PAGE_SUBTYPE,
   TRAVEL_STORY_TRAVEL_STORY_POST_ROOT_SUBTYPE,
   TRAVEL_STORY_TRAVEL_STORY_WELCOME_PAGE_SUBTYPE,
   TRAVEL_STORY_TYPE,
@@ -57,6 +63,7 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       WebSiteProvider,
       ContentImageTemplateProvider,
       CalendarProvider,
+      MapProvider,
     );
     this.objectTypes.push(
       TRAVEL_STORY_TYPE,
@@ -70,6 +77,8 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE,
       TRAVEL_STORY_CALENDAR_PAGE_TYPE,
       TRAVEL_STORY_CALENDAR_TYPE,
+      TRAVEL_STORY_MAP_PAGE_TYPE,
+      TRAVEL_STORY_MAP_TYPE,
       TRAVEL_STORY_PARAGRAPH_TYPE,
     );
 
@@ -85,6 +94,8 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
       TRAVEL_STORY_IMAGE_GALLERIES_TRAVEL_STORY_IMAGE_GALLERY_SUBTYPE,
       TRAVEL_STORY_TRAVEL_STORY_CALENDAR_PAGE_SUBTYPE,
       TRAVEL_STORY_CALENDAR_PAGE_TRAVEL_STORY_CALENDAR_SUBTYPE,
+      TRAVEL_STORY_TRAVEL_STORY_MAP_PAGE_SUBTYPE,
+      TRAVEL_STORY_MAP_PAGE_TRAVEL_STORY_MAP_SUBTYPE,
       TRAVEL_STORY_POST_TRAVEL_STORY_PARAGRAPH_SUBTYPE,
     );
 
@@ -173,6 +184,18 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
               entryName: 'Calendar',
               menuEntryLabelKey: 'name',
               entryTypes: [CALENDAR_PAGE_TYPE.name],
+            },
+            {
+              entryKey: 'places',
+              entryName: 'Places',
+              menuEntryLabelKey: 'locationName',
+              entryTypes: [MAP_ENTRY_TYPE.name],
+            },
+            {
+              entryKey: 'map',
+              entryName: 'Map',
+              menuEntryLabelKey: 'name',
+              entryTypes: [MAP_PAGE_TYPE.name],
             },
             {
               entryKey: 'galleries',
@@ -305,6 +328,13 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                 'tree/Repository/public/RepositoryCategory/templates/CalendarTemplate/calendar',
               paragraphTypes: ['TravelStoryCalendar'],
             },
+            {
+              paragraphTypeKey: 'map',
+              paragraphTypeName: 'Map',
+              paragraphTemplateObjectTreeId:
+                'tree/Repository/public/RepositoryCategory/templates/MapTemplate/map',
+              paragraphTypes: ['TravelStoryMap'],
+            },
           ],
           templatesConfigurations: {
             cardTextAndImages: {
@@ -312,7 +342,6 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
                 'tree/Repository/public/RepositoryCategory/templates/ImageGalleryTemplate/thumbs',
             },
           },
-          calendarMenuEntryKey: 'calendar',
         },
         children: {},
       },
@@ -334,6 +363,8 @@ export class TravelStoryTypeProvider extends ExtensionProvider {
             story: 'Récit',
             calendar: 'Calendrier',
             calendarDates: 'Visites',
+            places: 'Point Of Interest',
+            map: 'Carte',
             galleries: 'Galleries',
             admin: 'Admin',
           },

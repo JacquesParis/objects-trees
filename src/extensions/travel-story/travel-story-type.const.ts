@@ -41,6 +41,12 @@ import {
   IMAGE_GALLERY_TYPE,
 } from './../content-image/content-image.const';
 import {
+  MAP_ENTRIES_TYPE,
+  MAP_ENTRY_TYPE,
+  MAP_PAGE_TYPE,
+  MAP_TYPE,
+} from './../map/map.const';
+import {
   PAGE_WITH_SUB_PAGE_TYPE,
   PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE,
 } from './../web-site/web-site.const';
@@ -65,6 +71,7 @@ export const TRAVEL_STORY_TYPE: ObjectTypeDefinition = {
     WEB_SITE_VIEW_TYPE.name,
     WEB_SITE_MENU_ENTRIES_TYPE.name,
     CALENDAR_ENTRIES_TYPE.name,
+    MAP_ENTRIES_TYPE.name,
   ],
   definition: {
     properties: {
@@ -144,6 +151,7 @@ export const TRAVEL_STORY_POST_TYPE: ObjectTypeDefinition = {
     TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE.name,
     MENU_ENTRY_TYPE.name,
     CALENDAR_ENTRY_TYPE.name,
+    MAP_ENTRY_TYPE.name,
     POST_WITH_GALLERY_TYPE.name,
     PAGE_WITH_SUB_PAGE_TYPE.name,
     PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
@@ -180,6 +188,16 @@ export const TRAVEL_STORY_CALENDAR_TYPE: ObjectTypeDefinition = {
     CALENDAR_TYPE.name,
     PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
   ],
+};
+
+export const TRAVEL_STORY_MAP_PAGE_TYPE: ObjectTypeDefinition = {
+  name: 'TravelStoryMapPage',
+  inheritedTypesIds: [MAP_PAGE_TYPE.name],
+};
+
+export const TRAVEL_STORY_MAP_TYPE: ObjectTypeDefinition = {
+  name: 'TravelStoryMap',
+  inheritedTypesIds: [MAP_TYPE.name, PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name],
 };
 
 export const TRAVEL_STORY_PARAGRAPH_TYPE: ObjectTypeDefinition = {
@@ -266,6 +284,21 @@ export const TRAVEL_STORY_CALENDAR_PAGE_TRAVEL_STORY_CALENDAR_SUBTYPE: ObjectSub
   typeName: TRAVEL_STORY_CALENDAR_PAGE_TYPE.name,
   subTypeName: TRAVEL_STORY_CALENDAR_TYPE.name,
   name: CALENDAR_TYPE.name,
+  min: 1,
+  max: 1,
+};
+
+export const TRAVEL_STORY_TRAVEL_STORY_MAP_PAGE_SUBTYPE: ObjectSubTypeDefinition = {
+  typeName: TRAVEL_STORY_TYPE.name,
+  subTypeName: TRAVEL_STORY_MAP_PAGE_TYPE.name,
+  name: MAP_PAGE_TYPE.name,
+  min: 1,
+  max: 1,
+};
+export const TRAVEL_STORY_MAP_PAGE_TRAVEL_STORY_MAP_SUBTYPE: ObjectSubTypeDefinition = {
+  typeName: TRAVEL_STORY_MAP_PAGE_TYPE.name,
+  subTypeName: TRAVEL_STORY_MAP_TYPE.name,
+  name: MAP_TYPE.name,
   min: 1,
   max: 1,
 };

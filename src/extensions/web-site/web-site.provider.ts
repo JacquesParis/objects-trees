@@ -55,6 +55,7 @@ export class WebSiteProvider extends ExtensionProvider {
 
     app.addStaticDir('bootstrap', 'node_modules/bootstrap/dist');
     app.addStaticDir('jquery', 'node_modules/jquery/dist');
+    app.addStaticDir('leaflet', 'node_modules/leaflet/dist');
 
     this.objectTypes.push(
       ADMIN_ENTRY_TYPE,

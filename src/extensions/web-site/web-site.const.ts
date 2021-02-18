@@ -418,6 +418,7 @@ export const WELCOME_PAGE_TYPE: ObjectTypeDefinition = {
   definition: {
     properties: {},
   },
+  iconView: 'fas fa-door-open',
 };
 
 export const PAGE_WITH_TEMPLATE_CHOICE: ObjectTypeDefinition = {

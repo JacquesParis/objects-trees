@@ -42,10 +42,12 @@ export const CALENDAR_TYPE: ObjectTypeDefinition = {
       },
     },
   },
+  iconView: 'fas fa-calendar',
 };
 export const CALENDAR_PAGE_TYPE: ObjectTypeDefinition = {
   name: 'CalendarPage',
   inheritedTypesIds: [PAGE_WITH_PARAGRAPH_TYPE.name],
+  iconView: 'fas fa-calendar-alt',
 };
 
 export const WEB_SITE_WITH_CALENDAR_TYPE: ObjectTypeDefinition = {
