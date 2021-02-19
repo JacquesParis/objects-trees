@@ -29,14 +29,14 @@ function newFunction() {
         for (const event of this.ctrl.dataNode.calendar.dates) {
           let popup = event.popupTemplate.text;
           for (const id in event.popupTemplate.uris) {
-            popup = popup.replaceAll(
-              id,
+            popup = popup.replace(
+              new RegExp(id, 'g'),
               this.ctrl.getPageHref({
                 treeNode: {id: event.popupTemplate.uris[id].pageId},
               }),
             );
           }
-          event.popup = popup.replaceAll('"', '&quot;');
+          event.popup = popup.replace(new RegExp('"', 'g'), '&quot;');
         }
         for (const month of this.ctrl.dataNode.calendar.months) {
           const monthDays = [];

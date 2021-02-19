@@ -14,8 +14,8 @@ function newFunction() {
         for (const position of this.ctrl.dataNode.map.positions) {
           let popup = position.popupTemplate.text;
           for (const id in position.popupTemplate.uris) {
-            popup = popup.replaceAll(
-              id,
+            popup = popup.replace(
+              new RegExp(id, 'g'),
               this.ctrl.getPageHref({
                 treeNode: {id: position.popupTemplate.uris[id].pageId},
               }),
