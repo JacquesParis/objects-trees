@@ -48,6 +48,7 @@
     "!*/__tests__"
   ],
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.2",
     "@jacquesparis/objects-angular": "file:../objects-angular/dist",
     "@jacquesparis/objects-model": "file:../objects-model",
     "@jacquesparis/objects-website": "file:../objects-website",

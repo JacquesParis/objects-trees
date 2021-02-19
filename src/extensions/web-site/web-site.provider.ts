@@ -64,6 +64,10 @@ export class WebSiteProvider extends ExtensionProvider {
       'popup/popup.css',
       path.join(__dirname, 'popup/style.css'),
     );
+    app.addStaticDir(
+      'fontawesome',
+      'node_modules/@fortawesome/fontawesome-free',
+    );
 
     this.objectTypes.push(
       ADMIN_ENTRY_TYPE,
