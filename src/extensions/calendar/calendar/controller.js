@@ -32,7 +32,10 @@ function newFunction() {
             popup = popup.replace(
               new RegExp(id, 'g'),
               this.ctrl.getPageHref({
-                treeNode: {id: event.popupTemplate.uris[id].pageId},
+                treeNode: {
+                  id: event.popupTemplate.uris[id].pageId,
+                  name: event.popupTemplate.uris[id].pageName,
+                },
               }),
             );
           }

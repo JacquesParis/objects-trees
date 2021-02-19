@@ -14,7 +14,7 @@ import {PAGE_TYPE} from './web-site.const';
 
 export interface PopupBuilder {
   pageHrefs: {
-    [replaceId: string]: {pageId: string};
+    [replaceId: string]: {pageId: string; pageName: string};
   };
   popupParts: {
     uri: string | undefined;
@@ -68,7 +68,7 @@ export class WebSiteService {
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ): Promise<{
-    uris: {[replaceId: string]: {pageId: string}};
+    uris: {[replaceId: string]: {pageId: string; pageName: string}};
     text: string;
   }> {
     let popupNode = objectNode;
@@ -119,6 +119,7 @@ export class WebSiteService {
     ) {
       popupBuilder.pageHrefs['__href_' + popupNode.id] = {
         pageId: popupNode.id as string,
+        pageName: popupNode.name,
       };
       popupBuilder.popupParts.links.push({
         uri: '__href_' + popupNode.id,

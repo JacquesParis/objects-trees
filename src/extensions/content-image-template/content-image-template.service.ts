@@ -45,6 +45,7 @@ export class ContentImageTemplateService {
         '__href_' + popupNode.imageGalleryTree.treeNode.id
       ] = {
         pageId: popupNode.imageGalleryTree.treeNode.id as string,
+        pageName: popupNode.imageGalleryTree.treeNode.name,
       };
       popupBuilder.popupParts.links.push({
         uri: '__href_' + popupNode.imageGalleryTree.treeNode.id,

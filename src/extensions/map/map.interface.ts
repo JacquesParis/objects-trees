@@ -25,7 +25,7 @@ export interface MapEntryNode {
   position: [number, number];
   icon: string;
   popupTemplate: {
-    uris: {[replaceId: string]: {pageId: string}};
+    uris: {[replaceId: string]: {pageId: string; pageName: string}};
     text: string;
   };
 }

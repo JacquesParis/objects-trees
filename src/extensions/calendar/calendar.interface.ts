@@ -42,7 +42,7 @@ export interface CalendarEntryNode {
   from: string;
   to: string;
   popupTemplate: {
-    uris: {[replaceId: string]: {pageId: string}};
+    uris: {[replaceId: string]: {pageId: string; pageName: string}};
     text: string;
   };
 }
