@@ -27,6 +27,7 @@ function newFunction() {
             : 'col-12 col-lg-6 col-xl-4';
 
         for (const event of this.ctrl.dataNode.calendar.dates) {
+          /*
           let popup = event.popupTemplate.text;
           for (const id in event.popupTemplate.uris) {
             popup = popup.replace(
@@ -39,7 +40,8 @@ function newFunction() {
               }),
             );
           }
-          event.popup = popup.replace(new RegExp('"', 'g'), '&quot;');
+          event.popup = popup.replace(new RegExp('"', 'g'), '&quot;');*/
+          event.popupHref = this.ctrl.getPopupHref(event);
         }
         for (const month of this.ctrl.dataNode.calendar.months) {
           const monthDays = [];

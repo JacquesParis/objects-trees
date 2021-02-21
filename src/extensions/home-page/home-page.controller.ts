@@ -57,6 +57,23 @@ export class HomePageController {
     return generatedView.getResponse(response);
   }
 
+  @get('/site/{siteName}/{lang}/{name}/popup')
+  async getWebSitePopupOfSiteResponse(
+    @param.path.string('siteName') siteName: string,
+    @param.path.string('lang') lang: string,
+    @param.path.string('name') name: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.getWebSitePopupResponse(
+      lang,
+      name,
+      ctx,
+      siteName,
+    );
+    return generatedView.getResponse(response);
+  }
+
   @get('/')
   async getLoadingPage(
     @inject(RestBindings.Http.RESPONSE) response: Response,
@@ -88,6 +105,21 @@ export class HomePageController {
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<Response> {
     const generatedView: GeneratedResponse = await this.homePageService.getWebSitePageResponse(
+      lang,
+      name,
+      ctx,
+    );
+    return generatedView.getResponse(response);
+  }
+
+  @get('/{lang}/{name}/popup')
+  async getWebSitePopupResponse(
+    @param.path.string('lang') lang: string,
+    @param.path.string('name') name: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.getWebSitePopupResponse(
       lang,
       name,
       ctx,

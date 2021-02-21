@@ -12,6 +12,7 @@ function newFunction() {
         this.ctrl.hasMap = true;
 
         for (const position of this.ctrl.dataNode.map.positions) {
+          /*
           let popup = position.popupTemplate.text;
           for (const id in position.popupTemplate.uris) {
             popup = popup.replace(
@@ -25,6 +26,9 @@ function newFunction() {
             );
           }
           position.popup = popup;
+          */
+
+          position.popupHref = this.ctrl.getPopupHref(position);
         }
 
         this.ctrl.jsonPositions = JSON.stringify(

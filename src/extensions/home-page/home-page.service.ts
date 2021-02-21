@@ -1,6 +1,10 @@
 import {IObjectTree, IRestEntity} from '@jacquesparis/objects-model';
+import {AjaxResult} from '@jacquesparis/objects-website';
 import {service} from '@loopback/core';
-import {GeneratedResponse} from '../../helper/generated-response';
+import {
+  GeneratedResponse,
+  JsonGeneratedResponse,
+} from '../../helper/generated-response';
 import {EntityName} from '../../models';
 import {CurrentContext} from '../../services';
 import {ApplicationError} from './../../helper/application-error';
@@ -24,6 +28,7 @@ import {UriCompleteService} from './../../services/uri-complete/uri-complete.ser
 import {TRAVEL_STORY_TYPE} from './../travel-story/travel-story-type.const';
 import {ActionWebSiteService} from './../web-site/action-web-site.service';
 import {PAGE_TYPE} from './../web-site/web-site.const';
+import {Popup} from './../web-site/web-site.interface';
 import {
   HOME_PAGE_PROVIDER,
   PAGE_CACHE_TYPE,
@@ -115,6 +120,7 @@ export class HomePageService {
     subPath: string | undefined,
     pageName: string,
     ctx: CurrentContext,
+    getCacheName: (name: string) => string = this.getCachePageName.bind(this),
   ): Promise<ObjectTree> {
     ctx.uriContext.uri.value.acceptLanguage = lang;
 
@@ -161,15 +167,14 @@ export class HomePageService {
           path === '' ? '/' + lang + '/' : '/site/' + path + '/' + lang + '/';
         ctx.webSiteContext.siteBaseUriTree.value = langTree;
         for (const cache of ctx.webSiteContext.siteBaseUriTree.value.children) {
-          if (this.getCachePageName(pageName) === cache.treeNode.name) {
+          if (getCacheName(pageName) === cache.treeNode.name) {
             await this.contentEntityService.addTransientContent(
               EntityName.objectNode,
               PAGE_CACHE_TYPE.contentType,
               cache.treeNode,
             );
-            ctx.webSiteContext.cachedPage.value = new HtmlGeneratedResponse(
-              cache.treeNode.contentPageCache.body,
-            );
+            ctx.webSiteContext.cachedContent.value =
+              cache.treeNode.contentPageCache;
             return (undefined as unknown) as ObjectTree;
           }
         }
@@ -228,6 +233,17 @@ export class HomePageService {
   ): string {
     return ctx.webSiteContext.pageBaseUri.value + page.treeNode?.name;
   }
+
+  public getPopupHref(
+    page: IObjectTree,
+    site: ObjectTree,
+    ctx: CurrentContext,
+  ): string {
+    return (
+      ctx.webSiteContext.pageBaseUri.value + page.treeNode?.name + '/popup'
+    );
+  }
+
   public getAdminHref(
     page: IObjectTree,
     site: ObjectTree,
@@ -249,6 +265,10 @@ export class HomePageService {
     return 'cache$' + pageName;
   }
 
+  public getCachePopupName(pageName = '') {
+    return 'cache$' + pageName + '$popup';
+  }
+
   public async getLoadingPageResponse(
     ctx: CurrentContext,
     lang?: string,
@@ -262,31 +282,47 @@ export class HomePageService {
       );
     }
     const entity = await this.getWebSiteEntity(lang, siteName, '', ctx);
-    if (ctx.webSiteContext.cachedPage.value) {
-      return ctx.webSiteContext.cachedPage.value;
+    if (ctx.webSiteContext.cachedContent.value) {
+      return new HtmlGeneratedResponse(
+        ctx.webSiteContext.cachedContent.value.body,
+      );
     }
-    ctx.webSiteContext.cachedPage.value = this.actionWebSiteService.getHtmlDocFromAjaxResult(
-      await this.actionWebSiteService.getWebSiteAjaxResponse(
-        entity,
-        this.getPageHref.bind(this),
-        this.getAdminHref.bind(this),
-        ctx,
-      ),
+
+    const result: JsonGeneratedResponse<AjaxResult> = await this.actionWebSiteService.getWebSiteAjaxResponse(
+      entity,
+      this.getPageHref.bind(this),
+      this.getAdminHref.bind(this),
+      this.getPopupHref.bind(this),
+      ctx,
     );
+    result.json.headerScripts.pageScript = `
+function getPageHref(page) {
+  return '${ctx.webSiteContext.pageBaseUri.value}' +
+    (page ? '/' + page.treeNode.name : '');
+}
+`;
+
+    ctx.webSiteContext.cachedContent.value = {
+      body: this.actionWebSiteService.getHtmlDocFromAjaxResult(result),
+    };
     await this.storeCachePage('', ctx);
-    return ctx.webSiteContext.cachedPage.value;
+    return new HtmlGeneratedResponse(
+      ctx.webSiteContext.cachedContent.value.body,
+    );
   }
 
-  protected async storeCachePage(pageName: string, ctx: CurrentContext) {
+  protected async storeCachePage(
+    pageName: string,
+    ctx: CurrentContext,
+    getCacheName: (name: string) => string = this.getCachePageName.bind(this),
+  ) {
     await this.objectNodeService.add(
       {
         parentNodeId: ctx.webSiteContext.siteBaseUriTree.value.id,
-        name: this.getCachePageName(pageName),
+        name: getCacheName(pageName),
         objectTypeId: PAGE_CACHE_TYPE.name,
         pageUrl: ctx.uriContext.uri.value.url,
-        contentPageCache: {
-          body: ctx.webSiteContext.cachedPage.value.response,
-        },
+        contentPageCache: ctx.webSiteContext.cachedContent.value,
       },
       CurrentContext.get({
         nodeContext: {
@@ -310,24 +346,78 @@ export class HomePageService {
       pageName,
       ctx,
     );
-    if (ctx.webSiteContext.cachedPage.value) {
-      return ctx.webSiteContext.cachedPage.value;
+    if (ctx.webSiteContext.cachedContent.value) {
+      return new HtmlGeneratedResponse(
+        ctx.webSiteContext.cachedContent.value.body,
+      );
     }
     const pageNode = await this.getWebSitePageNode(webSiteTree, pageName, ctx);
     if (pageNode) {
-      ctx.webSiteContext.cachedPage.value = this.actionWebSiteService.getHtmlDocFromAjaxResult(
-        await this.actionWebSiteService.getWebSitePageAjaxResponse(
-          webSiteTree,
-          pageNode.id as string,
-          this.getPageHref.bind(this),
-          this.getAdminHref.bind(this),
-          ctx,
-        ),
+      const result: JsonGeneratedResponse<AjaxResult> = await this.actionWebSiteService.getWebSitePageAjaxResponse(
+        webSiteTree,
+        pageNode.id as string,
+        this.getPageHref.bind(this),
+        this.getAdminHref.bind(this),
+        this.getPopupHref.bind(this),
+        ctx,
       );
+      result.json.headerScripts.pageScript = `
+    function getPageHref(page) {
+      return '${ctx.webSiteContext.pageBaseUri.value}' +
+        (page ? '/' + page.treeNode.name : '');
+    }
+    `;
+
+      ctx.webSiteContext.cachedContent.value = {
+        body: this.actionWebSiteService.getHtmlDocFromAjaxResult(result),
+      };
       await this.storeCachePage(pageName, ctx);
-      return ctx.webSiteContext.cachedPage.value;
+      return new HtmlGeneratedResponse(
+        ctx.webSiteContext.cachedContent.value.body,
+      );
     } else {
       return this.getLoadingPageResponse(ctx);
+    }
+  }
+
+  public async getWebSitePopupResponse(
+    lang: string,
+    pageName: string,
+    ctx: CurrentContext,
+    siteName?: string,
+  ): Promise<GeneratedResponse> {
+    const webSiteTree = await this.getWebSiteEntity(
+      lang,
+      siteName,
+      pageName,
+      ctx,
+      this.getCachePopupName.bind(this),
+    );
+    if (ctx.webSiteContext.cachedContent.value) {
+      return new JsonGeneratedResponse(
+        JSON.parse(ctx.webSiteContext.cachedContent.value.body),
+      );
+    }
+    const pageNode = await this.getWebSitePageNode(webSiteTree, pageName, ctx);
+    if (pageNode) {
+      const popup: Popup = (
+        await this.actionWebSiteService.popupWebSiteViewTree(
+          webSiteTree,
+          [pageNode.id as string],
+          ctx,
+        )
+      ).json;
+      ctx.webSiteContext.cachedContent.value = {
+        body: JSON.stringify(popup),
+      };
+      await this.storeCachePage(
+        pageName,
+        ctx,
+        this.getCachePopupName.bind(this),
+      );
+      return new JsonGeneratedResponse(popup);
+    } else {
+      throw ApplicationError.notFound({popupName: pageName});
     }
   }
 }

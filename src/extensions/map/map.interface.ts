@@ -1,7 +1,4 @@
-import {
-  MenuEntry,
-  WebSiteMenuEntriesTree,
-} from '../web-site/web-site.interface';
+import {WebSiteMenuEntriesTree} from '../web-site/web-site.interface';
 
 export interface MapEntriesTree extends WebSiteMenuEntriesTree {}
 
@@ -17,15 +14,11 @@ export interface MapDate extends MapEntryNode {}
 export interface Map extends MapEntryDefinition {}
 
 export interface MapEntryNode {
-  treeNode: MenuEntry;
   pageTreeId: string;
   pageTreeUri: string;
   menuTitle: string;
   positionTitle: string;
   position: [number, number];
   icon: string;
-  popupTemplate: {
-    uris: {[replaceId: string]: {pageId: string; pageName: string}};
-    text: string;
-  };
+  treeNode: {id: string; name: string};
 }

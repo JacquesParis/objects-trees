@@ -186,7 +186,6 @@ export class MapService {
         menuTree.positionTitle = menuTree.menuTitle;
       }
       return {
-        treeNode: menuTree.treeNode,
         pageTreeId: menuTree.pageTreeId,
         pageTreeUri: menuTree.pageTreeUri,
         menuTitle: menuTree.menuTitle,
@@ -195,11 +194,10 @@ export class MapService {
         icon: menuTree.treeNode.locationType
           ? menuTree.treeNode.locationType
           : 'fas fa-splotch',
-        popupTemplate: await this.webSiteService.getPopupContent(
-          entriesTree.treeNode.popupLinkLabels,
-          menuTree.treeNode,
-          ctx,
-        ),
+        treeNode: {
+          id: menuTree.treeNode.id as string,
+          name: menuTree.treeNode.name,
+        },
       };
     }
     return undefined;

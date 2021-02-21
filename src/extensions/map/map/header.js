@@ -41,7 +41,13 @@ async function displayMap(id, display) {
       const marker = L.marker(position.position, {
         icon: icons[position.icon],
       });
-      marker.bindPopup(position.popup, {className: 'map-popup'});
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      (async function () {
+        // eslint-disable-next-line no-undef
+        const popup = await loadPopup(position.popupHref);
+        marker.bindPopup(popup, {className: 'map-popup'});
+      })();
+
       markers.addLayer(marker);
       bounds.push(position.position);
     }

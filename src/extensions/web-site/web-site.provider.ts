@@ -52,9 +52,9 @@ export class WebSiteProvider extends ExtensionProvider {
       ContentGenericTemplateProvider,
     );
     this.services.push(
+      {cls: WebSiteService},
       {cls: TransientWebSiteService},
       {cls: ActionWebSiteService},
-      {cls: WebSiteService},
     );
 
     app.addStaticDir('bootstrap', 'node_modules/bootstrap/dist');

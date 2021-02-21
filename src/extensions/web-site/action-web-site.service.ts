@@ -28,6 +28,8 @@ import {InsideRestService} from './../../services/inside-rest/inside-rest.servic
 import {TransientUriReferenceService} from './../../services/inside-rest/transient-uri-reference.service';
 import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {WEB_SITE_PROVIDER, WEB_SITE_VIEW_TYPE} from './web-site.const';
+import {Popup} from './web-site.interface';
+import {WebSiteService} from './web-site.service';
 
 export class ActionWebSiteService {
   protected doc: {
@@ -54,6 +56,7 @@ export class ActionWebSiteService {
     private transientUriReferenceService: TransientUriReferenceService,
     @service(InsideRestService) private insideRestService: InsideRestService,
     @service(MustacheService) private mustacheService: MustacheService,
+    @service(WebSiteService) private webSiteService: WebSiteService,
   ) {
     this.websiteGenerationService = WebsiteGenerationService.get();
     this.actionEntityService.registerNewViewFunction(
@@ -76,7 +79,35 @@ export class ActionWebSiteService {
       this.htmlWebSiteViewTree.bind(this),
       'read',
     );
+    this.actionEntityService.registerNewViewFunction(
+      WEB_SITE_PROVIDER,
+      ActionWebSiteService.name,
+      'Build popup view',
+      EntityName.objectTree,
+      'popup',
+      WEB_SITE_VIEW_TYPE.name,
+      this.popupWebSiteViewTree.bind(this),
+      'read',
+    );
     this.doc = contentGenericTemplate(__dirname, 'doc');
+  }
+
+  public async popupWebSiteViewTree(
+    entity: ObjectTree,
+    args: {0?: string},
+    ctx: CurrentContext,
+  ): Promise<JsonGeneratedResponse<Popup>> {
+    const objectNode = await this.objectNodeService.getNode(
+      args[0] as string,
+      CurrentContext.get({}),
+    );
+    return new JsonGeneratedResponse<Popup>(
+      await this.webSiteService.getPopupContent(
+        entity.treeNode.popupLinkLabels,
+        objectNode,
+        ctx,
+      ),
+    );
   }
 
   public async htmlWebSiteViewTree(
@@ -84,31 +115,41 @@ export class ActionWebSiteService {
     args: {0?: string; 1?: string; 2?: string},
     ctx: CurrentContext,
   ): Promise<GeneratedResponse> {
-    const result: GeneratedResponse = await this.ajaxWebSiteViewTree(
+    const result: JsonGeneratedResponse<AjaxResult> = await this.ajaxWebSiteViewTree(
       entity,
       args,
       ctx,
     );
-    return this.getHtmlDocFromAjaxResult(result);
+    result.json.headerScripts.pageScript = `
+    function getPageHref(page) {
+      return '${this.uriCompleteService.getUri(
+        EntityName.objectTree,
+        entity.id,
+        ctx,
+      )}/view/html' +
+        (page ? '/' + page.treeNode.id : '');
+    }
+    `;
+    return this.getHtmlDocResponseFromAjaxResult(result);
   }
-  public getHtmlDocFromAjaxResult(
+  public getHtmlDocResponseFromAjaxResult(
     response: GeneratedResponse,
   ): HtmlGeneratedResponse {
-    let result: HtmlGeneratedResponse = (undefined as unknown) as HtmlGeneratedResponse;
+    return new HtmlGeneratedResponse(this.getHtmlDocFromAjaxResult(response));
+  }
+
+  public getHtmlDocFromAjaxResult(response: GeneratedResponse): string {
+    let result: string = (undefined as unknown) as string;
     if (response instanceof TextGeneratedResponse) {
-      result = new HtmlGeneratedResponse(
-        this.mustacheService.parse(this.doc.templateMustache, {
-          body: response.response,
-          headerScript: this.doc.headerScript,
-        }),
-      );
+      result = this.mustacheService.parse(this.doc.templateMustache, {
+        body: response.response,
+        headerScript: this.doc.headerScript,
+      });
     } else if (response instanceof JsonGeneratedResponse) {
       const docParts: AjaxResult & {headerScript: string} = response.json;
       docParts.headerScript = this.doc.headerScript;
 
-      result = new HtmlGeneratedResponse(
-        this.mustacheService.parse(this.doc.templateMustache, docParts),
-      );
+      result = this.mustacheService.parse(this.doc.templateMustache, docParts);
     }
     return result;
   }
@@ -121,6 +162,17 @@ export class ActionWebSiteService {
     const viewId =
       site.id +
       '/view/html' +
+      (page ? '/' + (page.treeNode as IObjectNode).id : '');
+    return this.uriCompleteService.getUri(EntityName.objectTree, viewId, ctx);
+  }
+  public getPopupHref(
+    page: IObjectTree,
+    site: ObjectTree,
+    ctx: CurrentContext,
+  ): string {
+    const viewId =
+      site.id +
+      '/view/popup' +
       (page ? '/' + (page.treeNode as IObjectNode).id : '');
     return this.uriCompleteService.getUri(EntityName.objectTree, viewId, ctx);
   }
@@ -153,6 +205,11 @@ export class ActionWebSiteService {
       site: ObjectTree,
       ctx: CurrentContext,
     ) => string,
+    getPopupHref: (
+      page: IObjectTree,
+      site: ObjectTree,
+      ctx: CurrentContext,
+    ) => string,
     ctx: CurrentContext,
   ) {
     return this.ajaxWebSiteViewTree(
@@ -161,6 +218,7 @@ export class ActionWebSiteService {
       ctx,
       getPageHref,
       getAdminHref,
+      getPopupHref,
     );
   }
 
@@ -177,6 +235,11 @@ export class ActionWebSiteService {
       site: ObjectTree,
       ctx: CurrentContext,
     ) => string,
+    getPopupHref: (
+      page: IObjectTree,
+      site: ObjectTree,
+      ctx: CurrentContext,
+    ) => string,
     ctx: CurrentContext,
   ) {
     return this.ajaxWebSiteViewTree(
@@ -185,6 +248,7 @@ export class ActionWebSiteService {
       ctx,
       getPageHref,
       getAdminHref,
+      getPopupHref,
     );
   }
 
@@ -202,7 +266,12 @@ export class ActionWebSiteService {
       site: ObjectTree,
       ctx: CurrentContext,
     ) => string = this.getAdminHref.bind(this),
-  ): Promise<GeneratedResponse> {
+    getPopupHref: (
+      page: IObjectTree,
+      site: ObjectTree,
+      ctx: CurrentContext,
+    ) => string = this.getPopupHref.bind(this),
+  ): Promise<JsonGeneratedResponse<AjaxResult>> {
     const ajaxResult: AjaxResult = await this.websiteGenerationService.getAjaxContent(
       {
         getCachedOrRemoteObjectById: async (
@@ -230,6 +299,9 @@ export class ActionWebSiteService {
         },
         getAdminHref: (page: IObjectTree): string => {
           return getAdminHref(page, entity, ctx);
+        },
+        getPopupHref: (page: IObjectTree): string => {
+          return getPopupHref(page, entity, ctx);
         },
       },
       entity.id,

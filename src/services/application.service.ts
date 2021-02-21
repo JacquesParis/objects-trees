@@ -7,7 +7,6 @@ import {ObjectNode} from '../models/object-node.model';
 import {ObjectSubType} from '../models/object-sub-type.model';
 import {ObjectType} from '../models/object-type.model';
 import {ApplicationError} from './../helper/application-error';
-import {HtmlGeneratedResponse} from './../helper/generated-response';
 import {TreatmentDescription} from './../integration/extension-description';
 import {EntityName} from './../models/entity-name';
 import {ObjectTree} from './../models/object-tree.model';
@@ -95,7 +94,9 @@ export class WebSiteContext {
   webSitePageNode: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   pageBaseUri: ExpectedValue<string> = new ExpectedValue<string>();
   siteBaseUriTree: ExpectedValue<ObjectTree> = new ExpectedValue<ObjectTree>();
-  cachedPage: ExpectedValue<HtmlGeneratedResponse> = new ExpectedValue<HtmlGeneratedResponse>();
+  cachedContent: ExpectedValue<{body: string}> = new ExpectedValue<{
+    body: string;
+  }>();
 }
 
 export class CurrentContext {

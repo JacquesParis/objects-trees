@@ -50,3 +50,53 @@ function loadScript(url) {
     document.head.appendChild(script);
   });
 }
+
+const loadedObjects = {};
+
+function httpGetAsync(theUrl, callback) {
+  // eslint-disable-next-line no-undef
+  const xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = () => {
+    if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+      callback(xmlHttp.responseText);
+    }
+  };
+  xmlHttp.open('GET', theUrl, true); // true for asynchronous
+  xmlHttp.send(null);
+}
+
+function loadJson(url) {
+  if ('loadJson_' + url in loadedObjects) {
+    return loadedObjects['loadJson_' + url];
+  }
+  return new Promise((resolve, reject) => {
+    httpGetAsync(url, (response) => {
+      loadedObjects['loadJson_' + url] = JSON.parse(response);
+      resolve(loadedObjects['loadJson_' + url]);
+    });
+  });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function loadPopup(uri) {
+  if ('loadPopup_' + uri in loadedObjects) {
+    return loadedObjects['loadPopup_' + uri];
+  }
+  const popupTemplate = await loadJson(uri);
+
+  let popup = popupTemplate.text;
+  for (const id in popupTemplate.uris) {
+    popup = popup.replace(
+      new RegExp(id, 'g'),
+      // eslint-disable-next-line no-undef
+      getPageHref({
+        treeNode: {
+          id: popupTemplate.uris[id].pageId,
+          name: popupTemplate.uris[id].pageName,
+        },
+      }),
+    );
+  }
+  loadedObjects['loadPopup_' + uri] = popup;
+  return popup;
+}

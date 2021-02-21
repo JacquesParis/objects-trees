@@ -11,6 +11,7 @@ import {InsideRestService} from './../../services/inside-rest/inside-rest.servic
 import {ObjectTypeService} from './../../services/object-type.service';
 import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {PAGE_TYPE} from './web-site.const';
+import {Popup} from './web-site.interface';
 
 export interface PopupBuilder {
   pageHrefs: {
@@ -67,10 +68,7 @@ export class WebSiteService {
     popupLinkLabels: {[labelId: string]: string},
     objectNode: ObjectNode,
     ctx: CurrentContext,
-  ): Promise<{
-    uris: {[replaceId: string]: {pageId: string; pageName: string}};
-    text: string;
-  }> {
+  ): Promise<Popup> {
     let popupNode = objectNode;
     if (!popupNode.entityCtx?.loaded) {
       popupNode = (await this.insideRestService.read(

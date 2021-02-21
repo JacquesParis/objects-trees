@@ -100,3 +100,8 @@ export interface MenuEntry extends Page {
 export interface CalendarEntry extends Page {
   calendarDate: string;
 }
+
+export interface Popup {
+  uris: {[replaceId: string]: {pageId: string; pageName: string}};
+  text: string;
+}

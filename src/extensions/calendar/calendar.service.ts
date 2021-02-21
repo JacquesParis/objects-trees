@@ -288,7 +288,6 @@ export class CalendarService {
       menuTree.menuTitle += ': ' + menuTree.eventTitle;
     }
     return {
-      treeNode: menuTree.treeNode,
       pageTreeId: menuTree.pageTreeId,
       pageTreeUri: menuTree.pageTreeUri,
       menuTitle: menuTree.menuTitle,
@@ -298,11 +297,10 @@ export class CalendarService {
       toUtc: range.to,
       from: range.from.format('YYYY-MM-DD'),
       to: range.to.format('YYYY-MM-DD'),
-      popupTemplate: await this.webSiteService.getPopupContent(
-        entriesTree.treeNode.popupLinkLabels,
-        menuTree.treeNode,
-        ctx,
-      ),
+      treeNode: {
+        id: menuTree.treeNode.id as string,
+        name: menuTree.treeNode.name,
+      },
     };
   }
 

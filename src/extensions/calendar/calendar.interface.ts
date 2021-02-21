@@ -1,6 +1,5 @@
 import * as moment from 'moment';
 import {WebSiteMenuEntriesTree} from '../web-site/web-site.interface';
-import {MenuEntry} from './../web-site/web-site.interface';
 
 export interface CalendarEntriesTree extends WebSiteMenuEntriesTree {}
 
@@ -31,7 +30,6 @@ export interface Calendar extends CalendarEntryDefinition {
 }
 
 export interface CalendarEntryNode {
-  treeNode: MenuEntry;
   pageTreeId: string;
   pageTreeUri: string;
   menuTitle: string;
@@ -41,8 +39,8 @@ export interface CalendarEntryNode {
   toUtc: moment.Moment;
   from: string;
   to: string;
-  popupTemplate: {
-    uris: {[replaceId: string]: {pageId: string; pageName: string}};
-    text: string;
+  treeNode: {
+    id: string;
+    name: string;
   };
 }
