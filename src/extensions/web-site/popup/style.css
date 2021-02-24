@@ -2,6 +2,10 @@
   padding-top: 10px;
 }
 
+.card-popup .card-img-top {
+  overflow: hidden;
+}
+
 .card.card-popup .card-img-top img {
   height: 70px;
 }
