@@ -1,6 +1,9 @@
 import {service} from '@loopback/core';
-import {intersection} from 'lodash';
-import {WebSiteWitHMenuTemplate} from '../web-site/web-site.interface';
+import {indexOf, intersection} from 'lodash';
+import {
+  WebSiteEvent,
+  WebSiteWitHMenuTemplate,
+} from '../web-site/web-site.interface';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectNodeTree, ObjectTree} from './../../models/object-tree.model';
@@ -11,7 +14,7 @@ import {TransientEntityService} from './../../services/transient-entity/transien
 import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {TransientWebSiteService} from './../web-site/transient-web-site.service';
 import {MenuEntryDefinition, MenuTree} from './../web-site/web-site.interface';
-import {WebSiteService} from './../web-site/web-site.service';
+import {PopupBuilder, WebSiteService} from './../web-site/web-site.service';
 import {
   MAP_ENTRIES_TYPE,
   MAP_ENTRY_TYPE,
@@ -52,6 +55,12 @@ export class MapService {
       EntityName.objectNode,
       MAP_TYPE.name,
       this.completeMapNode.bind(this),
+    );
+    this.webSiteService.registerEventContributor(
+      this.contributeToEvent.bind(this),
+    );
+    this.webSiteService.registerPopupContributor(
+      this.contributeToPopup.bind(this),
     );
   }
 
@@ -156,51 +165,63 @@ export class MapService {
     menuTree: MenuTree,
     ctx: CurrentContext,
   ): Promise<MapEntryNode | undefined> {
-    const positionParts = menuTree.menuTitle.split(',');
-    if (2 === positionParts.length) {
-      const position: [number, number] = [
-        Number(positionParts[0]),
-        Number(positionParts[1]),
-      ];
-
-      menuTree.position = menuTree.menuTitle;
-      menuTree.menuTitle = menuTree.treeNode.locationName;
-      menuTree.positionTitle = menuTree.treeNode.eventTitle
-        ? menuTree.treeNode.eventTitle
-        : menuTree.treeNode.menuTitle
-        ? menuTree.treeNode.menuTitle
-        : menuTree.treeNode.pageTitle
-        ? menuTree.treeNode.pageTitle
-        : menuTree.treeNode.paragraphTitle
-        ? menuTree.treeNode.paragraphTitle
-        : '';
-      if (!menuTree.menuTitle) {
-        menuTree.menuTitle =
-          '' === menuTree.positionTitle
-            ? menuTree.treeNode.name
-            : menuTree.positionTitle;
-      } else if ('' !== menuTree.positionTitle) {
-        menuTree.menuTitle += ': ' + menuTree.positionTitle;
-      }
-      if ('' === menuTree.positionTitle) {
-        menuTree.positionTitle = menuTree.menuTitle;
-      }
-      return {
-        pageTreeId: menuTree.pageTreeId,
-        pageTreeUri: menuTree.pageTreeUri,
-        menuTitle: menuTree.menuTitle,
-        positionTitle: menuTree.positionTitle,
-        position: position,
-        icon: menuTree.treeNode.locationType
-          ? menuTree.treeNode.locationType
-          : 'fas fa-splotch',
-        treeNode: {
-          id: menuTree.treeNode.id as string,
-          name: menuTree.treeNode.name,
-        },
-      };
+    if (
+      menuTree.treeNode.locationPosition &&
+      2 === menuTree.treeNode.locationPosition.split(',').length
+    ) {
+      return this.webSiteService.buildEvent<MapEntryNode>(
+        entriesTree,
+        menuTree,
+        MapEntryNode,
+        ctx,
+      );
     }
     return undefined;
+  }
+
+  public async contributeToEvent(
+    webSiteEvent: WebSiteEvent,
+    entriesTree: ObjectTree,
+    menuTree: MenuTree,
+    ctx: CurrentContext,
+  ): Promise<boolean> {
+    if (menuTree.treeNode.locationPosition) {
+      const positionParts = menuTree.treeNode.locationPosition.split(',');
+      if (2 === positionParts.length) {
+        const position: [number, number] = [
+          Number(positionParts[0]),
+          Number(positionParts[1]),
+        ];
+        webSiteEvent.addEventMenuTitle(
+          menuTree.treeNode.locationName,
+          MapEntryNode.TYPE,
+        );
+        webSiteEvent.addSpecificFields({
+          position: position,
+          icon: menuTree.treeNode.locationType
+            ? menuTree.treeNode.locationType
+            : 'fas fa-splotch',
+        });
+      }
+    }
+    return true;
+  }
+
+  public async contributeToPopup(
+    popupNode: ObjectNode,
+    builder: PopupBuilder,
+    ctx: CurrentContext,
+  ): Promise<boolean> {
+    if (
+      popupNode.locationName &&
+      '' !== popupNode.locationName &&
+      -1 ===
+        indexOf(builder.popupParts.subTitleParts, popupNode.locationName) &&
+      popupNode.locationName !== builder.popupParts.title
+    ) {
+      builder.popupParts.subTitleParts.push(popupNode.locationName);
+    }
+    return true;
   }
 
   public async completeMapEntriesTree(

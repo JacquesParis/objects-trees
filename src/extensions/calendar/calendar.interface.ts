@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 import {WebSiteMenuEntriesTree} from '../web-site/web-site.interface';
+import {WebSiteEvent} from './../web-site/web-site.interface';
 
 export interface CalendarEntriesTree extends WebSiteMenuEntriesTree {}
 
@@ -29,18 +30,12 @@ export interface Calendar extends CalendarEntryDefinition {
   dates: CalendarDate[];
 }
 
-export interface CalendarEntryNode {
-  pageTreeId: string;
-  pageTreeUri: string;
-  menuTitle: string;
-  eventTitle: string;
-  range: string;
-  fromUtc: moment.Moment;
-  toUtc: moment.Moment;
-  from: string;
-  to: string;
-  treeNode: {
-    id: string;
-    name: string;
-  };
+export class CalendarEntryNode extends WebSiteEvent {
+  static TYPE = 'CALENDAR';
+  public eventType: string = CalendarEntryNode.TYPE;
+  public range: string;
+  public fromUtc: moment.Moment;
+  public toUtc: moment.Moment;
+  public from: string;
+  public to: string;
 }

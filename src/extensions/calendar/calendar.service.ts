@@ -1,8 +1,11 @@
 import {service} from '@loopback/core';
-import {intersection, isEqual} from 'lodash';
+import {indexOf, intersection, isEqual} from 'lodash';
 import * as moment from 'moment';
 import {TransientWebSiteService} from '../web-site/transient-web-site.service';
-import {MenuEntryDefinition} from '../web-site/web-site.interface';
+import {
+  MenuEntryDefinition,
+  WebSiteEvent,
+} from '../web-site/web-site.interface';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectNodeTree, ObjectTree} from './../../models/object-tree.model';
@@ -15,7 +18,7 @@ import {
   MenuTree,
   WebSiteWitHMenuTemplate,
 } from './../web-site/web-site.interface';
-import {WebSiteService} from './../web-site/web-site.service';
+import {PopupBuilder, WebSiteService} from './../web-site/web-site.service';
 import {
   CALENDAR_ENTRIES_TYPE,
   CALENDAR_ENTRY_TYPE,
@@ -57,6 +60,12 @@ export class CalendarService {
       EntityName.objectNode,
       CALENDAR_TYPE.name,
       this.completeCalendarNode.bind(this),
+    );
+    this.webSiteService.registerEventContributor(
+      this.contributeToEvent.bind(this),
+    );
+    this.webSiteService.registerPopupContributor(
+      this.contributeToPopup.bind(this),
     );
   }
 
@@ -241,15 +250,17 @@ export class CalendarService {
         calendarEntry,
         ctx,
       );
-      if (newDate.fromUtc?.isBefore(dates.minDateUtc)) {
-        dates.minDateUtc = newDate.fromUtc;
-        dates.minDate = dates.minDateUtc.format('YYYY-MM-DD');
+      if (newDate) {
+        if (newDate.fromUtc?.isBefore(dates.minDateUtc)) {
+          dates.minDateUtc = newDate.fromUtc;
+          dates.minDate = dates.minDateUtc.format('YYYY-MM-DD');
+        }
+        if (newDate.toUtc?.isAfter(dates.maxDateUtc)) {
+          dates.maxDateUtc = newDate.toUtc;
+          dates.maxDate = dates.maxDateUtc.format('YYYY-MM-DD');
+        }
+        dates.dates.push(newDate);
       }
-      if (newDate.toUtc?.isAfter(dates.maxDateUtc)) {
-        dates.maxDateUtc = newDate.toUtc;
-        dates.maxDate = dates.maxDateUtc.format('YYYY-MM-DD');
-      }
-      dates.dates.push(newDate);
       if (calendarEntry.children && 0 < calendarEntry.children.length) {
         await this.buildCalendarDates(
           entriesTree,
@@ -265,43 +276,69 @@ export class CalendarService {
     entriesTree: ObjectTree,
     menuTree: MenuTree,
     ctx: CurrentContext,
-  ): Promise<CalendarEntryNode> {
-    const range = this.getDateRange(menuTree.menuTitle);
-    menuTree.range = menuTree.menuTitle;
-    moment.locale(ctx.uriContext.uri.value.acceptLanguage);
-    menuTree.menuTitle = range.from.format('LL');
-    if (!isEqual(range.from, range.to)) {
-      menuTree.menuTitle += ' - ' + range.to.format('LL');
+  ): Promise<CalendarEntryNode | undefined> {
+    let event: CalendarEntryNode | undefined = undefined;
+    if (menuTree.treeNode.calendarDateRange) {
+      event = await this.webSiteService.buildEvent<CalendarEntryNode>(
+        entriesTree,
+        menuTree,
+        CalendarEntryNode,
+        ctx,
+      );
     }
-    menuTree.eventTitle = menuTree.treeNode.eventTitle
-      ? menuTree.treeNode.eventTitle
-      : menuTree.treeNode.menuTitle
-      ? menuTree.treeNode.menuTitle
-      : menuTree.treeNode.pageTitle
-      ? menuTree.treeNode.pageTitle
-      : menuTree.treeNode.paragraphTitle
-      ? menuTree.treeNode.paragraphTitle
-      : '';
-    if ('' === menuTree.eventTitle) {
-      menuTree.eventTitle = menuTree.menuTitle;
-    } else {
-      menuTree.menuTitle += ': ' + menuTree.eventTitle;
+
+    return event;
+  }
+
+  public async contributeToEvent(
+    webSiteEvent: WebSiteEvent,
+    entriesTree: ObjectTree,
+    menuTree: MenuTree,
+    ctx: CurrentContext,
+  ): Promise<boolean> {
+    if (menuTree.treeNode.calendarDateRange) {
+      const range = this.getDateRange(menuTree.treeNode.calendarDateRange);
+      menuTree.range = menuTree.treeNode.calendarDateRange;
+      moment.locale(ctx.uriContext.uri.value.acceptLanguage);
+      let menuTitle = range.from.format('LL');
+      if (!isEqual(range.from, range.to)) {
+        menuTitle += ' - ' + range.to.format('LL');
+      }
+      webSiteEvent.addEventMenuTitle(menuTitle, CalendarEntryNode.TYPE);
+      webSiteEvent.addSpecificFields({
+        range: menuTree.range,
+        fromUtc: range.from,
+        toUtc: range.to,
+        from: range.from.format('YYYY-MM-DD'),
+        to: range.to.format('YYYY-MM-DD'),
+      });
     }
-    return {
-      pageTreeId: menuTree.pageTreeId,
-      pageTreeUri: menuTree.pageTreeUri,
-      menuTitle: menuTree.menuTitle,
-      eventTitle: menuTree.eventTitle,
-      range: menuTree.range,
-      fromUtc: range.from,
-      toUtc: range.to,
-      from: range.from.format('YYYY-MM-DD'),
-      to: range.to.format('YYYY-MM-DD'),
-      treeNode: {
-        id: menuTree.treeNode.id as string,
-        name: menuTree.treeNode.name,
-      },
-    };
+    return true;
+  }
+
+  public async contributeToPopup(
+    popupNode: ObjectNode,
+    builder: PopupBuilder,
+    ctx: CurrentContext,
+  ): Promise<boolean> {
+    if (popupNode.calendarDateRange) {
+      const range = this.getDateRange(popupNode.calendarDateRange);
+      popupNode = popupNode.calendarDateRange;
+      moment.locale(ctx.uriContext.uri.value.acceptLanguage);
+      let menuTitle = range.from.format('LL');
+      if (!isEqual(range.from, range.to)) {
+        menuTitle += ' - ' + range.to.format('LL');
+      }
+      if (
+        menuTitle &&
+        -1 === indexOf(builder.popupParts.subTitleParts, menuTitle) &&
+        menuTitle !== builder.popupParts.title
+      ) {
+        builder.popupParts.subTitleParts.push(menuTitle);
+      }
+    }
+
+    return true;
   }
 
   protected getDateRange(

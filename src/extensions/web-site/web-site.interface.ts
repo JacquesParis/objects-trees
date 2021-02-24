@@ -1,6 +1,8 @@
 import {IEntityContext} from '@jacquesparis/objects-model';
+import {indexOf} from 'lodash';
 import {ObjectNode} from '../../models/object-node.model';
 import {ObjectNodeTree, ObjectTree} from '../../models/object-tree.model';
+import {CurrentContext} from './../../services/application.service';
 
 export interface PageTemplateChoice {
   pageTypeKey: string;
@@ -104,4 +106,104 @@ export interface CalendarEntry extends Page {
 export interface Popup {
   uris: {[replaceId: string]: {pageId: string; pageName: string}};
   text: string;
+}
+
+export abstract class WebSiteEvent {
+  public abstract eventType: string;
+  pageTreeId: string;
+  pageTreeUri: string;
+  private prefixMenuTitle: string[] = [];
+  menuTitle: string;
+  originalMenuTitle: string;
+  eventTitle: string;
+  icon: string;
+  treeNode: ObjectNode;
+
+  public constructor(menuTree: ObjectTree) {
+    this.eventTitle = menuTree.treeNode.eventTitle
+      ? menuTree.treeNode.eventTitle
+      : menuTree.treeNode.menuTitle
+      ? menuTree.treeNode.menuTitle
+      : menuTree.treeNode.pageTitle
+      ? menuTree.treeNode.pageTitle
+      : menuTree.treeNode.paragraphTitle
+      ? menuTree.treeNode.paragraphTitle
+      : '';
+    this.icon = 'fas fa-splotch';
+    this.menuTitle = this.eventTitle ? this.eventTitle : menuTree.treeNode.name;
+    this.originalMenuTitle = menuTree.menuTitle;
+    this.pageTreeId = menuTree.pageTreeId as string;
+    this.pageTreeUri = menuTree.pageTreeUri;
+    this.prefixMenuTitle = [];
+    this.treeNode = menuTree.treeNode;
+
+    menuTree.eventTitle = this.eventTitle;
+  }
+
+  public static async get<T extends WebSiteEvent>(
+    entriesTree: ObjectTree,
+    menuTree: MenuTree,
+    eventType: new (menuTree: MenuTree) => T,
+    eventContributors: ((
+      webSiteEvent: WebSiteEvent,
+      entriesTree: ObjectTree,
+      menuTree: MenuTree,
+      ctx: CurrentContext,
+    ) => Promise<boolean>)[],
+    ctx: CurrentContext,
+  ): Promise<WebSiteEvent> {
+    const event: WebSiteEvent = new eventType(menuTree);
+    for (const contributor of eventContributors) {
+      if (!(await contributor(event, entriesTree, menuTree, ctx))) {
+        break;
+      }
+    }
+
+    if (
+      '' === event.eventTitle ||
+      undefined === event.eventTitle ||
+      null === event.eventTitle
+    ) {
+      menuTree.eventTitle = menuTree.menuTitle;
+      event.eventTitle = menuTree.eventTitle;
+    } else {
+      const prefixes = event.prefixMenuTitle.filter(
+        (prefix) =>
+          prefix !== null &&
+          prefix !== undefined &&
+          prefix !== '' &&
+          prefix !== menuTree.evenTitle,
+      );
+      if (0 < prefixes.length) {
+        menuTree.menuTitle = prefixes.join(', ') + ', ' + menuTree.eventTitle;
+      } else {
+        menuTree.menuTitle = menuTree.eventTitle;
+      }
+      event.menuTitle = menuTree.menuTitle;
+    }
+    return event;
+  }
+
+  public addEventMenuTitle(titlePrefix: string, eventType: string) {
+    if (this.eventType === eventType) {
+      if (titlePrefix) {
+        this.menuTitle = titlePrefix;
+        if (-1 < indexOf(this.prefixMenuTitle, titlePrefix)) {
+          this.prefixMenuTitle.splice(
+            indexOf(this.prefixMenuTitle, titlePrefix),
+            1,
+          );
+        }
+        this.prefixMenuTitle.unshift(titlePrefix);
+      }
+    } else if (
+      titlePrefix &&
+      -1 === indexOf(this.prefixMenuTitle, titlePrefix)
+    ) {
+      this.prefixMenuTitle.push(titlePrefix);
+    }
+  }
+  public addSpecificFields(fields: {[name: string]: unknown}) {
+    Object.assign(this, fields);
+  }
 }

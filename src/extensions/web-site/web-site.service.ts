@@ -5,13 +5,14 @@ import sanitize from 'sanitize-html';
 import {contentGenericTemplate} from '../../helper';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
+import {ObjectTree} from './../../models/object-tree.model';
 import {CurrentContext} from './../../services/application.service';
 import {MustacheService} from './../../services/entity-definition/mustache.service';
 import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
 import {ObjectTypeService} from './../../services/object-type.service';
 import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {PAGE_TYPE} from './web-site.const';
-import {Popup} from './web-site.interface';
+import {MenuTree, Popup, WebSiteEvent} from './web-site.interface';
 
 export interface PopupBuilder {
   pageHrefs: {
@@ -21,6 +22,7 @@ export interface PopupBuilder {
     uri: string | undefined;
     title: string | undefined;
     subTitle: string | undefined;
+    subTitleParts: string[];
     imgs: {uri: string; text: string | undefined}[];
     texts: {uri: string | undefined; text: string}[];
     links: {uri: string; text: string}[];
@@ -43,6 +45,13 @@ export class WebSiteService {
   private popupContributors: ((
     popupNode: ObjectNode,
     builder: PopupBuilder,
+    ctx: CurrentContext,
+  ) => Promise<boolean>)[] = [];
+  eventContributors: ((
+    webSiteEvent: WebSiteEvent,
+    entriesTree: ObjectTree,
+    menuTree: MenuTree,
+    ctx: CurrentContext,
   ) => Promise<boolean>)[] = [];
   constructor(
     @service(InsideRestService)
@@ -56,12 +65,40 @@ export class WebSiteService {
   }
 
   public registerPopupContributor(
-    contributor: (
+    popupContributor: (
       popupNode: ObjectNode,
       builder: PopupBuilder,
+      ctx: CurrentContext,
     ) => Promise<boolean>,
   ) {
-    this.popupContributors.push(contributor);
+    this.popupContributors.push(popupContributor);
+  }
+
+  public registerEventContributor(
+    eventContributor: (
+      webSiteEvent: WebSiteEvent,
+      entriesTree: ObjectTree,
+      menuTree: MenuTree,
+      ctx: CurrentContext,
+    ) => Promise<boolean>,
+  ) {
+    this.eventContributors.push(eventContributor);
+  }
+
+  public async buildEvent<T extends WebSiteEvent>(
+    entriesTree: ObjectTree,
+    menuTree: MenuTree,
+    eventType: new (menuTree: MenuTree) => T,
+    ctx: CurrentContext,
+  ): Promise<T> {
+    const event: WebSiteEvent = await WebSiteEvent.get<T>(
+      entriesTree,
+      menuTree,
+      eventType,
+      this.eventContributors,
+      ctx,
+    );
+    return event as T;
   }
 
   public async getPopupContent(
@@ -93,6 +130,7 @@ export class WebSiteService {
           ? popupNode.paragraphTitle
           : popupNode.name,
         subTitle: undefined,
+        subTitleParts: [],
         texts: [],
         imgs: [],
         links: [],
@@ -128,9 +166,14 @@ export class WebSiteService {
     }
 
     for (const contributor of this.popupContributors) {
-      if (!(await contributor(popupNode, popupBuilder))) {
+      if (!(await contributor(popupNode, popupBuilder, ctx))) {
         break;
       }
+    }
+    if (0 < popupBuilder.popupParts.subTitleParts.length) {
+      popupBuilder.popupParts.subTitle = popupBuilder.popupParts.subTitleParts.join(
+        ', ',
+      );
     }
 
     return {

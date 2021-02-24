@@ -1,6 +1,7 @@
 import {service} from '@loopback/core';
 import {indexOf} from 'lodash';
 import {ObjectNode} from './../../models/object-node.model';
+import {CurrentContext} from './../../services/application.service';
 import {ObjectTypeService} from './../../services/object-type.service';
 import {PAGE_TYPE} from './../web-site/web-site.const';
 import {PopupBuilder, WebSiteService} from './../web-site/web-site.service';
@@ -20,6 +21,7 @@ export class ContentImageTemplateService {
   public async contributeToPopup(
     popupNode: ObjectNode,
     popupBuilder: PopupBuilder,
+    ctx: CurrentContext,
   ): Promise<boolean> {
     if (popupNode.images && 0 < popupNode.images.length) {
       for (const image of popupNode.images) {

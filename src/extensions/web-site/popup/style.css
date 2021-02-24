@@ -5,3 +5,15 @@
 .card.card-popup .card-img-top img {
   height: 70px;
 }
+
+.card.card-popup .card-body {
+  padding: 5px;
+}
+
+.card.card-popup h6.card-title {
+  margin-bottom: 5px;
+}
+
+.card.card-popup p.card-text {
+  margin: 5px 0;
+}
