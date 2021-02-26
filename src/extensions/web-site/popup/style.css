@@ -1,9 +1,7 @@
 .template_pageWithParagraph .card .card.card-popup {
   padding-top: 10px;
-}
-
-.card-popup .card-img-top {
-  overflow: hidden;
+  max-width: 75vw;
+  width: 300px;
 }
 
 .card.card-popup .card-img-top img {
@@ -20,4 +18,105 @@
 
 .card.card-popup p.card-text {
   margin: 5px 0;
+}
+
+@keyframes moveImg {
+  0% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: 0;
+  }
+  2% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: calc(-66% + 200px);
+  }
+  17% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: calc(-66% + 200px);
+  }
+  19% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: calc(-166% + 500px);
+  }
+  34% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: calc(-166% + 500px);
+  }
+  36% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: calc(-33% + 100px);
+  }
+  50% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: calc(-33% + 100px);
+  }
+  52% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: calc(-200% + 600px);
+  }
+  67% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: calc(-200% + 600px);
+  }
+  69% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: calc(-133% + 400px);
+  }
+  84% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: calc(-133% + 400px);
+  }
+  86% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: 0;
+  }
+  100% {
+    transition-property: all;
+    transition-delay: 0.5s;
+    margin-left: 0;
+  }
+}
+
+.card-popup-img-set-holder {
+  overflow: hidden;
+  text-align: center;
+  height: 70px;
+}
+
+.img-set-holder {
+  max-width: 100%;
+  height: 70px;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.img-set-holder.img-set-move {
+  width: 100%;
+}
+
+.img-set-container {
+  width: auto;
+  position: relative;
+  white-space: nowrap;
+}
+
+.img-set-move .img-set-container {
+  position: absolute;
+}
+
+.img-set-move .img-set-inner {
+  position: relative;
+  animation: moveImg 20s infinite linear;
 }

@@ -30,7 +30,7 @@ class SortMethod implements MethodAndViewEntityInterface {
         child.treeNode = await this.objectNodeService.modifyById(
           child.treeNode.id as string,
           {index: childIndex * 10 + 10},
-          CurrentContext.get({
+          CurrentContext.get(ctx, {
             nodeContext: {node: new ExpectedValue(child?.treeNode)},
           }),
           true,

@@ -94,7 +94,7 @@ export class TransientContentGenericService {
             await this.transientEntityService.completeReturnedEntity(
               EntityName.objectNode,
               template,
-              CurrentContext.get({
+              CurrentContext.get(ctx, {
                 nodeContext: {
                   node: ctx.nodeContext.references[templateTreeId],
                 },

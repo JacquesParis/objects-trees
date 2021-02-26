@@ -98,7 +98,7 @@ export class ObjectTreeProvider extends ExtensionProvider {
               {
                 objectTypeId: ROOT_TYPE.name,
               },
-              CurrentContext.get({
+              CurrentContext.get(new CurrentContext(), {
                 nodeContext: {node: new ExpectedValue(newRoot)},
               }),
               true,

@@ -260,6 +260,7 @@ export class ObjectNodeService {
     objectTypeId: string,
     defaultValue?: DataObject<ObjectNode>,
     min = 1,
+    ctx: CurrentContext = new CurrentContext(),
   ): Promise<ObjectNode[]> {
     const children = await this.searchByParentIdAndObjectTypeId(
       parentId,
@@ -273,7 +274,7 @@ export class ObjectNodeService {
               parentNodeId: parentId,
               objectTypeId: objectTypeId,
             }),
-            new CurrentContext(),
+            CurrentContext.get(ctx, {}),
           ),
         );
       }
@@ -486,6 +487,7 @@ export class ObjectNodeService {
   private async checkSubTypesCondition(
     objectNode: ObjectNode,
     nodeContext: NodeContext,
+    ctx: CurrentContext,
   ) {
     const objectType = nodeContext.objectType.value;
     if (objectType?.objectSubTypes) {
@@ -499,7 +501,7 @@ export class ObjectNodeService {
                   objectTypeId: objectSubType.subObjectTypeId,
                   parentNodeId: objectNode.id,
                 },
-                CurrentContext.get({
+                CurrentContext.get(ctx, {
                   nodeContext: {
                     parentType: new ExpectedValue(objectType),
                     parent: new ExpectedValue<ObjectNode>(objectNode),
@@ -646,7 +648,7 @@ export class ObjectNodeService {
     }
 
     if (autoGenerateChildren) {
-      await this.checkSubTypesCondition(result, nodeContext);
+      await this.checkSubTypesCondition(result, nodeContext, ctx);
     }
 
     /*

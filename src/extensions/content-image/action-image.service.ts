@@ -53,9 +53,10 @@ export class ActionImageService {
   protected createImage(
     image: Image,
     parent: ObjectNode,
+    ctx: CurrentContext,
     parentType?: ObjectType,
   ): Promise<ObjectNode> {
-    const childCtx: CurrentContext = CurrentContext.get({
+    const childCtx: CurrentContext = CurrentContext.get(ctx, {
       nodeContext: {
         parent: new ExpectedValue(parent),
         parentType: new ExpectedValue(parentType),
@@ -87,6 +88,7 @@ export class ActionImageService {
       await this.createImage(
         image,
         ctx.nodeContext.node.value,
+        ctx,
         ctx.nodeContext.objectType.value,
       );
     }
@@ -123,7 +125,11 @@ export class ActionImageService {
 
         const images: {images: Image[]} = args as {images: Image[]};
         for (const image of images.images) {
-          const imageObject = await this.createImage(image, imageGalleryNode);
+          const imageObject = await this.createImage(
+            image,
+            imageGalleryNode,
+            ctx,
+          );
           if (imageObject && selectedImages) {
             selectedImages.push(imageObject.name);
           }

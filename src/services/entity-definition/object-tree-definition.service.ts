@@ -193,7 +193,7 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
         await this.entityDefinitionService.completeReturnedEntity(
           EntityName.objectTree,
           child,
-          new CurrentContext(),
+          CurrentContext.get(ctx, {}),
         );
       }
     }

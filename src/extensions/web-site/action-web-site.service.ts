@@ -99,7 +99,7 @@ export class ActionWebSiteService {
   ): Promise<JsonGeneratedResponse<Popup>> {
     const objectNode = await this.objectNodeService.getNode(
       args[0] as string,
-      CurrentContext.get({}),
+      CurrentContext.get(ctx, {}),
     );
     return new JsonGeneratedResponse<Popup>(
       await this.webSiteService.getPopupContent(

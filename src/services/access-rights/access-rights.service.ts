@@ -176,7 +176,9 @@ export class AccessRightsService implements ServiceDescription {
       await this.computeACLTree(
         await this.objectTreeService.loadTree(
           actCtx.nodes.rootACL.value.id as string,
-          CurrentContext.get({treeContext: {treeNode: actCtx.nodes.rootACL}}),
+          CurrentContext.get(ctx, {
+            treeContext: {treeNode: actCtx.nodes.rootACL},
+          }),
         ),
         ctx.accessRightsContext.user.value,
       )

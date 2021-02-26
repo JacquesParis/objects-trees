@@ -243,7 +243,7 @@ export class TransientTreeService implements TransientEntityInterface {
         await this.transientEntityService.completeReturnedEntity(
           EntityName.objectTree,
           child,
-          new CurrentContext(),
+          CurrentContext.get(ctx, {}),
         );
       } else {
         if (!child.entityCtx) {

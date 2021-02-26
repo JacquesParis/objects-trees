@@ -1,10 +1,20 @@
 <div class="card card-popup">
   {{#hasImg}}
   <div class="card-img-top">
-    <div class="d-flex justify-content-center" style="overflow: hidden">
-      {{#imgs}} <img src="{{&uri}}" style="height: 70px"
-      {{#text}}alt="{{.}}"{{/text}}> {{/imgs}}
+    {{#imageBlocs}}
+    <div class="card-popup-img-set-holder">
+      <div
+        class="img-set-holder{{#hasSeveralImagesBlocs}} img-set-move{{/hasSeveralImagesBlocs}}"
+      >
+        <div class="img-set-container">
+          <div class="img-set-inner">
+            {{#.}}<img src="{{&uri}}" style="height: 70px"
+            {{#text}}alt="{{.}}"{{/text}}>{{/.}}
+          </div>
+        </div>
+      </div>
     </div>
+    {{/imageBlocs}}
   </div>
   {{/hasImg}}
   <div class="card-body">

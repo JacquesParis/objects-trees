@@ -174,15 +174,6 @@ export class ContentImageThumbService {
     imageTree: ImageTree,
     ctx: CurrentContext,
   ): Promise<void> {
-    /*
-    await this._completeImageTree(image, ctx);
-  }
-
-  private async _completeImageTree(
-    image: ImageTree,
-    ctx: CurrentContext,
-    reloadTree = true,
-  ): Promise<boolean> {*/
     let hasNewNodes = false;
     if (!(IMAGE_ORIGINAL_TYPE.name in imageTree.childrenByObjectTypeId)) {
       await this.contentImageService.addTransientContent(imageTree.treeNode);
@@ -206,7 +197,7 @@ export class ContentImageThumbService {
               type: imageTree.treeNode.contentImage.type,
             },
           },
-          CurrentContext.get({
+          CurrentContext.get(ctx, {
             nodeContext: {
               parent: new ExpectedValue<ObjectNode>(imageTree.treeNode),
             },
@@ -228,7 +219,7 @@ export class ContentImageThumbService {
             type: imageTree.treeNode.contentImage.type,
           },
         },
-        CurrentContext.get({
+        CurrentContext.get(ctx, {
           nodeContext: {
             node: new ExpectedValue<ObjectNode>(imageTree.treeNode),
           },
@@ -266,7 +257,7 @@ export class ContentImageThumbService {
               type: imageTree.treeNode.contentImage.type,
             },
           },
-          CurrentContext.get({
+          CurrentContext.get(ctx, {
             nodeContext: {
               parent: new ExpectedValue<ObjectNode>(imageTree.treeNode),
             },

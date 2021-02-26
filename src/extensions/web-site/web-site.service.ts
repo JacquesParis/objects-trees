@@ -1,6 +1,6 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
-import {indexOf, merge} from 'lodash';
+import {cloneDeep, indexOf, merge} from 'lodash';
 import sanitize from 'sanitize-html';
 import {contentGenericTemplate} from '../../helper';
 import {EntityName} from './../../models/entity-name';
@@ -23,7 +23,8 @@ export interface PopupBuilder {
     title: string | undefined;
     subTitle: string | undefined;
     subTitleParts: string[];
-    imgs: {uri: string; text: string | undefined}[];
+    images: {uri: string; text: string | undefined}[];
+    imageBlocs: {uri: string; text: string | undefined}[][];
     texts: {uri: string | undefined; text: string}[];
     links: {uri: string; text: string}[];
     btns: {uri: string; text: string}[];
@@ -132,7 +133,8 @@ export class WebSiteService {
         subTitle: undefined,
         subTitleParts: [],
         texts: [],
-        imgs: [],
+        images: [],
+        imageBlocs: [],
         links: [],
         btns: [],
       },
@@ -175,13 +177,43 @@ export class WebSiteService {
         ', ',
       );
     }
+    if (5 < popupBuilder.popupParts.images.length) {
+      const nbOfImages = popupBuilder.popupParts.images.length;
+      const step = Math.ceil(nbOfImages / 11) + 1;
+      let index = step;
+      const availableImages = cloneDeep(popupBuilder.popupParts.images);
+      popupBuilder.popupParts.imageBlocs.push([]);
+      popupBuilder.popupParts.imageBlocs.push([]);
+      while (availableImages.length > 0) {
+        index = index % availableImages.length;
+        popupBuilder.popupParts.imageBlocs[0].push(
+          ...availableImages.splice(index, 1),
+        );
+        index += step;
+        if (availableImages.length > 0) {
+          index = index % availableImages.length;
+          popupBuilder.popupParts.imageBlocs[1].push(
+            ...availableImages.splice(index, 1),
+          );
+          index += step;
+        }
+      }
+    } else {
+      popupBuilder.popupParts.imageBlocs.push(
+        cloneDeep(popupBuilder.popupParts.images),
+      );
+    }
 
     return {
       uris: popupBuilder.pageHrefs,
       text: this.mustacheService.parse(
         this.popup.templateMustache,
         merge(
-          {hasImg: 0 < popupBuilder.popupParts.imgs.length},
+          {
+            hasImg: 0 < popupBuilder.popupParts.images.length,
+            hasSeveralImagesBlocs:
+              1 < popupBuilder.popupParts.imageBlocs.length,
+          },
           popupBuilder.popupParts,
         ),
       ),

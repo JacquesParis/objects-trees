@@ -107,8 +107,17 @@ export class CurrentContext {
   public uriContext: UriContext = new UriContext();
   public methodContext: MethodContext = new MethodContext();
   public webSiteContext: WebSiteContext = new WebSiteContext();
-  public static get(value: DataObject<CurrentContext>): CurrentContext {
+  public static get(
+    parentCtx: CurrentContext,
+    value: DataObject<CurrentContext>,
+  ): CurrentContext {
     const ctx = new CurrentContext();
+    ctx.typeContext = parentCtx.typeContext;
+    ctx.uriContext = parentCtx.uriContext;
+    ctx.uriContext.mainContext = false;
+    ctx.methodContext = parentCtx.methodContext;
+    ctx.webSiteContext = parentCtx.webSiteContext;
+
     if (value) {
       for (const key in value) {
         if (key in ctx) {

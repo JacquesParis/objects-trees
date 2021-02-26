@@ -143,7 +143,7 @@ export class HomePageService {
             host + '$' + path,
             WEB_SITE_CACHE_LANG_TYPE.name,
             lang,
-            CurrentContext.get({}),
+            CurrentContext.get(ctx, {}),
           );
         } catch (error) {
           await this.objectNodeService.add(
@@ -152,14 +152,16 @@ export class HomePageService {
               name: lang,
               objectTypeId: WEB_SITE_CACHE_LANG_TYPE.name,
             },
-            CurrentContext.get({nodeContext: {parent: new ExpectedValue(uri)}}),
+            CurrentContext.get(ctx, {
+              nodeContext: {parent: new ExpectedValue(uri)},
+            }),
           );
           langTree = await this.objectTreeService.getNamespaceTree(
             WEB_SITE_VIEW_URL_TYPE.name,
             host + '$' + path,
             WEB_SITE_CACHE_LANG_TYPE.name,
             lang,
-            CurrentContext.get({}),
+            CurrentContext.get(ctx, {}),
           );
         }
 
@@ -324,7 +326,7 @@ function getPageHref(page) {
         pageUrl: ctx.uriContext.uri.value.url,
         contentPageCache: ctx.webSiteContext.cachedContent.value,
       },
-      CurrentContext.get({
+      CurrentContext.get(ctx, {
         nodeContext: {
           parent: new ExpectedValue(
             ctx.webSiteContext.siteBaseUriTree.value.treeNode,
