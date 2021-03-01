@@ -275,6 +275,9 @@ export class ObjectNodeService {
               objectTypeId: objectTypeId,
             }),
             CurrentContext.get(ctx, {}),
+            false,
+            true,
+            true,
           ),
         );
       }
@@ -377,11 +380,28 @@ export class ObjectNodeService {
   protected async checkNameAvailability(
     objectNode: DataObject<ObjectNode>,
     name: string,
-  ) {
-    if (!name || !name.match(/^[A-Z|a-z|0-9|:$\.\-_]+$/g)) {
+    generate = false,
+  ): Promise<void> {
+    if (!name) {
       throw ApplicationError.format('alphanumeric or - or _ or . or $', {
         name: name,
       });
+    }
+    if (!name.match(/^[A-Z|a-z|0-9|:$\.\-_]+$/g)) {
+      if (generate) {
+        name = name.replace(/ /g, '_');
+        name = name.replace(/[é|è|ê|ë]/g, 'e');
+        name = name.replace(/[î|ï]/g, 'i');
+        name = name.replace(/[à|â|ä|@]/g, 'a');
+        name = name.replace(/[ù|û|ü]/g, 'u');
+        name = name.replace(/[ç]/g, 'c');
+      }
+      if (!name.match(/^[A-Z|a-z|0-9|:$\.\-_]+$/g)) {
+        throw ApplicationError.format('alphanumeric or - or _ or . or $', {
+          name: name,
+        });
+      }
+      objectNode.name = name;
     }
     const types = await this.objectTypeService.getImplementingCommonTypes(
       objectNode.objectTypeId as string,
@@ -397,7 +417,7 @@ export class ObjectNodeService {
       },
     });
     if (otherNodes && 0 < otherNodes.length) {
-      throw ApplicationError.conflict({name: name});
+      return this.resolveConflictName(objectNode, name, generate);
     }
     if (objectNode.tree) {
       const otherTrees: ObjectNode[] = await this.findOrderedNodes({
@@ -409,7 +429,7 @@ export class ObjectNodeService {
         },
       });
       if (otherTrees && 0 < otherTrees.length) {
-        throw ApplicationError.conflict({name: name});
+        return this.resolveConflictName(objectNode, name, generate);
       }
     }
     if (objectNode.namespace) {
@@ -422,7 +442,7 @@ export class ObjectNodeService {
         },
       });
       if (otherNamespaces && 0 < otherNamespaces.length) {
-        throw ApplicationError.conflict({name: name});
+        return this.resolveConflictName(objectNode, name, generate);
       }
     }
     if (objectNode.owner) {
@@ -434,9 +454,20 @@ export class ObjectNodeService {
         },
       });
       if (otherOwners && 0 < otherOwners.length) {
-        throw ApplicationError.conflict({name: name});
+        return this.resolveConflictName(objectNode, name, generate);
       }
     }
+  }
+  private async resolveConflictName(
+    objectNode: DataObject<ObjectNode>,
+    name: string,
+    generate = false,
+  ): Promise<void> {
+    if (!generate) {
+      throw ApplicationError.conflict({name: name});
+    }
+    objectNode.name = name + '_2';
+    return this.checkNameAvailability(objectNode, objectNode.name, generate);
   }
 
   public async checkBrothersCondition(
@@ -508,6 +539,9 @@ export class ObjectNodeService {
                     objectSubType: new ExpectedValue(objectSubType),
                   },
                 }),
+                false,
+                true,
+                true,
               );
             } catch (error) {
               console.log(error);
@@ -523,6 +557,7 @@ export class ObjectNodeService {
     ctx: CurrentContext,
     byPassCheck = false,
     autoGenerateChildren = true,
+    resolveNameConflict = false,
   ): Promise<ObjectNode> {
     const nodeContext = ctx.nodeContext;
     //let objectNode = clone(objectNodePosted);
@@ -607,7 +642,11 @@ export class ObjectNodeService {
       objectNode.namespace = !!objectNode.owner || !!objectSubType.namespace;
       objectNode.tree = !!objectNode.namespace || !!objectSubType.tree;
 
-      await this.checkNameAvailability(objectNode, <string>objectNode.name);
+      await this.checkNameAvailability(
+        objectNode,
+        <string>objectNode.name,
+        resolveNameConflict,
+      );
 
       objectNodeForUpdate = pick(
         objectNode,

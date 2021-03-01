@@ -1,6 +1,8 @@
 import {IObjectTree, IRestEntity} from '@jacquesparis/objects-model';
 import {AjaxResult} from '@jacquesparis/objects-website';
 import {service} from '@loopback/core';
+import {JSDOM} from 'jsdom';
+import path from 'path';
 import {
   GeneratedResponse,
   JsonGeneratedResponse,
@@ -115,6 +117,24 @@ export class HomePageService {
     return true;
   }
 
+  public async lookWebSiteEntry(
+    subPath: string | undefined,
+    ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    return ctx.webSiteContext.urlNode.getOrSetValue(async () => {
+      const host = ctx.uriContext.uri.value.host;
+      subPath = subPath ? subPath : '';
+      const uri: ObjectNode = await this.objectNodeService.searchOwner(
+        WEB_SITE_VIEW_URL_TYPE.name,
+        host + '$' + subPath,
+      );
+      if (!uri) {
+        throw ApplicationError.notFound({host, subPath});
+      }
+      return uri;
+    });
+  }
+
   public async getWebSiteEntity(
     lang: string,
     subPath: string | undefined,
@@ -127,20 +147,14 @@ export class HomePageService {
     const webSiteTree = await ctx.webSiteContext.webSiteTree.getOrSetValue(
       async () => {
         const host = ctx.uriContext.uri.value.host;
-        const path = subPath ? subPath : '';
+        subPath = subPath ? subPath : '';
         let langTree: ObjectTree;
 
-        const uri: ObjectNode = await this.objectNodeService.searchOwner(
-          WEB_SITE_VIEW_URL_TYPE.name,
-          host + '$' + path,
-        );
-        if (!uri) {
-          throw ApplicationError.notFound({host, path});
-        }
+        const uri: ObjectNode = await this.lookWebSiteEntry(subPath, ctx);
         try {
           langTree = await this.objectTreeService.getNamespaceTree(
             WEB_SITE_VIEW_URL_TYPE.name,
-            host + '$' + path,
+            host + '$' + subPath,
             WEB_SITE_CACHE_LANG_TYPE.name,
             lang,
             CurrentContext.get(ctx, {}),
@@ -158,7 +172,7 @@ export class HomePageService {
           );
           langTree = await this.objectTreeService.getNamespaceTree(
             WEB_SITE_VIEW_URL_TYPE.name,
-            host + '$' + path,
+            host + '$' + subPath,
             WEB_SITE_CACHE_LANG_TYPE.name,
             lang,
             CurrentContext.get(ctx, {}),
@@ -166,7 +180,9 @@ export class HomePageService {
         }
 
         ctx.webSiteContext.pageBaseUri.value =
-          path === '' ? '/' + lang + '/' : '/site/' + path + '/' + lang + '/';
+          subPath === ''
+            ? '/' + lang + '/'
+            : '/site/' + subPath + '/' + lang + '/';
         ctx.webSiteContext.siteBaseUriTree.value = langTree;
         for (const cache of ctx.webSiteContext.siteBaseUriTree.value.children) {
           if (getCacheName(pageName) === cache.treeNode.name) {
@@ -199,6 +215,77 @@ export class HomePageService {
       },
     );
     return webSiteTree;
+  }
+
+  private setMeta(adminDOM: JSDOM, name: string, content: string) {
+    if (
+      adminDOM.window.document.head.querySelector(
+        '[name~="' + name + '"][content]',
+      )
+    ) {
+      const meta: HTMLMetaElement = adminDOM.window.document.head.querySelector(
+        '[name~="' + name + '"][content]',
+      ) as HTMLMetaElement;
+      meta.name = name;
+      meta.content = content;
+    } else {
+      const meta: HTMLMetaElement = adminDOM.window.document.createElement(
+        'meta',
+      );
+      meta.name = name;
+      meta.content = content;
+      adminDOM.window.document.head.append(meta);
+    }
+  }
+
+  public async renderAdminPage(
+    subPath: string | undefined,
+    ctx: CurrentContext,
+  ): Promise<HtmlGeneratedResponse> {
+    const adminDOM: JSDOM = await JSDOM.fromFile(
+      path.join(
+        __dirname,
+        '../../../node_modules/@jacquesparis/objects-angular/index.html',
+      ),
+      {},
+    );
+
+    // <meta name="objectTrees:rootState_" content="app:view" />
+    this.setMeta(adminDOM, 'objectTrees:rootState', 'app:admin');
+    //     <meta name="objectTrees:api_" content="http://to.ochoeurdunet.org/api" />
+    this.setMeta(
+      adminDOM,
+      'objectTrees:api',
+      ctx.uriContext.uri.value.baseUri + '/api',
+    );
+
+    const siteEntry = await this.lookWebSiteEntry(subPath, ctx);
+    const siteOwner: ObjectNode = await this.objectNodeService.searchById(
+      siteEntry.parentOwnerId,
+    );
+    const siteNamespace: ObjectNode =
+      siteEntry.parentNamespaceId === siteEntry.parentOwnerId
+        ? siteOwner
+        : await this.objectNodeService.searchById(siteEntry.parentNamespaceId);
+    // <meta name="objectTrees:ownerName" content="Demonstration" />
+    this.setMeta(adminDOM, 'objectTrees:ownerName', siteOwner.name);
+
+    // <meta       name="objectTrees:siteId"       content="namespace/Tenant/Demonstration/TravelStory/TravelStoryExample"
+
+    if (siteEntry.parentNamespaceId === siteEntry.parentOwnerId) {
+      this.setMeta(
+        adminDOM,
+        'objectTrees:siteId',
+        `owner/${siteOwner.objectTypeId}/${siteOwner.name}`,
+      );
+    } else {
+      this.setMeta(
+        adminDOM,
+        'objectTrees:siteId',
+        `namespace/${siteOwner.objectTypeId}/${siteOwner.name}/${siteNamespace.objectTypeId}/${siteNamespace.name}`,
+      );
+    }
+    return new HtmlGeneratedResponse(adminDOM.serialize());
   }
 
   public async getWebSitePageNode(
@@ -318,22 +405,25 @@ function getPageHref(page) {
     ctx: CurrentContext,
     getCacheName: (name: string) => string = this.getCachePageName.bind(this),
   ) {
-    await this.objectNodeService.add(
-      {
-        parentNodeId: ctx.webSiteContext.siteBaseUriTree.value.id,
-        name: getCacheName(pageName),
-        objectTypeId: PAGE_CACHE_TYPE.name,
-        pageUrl: ctx.uriContext.uri.value.url,
-        contentPageCache: ctx.webSiteContext.cachedContent.value,
-      },
-      CurrentContext.get(ctx, {
-        nodeContext: {
-          parent: new ExpectedValue(
-            ctx.webSiteContext.siteBaseUriTree.value.treeNode,
-          ),
+    try {
+      await this.objectNodeService.add(
+        {
+          parentNodeId: ctx.webSiteContext.siteBaseUriTree.value.id,
+          name: getCacheName(pageName),
+          objectTypeId: PAGE_CACHE_TYPE.name,
+          pageUrl: ctx.uriContext.uri.value.url,
+          contentPageCache: ctx.webSiteContext.cachedContent.value,
         },
-      }),
-    );
+        CurrentContext.get(ctx, {
+          nodeContext: {
+            parent: new ExpectedValue(
+              ctx.webSiteContext.siteBaseUriTree.value.treeNode,
+            ),
+          },
+        }),
+      );
+      // eslint-disable-next-line no-empty
+    } catch (error) {}
   }
 
   public async getWebSitePageResponse(

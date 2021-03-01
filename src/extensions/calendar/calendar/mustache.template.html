@@ -44,7 +44,7 @@
         onclick="openTooltip(this,'{{event.popupHref}}');event.preventDefault();event.stopPropagation();" >
           <div
             class="event all-day {{#transparent}}transparent{{/transparent}}{{^transparent}}{{event.color}}{{/transparent}} {{#begin}}begin{{/begin}} {{#end}}end{{/end}} span-{{span}}"
-          >
+          >{{#event.hasIcon}}<i class="{{event.icon}}"></i>{{/event.hasIcon}}
             {{event.eventTitle}}
           </div></a
         >

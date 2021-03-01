@@ -62,7 +62,7 @@ export class ObjectNodeController {
     objectNode: Omit<ObjectNode, 'id'>,
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<ObjectNode> {
-    return this.objectNodeService.add(objectNode, ctx);
+    return this.objectNodeService.add(objectNode, ctx, false, true, true);
   }
 
   @authenticate('jwt')

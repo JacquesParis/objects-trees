@@ -90,6 +90,7 @@ export class UriContext {
 }
 
 export class WebSiteContext {
+  urlNode: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   webSiteTree: ExpectedValue<ObjectTree> = new ExpectedValue<ObjectTree>();
   webSitePageNode: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   pageBaseUri: ExpectedValue<string> = new ExpectedValue<string>();

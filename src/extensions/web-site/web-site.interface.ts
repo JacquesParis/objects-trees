@@ -117,6 +117,7 @@ export abstract class WebSiteEvent {
   originalMenuTitle: string;
   eventTitle: string;
   icon: string;
+  hasIcon = false;
   treeNode: ObjectNode;
 
   public constructor(menuTree: ObjectTree) {
@@ -181,6 +182,7 @@ export abstract class WebSiteEvent {
       }
       event.menuTitle = menuTree.menuTitle;
     }
+    event.hasIcon = event.icon !== 'fas fa-splotch';
     return event;
   }
 

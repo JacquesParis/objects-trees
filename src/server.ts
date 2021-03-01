@@ -19,12 +19,13 @@ export class ExpressServer {
 
     this.initApplication(this.lbApp);
 
+    /*
     this.app.use(
       '/admin',
       express.static(
         path.join(rootDirectory, 'node_modules/@jacquesparis/objects-angular'),
       ),
-    );
+    );*/
     this.app.use(
       '/objectsites',
       express.static(

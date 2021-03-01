@@ -126,4 +126,28 @@ export class HomePageController {
     );
     return generatedView.getResponse(response);
   }
+
+  @get('/admin')
+  async getAdminPage(
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.renderAdminPage(
+      undefined,
+      ctx,
+    );
+    return generatedView.getResponse(response);
+  }
+
+  @get('/admin/{any}')
+  async getAdminPageBis(
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.renderAdminPage(
+      undefined,
+      ctx,
+    );
+    return generatedView.getResponse(response);
+  }
 }
