@@ -86,6 +86,7 @@ import {UserAuthenticationService} from './services/user-authentication.service'
 }*/
 
 export class ObjectTreesApplication extends RestApplication {
+  public rootDirectory: string;
   public interceptorDescriptions: {
     [interceptorId: string]: InterceptorDescription & {providerId: string};
   } = {};

@@ -17,6 +17,7 @@ import {
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectTree} from './../../models/object-tree.model';
 import {
+  ApplicationService,
   EntityActionType,
   ExpectedValue,
 } from './../../services/application.service';
@@ -50,6 +51,8 @@ export class HomePageService {
     private nodeInterceptService: NodeInterceptService,
     @service(ContentEntityService)
     private contentEntityService: ContentEntityService,
+    @service(ApplicationService)
+    protected applicationService: ApplicationService,
   ) {
     this.nodeInterceptService.registerEntityInterceptorService(
       HOME_PAGE_PROVIDER,
@@ -244,8 +247,8 @@ export class HomePageService {
   ): Promise<HtmlGeneratedResponse> {
     const adminDOM: JSDOM = await JSDOM.fromFile(
       path.join(
-        __dirname,
-        '../../../node_modules/@jacquesparis/objects-angular/index.html',
+        this.applicationService.app.rootDirectory,
+        'node_modules/@jacquesparis/objects-angular/index.html',
       ),
       {},
     );

@@ -14,6 +14,7 @@ export class ExpressServer {
     this.app = express();
     this.lbApp = (restApp as unknown) as ObjectTreesApplicationInterface;
     this.lbApp.addStaticDir = this.static.bind(this);
+    this.lbApp.rootDirectory = rootDirectory;
 
     this.app.use('/api', this.lbApp.requestHandler);
 

@@ -17,6 +17,7 @@ import {
 export abstract class ObjectTreesApplicationInterface extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
 ) {
+  public abstract rootDirectory: string;
   public abstract addInterceptor(
     providerId: string,
     interceptorProvider: {
