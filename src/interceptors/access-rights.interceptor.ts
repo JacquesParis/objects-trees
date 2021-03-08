@@ -5,7 +5,7 @@ import {
   service,
   ValueOrPromise,
 } from '@loopback/core';
-import {isObject} from 'lodash';
+import {every, isObject} from 'lodash';
 import {ApplicationError} from '../helper/application-error';
 import {RestEntity} from '../models';
 import {AccessRightsService} from '../services/access-rights/access-rights.service';
@@ -52,6 +52,7 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
       // Add post-invocation logic here
       if (Array.isArray(result)) {
         if (result.length > 0) {
+          let cleanDone = false;
           if (result[0]?.uri) {
             const uriParts = await this.getUriParts(invocationCtx, this.ctx);
             const entityName = this.getEntityName(
@@ -59,13 +60,45 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
               uriParts.baseUri,
             );
 
-            await this.accessRightsService.cleanReturnedEntities(
-              entityName,
-              result,
-              this.ctx,
-            );
+            if (
+              every(result, (oneResult) => {
+                return (
+                  this.getEntityName(oneResult.uri, uriParts.baseUri) ===
+                  entityName
+                );
+              })
+            ) {
+              await this.accessRightsService.cleanReturnedEntities(
+                entityName,
+                result,
+                this.ctx,
+              );
+              cleanDone = true;
+            }
           } else {
             throw ApplicationError.forbidden();
+          }
+          if (!cleanDone) {
+            for (const oneResult of result) {
+              if (oneResult?.uri) {
+                const uriParts = await this.getUriParts(
+                  invocationCtx,
+                  this.ctx,
+                );
+                const entityName = this.getEntityName(
+                  oneResult.uri,
+                  uriParts.baseUri,
+                );
+
+                await this.accessRightsService.cleanReturnedEntity(
+                  entityName,
+                  oneResult,
+                  this.ctx,
+                );
+              } else {
+                throw ApplicationError.forbidden();
+              }
+            }
           }
         }
       } else if (isObject(result)) {

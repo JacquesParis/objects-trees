@@ -4,12 +4,15 @@ import {ActionEntityService} from '../../services/action-entity/action-entity.se
 import {ObjectNodeService} from '../../services/object-node/object-node.service';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
+import {ObjectTree} from './../../models/object-tree.model';
 import {ObjectType} from './../../models/object-type.model';
 import {
   CurrentContext,
   ExpectedValue,
 } from './../../services/application.service';
+import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
 import {ObjectTypeService} from './../../services/object-type.service';
+import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {
   CONTENT_IMAGE_PROVIDER,
   IMAGE_GALLERY_REFERRER_TYPE,
@@ -27,6 +30,8 @@ export class ActionImageService {
     private objectNodeService: ObjectNodeService,
     @service(ObjectTypeService)
     private objectTypeService: ObjectTypeService,
+    @service(InsideRestService) private insideRestService: InsideRestService,
+    @service(UriCompleteService) private uriCompleteService: UriCompleteService,
   ) {
     this.actionEntityService.registerNewMethodFunction(
       CONTENT_IMAGE_PROVIDER,
@@ -75,6 +80,9 @@ export class ActionImageService {
         contentImage: image,
       },
       childCtx,
+      false,
+      true,
+      true,
     );
   }
 
@@ -82,7 +90,7 @@ export class ActionImageService {
     gallery: ObjectNode,
     args: Object,
     ctx: CurrentContext,
-  ): Promise<void> {
+  ): Promise<ObjectTree> {
     const images: {images: Image[]} = args as {images: Image[]};
     for (const image of images.images) {
       await this.createImage(
@@ -92,13 +100,18 @@ export class ActionImageService {
         ctx.nodeContext.objectType.value,
       );
     }
+    return this.actionEntityService.getEntity<ObjectTree>(
+      EntityName.objectTree,
+      gallery.id as string,
+      CurrentContext.get(ctx, {}),
+    );
   }
 
   public async loadImageGalleryReferrerNode(
     objectNode: ObjectNode,
     args: Object,
     ctx: CurrentContext,
-  ): Promise<void> {
+  ): Promise<[ObjectTree, ObjectNode] | undefined> {
     if (objectNode.imageGalleryObjectTreeId) {
       const imageGalleryParts = objectNode.imageGalleryObjectTreeId.split('/');
       const imageGalleryNode = await this.objectNodeService.searchTree(
@@ -145,6 +158,19 @@ export class ActionImageService {
             ctx,
           );
         }
+
+        return [
+          await this.actionEntityService.getEntity<ObjectTree>(
+            EntityName.objectTree,
+            imageGalleryNode.id as string,
+            CurrentContext.get(ctx, {}),
+          ),
+          await this.actionEntityService.getEntity<ObjectNode>(
+            EntityName.objectNode,
+            objectNode.id as string,
+            ctx,
+          ),
+        ];
       }
     }
   }

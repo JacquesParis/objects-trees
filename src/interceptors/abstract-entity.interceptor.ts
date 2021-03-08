@@ -4,7 +4,7 @@ import {
   InvocationResult,
   ValueOrPromise,
 } from '@loopback/core';
-import {isObject} from 'lodash';
+import {every, isObject} from 'lodash';
 import {RestEntity} from '../models';
 import {CurrentContext} from '../services/application.service';
 import {EntityName} from './../models/entity-name';
@@ -85,22 +85,56 @@ export abstract class AbstractEntityInterceptor<
       }
       // Add post-invocation logic here
       if (Array.isArray(result)) {
-        if (
-          this.abstractEntityService.completeReturnedEntities &&
-          result.length > 0
-        ) {
-          if (result[0]?.uri) {
+        if (result.length > 0) {
+          let completeDone = false;
+          if (
+            result[0]?.uri &&
+            this.abstractEntityService.completeReturnedEntities
+          ) {
             const uriParts = await this.getUriParts(invocationCtx, this.ctx);
             const entityName = this.getEntityName(
               result[0]?.uri,
               uriParts.baseUri,
             );
+            if (
+              every(result, (oneResult) => {
+                return (
+                  this.getEntityName(oneResult.uri, uriParts.baseUri) ===
+                  entityName
+                );
+              })
+            ) {
+              await this.abstractEntityService.completeReturnedEntities(
+                entityName,
+                result,
+                this.ctx,
+              );
+              completeDone = true;
+            }
+          }
+          if (
+            this.abstractEntityService.completeReturnedEntity &&
+            !completeDone
+          ) {
+            for (const oneResult of result) {
+              const entity: RestEntity = oneResult as RestEntity;
+              if (entity?.uri) {
+                const uriParts = await this.getUriParts(
+                  invocationCtx,
+                  this.ctx,
+                );
+                const entityName = this.getEntityName(
+                  entity.uri,
+                  uriParts.baseUri,
+                );
 
-            await this.abstractEntityService.completeReturnedEntities(
-              entityName,
-              result,
-              this.ctx,
-            );
+                await this.abstractEntityService.completeReturnedEntity(
+                  entityName,
+                  oneResult,
+                  this.ctx,
+                );
+              }
+            }
           }
         }
       } else if (isObject(result)) {

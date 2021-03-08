@@ -103,6 +103,8 @@ export class TransientImageService {
           },
         },
       },
+      handlebarsMethodSampling:
+        '[{{#images}} {"methodId":"load","parameters":{"images":[{{&json this}} ]} }{{#unless @last}},{{/unless}}{{/images}}]',
     });
   }
 

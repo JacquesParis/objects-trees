@@ -597,7 +597,7 @@ export class AccessRightsService implements ServiceDescription {
     return some(users, (user) => {
       switch (user.treeNode.objectTypeId) {
         case this.appCtx.userType.value.id:
-          return user.treeNode.contentUserId === principal.id;
+          return principal && user.treeNode.contentUserId === principal.id;
         case this.appCtx.anonymousUserType.value.id:
           return true;
       }

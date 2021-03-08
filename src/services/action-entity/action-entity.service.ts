@@ -149,7 +149,7 @@ export class ActionEntityService {
       entity: T,
       args: Object,
       ctx: CurrentContext,
-    ) => Promise<void>,
+    ) => Promise<any>,
     functionAccessRightsScope = 'read',
   ) {
     const objectTypeService = this.objectTypeService;
@@ -385,10 +385,11 @@ export class ActionEntityService {
       throw ApplicationError.notFound({entityType, entityId: id});
     }
 
+    let methodResult;
     if (method.runMethod) {
-      await method.runMethod(entity, args, ctx);
+      methodResult = await method.runMethod(entity, args, ctx);
     }
-    return this.getEntity<T>(entityType, id, ctx);
+    return methodResult ? methodResult : this.getEntity<T>(entityType, id, ctx);
   }
 
   public async generateView(

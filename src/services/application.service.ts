@@ -116,8 +116,8 @@ export class CurrentContext {
     ctx.typeContext = parentCtx.typeContext;
     ctx.uriContext = parentCtx.uriContext;
     ctx.uriContext.mainContext = false;
-    ctx.methodContext = parentCtx.methodContext;
     ctx.webSiteContext = parentCtx.webSiteContext;
+    ctx.accessRightsContext = parentCtx.accessRightsContext;
 
     if (value) {
       for (const key in value) {

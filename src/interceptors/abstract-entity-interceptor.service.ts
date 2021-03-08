@@ -11,6 +11,7 @@ export interface AbstractEntityInterceptorInterface {
     entity: IRestEntity,
     ctx: CurrentContext,
   ): Promise<void>;
+
   completeReturnedEntities?(
     entityName: EntityName,
     entities: IRestEntity[],

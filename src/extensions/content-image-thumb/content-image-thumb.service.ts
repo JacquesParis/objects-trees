@@ -1,7 +1,6 @@
 /* eslint-disable no-empty */
 import {IRestEntity} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
-import {assign} from 'lodash';
 import {Metadata, Sharp} from 'sharp';
 import {EntityName} from '../../models';
 import {ObjectNode} from './../../models/object-node.model';
@@ -177,14 +176,14 @@ export class ContentImageThumbService {
     let hasNewNodes = false;
     if (!(IMAGE_ORIGINAL_TYPE.name in imageTree.childrenByObjectTypeId)) {
       await this.contentImageService.addTransientContent(imageTree.treeNode);
-      if (
-        !imageTree.treeNode.contentImage ||
-        !imageTree.treeNode.contentImage.base64
-      ) {
-        //return hasNewNodes;
-        return;
-      }
       try {
+        if (
+          !imageTree.treeNode.contentImage ||
+          !imageTree.treeNode.contentImage.base64
+        ) {
+          //return hasNewNodes;
+          return;
+        }
         await this.objectNodeService.add(
           {
             name: 'original_' + imageTree.treeNode.name,
@@ -203,28 +202,30 @@ export class ContentImageThumbService {
             },
           }),
         );
+        const newSize = await this.changeImgSize(
+          imageTree.treeNode.contentImage,
+          800,
+        );
+        await this.objectNodeService.modifyById(
+          imageTree.treeNode.id as string,
+          {
+            contentImage: {
+              base64: newSize.base64,
+              size: newSize.size,
+              name: imageTree.treeNode.contentImage.name,
+              type: imageTree.treeNode.contentImage.type,
+            },
+          },
+          CurrentContext.get(ctx, {
+            nodeContext: {
+              node: new ExpectedValue<ObjectNode>(imageTree.treeNode),
+            },
+          }),
+        );
+      } catch (error) {
+      } finally {
         hasNewNodes = true;
-      } catch (error) {}
-      const newSize = await this.changeImgSize(
-        imageTree.treeNode.contentImage,
-        800,
-      );
-      await this.objectNodeService.modifyById(
-        imageTree.treeNode.id as string,
-        {
-          contentImage: {
-            base64: newSize.base64,
-            size: newSize.size,
-            name: imageTree.treeNode.contentImage.name,
-            type: imageTree.treeNode.contentImage.type,
-          },
-        },
-        CurrentContext.get(ctx, {
-          nodeContext: {
-            node: new ExpectedValue<ObjectNode>(imageTree.treeNode),
-          },
-        }),
-      );
+      }
     }
     if (!(IMAGE_THUMB_TYPE.name in imageTree.childrenByObjectTypeId)) {
       if (
@@ -263,8 +264,10 @@ export class ContentImageThumbService {
             },
           }),
         );
+      } catch (error) {
+      } finally {
         hasNewNodes = true;
-      } catch (error) {}
+      }
     }
 
     //   if (reloadTree && hasNewNodes) {
@@ -274,27 +277,51 @@ export class ContentImageThumbService {
         ctx,
         true,
       );
-      assign(imageTree, newImage);
+      Object.assign(imageTree, newImage);
     } else {
-      imageTree.thumb =
-        imageTree.childrenByObjectTypeId[IMAGE_THUMB_TYPE.name][0].treeNode;
-      imageTree.original =
-        imageTree.childrenByObjectTypeId[IMAGE_ORIGINAL_TYPE.name][0].treeNode;
-      const treeRights: AccessRightsCRUD | undefined =
-        imageTree.childrenByObjectTypeId[IMAGE_THUMB_TYPE.name][0].entityCtx
-          ?.aclCtx?.rights;
-      if (treeRights) {
-        treeRights.create = false;
-        treeRights.delete = false;
-        treeRights.update = false;
+      if (IMAGE_THUMB_TYPE.name in imageTree.childrenByObjectTypeId) {
+        imageTree.thumb =
+          imageTree.childrenByObjectTypeId[IMAGE_THUMB_TYPE.name][0].treeNode;
+
+        const treeRights: AccessRightsCRUD | undefined =
+          imageTree.childrenByObjectTypeId[IMAGE_THUMB_TYPE.name][0].entityCtx
+            ?.aclCtx?.rights;
+        if (treeRights) {
+          treeRights.create = false;
+          treeRights.delete = false;
+          treeRights.update = false;
+        }
+        const nodeRights: AccessRightsCRUD | undefined =
+          imageTree.childrenByObjectTypeId[IMAGE_THUMB_TYPE.name][0].treeNode
+            .entityCtx?.aclCtx?.rights;
+        if (nodeRights) {
+          nodeRights.create = false;
+          nodeRights.delete = false;
+          nodeRights.update = false;
+        }
       }
-      const nodeRights: AccessRightsCRUD | undefined =
-        imageTree.childrenByObjectTypeId[IMAGE_THUMB_TYPE.name][0].treeNode
-          .entityCtx?.aclCtx?.rights;
-      if (nodeRights) {
-        nodeRights.create = false;
-        nodeRights.delete = false;
-        nodeRights.update = false;
+
+      if (IMAGE_ORIGINAL_TYPE.name in imageTree.childrenByObjectTypeId) {
+        imageTree.original =
+          imageTree.childrenByObjectTypeId[
+            IMAGE_ORIGINAL_TYPE.name
+          ][0].treeNode;
+        const treeRights: AccessRightsCRUD | undefined =
+          imageTree.childrenByObjectTypeId[IMAGE_ORIGINAL_TYPE.name][0]
+            .entityCtx?.aclCtx?.rights;
+        if (treeRights) {
+          treeRights.create = false;
+          treeRights.delete = false;
+          treeRights.update = false;
+        }
+        const nodeRights: AccessRightsCRUD | undefined =
+          imageTree.childrenByObjectTypeId[IMAGE_ORIGINAL_TYPE.name][0].treeNode
+            .entityCtx?.aclCtx?.rights;
+        if (nodeRights) {
+          nodeRights.create = false;
+          nodeRights.delete = false;
+          nodeRights.update = false;
+        }
       }
     }
     //return hasNewNodes;
@@ -363,10 +390,12 @@ export class ContentImageThumbService {
       width = Math.ceil((metadata.width * size) / maxSize);
       height = Math.ceil((metadata.height * size) / maxSize);
     }
-    img = img.resize(width, height, {
-      fit: 'contain',
-      background: {r: 255, g: 255, b: 255, alpha: 1},
-    });
+    img = img
+      .resize(width, height, {
+        fit: 'contain',
+        background: {r: 255, g: 255, b: 255, alpha: 1},
+      })
+      .withMetadata();
     const newMetadata: Metadata = await img.metadata();
     return {
       base64: (await img.toBuffer()).toString('base64'),
