@@ -22,6 +22,7 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
     ctx: CurrentContext,
   ): Promise<{
     baseUri: string;
+    path: string;
     objectUri: string;
     method: string;
     host: string;
@@ -52,6 +53,7 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
         host: host as string,
         protocol: protocol as string,
         baseUri: baseUri,
+        path: path,
         objectUri: objectUri,
         url: baseUri + objectUri,
         method: httpReq.method,

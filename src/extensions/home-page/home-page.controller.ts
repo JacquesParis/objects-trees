@@ -1,6 +1,7 @@
 import {inject, service} from '@loopback/core';
 import {get, param, Response, RestBindings} from '@loopback/rest';
 import {GeneratedResponse} from '../../helper/generated-response';
+import {RedirectGeneratedResponse} from './../../helper/generated-response';
 import {
   CurrentContext,
   CURRENT_CONTEXT,
@@ -127,18 +128,23 @@ export class HomePageController {
     return generatedView.getResponse(response);
   }
 
-  @get('/admin')
+  @get('/admin/')
   async getAdminPage(
     @inject(RestBindings.Http.RESPONSE) response: Response,
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
   ): Promise<Response> {
+    if ('/admin' === ctx.uriContext.uri.value.path) {
+      const generatedView: GeneratedResponse = new RedirectGeneratedResponse(
+        ctx.uriContext.uri.value.baseUri + '/admin/',
+      );
+      return generatedView.getResponse(response);
+    }
     const generatedView: GeneratedResponse = await this.homePageService.renderAdminPage(
       undefined,
       ctx,
     );
     return generatedView.getResponse(response);
   }
-
   @get('/admin/{any}')
   async getAdminPageBis(
     @inject(RestBindings.Http.RESPONSE) response: Response,

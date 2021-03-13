@@ -79,6 +79,7 @@ export class UriContext {
   mainContext = false;
   uri: ExpectedValue<{
     baseUri: string;
+    path: string;
     objectUri: string;
     method: string;
     host: string;
