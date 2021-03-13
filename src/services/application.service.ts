@@ -55,6 +55,7 @@ export class TreeContext {
 }
 
 export class AccessRightsContext {
+  copyToChildContext = true;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rights: ExpectedValue<AccessRightsPermissions> = new ExpectedValue<AccessRightsPermissions>();
   user: ExpectedValue<Principal> = new ExpectedValue<Principal>();
@@ -67,12 +68,14 @@ export class AccessRightsContext {
 }
 
 export class TypeContext {
+  copyToChildContext = true;
   types: ExpectedValue<{[id: string]: ObjectType}> = new ExpectedValue<{
     [id: string]: ObjectType;
   }>();
 }
 
 export class UriContext {
+  copyToChildContext = true;
   mainContext = false;
   uri: ExpectedValue<{
     baseUri: string;
@@ -90,6 +93,7 @@ export class UriContext {
 }
 
 export class WebSiteContext {
+  copyToChildContext = true;
   urlNode: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
   webSiteTree: ExpectedValue<ObjectTree> = new ExpectedValue<ObjectTree>();
   webSitePageNode: ExpectedValue<ObjectNode> = new ExpectedValue<ObjectNode>();
@@ -113,11 +117,12 @@ export class CurrentContext {
     value: DataObject<CurrentContext>,
   ): CurrentContext {
     const ctx = new CurrentContext();
-    ctx.typeContext = parentCtx.typeContext;
-    ctx.uriContext = parentCtx.uriContext;
+    for (const context in parentCtx) {
+      if (parentCtx[context].copyToChildContext) {
+        ctx[context] = parentCtx[context];
+      }
+    }
     ctx.uriContext.mainContext = false;
-    ctx.webSiteContext = parentCtx.webSiteContext;
-    ctx.accessRightsContext = parentCtx.accessRightsContext;
 
     if (value) {
       for (const key in value) {

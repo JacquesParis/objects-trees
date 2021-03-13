@@ -390,20 +390,6 @@ export class ObjectTreeService {
     return this.buildTreeFromNodes(objectNodes[0], objectNodes, ctx);
   }
 
-  private selectChildrenFromCandidatesList(
-    parent: ObjectNode,
-    candidates: ObjectNode[],
-    children: ObjectNode[] = [],
-  ): ObjectNode[] {
-    for (const child of candidates) {
-      if (child.parentNodeId === parent.id) {
-        children.push(child);
-        this.selectChildrenFromCandidatesList(child, candidates, children);
-      }
-    }
-    return children;
-  }
-
   public async getChildrenByImplementedTypeId(
     tree: ObjectTree,
   ): Promise<{
@@ -437,18 +423,7 @@ export class ObjectTreeService {
         tree: treeId,
       });
     }
-
-    let children: ObjectNode[];
-    if (root.tree) {
-      children = await this.objectNodeService.searchByTreeId(treeId);
-    } else {
-      const candidateChildren: ObjectNode[] = await this.objectNodeService.searchByTreeId(
-        root.parentTreeId,
-      );
-      children = this.selectChildrenFromCandidatesList(root, candidateChildren);
-    }
-
-    return _.concat(root, children);
+    return this.objectNodeService.loadChildrenNodes(root);
   }
 
   public async loadTree(

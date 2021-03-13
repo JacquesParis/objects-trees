@@ -39,7 +39,9 @@ export class InsideRestService {
     forceNewRead = false,
   ): Promise<IRestEntity> {
     if (!ctx.insideRestContext) {
-      ctx.insideRestContext = {};
+      ctx.insideRestContext = {
+        copyToChildContext: true,
+      };
     }
     if (forceNewRead || !(uri in ctx.insideRestContext)) {
       ctx.insideRestContext[uri] = await this.insideRestRepository.read(

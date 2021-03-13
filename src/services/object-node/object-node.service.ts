@@ -859,16 +859,106 @@ export class ObjectNodeService {
   }
 
   public async moveTo(child: ObjectNode, parent: ObjectNode) {
+    const newTreeId: string = (parent.tree
+      ? parent.id
+      : parent.parentTreeId) as string;
+    const newNamespaceId: string = (parent.namespace
+      ? parent.id
+      : parent.parentNamespaceId) as string;
+    const newACLId: string = (parent.acl
+      ? parent.id
+      : parent.parentACLId) as string;
+    const newOwnerId: string = (parent.owner
+      ? parent.id
+      : parent.parentOwnerId) as string;
+
+    if (child.parentNamespaceId !== newNamespaceId) {
+      // can't move from namespace to another
+      throw ApplicationError.notImplemented({
+        method: 'moveTo',
+        context: 'change namespace',
+      });
+    }
+
+    if (child.parentOwnerId !== newOwnerId) {
+      // can't move from owner to another
+      throw ApplicationError.notImplemented({
+        method: 'moveTo',
+        context: 'change owner',
+      });
+    }
+
+    if (child.parentACLId !== newACLId) {
+      // can't move from ACL to another
+      throw ApplicationError.notImplemented({
+        method: 'moveTo',
+        context: 'change ACL',
+      });
+    }
+    if (child.parentTreeId !== newTreeId) {
+      const children: ObjectNode[] = await this.loadChildrenNodes(child);
+      for (const node of children) {
+        node.parentACLId = newACLId;
+        node.parentNamespaceId = newNamespaceId;
+        node.parentTreeId = newTreeId;
+        node.parentOwnerId = newOwnerId;
+        await this.checkNameAvailability(node, node.name, true);
+        const objectNodeForUpdate: DataObject<ObjectNode> = {
+          name: node.name,
+          parentACLId: newACLId,
+          parentOwnerId: newOwnerId,
+          parentNamespaceId: newNamespaceId,
+          parentTreeId: newTreeId,
+        };
+        if (node.id === child.id) {
+          objectNodeForUpdate.parentNodeId = parent.id as string;
+        }
+        await this.objectNodeRepository.updateById(
+          node.id,
+          objectNodeForUpdate,
+        );
+      }
+      return;
+    }
+
     await this.objectNodeRepository.updateById(child.id, {
       parentNodeId: parent.id as string,
-      parentACLId: (parent.acl ? parent.id : parent.parentACLId) as string,
-      parentOwnerId: (parent.owner
-        ? parent.id
-        : parent.parentOwnerId) as string,
-      parentNamespaceId: (parent.namespace
-        ? parent.id
-        : parent.parentNamespaceId) as string,
-      parentTreeId: (parent.tree ? parent.id : parent.parentTreeId) as string,
+      parentACLId: newACLId,
+      parentOwnerId: newOwnerId,
+      parentNamespaceId: newNamespaceId,
+      parentTreeId: newTreeId,
     });
+  }
+
+  public async loadChildrenNodes(
+    rootTreeNode: ObjectNode,
+  ): Promise<ObjectNode[]> {
+    let children: ObjectNode[];
+    if (rootTreeNode.tree) {
+      children = await this.searchByTreeId(rootTreeNode.id as string);
+    } else {
+      const candidateChildren: ObjectNode[] = await this.searchByTreeId(
+        rootTreeNode.parentTreeId,
+      );
+      children = this.selectChildrenFromCandidatesList(
+        rootTreeNode,
+        candidateChildren,
+      );
+    }
+
+    return concat(rootTreeNode, children);
+  }
+  private selectChildrenFromCandidatesList(
+    parent: ObjectNode,
+    candidates: ObjectNode[],
+    children: ObjectNode[] = [],
+  ): ObjectNode[] {
+    for (const child of candidates) {
+      if (child.parentNodeId === parent.id) {
+        children.push(child);
+        this.selectChildrenFromCandidatesList(child, candidates, children);
+      }
+    }
+    return children;
   }
 }
