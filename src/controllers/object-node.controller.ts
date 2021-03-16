@@ -170,6 +170,7 @@ export class ObjectNodeController {
             const file: Buffer = Buffer.from((text as any).base64, 'base64');
             response.header('Content-Length', JSON.stringify(file.length));
             response.send(file);
+            response.end();
 
             return response;
           }
