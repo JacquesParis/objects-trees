@@ -46,7 +46,8 @@ function newFunction() {
           this.ctrl.dataNode.images[imageIndex].imgSrc = this.ctrl.getImgSrc({
             uri: this.ctrl.dataNode.images[imageIndex].treeNode.contentImageUri,
           });
-          if (this.ctrl.dataNode.images[imageIndex].original) {
+          // eslint-disable-next-line no-constant-condition
+          if (false && this.ctrl.dataNode.images[imageIndex].original) {
             this.ctrl.dataNode.images[
               imageIndex
             ].imgBackground = this.ctrl.getImgBackground({
