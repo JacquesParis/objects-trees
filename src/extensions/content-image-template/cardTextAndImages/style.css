@@ -3,3 +3,6 @@ a.paragraphLink:hover {
   color: inherit;
   text-decoration: inherit;
 }
+.card {
+  border: none;
+}
