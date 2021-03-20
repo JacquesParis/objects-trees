@@ -42,8 +42,12 @@ export class AppAuthorizationProvider implements Provider<Authorizer> {
     context: AuthorizationContext,
     metadata: AuthorizationMetadata,
   ): Promise<AuthorizationDecision> {
-    this.ctx.accessRightsContext.authorization.value = this.request.headers
-      .authorization as string;
+    this.ctx.accessRightsContext.authorization.value = ('null' ===
+      this.request.headers.authorization ||
+    'undefined' === this.request.headers.authorization ||
+    !this.request.headers.authorization
+      ? undefined
+      : this.request.headers.authorization) as string;
     if (!this.user) {
       try {
         this.user = (await new JWTAuthenticationStrategy(

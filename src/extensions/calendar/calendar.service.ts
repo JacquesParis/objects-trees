@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import {service} from '@loopback/core';
 import {indexOf, intersection, isEqual} from 'lodash';
 import * as moment from 'moment';
@@ -94,82 +95,86 @@ export class CalendarService {
       );
     }
     if (objectNode.calendarEntriesObjectTreeUri) {
-      const calendarEntries = await this.insideRestService.read(
-        objectNode.calendarEntriesObjectTreeUri,
-        ctx,
-      );
-      if (calendarEntries.calendarEntries) {
-        const oneOf = [];
-        for (const entryKey of Object.keys(calendarEntries.calendarEntries)) {
-          oneOf.push({
-            enum: [entryKey],
-            title: calendarEntries.calendarEntries[entryKey].title,
-          });
-        }
-        if (
-          0 < oneOf.length &&
-          objectNode.entityCtx?.jsonSchema?.properties?.calendarEntryKey
-        ) {
-          objectNode.entityCtx.jsonSchema.properties.calendarEntryKey.oneOf = oneOf;
-          if (!objectNode.calendarEntryKey) {
-            objectNode.calendarEntryKey = oneOf[0].enum[0];
+      try {
+        const calendarEntries = await this.insideRestService.read(
+          objectNode.calendarEntriesObjectTreeUri,
+          ctx,
+        );
+        if (calendarEntries?.calendarEntries) {
+          const oneOf = [];
+          for (const entryKey of Object.keys(calendarEntries.calendarEntries)) {
+            oneOf.push({
+              enum: [entryKey],
+              title: calendarEntries.calendarEntries[entryKey].title,
+            });
+          }
+          if (
+            0 < oneOf.length &&
+            objectNode.entityCtx?.jsonSchema?.properties?.calendarEntryKey
+          ) {
+            objectNode.entityCtx.jsonSchema.properties.calendarEntryKey.oneOf = oneOf;
+            if (!objectNode.calendarEntryKey) {
+              objectNode.calendarEntryKey = oneOf[0].enum[0];
+            }
           }
         }
-      }
+      } catch (error) {}
     }
 
     if (
       objectNode.calendarEntriesObjectTreeUri &&
       objectNode.calendarEntryKey
     ) {
-      const calendarEntries = await this.insideRestService.read(
-        objectNode.calendarEntriesObjectTreeUri,
-        ctx,
-      );
-      moment.locale(ctx.uriContext.uri.value.acceptLanguage);
-      const calendar: Calendar =
-        calendarEntries.calendarEntries[objectNode.calendarEntryKey];
-      const minDate = moment.utc(calendar.minDate);
-      const maxDate = moment.utc(calendar.maxDate);
-      calendar.months = [];
-      for (
-        let month = moment.default(minDate).startOf('month');
-        !month.isAfter(maxDate);
-        month = month.add(1, 'month')
-      ) {
-        calendar.months.push({
-          firstMonthWeekDay: ((month.startOf('month').day() + 6) % 7) as
-            | 0
-            | 1
-            | 2
-            | 3
-            | 4
-            | 5
-            | 6,
-          monthLabel: month.format('MMMM YYYY'),
-          monthDays: moment.default(month).endOf('month').date(),
-          id: month.year() * 10000 + month.month() * 100,
-        });
-      }
-      for (const date of calendar.dates) {
-        const from = moment.utc(date.from);
-        date.fromId = from.year() * 10000 + from.month() * 100 + from.date();
-        const to = moment.utc(date.to);
-        date.toId = to.year() * 10000 + to.month() * 100 + to.date();
-      }
-      calendar.dates.sort((a, b) => a.fromId - b.fromId);
+      try {
+        const calendarEntries = await this.insideRestService.read(
+          objectNode.calendarEntriesObjectTreeUri,
+          ctx,
+        );
+        moment.locale(ctx.uriContext.uri.value.acceptLanguage);
+        const calendar: Calendar =
+          calendarEntries.calendarEntries[objectNode.calendarEntryKey];
+        const minDate = moment.utc(calendar.minDate);
+        const maxDate = moment.utc(calendar.maxDate);
+        calendar.months = [];
+        for (
+          let month = moment.default(minDate).startOf('month');
+          !month.isAfter(maxDate);
+          month = month.add(1, 'month')
+        ) {
+          calendar.months.push({
+            firstMonthWeekDay: ((month.startOf('month').day() + 6) % 7) as
+              | 0
+              | 1
+              | 2
+              | 3
+              | 4
+              | 5
+              | 6,
+            monthLabel: month.format('MMMM YYYY'),
+            monthDays: moment.default(month).endOf('month').date(),
+            id: month.year() * 10000 + month.month() * 100,
+          });
+        }
+        for (const date of calendar.dates) {
+          const from = moment.utc(date.from);
+          date.fromId = from.year() * 10000 + from.month() * 100 + from.date();
+          const to = moment.utc(date.to);
+          date.toId = to.year() * 10000 + to.month() * 100 + to.date();
+        }
+        calendar.dates.sort((a, b) => a.fromId - b.fromId);
 
-      calendar.days = {
-        0: moment.default().day(1).format('ddd'),
-        1: moment.default().day(2).format('ddd'),
-        2: moment.default().day(3).format('ddd'),
-        3: moment.default().day(4).format('ddd'),
-        4: moment.default().day(5).format('ddd'),
-        5: moment.default().day(6).format('ddd'),
-        6: moment.default().day(0).format('ddd'),
-      };
+        calendar.days = {
+          0: moment.default().day(1).format('ddd'),
+          1: moment.default().day(2).format('ddd'),
+          2: moment.default().day(3).format('ddd'),
+          3: moment.default().day(4).format('ddd'),
+          4: moment.default().day(5).format('ddd'),
+          5: moment.default().day(6).format('ddd'),
+          6: moment.default().day(0).format('ddd'),
+        };
 
-      objectNode.calendar = calendar;
+        objectNode.calendar = calendar;
+      } catch (error) {}
     }
   }
 
@@ -201,42 +206,44 @@ export class CalendarService {
     ctx: CurrentContext,
   ) {
     calenderEntriesTree.calendarEntries = {};
-    const webSiteTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
-      calenderEntriesTree.treeNode.webSiteObjectTreeUri,
-      ctx,
-    )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
-    const implementingCalendarEntry = await this.objectTypeService.getImplementingTypes(
-      CALENDAR_ENTRY_TYPE.name,
-    );
-    for (const menuEntryDef of webSiteTree.treeNode.menuEntries) {
-      if (
-        intersection(implementingCalendarEntry, menuEntryDef.entryTypes)
-          .length > 0
-      ) {
-        const menuTrees: MenuTree[] =
-          calenderEntriesTree.menuEntries &&
-          menuEntryDef.entryKey in calenderEntriesTree.menuEntries
-            ? calenderEntriesTree.menuEntries[menuEntryDef.entryKey].children
-            : await this.transientWebSiteService.lookForMenuEntries(
-                [calenderEntriesTree],
-                menuEntryDef.entryTypes,
-                calenderEntriesTree,
-                menuEntryDef.entryKey,
-                menuEntryDef.menuEntryLabelKey
-                  ? menuEntryDef.menuEntryLabelKey
-                  : 'name',
-                !!menuEntryDef.adminEntry,
-              );
-        calenderEntriesTree.calendarEntries[
-          menuEntryDef.entryKey
-        ] = await this.getCalendarMenuEntries(
-          calenderEntriesTree,
-          menuTrees,
-          menuEntryDef,
-          ctx,
-        );
+    try {
+      const webSiteTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
+        calenderEntriesTree.treeNode.webSiteObjectTreeUri,
+        ctx,
+      )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
+      const implementingCalendarEntry = await this.objectTypeService.getImplementingTypes(
+        CALENDAR_ENTRY_TYPE.name,
+      );
+      for (const menuEntryDef of webSiteTree.treeNode.menuEntries) {
+        if (
+          intersection(implementingCalendarEntry, menuEntryDef.entryTypes)
+            .length > 0
+        ) {
+          const menuTrees: MenuTree[] =
+            calenderEntriesTree.menuEntries &&
+            menuEntryDef.entryKey in calenderEntriesTree.menuEntries
+              ? calenderEntriesTree.menuEntries[menuEntryDef.entryKey].children
+              : await this.transientWebSiteService.lookForMenuEntries(
+                  [calenderEntriesTree],
+                  menuEntryDef.entryTypes,
+                  calenderEntriesTree,
+                  menuEntryDef.entryKey,
+                  menuEntryDef.menuEntryLabelKey
+                    ? menuEntryDef.menuEntryLabelKey
+                    : 'name',
+                  !!menuEntryDef.adminEntry,
+                );
+          calenderEntriesTree.calendarEntries[
+            menuEntryDef.entryKey
+          ] = await this.getCalendarMenuEntries(
+            calenderEntriesTree,
+            menuTrees,
+            menuEntryDef,
+            ctx,
+          );
+        }
       }
-    }
+    } catch (error) {}
   }
   async buildCalendarDates(
     entriesTree: ObjectTree,

@@ -32,6 +32,38 @@ export abstract class AbstractEntityInterceptor<
     invocationCtx: InvocationContext,
     next: () => ValueOrPromise<InvocationResult>,
   ) {
+    await this.getUriParts(invocationCtx, this.ctx);
+    let entityName: EntityName = (undefined as unknown) as EntityName;
+    let entityActionType: EntityActionType = (undefined as unknown) as EntityActionType;
+    let entityId: string | undefined = undefined;
+    let entity: IRestEntity | undefined = undefined;
+    if (
+      invocationCtx.targetName &&
+      invocationCtx.targetName in this.applicationService.entityActions
+    ) {
+      entityName = this.applicationService.entityActions[
+        invocationCtx.targetName
+      ].entityName;
+      entityActionType = this.applicationService.entityActions[
+        invocationCtx.targetName
+      ].entityActionType;
+      switch (entityActionType) {
+        case EntityActionType.create:
+          entity = invocationCtx.args[0];
+          break;
+        case EntityActionType.update:
+          entityId = invocationCtx.args[0];
+          entity = invocationCtx.args[1];
+          break;
+        case EntityActionType.delete:
+          entityId = invocationCtx.args[0];
+          break;
+        case EntityActionType.read:
+          entityId = invocationCtx.args[0];
+          break;
+      }
+    }
+
     // eslint-disable-next-line no-useless-catch
     try {
       //      invocationCtx.targetName = 'ObjectTypeController.prototype.find'
@@ -40,31 +72,9 @@ export abstract class AbstractEntityInterceptor<
       // Add pre-invocation logic here
       if (
         this.abstractEntityService.interceptRequest &&
-        invocationCtx.targetName &&
-        invocationCtx.targetName in this.applicationService.entityActions
+        entityName &&
+        entityActionType
       ) {
-        const entityName: EntityName = this.applicationService.entityActions[
-          invocationCtx.targetName
-        ].entityName;
-        const entityActionType: EntityActionType = this.applicationService
-          .entityActions[invocationCtx.targetName].entityActionType;
-        let entityId: string | undefined = undefined;
-        let entity: IRestEntity | undefined = undefined;
-        switch (entityActionType) {
-          case EntityActionType.create:
-            entity = invocationCtx.args[0];
-            break;
-          case EntityActionType.update:
-            entityId = invocationCtx.args[0];
-            entity = invocationCtx.args[1];
-            break;
-          case EntityActionType.delete:
-            entityId = invocationCtx.args[0];
-            break;
-          case EntityActionType.read:
-            entityId = invocationCtx.args[0];
-            break;
-        }
         const interceptionResult = await this.abstractEntityService.interceptRequest(
           entityName,
           entityActionType,
@@ -79,6 +89,12 @@ export abstract class AbstractEntityInterceptor<
           result = interceptionResult;
         }
       }
+      if (
+        undefined === result &&
+        this.abstractEntityService.interceptAllRequest
+      ) {
+        await this.abstractEntityService.interceptAllRequest(this.ctx);
+      }
       // invocation
       if (undefined === result) {
         result = await next();
@@ -92,7 +108,7 @@ export abstract class AbstractEntityInterceptor<
             this.abstractEntityService.completeReturnedEntities
           ) {
             const uriParts = await this.getUriParts(invocationCtx, this.ctx);
-            const entityName = this.getEntityName(
+            const returnedEntityName = this.getEntityName(
               result[0]?.uri,
               uriParts.baseUri,
             );
@@ -100,12 +116,12 @@ export abstract class AbstractEntityInterceptor<
               every(result, (oneResult) => {
                 return (
                   this.getEntityName(oneResult.uri, uriParts.baseUri) ===
-                  entityName
+                  returnedEntityName
                 );
               })
             ) {
               await this.abstractEntityService.completeReturnedEntities(
-                entityName,
+                returnedEntityName,
                 result,
                 this.ctx,
               );
@@ -117,19 +133,19 @@ export abstract class AbstractEntityInterceptor<
             !completeDone
           ) {
             for (const oneResult of result) {
-              const entity: RestEntity = oneResult as RestEntity;
-              if (entity?.uri) {
+              const oneEntity: RestEntity = oneResult as RestEntity;
+              if (oneEntity?.uri) {
                 const uriParts = await this.getUriParts(
                   invocationCtx,
                   this.ctx,
                 );
-                const entityName = this.getEntityName(
-                  entity.uri,
+                const oneEntityName = this.getEntityName(
+                  oneEntity.uri,
                   uriParts.baseUri,
                 );
 
                 await this.abstractEntityService.completeReturnedEntity(
-                  entityName,
+                  oneEntityName,
                   oneResult,
                   this.ctx,
                 );
@@ -138,13 +154,19 @@ export abstract class AbstractEntityInterceptor<
           }
         }
       } else if (isObject(result)) {
-        const entity: RestEntity = result as RestEntity;
-        if (this.abstractEntityService.completeReturnedEntity && entity?.uri) {
+        const returnedEntity: RestEntity = result as RestEntity;
+        if (
+          this.abstractEntityService.completeReturnedEntity &&
+          returnedEntity?.uri
+        ) {
           const uriParts = await this.getUriParts(invocationCtx, this.ctx);
-          const entityName = this.getEntityName(entity.uri, uriParts.baseUri);
+          const returnedEntityName = this.getEntityName(
+            returnedEntity.uri,
+            uriParts.baseUri,
+          );
 
           await this.abstractEntityService.completeReturnedEntity(
-            entityName,
+            returnedEntityName,
             result,
             this.ctx,
           );
@@ -152,8 +174,23 @@ export abstract class AbstractEntityInterceptor<
       }
 
       return result;
-    } catch (err) {
-      throw err;
+    } finally {
+      if (
+        this.abstractEntityService.makeFinallyTreatment &&
+        entityName &&
+        entityActionType
+      ) {
+        await this.abstractEntityService.makeFinallyTreatment(
+          entityName,
+          entityActionType,
+          entityId,
+          entity,
+          this.ctx,
+        );
+      }
+      if (this.abstractEntityService.makeAllFinallyTreatment) {
+        await this.abstractEntityService.makeAllFinallyTreatment(this.ctx);
+      }
     }
   }
 }

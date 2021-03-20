@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import {IJsonSchema} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
 import {find, indexOf, intersection, isObject} from 'lodash';
@@ -25,7 +26,7 @@ import {
   WEB_SITE_VIEW_TYPE,
   WEB_SITE_WITH_PAGES_TEMPLATE_TYPE,
   WEB_SITE_WITH_PARAGRAPHS_TEMPLATE_TYPE,
-  WELCOME_PAGE_TYPE
+  WELCOME_PAGE_TYPE,
 } from './web-site.const';
 import {
   MenuEntry,
@@ -35,7 +36,7 @@ import {
   ParagraphTemplateChoice,
   WebSiteMenuEntriesTree,
   WebSiteView,
-  WebSiteWitHMenuTemplate
+  WebSiteWitHMenuTemplate,
 } from './web-site.interface';
 
 export class TransientWebSiteService {
@@ -211,49 +212,60 @@ export class TransientWebSiteService {
       id: webSiteMenuEntriesTree.treeNode.id + '/menuEntries',
     };
 
-    const webSiteTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
-      webSiteMenuEntriesTree.treeNode.webSiteObjectTreeUri,
-      ctx,
-    )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
+    try {
+      const webSiteTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
+        webSiteMenuEntriesTree.treeNode.webSiteObjectTreeUri,
+        ctx,
+      )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
 
-    if (webSiteMenuEntriesTree.treeNode.menuEntries) {
-      for (const menuEntry of webSiteTree.treeNode.menuEntries) {
-        if (webSiteMenuEntriesTree.treeNode.menuEntries[menuEntry.entryKey]) {
-          const children: MenuTree[] = await this.lookForMenuEntries(
-            [webSiteMenuEntriesTree],
-            menuEntry.entryTypes,
-            webSiteMenuEntriesTree,
-            menuEntry.entryKey,
-            menuEntry.menuEntryLabelKey ? menuEntry.menuEntryLabelKey : 'name',
-            !!menuEntry.adminEntry,
-          );
-          webSiteMenuEntriesTree.menuEntries[menuEntry.entryKey] = ({
-            entityCtx: webSiteMenuEntriesTree.entityCtx,
-            treeNode: webSiteMenuEntriesTree.treeNode,
-            id:
-              webSiteMenuEntriesTree.id + '/menuEntries/' + menuEntry.entryKey,
-            uri:
-              webSiteMenuEntriesTree.uri + '/menuEntries/' + menuEntry.entryKey,
-            aliasUri: undefined,
-            children: children,
-            disabled: 0 === children.length,
-            singleMenu:
-              0 === children.length ||
-              (1 === children.length && children[0].singleMenu),
-            adminEntry: !!menuEntry.adminEntry,
-          } as unknown) as MenuEntryTree;
-          if (
-            webSiteMenuEntriesTree.menuEntries[menuEntry.entryKey].singleMenu &&
-            !webSiteMenuEntriesTree.menuEntries[menuEntry.entryKey].disabled
-          ) {
-            webSiteMenuEntriesTree.menuEntries[menuEntry.entryKey].pageTreeId =
-              children[0].pageTreeId;
-            webSiteMenuEntriesTree.menuEntries[menuEntry.entryKey].pageTreeUri =
-              children[0].pageTreeUri;
+      if (webSiteMenuEntriesTree.treeNode.menuEntries) {
+        for (const menuEntry of webSiteTree.treeNode.menuEntries) {
+          if (webSiteMenuEntriesTree.treeNode.menuEntries[menuEntry.entryKey]) {
+            const children: MenuTree[] = await this.lookForMenuEntries(
+              [webSiteMenuEntriesTree],
+              menuEntry.entryTypes,
+              webSiteMenuEntriesTree,
+              menuEntry.entryKey,
+              menuEntry.menuEntryLabelKey
+                ? menuEntry.menuEntryLabelKey
+                : 'name',
+              !!menuEntry.adminEntry,
+            );
+            webSiteMenuEntriesTree.menuEntries[menuEntry.entryKey] = ({
+              entityCtx: webSiteMenuEntriesTree.entityCtx,
+              treeNode: webSiteMenuEntriesTree.treeNode,
+              id:
+                webSiteMenuEntriesTree.id +
+                '/menuEntries/' +
+                menuEntry.entryKey,
+              uri:
+                webSiteMenuEntriesTree.uri +
+                '/menuEntries/' +
+                menuEntry.entryKey,
+              aliasUri: undefined,
+              children: children,
+              disabled: 0 === children.length,
+              singleMenu:
+                0 === children.length ||
+                (1 === children.length && children[0].singleMenu),
+              adminEntry: !!menuEntry.adminEntry,
+            } as unknown) as MenuEntryTree;
+            if (
+              webSiteMenuEntriesTree.menuEntries[menuEntry.entryKey]
+                .singleMenu &&
+              !webSiteMenuEntriesTree.menuEntries[menuEntry.entryKey].disabled
+            ) {
+              webSiteMenuEntriesTree.menuEntries[
+                menuEntry.entryKey
+              ].pageTreeId = children[0].pageTreeId;
+              webSiteMenuEntriesTree.menuEntries[
+                menuEntry.entryKey
+              ].pageTreeUri = children[0].pageTreeUri;
+            }
           }
         }
       }
-    }
+    } catch (error) {}
   }
 
   public async lookForMenuEntries(

@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import {IJsonSchema} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
 import {cloneDeep, indexOf, merge} from 'lodash';
@@ -109,14 +110,16 @@ export class WebSiteService {
   ): Promise<Popup> {
     let popupNode = objectNode;
     if (!popupNode.entityCtx?.loaded) {
-      popupNode = (await this.insideRestService.read(
-        this.uriCompleteService.getUri(
-          EntityName.objectNode,
-          popupNode.id as string,
+      try {
+        popupNode = (await this.insideRestService.read(
+          this.uriCompleteService.getUri(
+            EntityName.objectNode,
+            popupNode.id as string,
+            ctx,
+          ),
           ctx,
-        ),
-        ctx,
-      )) as ObjectNode;
+        )) as ObjectNode;
+      } catch (error) {}
     }
     const popupBuilder: PopupBuilder = {
       popupLinkLabels: popupLinkLabels ? popupLinkLabels : {},

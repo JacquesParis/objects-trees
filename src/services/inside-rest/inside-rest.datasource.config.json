@@ -15,12 +15,13 @@
             "accept": "application/json",
             "content-type": "application/json",
             "Authorization": "{authorization:string}",
-            "Accept-Language": "{acceptLanguage:string}"
+            "Accept-Language": "{acceptLanguage:string}",
+            "sessionid":"{sessionid:string}"
           }
         }
       },
       "functions": {
-        "read": ["uri","authorization","acceptLanguage"]
+        "read": ["uri","authorization","acceptLanguage","sessionid"]
       }
     }
   ]

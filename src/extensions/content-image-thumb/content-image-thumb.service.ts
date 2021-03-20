@@ -139,11 +139,13 @@ export class ContentImageThumbService {
 
   public async completeImageNode(image: ObjectNode, ctx: CurrentContext) {
     if (image.uri) {
-      await this.insideRestService.read(
-        image.uri?.replace('object-nodes', 'object-trees'),
-        ctx,
-        true,
-      );
+      try {
+        await this.insideRestService.read(
+          image.uri?.replace('object-nodes', 'object-trees'),
+          ctx,
+          true,
+        );
+      } catch (error) {}
     }
   }
 
@@ -272,12 +274,14 @@ export class ContentImageThumbService {
 
     //   if (reloadTree && hasNewNodes) {
     if (hasNewNodes) {
-      const newImage = await this.insideRestService.read(
-        imageTree.uri,
-        ctx,
-        true,
-      );
-      Object.assign(imageTree, newImage);
+      try {
+        const newImage = await this.insideRestService.read(
+          imageTree.uri,
+          ctx,
+          true,
+        );
+        Object.assign(imageTree, newImage);
+      } catch {}
     } else {
       if (IMAGE_THUMB_TYPE.name in imageTree.childrenByObjectTypeId) {
         imageTree.thumb =

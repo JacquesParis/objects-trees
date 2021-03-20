@@ -24,4 +24,13 @@ export interface AbstractEntityInterceptorInterface {
     entity: IRestEntity | undefined,
     ctx: CurrentContext,
   ): Promise<boolean | IRestEntity>;
+  interceptAllRequest?(ctx: CurrentContext): Promise<void>;
+  makeFinallyTreatment?(
+    entityName: EntityName,
+    scope: EntityActionType,
+    entityId: string | undefined,
+    entity: IRestEntity | undefined,
+    ctx: CurrentContext,
+  ): Promise<void>;
+  makeAllFinallyTreatment?(ctx: CurrentContext): Promise<void>;
 }

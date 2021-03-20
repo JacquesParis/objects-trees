@@ -1,6 +1,7 @@
 import {IRestEntity} from '@jacquesparis/objects-model';
 import {DataObject} from '@loopback/repository';
 import {Principal} from '@loopback/security';
+import {IncomingHttpHeaders} from 'http';
 import * as _ from 'lodash';
 import {ObjectTreesApplicationInterface} from '../application.interface';
 import {ObjectNode} from '../models/object-node.model';
@@ -82,6 +83,7 @@ export class UriContext {
     path: string;
     objectUri: string;
     method: string;
+    headers: IncomingHttpHeaders;
     host: string;
     protocol: string;
     url: string;

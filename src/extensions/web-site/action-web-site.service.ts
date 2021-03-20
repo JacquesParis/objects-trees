@@ -277,20 +277,36 @@ export class ActionWebSiteService {
         getCachedOrRemoteObjectById: async (
           treeId: string,
         ): Promise<IObjectTree> => {
-          return (await this.insideRestService.read(
-            this.uriCompleteService.getUri(EntityName.objectTree, treeId, ctx),
-            ctx,
-          )) as IObjectTree;
+          try {
+            return (await this.insideRestService.read(
+              this.uriCompleteService.getUri(
+                EntityName.objectTree,
+                treeId,
+                ctx,
+              ),
+              ctx,
+            )) as IObjectTree;
+          } catch (error) {
+            return {children: [], treeNode: {name: 'unknown'}};
+          }
         },
       },
       {
         getCachedOrRemoteObjectById: async (
           nodeId: string,
         ): Promise<IObjectNode> => {
-          return (await this.insideRestService.read(
-            this.uriCompleteService.getUri(EntityName.objectNode, nodeId, ctx),
-            ctx,
-          )) as IObjectNode;
+          try {
+            return (await this.insideRestService.read(
+              this.uriCompleteService.getUri(
+                EntityName.objectNode,
+                nodeId,
+                ctx,
+              ),
+              ctx,
+            )) as IObjectNode;
+          } catch (error) {
+            return {name: 'unknown'};
+          }
         },
       },
       {

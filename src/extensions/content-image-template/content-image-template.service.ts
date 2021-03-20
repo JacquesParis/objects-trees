@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import {service} from '@loopback/core';
 import {indexOf, map} from 'lodash';
 import {EntityName} from '../../models';
@@ -40,15 +41,17 @@ export class ContentImageTemplateService {
         });
       }
     }
-    const popupTree = (await this.insideRestService.read(
-      this.uriCompleteService.getUri(
-        EntityName.objectTree,
-        popupNode.id as string,
+    try {
+      const popupTree = (await this.insideRestService.read(
+        this.uriCompleteService.getUri(
+          EntityName.objectTree,
+          popupNode.id as string,
+          ctx,
+        ),
         ctx,
-      ),
-      ctx,
-    )) as ObjectTree;
-    await this.lookForImages(popupTree, popupBuilder.popupParts.images, ctx);
+      )) as ObjectTree;
+      await this.lookForImages(popupTree, popupBuilder.popupParts.images, ctx);
+    } catch (error) {}
 
     if (
       popupNode.imageGalleryTree &&
@@ -83,28 +86,30 @@ export class ContentImageTemplateService {
   ) {
     for (const child of objectTree.children) {
       if (child.treeNode.imageGalleryObjectTreeId) {
-        const imagesNode = await this.insideRestService.read(
-          child.treeNode.uri as string,
-          ctx,
-        );
-        if (imagesNode.images && 0 < imagesNode.images.length) {
-          for (const image of imagesNode.images) {
-            if (
-              -1 ===
-              indexOf(
-                map(images, (img) => img.uri),
-                image.thumb.contentImageUri,
-              )
-            ) {
-              images.push({
-                uri: image.thumb.contentImageUri,
-                text: image.treeNode.imageTitle
-                  ? image.treeNode.imageTitle
-                  : image.treeNode.name,
-              });
+        try {
+          const imagesNode = await this.insideRestService.read(
+            child.treeNode.uri as string,
+            ctx,
+          );
+          if (imagesNode.images && 0 < imagesNode.images.length) {
+            for (const image of imagesNode.images) {
+              if (
+                -1 ===
+                indexOf(
+                  map(images, (img) => img.uri),
+                  image.thumb.contentImageUri,
+                )
+              ) {
+                images.push({
+                  uri: image.thumb.contentImageUri,
+                  text: image.treeNode.imageTitle
+                    ? image.treeNode.imageTitle
+                    : image.treeNode.name,
+                });
+              }
             }
           }
-        }
+        } catch (error) {}
       }
     }
 

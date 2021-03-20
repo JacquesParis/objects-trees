@@ -24,6 +24,40 @@ export interface EntityInterceptorInterface {
     ctx: CurrentContext,
   ): Promise<boolean | IRestEntity>;
 }
+export interface AllInterceptorInterface {
+  providerId: string;
+  serviceId: string;
+  description:
+    | string
+    | (() => TreatmentDescription)
+    | (() => TreatmentDescription[])
+    | TreatmentDescription;
+  interceptRequest(ctx: CurrentContext): Promise<void>;
+}
+export interface EntityFinallyInterface {
+  providerId: string;
+  serviceId: string;
+  description:
+    | string
+    | (() => TreatmentDescription)
+    | (() => TreatmentDescription[])
+    | TreatmentDescription;
+  finallyRequest(
+    entityId: string | undefined,
+    entity: IRestEntity | undefined,
+    ctx: CurrentContext,
+  ): Promise<boolean | IRestEntity>;
+}
+export interface AllFinallyInterface {
+  providerId: string;
+  serviceId: string;
+  description:
+    | string
+    | (() => TreatmentDescription)
+    | (() => TreatmentDescription[])
+    | TreatmentDescription;
+  finallyRequest(ctx: CurrentContext): Promise<void>;
+}
 
 @injectable({scope: BindingScope.SINGLETON})
 export class EntityInterceptService
@@ -33,6 +67,13 @@ export class EntityInterceptService
       [scope in EntityActionType]?: EntityInterceptorInterface[];
     };
   } = {};
+  private allInterceptors: AllInterceptorInterface[] = [];
+  private finallyInterceptors: {
+    [resource in EntityName]?: {
+      [scope in EntityActionType]?: EntityFinallyInterface[];
+    };
+  } = {};
+  private allFinalTreatments: AllFinallyInterface[] = [];
 
   public registerEntityInterceptorService(
     resource: EntityName,
@@ -50,6 +91,34 @@ export class EntityInterceptService
     (this.entityInterceptors[resource] as {
       [scope in EntityActionType]?: EntityInterceptorInterface[];
     })[scope]?.push(entityInterceptor);
+  }
+  public registerAllInterceptorService(
+    allInterceptor: AllInterceptorInterface,
+  ) {
+    this.allInterceptors.push(allInterceptor);
+  }
+
+  public registerFinallyInterceptorService(
+    resource: EntityName,
+    scope: EntityActionType,
+    finallyInterceptor: EntityFinallyInterface,
+  ) {
+    if (!(resource in this.finallyInterceptors)) {
+      this.finallyInterceptors[resource] = {};
+    }
+    if (!(scope in (this.finallyInterceptors[resource] as Object))) {
+      (this.finallyInterceptors[resource] as {
+        [scope in EntityActionType]?: EntityInterceptorInterface[];
+      })[scope] = [];
+    }
+    (this.finallyInterceptors[resource] as {
+      [scope in EntityActionType]?: EntityFinallyInterface[];
+    })[scope]?.push(finallyInterceptor);
+  }
+  public registerAllFinalTreatmentService(
+    allFinalTreatment: AllFinallyInterface,
+  ) {
+    this.allFinalTreatments.push(allFinalTreatment);
   }
 
   public async interceptRequest(
@@ -83,6 +152,39 @@ export class EntityInterceptService
       }
     }
     return true;
+  }
+  public async interceptAllRequest(ctx: CurrentContext): Promise<void> {
+    for (const intercept of this.allInterceptors) {
+      await intercept.interceptRequest(ctx);
+    }
+  }
+
+  public async makeFinallyTreatment(
+    entityName: EntityName,
+    scope: EntityActionType,
+    entityId: string | undefined,
+    entity: IRestEntity | undefined,
+    ctx: CurrentContext,
+  ): Promise<void> {
+    if (
+      entityName in this.finallyInterceptors &&
+      scope in
+        (this.finallyInterceptors[entityName] as {
+          [scope in EntityActionType]?: EntityFinallyInterface[];
+        })
+    ) {
+      for (const finallyTreatment of (this.finallyInterceptors[entityName] as {
+        [action in EntityActionType]: EntityFinallyInterface[];
+      })[scope]) {
+        await finallyTreatment.finallyRequest(entityId, entity, ctx);
+      }
+    }
+    return;
+  }
+  public async makeAllFinallyTreatment(ctx: CurrentContext): Promise<void> {
+    for (const intercept of this.allFinalTreatments) {
+      await intercept.finallyRequest(ctx);
+    }
   }
 
   getPreTreatmentDescription(): TreatmentDescription[] {

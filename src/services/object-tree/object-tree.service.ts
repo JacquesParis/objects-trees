@@ -13,6 +13,8 @@ import {ContentEntityService} from '../content-entity/content-entity.service';
 import {ObjectNodeService} from '../object-node/object-node.service';
 import {ObjectTypeService} from '../object-type.service';
 import {ApplicationError} from './../../helper/application-error';
+import {EntityName} from './../../models/entity-name';
+import {EntityActionType} from './../application.service';
 import {OBJECT_TREE_PROVIDER} from './object-tree.const';
 
 export class ObjectTreeService {
@@ -31,13 +33,30 @@ export class ObjectTreeService {
     @service(ApplicationService)
     private appCtx: ApplicationService,
   ) {
-    /*
-    this.init = new ObjectTreeInit(
-      objectNodeService,
-      objectTypeService,
-      contentEntityService,
-      appCtx,
-    );*/
+    this.appCtx.entityActions['ObjectTreeController.prototype.findChildren'] = {
+      entityName: EntityName.objectTree,
+      entityActionType: EntityActionType.read,
+    };
+    this.appCtx.entityActions[
+      'ObjectTreeController.prototype.findOwnerTree'
+    ] = {
+      entityName: EntityName.objectTree,
+      entityActionType: EntityActionType.read,
+    };
+    this.appCtx.entityActions['ObjectTreeController.prototype.findTree'] = {
+      entityName: EntityName.objectTree,
+      entityActionType: EntityActionType.read,
+    };
+    this.appCtx.entityActions[
+      'ObjectTreeController.prototype.findNamespaceTree'
+    ] = {
+      entityName: EntityName.objectTree,
+      entityActionType: EntityActionType.read,
+    };
+    this.appCtx.entityActions['ObjectTreeController.prototype.findNode'] = {
+      entityName: EntityName.objectTree,
+      entityActionType: EntityActionType.read,
+    };
   }
 
   private async createNewApplicationSubTree(

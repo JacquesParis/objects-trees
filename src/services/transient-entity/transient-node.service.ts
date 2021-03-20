@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import {IMoveToAction, IRestEntity} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
 import {filter} from 'lodash';
@@ -76,25 +77,27 @@ export class TransientNodeService implements TransientEntityInterface {
     const insideRestService: InsideRestService = await this.applicationService.app.getService<InsideRestService>(
       InsideRestService,
     );
-    const rootTree: ObjectTree = (await insideRestService.read(
-      uriCompleteService.getUri(
-        EntityName.objectTree,
-        objectNode.parentNamespaceId,
+    try {
+      const rootTree: ObjectTree = (await insideRestService.read(
+        uriCompleteService.getUri(
+          EntityName.objectTree,
+          objectNode.parentNamespaceId,
+          ctx,
+        ),
         ctx,
-      ),
-      ctx,
-    )) as ObjectTree;
+      )) as ObjectTree;
 
-    const moveTo: {
-      [objectSourceTypeId: string]: IMoveToAction[];
-    } = await this.buildMoveToList(
-      objectNode.id as string,
-      rootTree,
-      uriCompleteService,
-      insideRestService,
-      ctx,
-    );
-    this.addMoveTo(objectNode, moveTo);
+      const moveTo: {
+        [objectSourceTypeId: string]: IMoveToAction[];
+      } = await this.buildMoveToList(
+        objectNode.id as string,
+        rootTree,
+        uriCompleteService,
+        insideRestService,
+        ctx,
+      );
+      this.addMoveTo(objectNode, moveTo);
+    } catch (error) {}
   }
 
   private addMoveTo(
@@ -136,14 +139,16 @@ export class TransientNodeService implements TransientEntityInterface {
       return moveTo;
     }
     if (false === objectTree?.entityCtx?.loaded) {
-      objectTree = (await insideRestService.read(
-        uriCompleteService.getUri(
-          EntityName.objectTree,
-          objectTree.treeNode.id as string,
+      try {
+        objectTree = (await insideRestService.read(
+          uriCompleteService.getUri(
+            EntityName.objectTree,
+            objectTree.treeNode.id as string,
+            ctx,
+          ),
           ctx,
-        ),
-        ctx,
-      )) as ObjectTree;
+        )) as ObjectTree;
+      } catch (error) {}
     }
     if (objectTree.entityCtx?.actions?.creations) {
       for (const creationTypeId of Object.keys(

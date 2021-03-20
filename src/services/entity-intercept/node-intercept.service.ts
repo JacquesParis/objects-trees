@@ -130,13 +130,16 @@ class NodeIntercept implements EntityInterceptorInterface {
     if (entityId) {
       entity = await this.objectNodeService.searchById(entityId);
     }
-    const enityObjectType: ObjectType = (
+    if (!entity) {
+      return true;
+    }
+    const entityObjectType: ObjectType = (
       await this.objectTypeService.getAll(ctx)
     )[(entity as ObjectNode).objectTypeId];
     for (const objectType of Object.keys(this.interceptors)) {
       if (
-        objectType === enityObjectType.id ||
-        -1 < indexOf(enityObjectType.inheritedTypesIds, objectType)
+        objectType === entityObjectType.id ||
+        -1 < indexOf(entityObjectType.inheritedTypesIds, objectType)
       ) {
         for (const interceptor of this.interceptors[objectType]) {
           const result = await interceptor.entityInterceptorFunction(

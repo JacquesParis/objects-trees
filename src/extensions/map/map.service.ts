@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import {service} from '@loopback/core';
 import {indexOf, intersection} from 'lodash';
 import {
@@ -86,37 +87,41 @@ export class MapService {
       );
     }
     if (objectNode.mapEntriesObjectTreeUri) {
-      const mapEntries = await this.insideRestService.read(
-        objectNode.mapEntriesObjectTreeUri,
-        ctx,
-      );
-      if (mapEntries.mapEntries) {
-        const oneOf = [];
-        for (const entryKey of Object.keys(mapEntries.mapEntries)) {
-          oneOf.push({
-            enum: [entryKey],
-            title: mapEntries.mapEntries[entryKey].title,
-          });
-        }
-        if (
-          0 < oneOf.length &&
-          objectNode.entityCtx?.jsonSchema?.properties?.mapEntryKey
-        ) {
-          objectNode.entityCtx.jsonSchema.properties.mapEntryKey.oneOf = oneOf;
-          if (!objectNode.mapEntryKey) {
-            objectNode.mapEntryKey = oneOf[0].enum[0];
+      try {
+        const mapEntries = await this.insideRestService.read(
+          objectNode.mapEntriesObjectTreeUri,
+          ctx,
+        );
+        if (mapEntries.mapEntries) {
+          const oneOf = [];
+          for (const entryKey of Object.keys(mapEntries.mapEntries)) {
+            oneOf.push({
+              enum: [entryKey],
+              title: mapEntries.mapEntries[entryKey].title,
+            });
+          }
+          if (
+            0 < oneOf.length &&
+            objectNode.entityCtx?.jsonSchema?.properties?.mapEntryKey
+          ) {
+            objectNode.entityCtx.jsonSchema.properties.mapEntryKey.oneOf = oneOf;
+            if (!objectNode.mapEntryKey) {
+              objectNode.mapEntryKey = oneOf[0].enum[0];
+            }
           }
         }
-      }
+      } catch (error) {}
     }
 
     if (objectNode.mapEntriesObjectTreeUri && objectNode.mapEntryKey) {
-      const mapEntries = await this.insideRestService.read(
-        objectNode.mapEntriesObjectTreeUri,
-        ctx,
-      );
-      const map: Map = mapEntries.mapEntries[objectNode.mapEntryKey];
-      objectNode.map = map;
+      try {
+        const mapEntries = await this.insideRestService.read(
+          objectNode.mapEntriesObjectTreeUri,
+          ctx,
+        );
+        const map: Map = mapEntries.mapEntries[objectNode.mapEntryKey];
+        objectNode.map = map;
+      } catch (error) {}
     }
   }
 
@@ -229,40 +234,42 @@ export class MapService {
     ctx: CurrentContext,
   ) {
     mapEntriesTree.mapEntries = {};
-    const webSiteTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
-      mapEntriesTree.treeNode.webSiteObjectTreeUri,
-      ctx,
-    )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
-    const implementingMapEntry = await this.objectTypeService.getImplementingTypes(
-      MAP_ENTRY_TYPE.name,
-    );
-    for (const menuEntryDef of webSiteTree.treeNode.menuEntries) {
-      if (
-        intersection(implementingMapEntry, menuEntryDef.entryTypes).length > 0
-      ) {
-        const menuTrees: MenuTree[] =
-          mapEntriesTree.menuEntries &&
-          menuEntryDef.entryKey in mapEntriesTree.menuEntries
-            ? mapEntriesTree.menuEntries[menuEntryDef.entryKey].children
-            : await this.transientWebSiteService.lookForMenuEntries(
-                [mapEntriesTree],
-                menuEntryDef.entryTypes,
-                mapEntriesTree,
-                menuEntryDef.entryKey,
-                menuEntryDef.menuEntryLabelKey
-                  ? menuEntryDef.menuEntryLabelKey
-                  : 'name',
-                !!menuEntryDef.adminEntry,
-              );
-        mapEntriesTree.mapEntries[
-          menuEntryDef.entryKey
-        ] = await this.getMapMenuEntries(
-          mapEntriesTree,
-          menuTrees,
-          menuEntryDef,
-          ctx,
-        );
+    try {
+      const webSiteTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
+        mapEntriesTree.treeNode.webSiteObjectTreeUri,
+        ctx,
+      )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
+      const implementingMapEntry = await this.objectTypeService.getImplementingTypes(
+        MAP_ENTRY_TYPE.name,
+      );
+      for (const menuEntryDef of webSiteTree.treeNode.menuEntries) {
+        if (
+          intersection(implementingMapEntry, menuEntryDef.entryTypes).length > 0
+        ) {
+          const menuTrees: MenuTree[] =
+            mapEntriesTree.menuEntries &&
+            menuEntryDef.entryKey in mapEntriesTree.menuEntries
+              ? mapEntriesTree.menuEntries[menuEntryDef.entryKey].children
+              : await this.transientWebSiteService.lookForMenuEntries(
+                  [mapEntriesTree],
+                  menuEntryDef.entryTypes,
+                  mapEntriesTree,
+                  menuEntryDef.entryKey,
+                  menuEntryDef.menuEntryLabelKey
+                    ? menuEntryDef.menuEntryLabelKey
+                    : 'name',
+                  !!menuEntryDef.adminEntry,
+                );
+          mapEntriesTree.mapEntries[
+            menuEntryDef.entryKey
+          ] = await this.getMapMenuEntries(
+            mapEntriesTree,
+            menuTrees,
+            menuEntryDef,
+            ctx,
+          );
+        }
       }
-    }
+    } catch (error) {}
   }
 }

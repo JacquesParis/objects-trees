@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import {service} from '@loopback/core';
 import {filter, indexOf} from 'lodash';
 import {addCondition} from '../../helper';
@@ -114,10 +115,12 @@ export class TransientImageService {
   ) {
     const images = [];
     if (!objectNode.imageGalleryTree && objectNode.imageGalleryObjectTreeUri) {
-      objectNode.imageGalleryTree = (await this.insideRestService.read(
-        objectNode.imageGalleryObjectTreeUri,
-        ctx,
-      )) as ObjectTree;
+      try {
+        objectNode.imageGalleryTree = (await this.insideRestService.read(
+          objectNode.imageGalleryObjectTreeUri,
+          ctx,
+        )) as ObjectTree;
+      } catch (error) {}
     }
     if (objectNode.imageGalleryTree?.children) {
       for (const image of objectNode.imageGalleryTree.children) {
