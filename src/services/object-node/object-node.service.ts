@@ -544,7 +544,7 @@ export class ObjectNodeService {
                 true,
               );
             } catch (error) {
-              console.log(error);
+              console.trace(error);
             }
           }
         }

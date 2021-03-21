@@ -54,7 +54,7 @@ export class ApplicationError implements IObjectError, HttpErrors.HttpError {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static unexpectedError(err: any): ApplicationError {
-    console.log(err);
+    console.trace(err);
     if (undefined !== err.statusCode) {
       return new ApplicationError(
         err,

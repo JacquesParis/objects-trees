@@ -115,19 +115,11 @@ export class InsideRestService {
     if (sessionid) {
       insideRestCtx.loadedUris = this.runningRequestLoadedUris[sessionid];
       insideRestCtx.id = sessionid;
-      console.log(
-        'reuse session cache with ',
-        Object.keys(insideRestCtx.loadedUris).length,
-      );
       return;
     }
     insideRestCtx.id = '' + Math.ceil(Math.random() * 1000000000000000000000);
     this.runningRequestLoadedUris[insideRestCtx.id] = {};
     insideRestCtx.loadedUris = this.runningRequestLoadedUris[insideRestCtx.id];
-    console.log(
-      'session cache created for ',
-      ctx.uriContext.uri.value.objectUri,
-    );
   }
   public endSharedResults(ctx: CurrentContext) {
     if (this.getOpenedSessionId(ctx)) {
@@ -137,9 +129,6 @@ export class InsideRestService {
     insideRestCtx.loadedUris = {};
     if (insideRestCtx.id && insideRestCtx.id in this.runningRequestLoadedUris) {
       delete this.runningRequestLoadedUris[insideRestCtx.id];
-      console.log('free session cache of ', ctx.uriContext.uri.value.objectUri);
-    } else {
-      console.log('no session cache for ', ctx.uriContext.uri.value.objectUri);
     }
   }
 
@@ -202,15 +191,20 @@ export class InsideRestService {
         return result;
       }
     }
-    return this.setLoadedEntity(
-      await this.insideRestRepository.read(
-        uri,
-        ctx.accessRightsContext.authorization.value,
-        ctx.uriContext.uri.value.acceptLanguage,
-        insideRestCtx.id,
-      ),
-      uriId,
-      insideRestCtx,
-    );
+    try {
+      return this.setLoadedEntity(
+        await this.insideRestRepository.read(
+          uri,
+          ctx.accessRightsContext.authorization.value,
+          ctx.uriContext.uri.value.acceptLanguage,
+          insideRestCtx.id,
+        ),
+        uriId,
+        insideRestCtx,
+      );
+    } catch (error) {
+      console.trace('failed to load', uriId, error);
+      throw error;
+    }
   }
 }

@@ -80,7 +80,7 @@
     "mustache": "^4.1.0",
     "p-event": "^4.2.0",
     "sanitize-html": "^2.3.2",
-    "sharp": "^0.27.1"
+    "sharp": "^0.27.2"
   },
   "devDependencies": {
     "@types/css": "0.0.31",

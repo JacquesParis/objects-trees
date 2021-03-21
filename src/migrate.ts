@@ -15,6 +15,6 @@ export async function migrate(args: string[]) {
 }
 
 migrate(process.argv).catch((err) => {
-  console.error('Cannot migrate database schema', err);
+  console.trace('Cannot migrate database schema', err);
   process.exit(1);
 });

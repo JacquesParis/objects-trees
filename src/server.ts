@@ -71,7 +71,7 @@ export class ExpressServer {
       this.server = this.app.listen(port, host);
       console.log('listening', host, port, `http://${host}:${port}`);
     } catch (error) {
-      console.log('not possible to listen', host, port);
+      console.trace('not possible to listen', host, port);
     }
     if (host.startsWith('192.168.')) {
       this.app.listen(3000, 'localhost');
