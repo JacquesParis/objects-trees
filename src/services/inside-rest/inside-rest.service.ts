@@ -14,7 +14,7 @@ import {
   AllInterceptorInterface,
   EntityInterceptService,
 } from './../entity-intercept/entity-intercept.service';
-import {DATASTORE_INSIDE_REST, INSIDE_REST_PROVIDER} from './inside-rest.const';
+import {DATASTIRE_INSIDE_REST, INSIDE_REST_PROVIDER} from './inside-rest.const';
 import {InsideRestDataSource} from './inside-rest.datasource';
 import {InsideRestProvider} from './inside-rest.provider';
 
@@ -31,7 +31,7 @@ export class InsideRestRepositoryProvider
   implements Provider<InsideRestRepository> {
   constructor(
     // insideRest must match the name property in the datasource json file
-    @inject(DATASTORE_INSIDE_REST)
+    @inject(DATASTIRE_INSIDE_REST)
     protected dataSource: InsideRestDataSource = new InsideRestDataSource(),
   ) {}
 
