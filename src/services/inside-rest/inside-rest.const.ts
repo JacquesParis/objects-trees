@@ -1,2 +1,2 @@
 export const INSIDE_REST_PROVIDER = 'InsideRestProvider';
-export const DATASTIRE_INSIDE_REST = 'datasources.insideRest';
+export const DATASTORE_INSIDE_REST = 'datasources.insideRest';
