@@ -85,6 +85,16 @@ export class HomePageController {
     );
     return generatedView.getResponse(response);
   }
+  @get('/favicon.png')
+  async getFavicon(
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.getFavicon(
+      ctx,
+    );
+    return generatedView.getResponse(response);
+  }
   @get('/{lang}')
   async getLoadingLangPage(
     @param.path.string('lang') lang: string,

@@ -1,9 +1,12 @@
 import {IObjectTree, IRestEntity} from '@jacquesparis/objects-model';
 import {AjaxResult} from '@jacquesparis/objects-website';
 import {service} from '@loopback/core';
+import {Principal} from '@loopback/security';
+import {countries, Country, Language, languagesAll} from 'countries-list';
 import {JSDOM} from 'jsdom';
 import path from 'path';
 import {
+  FileGeneratedResponse,
   GeneratedResponse,
   JsonGeneratedResponse,
 } from '../../helper/generated-response';
@@ -14,8 +17,10 @@ import {
   HtmlGeneratedResponse,
   RedirectGeneratedResponse,
 } from './../../helper/generated-response';
+import {LocalesHelper} from './../../helper/locales-helper';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectTree} from './../../models/object-tree.model';
+import {ActionEntityService} from './../../services/action-entity/action-entity.service';
 import {
   ApplicationService,
   EntityActionType,
@@ -23,11 +28,12 @@ import {
 } from './../../services/application.service';
 import {ContentEntityService} from './../../services/content-entity/content-entity.service';
 import {NodeInterceptService} from './../../services/entity-intercept/node-intercept.service';
+import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
 import {ObjectNodeService} from './../../services/object-node/object-node.service';
 import {TENANT_TYPE} from './../../services/object-tree/object-tree.const';
 import {ObjectTreeService} from './../../services/object-tree/object-tree.service';
 import {ObjectTypeService} from './../../services/object-type.service';
-import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
+import {TransientEntityService} from './../../services/transient-entity/transient-entity.service';
 import {TRAVEL_STORY_TYPE} from './../travel-story/travel-story-type.const';
 import {ActionWebSiteService} from './../web-site/action-web-site.service';
 import {PAGE_TYPE} from './../web-site/web-site.const';
@@ -42,17 +48,21 @@ import {
 export class HomePageService {
   constructor(
     @service(ActionWebSiteService)
-    protected actionWebSiteService: ActionWebSiteService,
-    @service(ObjectTreeService) protected objectTreeService: ObjectTreeService,
-    @service(ObjectNodeService) protected objectNodeService: ObjectNodeService,
-    @service(ObjectTypeService) protected objectTypeService: ObjectTypeService,
-    @service(UriCompleteService) private uriCompleteService: UriCompleteService,
+    private actionWebSiteService: ActionWebSiteService,
+    @service(ObjectTreeService) private objectTreeService: ObjectTreeService,
+    @service(ObjectNodeService) private objectNodeService: ObjectNodeService,
+    @service(ObjectTypeService) private objectTypeService: ObjectTypeService,
     @service(NodeInterceptService)
     private nodeInterceptService: NodeInterceptService,
     @service(ContentEntityService)
     private contentEntityService: ContentEntityService,
     @service(ApplicationService)
-    protected applicationService: ApplicationService,
+    private applicationService: ApplicationService,
+    @service(ActionEntityService)
+    private actionEntityService: ActionEntityService,
+    @service(TransientEntityService)
+    private transientEntityService: TransientEntityService,
+    @service(InsideRestService) private insideRestService: InsideRestService,
   ) {
     this.nodeInterceptService.registerEntityInterceptorService(
       HOME_PAGE_PROVIDER,
@@ -70,6 +80,180 @@ export class HomePageService {
       EntityActionType.update,
       this.interceptWebSiteViewUrlUpdate.bind(this),
     );
+    this.actionEntityService.registerNewMethodFunction(
+      HOME_PAGE_PROVIDER,
+      HomePageService.name,
+      'Publish web site',
+      EntityName.objectNode,
+      'publish',
+      WEB_SITE_VIEW_URL_TYPE.name,
+      this.publishSite.bind(this),
+      'delete',
+    );
+    this.transientEntityService.registerTransientEntityTypeFunction(
+      HOME_PAGE_PROVIDER,
+      HomePageService.name,
+      'Add publish method definition to publish site for a locale',
+      EntityName.objectNode,
+      WEB_SITE_VIEW_URL_TYPE.name,
+      this.completeWebSiteCacheLangTypeNode.bind(this),
+    );
+  }
+
+  public async completeWebSiteCacheLangTypeNode(
+    objectNode: ObjectNode,
+    ctx: CurrentContext,
+  ): Promise<void> {
+    const urls: string[] = [];
+    const pageTypeIds = await this.objectTypeService.getImplementingTypes(
+      PAGE_TYPE.name,
+    );
+    // TO DO : list PAGE_TYPE.name
+    const pages: ObjectNode[] = await this.objectNodeService.searchByTreeId(
+      objectNode.parentTreeId,
+      {objectTypeIds: pageTypeIds},
+    );
+    for (const page of pages) {
+      urls.push('/' + page.name);
+    }
+    for (const page of pages) {
+      urls.push('/' + page.name + '/popup');
+    }
+
+    if (!objectNode.entityCtx) {
+      objectNode.entityCtx = {entityType: EntityName.objectNode};
+    }
+    if (!objectNode.entityCtx?.actions) {
+      objectNode.entityCtx.actions = {};
+    }
+    if (!objectNode.entityCtx.actions.methods) {
+      objectNode.entityCtx.actions.methods = [];
+    }
+    objectNode.entityCtx.actions.methods.push({
+      methodId: 'publish',
+      methodName: 'Publish site',
+      actionName: 'Publish site',
+      parameters: {
+        type: 'object',
+        properties: {
+          locale: {
+            type: 'string',
+            title: 'Language',
+            required: true,
+            oneOf: [
+              /*
+            {"enum": ["none"], "title": "never"},
+            */
+            ],
+          },
+        },
+      },
+      handlebarsMethodSampling: `[
+          {
+            "methodId": "publish",
+            "parameters":{
+              "init":"true",
+              "url":"",
+              "locale":"{{locale}}"
+            }
+          }`,
+    });
+    for (const url of urls) {
+      objectNode.entityCtx.actions.methods[
+        objectNode.entityCtx.actions.methods.length - 1
+      ].handlebarsMethodSampling += `,
+        {
+          "methodId": "publish",
+          "parameters":{
+            "url":"${url}",
+            "locale":"{{locale}}"
+          }
+        }`;
+    }
+    objectNode.entityCtx.actions.methods[
+      objectNode.entityCtx.actions.methods.length - 1
+    ].handlebarsMethodSampling += ']';
+
+    const localesChildren = await this.objectNodeService.getOrCreateChildren(
+      objectNode.id as string,
+      WEB_SITE_CACHE_LANG_TYPE.name,
+    );
+    if (localesChildren?.length > 0) {
+      objectNode.entityCtx.actions.methods[
+        objectNode.entityCtx.actions.methods.length - 1
+      ].parameters.properties.locale.oneOf.push({
+        enum: [localesChildren.map((child) => child.name).join(',')],
+        title: 'Already published countries',
+      });
+    }
+
+    for (const country in countries) {
+      for (const lang of (countries as {[country: string]: Country})[country]
+        .languages) {
+        objectNode.entityCtx.actions.methods[
+          objectNode.entityCtx.actions.methods.length - 1
+        ].parameters.properties.locale.oneOf.push({
+          enum: [lang + '-' + country],
+          title:
+            (countries as {[country: string]: Country})[country].name +
+            ', ' +
+            (languagesAll as {[lang: string]: Language})[lang].name,
+        });
+      }
+    }
+  }
+
+  public async publishSite(
+    objectNode: ObjectNode,
+    _args: Object,
+    ctx: CurrentContext,
+  ): Promise<ObjectTree> {
+    const args: {url: string; locale: string; init?: boolean} = _args as {
+      url: string;
+      locale: string;
+      init?: boolean;
+    };
+
+    const locales = args.locale.split(',');
+
+    if (args.init) {
+      const localesChildren = await this.objectNodeService.getOrCreateChildren(
+        objectNode.id as string,
+        WEB_SITE_CACHE_LANG_TYPE.name,
+      );
+      for (const child of localesChildren) {
+        if (-1 < locales.indexOf(child.name)) {
+          await this.objectNodeService.removeById(
+            child.id as string,
+            CurrentContext.get(ctx),
+          );
+        }
+      }
+    }
+
+    for (const locale of locales) {
+      await this.publishSiteLang(objectNode, locale, args.url, ctx);
+    }
+    return this.actionEntityService.getEntity<ObjectTree>(
+      EntityName.objectTree,
+      objectNode.id as string,
+      CurrentContext.get(ctx, {}),
+    );
+  }
+
+  public async publishSiteLang(
+    objectNode: ObjectNode,
+    lang: Object,
+    url: string,
+    ctx: CurrentContext,
+  ): Promise<void> {
+    // TO DO : get WebSite or build the URL ?
+    let webSiteUrl = `http://${objectNode.host}`;
+    if (objectNode.path) {
+      webSiteUrl += `/site/${objectNode.path}`;
+    }
+    webSiteUrl += '/' + lang;
+    await this.insideRestService.read(webSiteUrl + url, ctx);
   }
 
   public async interceptWebSiteViewUrlCreate(
@@ -136,6 +320,22 @@ export class HomePageService {
       }
       return uri;
     });
+  }
+
+  private initLangAndUser(
+    lang: string,
+    ctx: CurrentContext,
+  ): GeneratedResponse | undefined {
+    const newLang = LocalesHelper.getValidLocales(lang);
+    if (newLang !== lang) {
+      return new RedirectGeneratedResponse(
+        ctx.uriContext.uri.value.baseUri +
+          ctx.uriContext.uri.value.objectUri.replace('/' + lang, '/' + newLang),
+      );
+    }
+    ctx.accessRightsContext.user.value = (null as unknown) as Principal;
+    ctx.accessRightsContext.authorization.value = (undefined as unknown) as string;
+    return undefined;
   }
 
   public async getWebSiteEntity(
@@ -361,6 +561,16 @@ export class HomePageService {
     return 'cache$' + pageName + '$popup';
   }
 
+  public async getFavicon(
+    ctx: CurrentContext,
+    siteName?: string,
+  ): Promise<GeneratedResponse> {
+    return new FileGeneratedResponse(
+      path.join(__dirname, '/img/favicon.png'),
+      'favicon.png',
+    );
+  }
+
   public async getLoadingPageResponse(
     ctx: CurrentContext,
     lang?: string,
@@ -373,6 +583,14 @@ export class HomePageService {
           ctx.uriContext.uri.value.acceptLanguage,
       );
     }
+
+    const redirectResponse:
+      | GeneratedResponse
+      | undefined = this.initLangAndUser(lang, ctx);
+    if (redirectResponse) {
+      return redirectResponse;
+    }
+
     const entity = await this.getWebSiteEntity(lang, siteName, '', ctx);
     if (ctx.webSiteContext.cachedContent.value) {
       return new HtmlGeneratedResponse(
@@ -380,19 +598,27 @@ export class HomePageService {
       );
     }
 
-    const result: JsonGeneratedResponse<AjaxResult> = await this.actionWebSiteService.getWebSiteAjaxResponse(
+    const result: JsonGeneratedResponse<
+      AjaxResult & {headerTags: string[]}
+    > = (await this.actionWebSiteService.getWebSiteAjaxResponse(
       entity,
       this.getPageHref.bind(this),
       this.getAdminHref.bind(this),
       this.getPopupHref.bind(this),
       ctx,
-    );
+    )) as JsonGeneratedResponse<AjaxResult & {headerTags: string[]}>;
     result.json.headerScripts.pageScript = `
 function getPageHref(page) {
   return '${ctx.webSiteContext.pageBaseUri.value}' +
     (page ? '/' + page.treeNode.name : '');
 }
 `;
+    result.json.headerTags = [
+      `<link rel="icon" type="image/png" href="${ctx.webSiteContext.pageBaseUri.value.replace(
+        '/' + lang + '/',
+        '/favicon',
+      )}.png">`,
+    ];
 
     ctx.webSiteContext.cachedContent.value = {
       body: this.actionWebSiteService.getHtmlDocFromAjaxResult(result),
@@ -435,6 +661,13 @@ function getPageHref(page) {
     ctx: CurrentContext,
     siteName?: string,
   ): Promise<GeneratedResponse> {
+    const redirectResponse:
+      | GeneratedResponse
+      | undefined = this.initLangAndUser(lang, ctx);
+    if (redirectResponse) {
+      return redirectResponse;
+    }
+
     const webSiteTree = await this.getWebSiteEntity(
       lang,
       siteName,
@@ -448,20 +681,28 @@ function getPageHref(page) {
     }
     const pageNode = await this.getWebSitePageNode(webSiteTree, pageName, ctx);
     if (pageNode) {
-      const result: JsonGeneratedResponse<AjaxResult> = await this.actionWebSiteService.getWebSitePageAjaxResponse(
+      const result: JsonGeneratedResponse<
+        AjaxResult & {headerTags: string[]}
+      > = (await this.actionWebSiteService.getWebSitePageAjaxResponse(
         webSiteTree,
         pageNode.id as string,
         this.getPageHref.bind(this),
         this.getAdminHref.bind(this),
         this.getPopupHref.bind(this),
         ctx,
-      );
+      )) as JsonGeneratedResponse<AjaxResult & {headerTags: string[]}>;
       result.json.headerScripts.pageScript = `
     function getPageHref(page) {
       return '${ctx.webSiteContext.pageBaseUri.value}' +
         (page ? '/' + page.treeNode.name : '');
     }
     `;
+      result.json.headerTags = [
+        `<link rel="icon" type="image/png" href="${ctx.webSiteContext.pageBaseUri.value.replace(
+          '/' + lang + '/',
+          '/favicon',
+        )}.png">`,
+      ];
 
       ctx.webSiteContext.cachedContent.value = {
         body: this.actionWebSiteService.getHtmlDocFromAjaxResult(result),
@@ -481,6 +722,13 @@ function getPageHref(page) {
     ctx: CurrentContext,
     siteName?: string,
   ): Promise<GeneratedResponse> {
+    const redirectResponse:
+      | GeneratedResponse
+      | undefined = this.initLangAndUser(lang, ctx);
+    if (redirectResponse) {
+      return redirectResponse;
+    }
+
     const webSiteTree = await this.getWebSiteEntity(
       lang,
       siteName,

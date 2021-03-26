@@ -15,7 +15,6 @@ import {
 } from '../../helper/generated-response';
 import {ActionEntityService} from '../../services/action-entity/action-entity.service';
 import {ObjectNodeService} from '../../services/object-node/object-node.service';
-import {ObjectTypeService} from '../../services/object-type.service';
 import {
   HtmlGeneratedResponse,
   JsonGeneratedResponse,
@@ -25,7 +24,6 @@ import {ObjectTree} from './../../models/object-tree.model';
 import {CurrentContext} from './../../services/application.service';
 import {MustacheService} from './../../services/entity-definition/mustache.service';
 import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
-import {TransientUriReferenceService} from './../../services/inside-rest/transient-uri-reference.service';
 import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {WEB_SITE_PROVIDER, WEB_SITE_VIEW_TYPE} from './web-site.const';
 import {Popup} from './web-site.interface';
@@ -49,11 +47,7 @@ export class ActionWebSiteService {
     protected actionEntityService: ActionEntityService,
     @service(ObjectNodeService)
     private objectNodeService: ObjectNodeService,
-    @service(ObjectTypeService)
-    private objectTypeService: ObjectTypeService,
     @service(UriCompleteService) private uriCompleteService: UriCompleteService,
-    @service(TransientUriReferenceService)
-    private transientUriReferenceService: TransientUriReferenceService,
     @service(InsideRestService) private insideRestService: InsideRestService,
     @service(MustacheService) private mustacheService: MustacheService,
     @service(WebSiteService) private webSiteService: WebSiteService,

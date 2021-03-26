@@ -6,6 +6,7 @@ import {
 } from '@loopback/context';
 import {inject, service} from '@loopback/core';
 import {RestBindings} from '@loopback/rest';
+import {ServerResponse} from 'http';
 import {UriCompleteService} from '../services/uri-complete/uri-complete.service';
 import {
   CurrentContext,
@@ -54,10 +55,11 @@ export class UriCompleteInterceptor extends AbstractInterceptor {
       });
       const method = httpReq?.method;
       if (
-        'GET' === method ||
-        'POST' === method ||
-        'PUT' === method ||
-        'PATCH' === method
+        ('GET' === method ||
+          'POST' === method ||
+          'PUT' === method ||
+          'PATCH' === method) &&
+        !(result instanceof ServerResponse)
       ) {
         await this.getUriParts(invocationCtx, this.ctx);
         this.uriCompleteService.completeReturnedEntity(result, this.ctx);

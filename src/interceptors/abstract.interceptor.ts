@@ -7,6 +7,7 @@ import {
 } from '@loopback/core';
 import {Request, RestBindings} from '@loopback/rest';
 import {camelCase} from 'lodash';
+import {LocalesHelper} from './../helper/locales-helper';
 import {EntityName} from './../models/entity-name';
 import {CurrentContext} from './../services/application.service';
 
@@ -49,6 +50,10 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
       const baseUri = protocol + '://' + host + baseUrl;
       const objectUri = path + (path?.endsWith('/') ? '' : '/');
       const acceptLanguages: string[] = httpReq.acceptsLanguages();
+      const acceptLanguage: string = LocalesHelper.getValidLocales(
+        acceptLanguages ? acceptLanguages[0] : undefined,
+      );
+
       return {
         host: host as string,
         protocol: protocol as string,
@@ -59,10 +64,7 @@ export abstract class AbstractInterceptor implements Provider<Interceptor> {
         method: httpReq.method,
         headers: httpReq.headers,
         acceptLanguages: acceptLanguages,
-        acceptLanguage:
-          acceptLanguages && 0 < acceptLanguages.length
-            ? acceptLanguages[0]
-            : 'en-US',
+        acceptLanguage: acceptLanguage,
       };
     });
   }

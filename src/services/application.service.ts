@@ -117,7 +117,7 @@ export class CurrentContext {
   public webSiteContext: WebSiteContext = new WebSiteContext();
   public static get(
     parentCtx: CurrentContext,
-    value: DataObject<CurrentContext>,
+    value: DataObject<CurrentContext> = {},
   ): CurrentContext {
     const ctx = new CurrentContext();
     for (const context in parentCtx) {

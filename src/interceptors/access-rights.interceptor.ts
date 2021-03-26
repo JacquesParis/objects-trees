@@ -5,6 +5,7 @@ import {
   service,
   ValueOrPromise,
 } from '@loopback/core';
+import {ServerResponse} from 'http';
 import {every, isObject} from 'lodash';
 import {ApplicationError} from '../helper/application-error';
 import {RestEntity} from '../models';
@@ -101,7 +102,7 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
             }
           }
         }
-      } else if (isObject(result)) {
+      } else if (isObject(result) && !(result instanceof ServerResponse)) {
         const entity: RestEntity = result as RestEntity;
         if (entity?.uri) {
           const uriParts = await this.getUriParts(invocationCtx, this.ctx);
