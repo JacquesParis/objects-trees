@@ -111,6 +111,10 @@ export const MAP_ENTRY_TYPE: ObjectTypeDefinition = {
             title: 'View point',
           },
           {
+            enum: ['fas fa-camera'],
+            title: 'Photo',
+          },
+          {
             enum: ['fas fa-suitcase'],
             title: 'Travel',
           },
@@ -227,20 +231,44 @@ export const MAP_ENTRY_TYPE: ObjectTypeDefinition = {
             title: 'Bar',
           },
           {
-            enum: ['fas fa-landmark'],
+            enum: ['fas fa-archway'],
             title: 'Monument',
+          },
+          {
+            enum: ['fas fa-chess-rook'],
+            title: 'Castle',
+          },
+          {
+            enum: ['fas fa-church'],
+            title: 'Church',
+          },
+          {
+            enum: ['fas fa-cross'],
+            title: 'Cemetery',
           },
           {
             enum: ['fas fa-home'],
             title: 'Home',
           },
           {
+            enum: ['fas fa-campground'],
+            title: 'Campground',
+          },
+          {
             enum: ['fas fa-bed'],
             title: 'Hostel',
           },
           {
+            enum: ['fas fa-city'],
+            title: 'City',
+          },
+          {
             enum: ['fas fa-tree'],
             title: 'Forest',
+          },
+          {
+            enum: ['fas fa-mountain'],
+            title: 'Mountain',
           },
           {
             enum: ['fas fa-swimming-pool'],
