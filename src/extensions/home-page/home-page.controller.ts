@@ -14,6 +14,35 @@ export class HomePageController {
     public homePageService: HomePageService,
   ) {}
 
+  @get('/admin/')
+  async getAdminPage(
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    if ('/admin' === ctx.uriContext.uri.value.path) {
+      const generatedView: GeneratedResponse = new RedirectGeneratedResponse(
+        ctx.uriContext.uri.value.baseUri + '/admin/',
+      );
+      return generatedView.getResponse(response);
+    }
+    const generatedView: GeneratedResponse = await this.homePageService.renderAdminPage(
+      undefined,
+      ctx,
+    );
+    return generatedView.getResponse(response);
+  }
+  @get('/admin/{any}')
+  async getAdminPageBis(
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.renderAdminPage(
+      undefined,
+      ctx,
+    );
+    return generatedView.getResponse(response);
+  }
+
   @get('/site/{siteName}')
   async getLoadingPageOfSite(
     @param.path.string('siteName') siteName: string,
@@ -133,35 +162,6 @@ export class HomePageController {
     const generatedView: GeneratedResponse = await this.homePageService.getWebSitePopupResponse(
       lang,
       name,
-      ctx,
-    );
-    return generatedView.getResponse(response);
-  }
-
-  @get('/admin/')
-  async getAdminPage(
-    @inject(RestBindings.Http.RESPONSE) response: Response,
-    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
-  ): Promise<Response> {
-    if ('/admin' === ctx.uriContext.uri.value.path) {
-      const generatedView: GeneratedResponse = new RedirectGeneratedResponse(
-        ctx.uriContext.uri.value.baseUri + '/admin/',
-      );
-      return generatedView.getResponse(response);
-    }
-    const generatedView: GeneratedResponse = await this.homePageService.renderAdminPage(
-      undefined,
-      ctx,
-    );
-    return generatedView.getResponse(response);
-  }
-  @get('/admin/{any}')
-  async getAdminPageBis(
-    @inject(RestBindings.Http.RESPONSE) response: Response,
-    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
-  ): Promise<Response> {
-    const generatedView: GeneratedResponse = await this.homePageService.renderAdminPage(
-      undefined,
       ctx,
     );
     return generatedView.getResponse(response);
