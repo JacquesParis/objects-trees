@@ -441,21 +441,6 @@ export class HomePageService {
     }
   }
 
-  public async renderAdminApplication(
-    file?: string,
-  ): Promise<FileGeneratedResponse> {
-    if (!file || '' === file) {
-      file = 'index.html';
-    }
-    return new FileGeneratedResponse(
-      path.join(
-        this.applicationService.app.rootDirectory,
-        'node_modules/@jacquesparis/objects-angular/' + file,
-      ),
-      file,
-    );
-  }
-
   public async renderAdminPage(
     subPath: string | undefined,
     ctx: CurrentContext,

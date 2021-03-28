@@ -124,28 +124,6 @@ export class HomePageController {
     );
     return generatedView.getResponse(response);
   }
-
-  @get('/objectsites')
-  async renderAdminApplication(
-    @inject(RestBindings.Http.RESPONSE) response: Response,
-    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
-  ): Promise<Response> {
-    const generatedView: GeneratedResponse = await this.homePageService.renderAdminApplication();
-    return generatedView.getResponse(response);
-  }
-
-  @get('/objectsites/{file}')
-  async renderAdminApplicationFile(
-    @param.path.string('file') file: string,
-    @inject(RestBindings.Http.RESPONSE) response: Response,
-    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
-  ): Promise<Response> {
-    const generatedView: GeneratedResponse = await this.homePageService.renderAdminApplication(
-      file,
-    );
-    return generatedView.getResponse(response);
-  }
-
   @get('/{lang}')
   async getLoadingLangPage(
     @param.path.string('lang') lang: string,
