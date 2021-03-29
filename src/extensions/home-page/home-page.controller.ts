@@ -56,6 +56,50 @@ export class HomePageController {
     );
     return generatedView.getResponse(response);
   }
+
+  @get('/site/{siteName}/admin/')
+  async getAdminPageSite(
+    @param.path.string('siteName') siteName: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    if (!ctx.uriContext.uri.value.path.endsWith('/')) {
+      const generatedView: GeneratedResponse = new RedirectGeneratedResponse(
+        ctx.uriContext.uri.value.path + '/',
+      );
+      return generatedView.getResponse(response);
+    }
+    const generatedView: GeneratedResponse = await this.homePageService.renderAdminPage(
+      siteName,
+      ctx,
+    );
+    return generatedView.getResponse(response);
+  }
+  @get('/site/{siteName}/admin/{any}')
+  async getAdminPageSiteBis(
+    @param.path.string('siteName') siteName: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.renderAdminPage(
+      siteName,
+      ctx,
+    );
+    return generatedView.getResponse(response);
+  }
+  @get('/site/{siteName}/favicon.png')
+  async getFaviconSite(
+    @param.path.string('siteName') siteName: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<Response> {
+    const generatedView: GeneratedResponse = await this.homePageService.getFavicon(
+      ctx,
+      siteName,
+    );
+    return generatedView.getResponse(response);
+  }
+
   @get('/site/{siteName}/{lang}')
   async getLoadingLangPageOfSite(
     @param.path.string('siteName') siteName: string,

@@ -441,6 +441,21 @@ export class HomePageService {
     }
   }
 
+  private addLinkElement(
+    adminDOM: JSDOM,
+    rel: string,
+    type: string,
+    href: string,
+  ) {
+    const link: HTMLLinkElement = adminDOM.window.document.createElement(
+      'link',
+    );
+    link.rel = rel;
+    link.type = type;
+    link.href = href;
+    adminDOM.window.document.head.append(link);
+  }
+
   public async renderAdminPage(
     subPath: string | undefined,
     ctx: CurrentContext,
@@ -488,6 +503,14 @@ export class HomePageService {
         `namespace/${siteOwner.objectTypeId}/${siteOwner.name}/${siteNamespace.objectTypeId}/${siteNamespace.name}`,
       );
     }
+
+    this.addLinkElement(
+      adminDOM,
+      'icon',
+      'image/png',
+      (subPath ? '/site/' + subPath : '') + '/favicon.png',
+    );
+
     return new HtmlGeneratedResponse(adminDOM.serialize());
   }
 
