@@ -461,10 +461,7 @@ export class HomePageService {
     ctx: CurrentContext,
   ): Promise<HtmlGeneratedResponse> {
     const adminDOM: JSDOM = await JSDOM.fromFile(
-      path.join(
-        this.applicationService.app.rootDirectory,
-        'dist/www/index.html',
-      ),
+      path.join(__dirname, '../../www/index.html'),
       {},
     );
 

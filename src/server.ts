@@ -29,9 +29,9 @@ export class ExpressServer {
     );*/
     this.app.use(
       '/objectsites',
-      express.static(path.join(rootDirectory, 'dist/www/objectsites')),
+      express.static(path.join(__dirname, 'www/objectsites')),
     );
-    this.app.use('/root', express.static(path.join(rootDirectory, 'dist/www')));
+    this.app.use('/root', express.static(path.join(__dirname, 'www')));
 
     const staticDirs = this.lbApp.getStaticDirs();
     for (const staticPath in staticDirs) {
