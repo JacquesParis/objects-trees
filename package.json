@@ -11,7 +11,7 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "lb-tsc --copy-resources",
+    "build": "lb-tsc --copy-resources && cp -f -r ./node_modules/@jacquesparis/objects-angular ./dist/www",
     "build:watch": "lb-tsc --watch",
     "clean": "lb-clean dist *.tsbuildinfo",
     "lint": "npm run prettier:check && npm run eslint",

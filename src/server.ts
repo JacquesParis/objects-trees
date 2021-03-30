@@ -29,13 +29,9 @@ export class ExpressServer {
     );*/
     this.app.use(
       '/objectsites',
-      express.static(
-        path.join(
-          rootDirectory,
-          'node_modules/@jacquesparis/objects-angular/objectsites',
-        ),
-      ),
+      express.static(path.join(rootDirectory, 'dist/www/objectsites')),
     );
+    this.app.use('/root', express.static(path.join(rootDirectory, 'dist/www')));
 
     const staticDirs = this.lbApp.getStaticDirs();
     for (const staticPath in staticDirs) {

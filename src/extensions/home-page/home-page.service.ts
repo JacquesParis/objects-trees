@@ -463,7 +463,7 @@ export class HomePageService {
     const adminDOM: JSDOM = await JSDOM.fromFile(
       path.join(
         this.applicationService.app.rootDirectory,
-        'node_modules/@jacquesparis/objects-angular/index.html',
+        'dist/www/index.html',
       ),
       {},
     );
