@@ -382,21 +382,19 @@ export class ObjectNodeService {
     name: string,
     generate = false,
   ): Promise<void> {
+    const authorizedChars = `A-Z|a-z|0-9|:$\\.\\-_`;
+    const regexpName = new RegExp('^[' + authorizedChars + ']+$', 'g');
     if (!name) {
       throw ApplicationError.format('alphanumeric or - or _ or . or $', {
         name: name,
       });
     }
-    if (!name.match(/^[A-Z|a-z|0-9|:$\.\-_]+$/g)) {
+    if (!name.match(regexpName)) {
       if (generate) {
-        name = name.replace(/ /g, '_');
-        name = name.replace(/[é|è|ê|ë]/g, 'e');
-        name = name.replace(/[î|ï]/g, 'i');
-        name = name.replace(/[à|â|ä|@]/g, 'a');
-        name = name.replace(/[ù|û|ü]/g, 'u');
-        name = name.replace(/[ç]/g, 'c');
+        name = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        name = name.replace(new RegExp('[^' + authorizedChars + ']', 'g'), '_');
       }
-      if (!name.match(/^[A-Z|a-z|0-9|:$\.\-_]+$/g)) {
+      if (!name.match(regexpName)) {
         throw ApplicationError.format('alphanumeric or - or _ or . or $', {
           name: name,
         });
