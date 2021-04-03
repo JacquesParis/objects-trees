@@ -111,10 +111,9 @@ export class ObjectTreeService {
 
     for (const childTypeId in tree.children) {
       for (const childName in tree.children[childTypeId]) {
-        const existingChildren = await this.objectNodeService.searchByParentIdAndObjectTypeId(
+        const existingChildren = await this.objectNodeService.searchByParentNodeId(
           treeNode.id as string,
-          childTypeId,
-          childName,
+          {objectTypeId: childTypeId, name: childName},
         );
         let index = 0;
         while (
@@ -167,10 +166,9 @@ export class ObjectTreeService {
         missing: 'parentNode',
       });
     }
-    const treeNodes = await this.objectNodeService.searchByParentIdAndObjectTypeId(
+    const treeNodes = await this.objectNodeService.searchByParentNodeId(
       parentNode.id as string,
-      treeNodeTypeId,
-      treeNodeName,
+      {objectTypeId: treeNodeTypeId, name: treeNodeName},
     );
     if (!treeNodes || 0 === treeNodes.length) {
       return this.createNewApplicationSubTree(
@@ -233,7 +231,7 @@ export class ObjectTreeService {
 
     return _.concat(
       tree,
-      await this.objectNodeService.searchByTreeId(<string>tree.id),
+      await this.objectNodeService.searchByParentTreeId(<string>tree.id),
     );
   }
 
@@ -293,7 +291,7 @@ export class ObjectTreeService {
 
     return _.concat(
       tree,
-      await this.objectNodeService.searchByTreeId(<string>tree.id),
+      await this.objectNodeService.searchByParentTreeId(<string>tree.id),
     );
   }
 
@@ -388,7 +386,7 @@ export class ObjectTreeService {
 
     return _.concat(
       namespace,
-      await this.objectNodeService.searchByTreeId(<string>namespace.id),
+      await this.objectNodeService.searchByParentTreeId(<string>namespace.id),
     );
   }
 

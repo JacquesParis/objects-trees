@@ -355,6 +355,12 @@ export class ApplicationService {
   public implementingTypes: ExpectedValue<{
     [type: string]: string[];
   }> = new ExpectedValue();
+  public parentTypes: ExpectedValue<{
+    [type: string]: string[];
+  }> = new ExpectedValue();
+  public parentImplementingTypes: ExpectedValue<{
+    [type: string]: string[];
+  }> = new ExpectedValue();
   implementingCommonTypes: ExpectedValue<{
     [type: string]: string[];
   }> = new ExpectedValue();

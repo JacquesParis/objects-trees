@@ -182,6 +182,66 @@ export class ObjectTypeService {
     return type in implementingTypes ? implementingTypes[type] : [];
   }
 
+  public async getParentTypesOfType(type: string) {
+    const parentTypes: {
+      [type: string]: string[];
+    } = await this.appCtx.parentTypes.getOrSetValue(async () => {
+      const result: {
+        [type: string]: string[];
+      } = {};
+      const allTypes = await this.searchAll();
+      for (const knownType in allTypes) {
+        result[knownType] = [];
+        for (const parentType in allTypes) {
+          if (
+            parentType in allTypes &&
+            allTypes[parentType].objectSubTypes &&
+            -1 <
+              indexOf(
+                allTypes[parentType].objectSubTypes.map(
+                  (subType) => subType.subObjectTypeId,
+                ),
+                knownType,
+              )
+          ) {
+            result[knownType].push(parentType);
+          }
+        }
+      }
+      return result;
+    });
+
+    return type in parentTypes ? parentTypes[type] : [];
+  }
+
+  public async getParentTypesOfImplementingType(type: string) {
+    const parentImplementingTypes: {
+      [type: string]: string[];
+    } = await this.appCtx.parentImplementingTypes.getOrSetValue(async () => {
+      const result: {
+        [type: string]: string[];
+      } = {};
+
+      const allTypes = await this.searchAll();
+
+      for (const knownType in allTypes) {
+        result[knownType] = [];
+        for (const implementingType of await this.getImplementingTypes(
+          knownType,
+        )) {
+          result[knownType].push(
+            ...(await this.getParentTypesOfType(implementingType)).filter(
+              (parentType) => -1 === result[knownType].indexOf(parentType),
+            ),
+          );
+        }
+      }
+      return result;
+    });
+
+    return type in parentImplementingTypes ? parentImplementingTypes[type] : [];
+  }
+
   public async search(
     ctx: CurrentContext,
   ): Promise<(ObjectType & ObjectTypeRelations)[]> {

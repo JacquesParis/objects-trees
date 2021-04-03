@@ -1,6 +1,6 @@
 /* eslint-disable no-empty */
 import {service} from '@loopback/core';
-import {filter, indexOf} from 'lodash';
+import {cloneDeep, filter, indexOf} from 'lodash';
 import {addCondition} from '../../helper';
 import {ObjectTreeService} from '../../services';
 import {EntityName} from './../../models/entity-name';
@@ -8,6 +8,8 @@ import {ObjectNode} from './../../models/object-node.model';
 import {ObjectTree} from './../../models/object-tree.model';
 import {CurrentContext} from './../../services/application.service';
 import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
+import {ObjectNodeService} from './../../services/object-node/object-node.service';
+import {ObjectTypeService} from './../../services/object-type.service';
 import {TransientEntityService} from './../../services/transient-entity/transient-entity.service';
 import {
   CONTENT_IMAGE_PROVIDER,
@@ -28,11 +30,15 @@ export class TransientImageService {
     private contentImageService: ContentImageService,
     @service(ObjectTreeService)
     private objectTreeService: ObjectTreeService,
+    @service(ObjectNodeService)
+    private objectNodeService: ObjectNodeService,
+    @service(ObjectTypeService)
+    private objectTypeService: ObjectTypeService,
   ) {
     this.transientEntityService.registerTransientEntityTypeFunction(
       CONTENT_IMAGE_PROVIDER,
       TransientImageService.name,
-      'Add referenced images field and its json schema definition. Add load Images method',
+      'Add referenced images field and its json schema definition. Add load Images method. Add create Gallery method.',
       EntityName.objectNode,
       IMAGE_GALLERY_REFERRER_TYPE.name,
       this.completeImageGalleryReferrerNode.bind(this),
@@ -72,6 +78,137 @@ export class TransientImageService {
     await this.addLoadImagesJsonSchemaMethod(objectNode, ctx);
   }
 
+  public async getImageGalleriesParents(
+    objectNode: ObjectNode,
+  ): Promise<ObjectNode[]> {
+    // TODO : should look for parent types of IMAGE_GALLERY
+    const galleriesType: string[] = await this.objectTypeService.getParentTypesOfImplementingType(
+      IMAGE_GALLERY_TYPE.name,
+    );
+    return this.objectNodeService.searchByParentNamespaceId(
+      objectNode.parentNamespaceId,
+      {
+        objectTypeIds: galleriesType,
+      },
+    );
+  }
+
+  public async addCreateImagesGalleryJsonSchemaMethod(
+    objectNode: ObjectNode,
+    ctx: CurrentContext,
+  ) {
+    if (!objectNode.entityCtx) {
+      objectNode.entityCtx = {entityType: EntityName.objectNode};
+    }
+    if (!objectNode.entityCtx?.actions) {
+      objectNode.entityCtx.actions = {};
+    }
+    if (!objectNode.entityCtx.actions.methods) {
+      objectNode.entityCtx.actions.methods = [];
+    }
+    const imageGalleries: ObjectNode[] = await this.getImageGalleriesParents(
+      objectNode,
+    );
+    if (imageGalleries && 0 < imageGalleries.length) {
+      objectNode.entityCtx.actions.methods.push({
+        methodId: 'createGallery',
+        methodName: 'Create images gallery',
+        actionName: 'Create gallery',
+        parameters: {
+          type: 'object',
+          properties: {
+            useExistingGallery: {
+              type: 'boolean',
+              title: 'Use existing gallery',
+            },
+            name: {
+              type: 'string',
+              title: 'Gallery name',
+            },
+          },
+        },
+        handlebarsMethodSampling: `[
+          {{^useExistingGallery}}
+            {
+              "methodId": "createGallery",
+              "parameters":{
+                "name": {{&json name}},
+                "parentId": {{&json parentId}}
+              }
+            }
+          {{/useExistingGallery}}
+          {{#useExistingGallery}}
+            {
+              "methodId": "configureGallery",
+              "parameters":{
+                "imageGalleryObjectTreeId": {{&json imageGalleryObjectTreeId}}
+              }
+            }
+          {{/useExistingGallery}}
+          {{#images}},
+          {
+            "methodId":"load",
+            "parameters": {
+              "images": [
+                {{&json this}}
+              ]
+            }
+          }{{/images}}
+          ]`,
+      });
+      const properties =
+        objectNode.entityCtx.actions.methods[
+          objectNode.entityCtx.actions.methods.length - 1
+        ].parameters.properties;
+      if (1 < imageGalleries.length) {
+        properties.parentId = {
+          type: 'string',
+          title: 'Galleries parent',
+          required: true,
+          oneOf: imageGalleries.map((gallery) => ({
+            enum: [gallery.id],
+            title: gallery.name,
+          })),
+        };
+      }
+      if (
+        objectNode.entityCtx?.jsonSchema?.properties.imageGalleryObjectTreeId
+          .oneOf.length > 0
+      ) {
+        addCondition('true !== model.useExistingGallery', properties.name);
+        if (properties.parentId) {
+          addCondition(
+            'true !== model.useExistingGallery',
+            properties.parentId,
+          );
+        }
+        properties.imageGalleryObjectTreeId = cloneDeep(
+          objectNode.entityCtx?.jsonSchema?.properties.imageGalleryObjectTreeId,
+        );
+        properties.imageGalleryObjectTreeId.required = true;
+        addCondition(
+          'true === model.useExistingGallery',
+          properties.imageGalleryObjectTreeId,
+        );
+      } else {
+        delete properties.useExistingGallery;
+      }
+
+      properties.images = {
+        type: 'array',
+        'x-schema-form': {
+          type: 'images',
+        },
+        items: (await this.contentImageService.getContentDefinition())
+          .properties.contentImage,
+      };
+      addCondition(
+        '(true === model.useExistingGallery && model.imageGalleryObjectTreeId) || !model.useExistingGallery',
+        properties.images,
+      );
+    }
+  }
+
   public async addLoadImagesJsonSchemaMethod(
     objectNode: ObjectNode,
     ctx: CurrentContext,
@@ -104,8 +241,16 @@ export class TransientImageService {
           },
         },
       },
-      handlebarsMethodSampling:
-        '[{{#images}} {"methodId":"load","parameters":{"images":[{{&json this}} ]} }{{#unless @last}},{{/unless}}{{/images}}]',
+      handlebarsMethodSampling: `[{{#images}}
+          {
+            "methodId":"load",
+            "parameters": {
+              "images": [
+                {{&json this}}
+              ]
+            }
+          }{{#unless @last}},{{/unless}}{{/images}}
+        ]`,
     });
   }
 
@@ -185,6 +330,8 @@ export class TransientImageService {
     }
     if (objectNode.imageGalleryTree) {
       await this.addLoadImagesJsonSchemaMethod(objectNode, ctx);
+    } else {
+      await this.addCreateImagesGalleryJsonSchemaMethod(objectNode, ctx);
     }
   }
 }

@@ -109,7 +109,7 @@ export class HomePageService {
       PAGE_TYPE.name,
     );
     // TO DO : list PAGE_TYPE.name
-    const pages: ObjectNode[] = await this.objectNodeService.searchByTreeId(
+    const pages: ObjectNode[] = await this.objectNodeService.searchByParentTreeId(
       objectNode.parentTreeId,
       {objectTypeIds: pageTypeIds},
     );
@@ -519,7 +519,7 @@ export class HomePageService {
     const webSitePageNode: ObjectNode = await ctx.webSiteContext.webSitePageNode.getOrSetValue(
       async () => {
         let result: ObjectNode = (undefined as unknown) as ObjectNode;
-        const treeNodes = await this.objectNodeService.searchByTreeId(
+        const treeNodes = await this.objectNodeService.searchByParentTreeId(
           entity.id,
           {
             name: pageName,

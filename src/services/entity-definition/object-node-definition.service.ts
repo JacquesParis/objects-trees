@@ -31,7 +31,7 @@ export const OBJECT_NODE_SCHEMA: IJsonSchema = {
   },
 };
 
-interface OneOfTreeOption {
+export interface OneOfTreeOption {
   namespaceName?: string;
   namespaceType?: string;
   ownerName?: string;
@@ -237,15 +237,13 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
     return result;
   }
 
-  protected addTreeOption(
+  public getTreeIdFromTreeOption(
     oneOfTreeOption: OneOfTreeOption,
     owner: ObjectNode,
     namespace: ObjectNode,
     tree: ObjectNode,
-    result: {enum: string[]; title: string}[],
-    ctx: NodeContext,
-  ) {
-    const treeId =
+  ): string {
+    return (
       (tree.id === namespace.id ? 'namespace/' : 'tree/') +
       encodeURIComponent(
         oneOfTreeOption.ownerType
@@ -273,7 +271,24 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
         : '/' +
           encodeURIComponent(oneOfTreeOption.treeType) +
           '/' +
-          encodeURIComponent(tree.name));
+          encodeURIComponent(tree.name))
+    );
+  }
+
+  protected addTreeOption(
+    oneOfTreeOption: OneOfTreeOption,
+    owner: ObjectNode,
+    namespace: ObjectNode,
+    tree: ObjectNode,
+    result: {enum: string[]; title: string}[],
+    ctx: NodeContext,
+  ) {
+    const treeId = this.getTreeIdFromTreeOption(
+      oneOfTreeOption,
+      owner,
+      namespace,
+      tree,
+    );
 
     if (!some(result, (choice) => choice.enum[0] === treeId)) {
       ctx.references[treeId] = new ExpectedValue(tree);
@@ -355,7 +370,7 @@ export class ObjectNodeDefinitionService implements EntityDefinitionInterface {
         if (!tree) {
           continue;
         }
-        const nodes = await this.objectNodeService.searchByTreeId(
+        const nodes = await this.objectNodeService.searchByParentTreeId(
           tree.id as string,
           {
             objectTypeIds: await this.objectTypeService.getImplementingTypes(

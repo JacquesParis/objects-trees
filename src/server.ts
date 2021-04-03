@@ -63,18 +63,28 @@ export class ExpressServer {
     const host = this.lbApp.restServer.config.host
       ? this.lbApp.restServer.config.host
       : '127.0.0.1';
+    const mainHost = host.startsWith('192.168.') ? 'localhost' : host;
+    const mainPort = host.startsWith('192.168.') ? 3000 : port;
     try {
-      this.server = this.app.listen(port, host);
-      console.log('listening', host, port, `http://${host}:${port}`);
+      this.server = this.app.listen(mainPort, mainHost);
+      console.log(
+        'listening',
+        mainHost,
+        mainPort,
+        `http://${mainHost}:${mainPort}`,
+      );
     } catch (error) {
-      console.trace('not possible to listen', host, port);
+      console.trace('not possible to listen', mainHost, mainPort);
     }
-    if (host.startsWith('192.168.')) {
-      this.app.listen(3000, 'localhost');
-      console.log('listening', 'localhost', 3000, 'http://localhost:3000');
-    }
-
     await pEvent(this.server, 'listening');
+    if (mainHost !== host || mainPort !== port) {
+      try {
+        this.app.listen(port, host);
+        console.log('listening', host, port, `http://${host}:${port}`);
+      } catch (error) {
+        console.trace('not possible to listen', host, port);
+      }
+    }
   }
 
   // For testing purposes

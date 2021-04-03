@@ -96,7 +96,7 @@ export class ObjectNodeService {
     return this.objectNodeRepository.find(orderedFilter);
   }
 
-  public searchByTreeId(
+  public searchByParentTreeId(
     treeId: string,
     options: {
       objectTypeId?: string;
@@ -104,7 +104,30 @@ export class ObjectNodeService {
       objectTypeIds?: string[];
     } = {},
   ): Promise<ObjectNode[]> {
-    const where: Where<ObjectNode> = {parentTreeId: treeId};
+    return this.searchByOneParentId('Tree', treeId, options);
+  }
+
+  public searchByParentNamespaceId(
+    treeId: string,
+    options: {
+      objectTypeId?: string;
+      name?: string;
+      objectTypeIds?: string[];
+    } = {},
+  ): Promise<ObjectNode[]> {
+    return this.searchByOneParentId('Namespace', treeId, options);
+  }
+
+  public searchByOneParentId(
+    parentType: 'Tree' | 'Namespace' | 'Node' | 'Owner',
+    parentId: string,
+    options: {
+      objectTypeId?: string;
+      name?: string;
+      objectTypeIds?: string[];
+    } = {},
+  ): Promise<ObjectNode[]> {
+    const where: Where<ObjectNode> = {['parent' + parentType + 'Id']: parentId};
     if (options.objectTypeId) {
       where.objectTypeId = options.objectTypeId;
     }
@@ -123,29 +146,15 @@ export class ObjectNodeService {
     });
   }
 
-  public searchByParentId(
+  public searchByParentNodeId(
     parentNodeId: string,
-    objectTypeId?: string,
-    objectName?: string,
+    options: {
+      objectTypeId?: string;
+      name?: string;
+      objectTypeIds?: string[];
+    } = {},
   ): Promise<ObjectNode[]> {
-    const where: Where<ObjectNode> = {parentNodeId};
-    if (objectTypeId) {
-      where.objectTypeId = objectTypeId;
-    }
-    if (objectName) {
-      where.name = objectName;
-    }
-    return this.findOrderedNodes({
-      where: where,
-    });
-  }
-
-  public searchByParentIdAndObjectTypeId(
-    parentNodeId: string,
-    objectTypeId: string,
-    objectName?: string,
-  ): Promise<ObjectNode[]> {
-    return this.searchByParentId(parentNodeId, objectTypeId, objectName);
+    return this.searchByOneParentId('Node', parentNodeId, options);
   }
 
   public searchByParentIdsAndObjectTypeId(
@@ -262,10 +271,7 @@ export class ObjectNodeService {
     min = 1,
     ctx: CurrentContext = new CurrentContext(),
   ): Promise<ObjectNode[]> {
-    const children = await this.searchByParentIdAndObjectTypeId(
-      parentId,
-      objectTypeId,
-    );
+    const children = await this.searchByParentNodeId(parentId, {objectTypeId});
     if (defaultValue && children.length < min) {
       while (children.length < min) {
         children.push(
@@ -474,7 +480,7 @@ export class ObjectNodeService {
   ): Promise<void> {
     const objectSubType: ObjectSubType = nodeContext.objectSubType.value;
     const brothers = await nodeContext.brothers.getOrSetValue(async () =>
-      this.searchByParentId(parentNodeId),
+      this.searchByParentNodeId(parentNodeId),
     );
     if (objectSubType.mandatories) {
       for (const brotherTypeId of objectSubType.mandatories) {
@@ -665,7 +671,7 @@ export class ObjectNodeService {
       );
     }
     const brothers = await nodeContext.brothers.getOrSetValue(async () =>
-      this.searchByParentId(objectNode.parentNodeId as string),
+      this.searchByParentNodeId(objectNode.parentNodeId as string),
     );
     objectNodeForUpdate.index = 10;
     for (const brother of brothers) {
@@ -933,9 +939,9 @@ export class ObjectNodeService {
   ): Promise<ObjectNode[]> {
     let children: ObjectNode[];
     if (rootTreeNode.tree) {
-      children = await this.searchByTreeId(rootTreeNode.id as string);
+      children = await this.searchByParentTreeId(rootTreeNode.id as string);
     } else {
-      const candidateChildren: ObjectNode[] = await this.searchByTreeId(
+      const candidateChildren: ObjectNode[] = await this.searchByParentTreeId(
         rootTreeNode.parentTreeId,
       );
       children = this.selectChildrenFromCandidatesList(

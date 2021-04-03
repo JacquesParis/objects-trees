@@ -93,7 +93,7 @@ export class AccessRightsTreeService
               const types = await this.objectTypeService.getImplementingTypes(
                 context.invocationContext.args[6],
               );
-              const treeNodes = await this.objectNodeService.searchByTreeId(
+              const treeNodes = await this.objectNodeService.searchByParentTreeId(
                 originalTreeNode.id as string,
                 {
                   objectTypeIds: types,
