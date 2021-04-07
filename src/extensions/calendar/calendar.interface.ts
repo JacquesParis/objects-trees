@@ -1,9 +1,16 @@
 import * as moment from 'moment';
-import {WebSiteMenuEntriesTree} from '../web-site/web-site.interface';
+import {
+  WebSiteMenuEntries,
+  WebSiteMenuEntriesTree,
+} from '../web-site/web-site.interface';
 import {WebSiteEvent} from './../web-site/web-site.interface';
 
-export interface CalendarEntriesTree extends WebSiteMenuEntriesTree {}
+export interface CalendarEntriesTree
+  extends WebSiteMenuEntriesTree<CalendarEntries> {}
 
+export interface CalendarEntries extends WebSiteMenuEntries {
+  calendarEntriesList: {[entryKey: string]: CalendarEntryDefinition};
+}
 export interface CalendarEntryDefinition {
   minDateUtc: moment.Moment;
   minDate: string;

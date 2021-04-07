@@ -1,7 +1,14 @@
-import {WebSiteMenuEntriesTree} from '../web-site/web-site.interface';
+import {
+  WebSiteMenuEntries,
+  WebSiteMenuEntriesTree,
+} from '../web-site/web-site.interface';
 import {WebSiteEvent} from './../web-site/web-site.interface';
 
-export interface MapEntriesTree extends WebSiteMenuEntriesTree {}
+export interface MapEntriesTree extends WebSiteMenuEntriesTree<MapEntries> {}
+
+export interface MapEntries extends WebSiteMenuEntries {
+  mapEntriesList: {[entryKey: string]: MapEntryDefinition};
+}
 
 export interface MapEntryDefinition {
   key: string;

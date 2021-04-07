@@ -68,12 +68,6 @@ export const WEB_SITE_VIEW_WEB_SITE_VIEW_URL_SUBTYPE: ObjectSubTypeDefinition = 
   owner: true,
 };
 
-//TODO : to be deleted
-export const WEB_SITE_VIEW_URL_PAGE_CACHE_SUBTYPE: ObjectSubTypeDefinition = {
-  typeName: WEB_SITE_VIEW_URL_TYPE.name,
-  subTypeName: PAGE_CACHE_TYPE.name,
-};
-
 export const WEB_SITE_VIEW_URL_WEB_SITE_CACHE_LANG_SUBTYPE: ObjectSubTypeDefinition = {
   typeName: WEB_SITE_VIEW_URL_TYPE.name,
   subTypeName: WEB_SITE_CACHE_LANG_TYPE.name,

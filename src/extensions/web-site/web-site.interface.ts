@@ -47,21 +47,20 @@ export interface MenuTree extends ObjectNodeTree<MenuEntry> {
   adminEntry: boolean;
 }
 
-export interface WebSiteMenuEntriesTree
-  extends ObjectNodeTree<WebSiteMenuEntries> {
-  menuEntries: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [entryKey: string]: MenuEntryTree | any;
-    uri?: string;
-    entityCtx?: IEntityContext;
-  };
-}
+export interface WebSiteMenuEntriesTree<T extends WebSiteMenuEntries>
+  extends ObjectNodeTree<T> {}
 
 export interface WebSiteMenuEntries extends WebSiteView {
   webSiteTree: WebSiteWitHMenuTemplate;
   menuTitle: string;
   menuEntries: {
     [menuKey: string]: string;
+  };
+  menuEntriesList: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [entryKey: string]: MenuEntryTree | any;
+    uri?: string;
+    entityCtx?: IEntityContext;
   };
 }
 

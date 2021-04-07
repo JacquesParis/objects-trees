@@ -18,7 +18,7 @@ function newFunction() {
     },
 
     async initMustache() {
-      this.ctrl.menuEntries = [];
+      this.ctrl.menuEntriesList = [];
       if (this.ctrl.siteTemplateNode) {
         for (const menuEntry of this.ctrl.siteTemplateNode.menuEntries) {
           if (
@@ -26,13 +26,13 @@ function newFunction() {
             this.ctrl.siteNode.menuEntries[menuEntry.entryKey]
           ) {
             await this.initHref(
-              this.ctrl.siteTree.menuEntries[menuEntry.entryKey],
+              this.ctrl.siteNode.menuEntriesList[menuEntry.entryKey],
             );
-            this.ctrl.siteTree.menuEntries[
+            this.ctrl.siteNode.menuEntriesList[
               menuEntry.entryKey
             ].menuTitle = this.ctrl.siteNode.menuEntries[menuEntry.entryKey];
-            this.ctrl.menuEntries.push(
-              this.ctrl.siteTree.menuEntries[menuEntry.entryKey],
+            this.ctrl.menuEntriesList.push(
+              this.ctrl.siteNode.menuEntriesList[menuEntry.entryKey],
             );
           }
         }

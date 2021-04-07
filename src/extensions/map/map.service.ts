@@ -24,6 +24,7 @@ import {
 } from './map.const';
 import {
   Map,
+  MapEntries,
   MapEntriesTree,
   MapEntryDefinition,
   MapEntryNode,
@@ -45,9 +46,9 @@ export class MapService {
       MAP_PROVIDER,
       MapService.name,
       'Build map entries',
-      EntityName.objectTree,
+      EntityName.objectNode,
       MAP_ENTRIES_TYPE.name,
-      this.completeMapEntriesTree.bind(this),
+      this.completeMapEntriesNode.bind(this),
     );
     this.transientEntityService.registerTransientEntityTypeFunction(
       MAP_PROVIDER,
@@ -86,18 +87,25 @@ export class MapService {
         ctx,
       );
     }
-    if (objectNode.mapEntriesObjectTreeUri) {
+    if (objectNode.mapEntriesObjectTreeId) {
+      objectNode.mapEntriesObjectNodeUri = this.uriCompleteService.getUri(
+        EntityName.objectNode,
+        objectNode.mapEntriesObjectTreeId,
+        ctx,
+      );
+    }
+    if (objectNode.mapEntriesObjectNodeUri) {
       try {
-        const mapEntries = await this.insideRestService.read(
-          objectNode.mapEntriesObjectTreeUri,
+        const mapEntriesNode: MapEntries = (await this.insideRestService.read(
+          objectNode.mapEntriesObjectNodeUri,
           ctx,
-        );
-        if (mapEntries.mapEntries) {
+        )) as MapEntries;
+        if (mapEntriesNode.mapEntriesList) {
           const oneOf = [];
-          for (const entryKey of Object.keys(mapEntries.mapEntries)) {
+          for (const entryKey of Object.keys(mapEntriesNode.mapEntriesList)) {
             oneOf.push({
               enum: [entryKey],
-              title: mapEntries.mapEntries[entryKey].title,
+              title: mapEntriesNode.mapEntriesList[entryKey].title,
             });
           }
           if (
@@ -113,13 +121,13 @@ export class MapService {
       } catch (error) {}
     }
 
-    if (objectNode.mapEntriesObjectTreeUri && objectNode.mapEntryKey) {
+    if (objectNode.mapEntriesObjectNodeUri && objectNode.mapEntryKey) {
       try {
-        const mapEntries = await this.insideRestService.read(
-          objectNode.mapEntriesObjectTreeUri,
+        const mapEntriesNode: MapEntries = (await this.insideRestService.read(
+          objectNode.mapEntriesObjectNodeUri,
           ctx,
-        );
-        const map: Map = mapEntries.mapEntries[objectNode.mapEntryKey];
+        )) as MapEntries;
+        const map: Map = mapEntriesNode.mapEntriesList[objectNode.mapEntryKey];
         objectNode.map = map;
       } catch (error) {}
     }
@@ -229,14 +237,14 @@ export class MapService {
     return true;
   }
 
-  public async completeMapEntriesTree(
-    mapEntriesTree: MapEntriesTree,
+  public async completeMapEntriesNode(
+    mapEntriesNode: MapEntries,
     ctx: CurrentContext,
   ) {
-    mapEntriesTree.mapEntries = {};
+    mapEntriesNode.mapEntriesList = {};
     try {
       const webSiteTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
-        mapEntriesTree.treeNode.webSiteObjectTreeUri,
+        mapEntriesNode.webSiteObjectTreeUri,
         ctx,
       )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
       const implementingMapEntry = await this.objectTypeService.getImplementingTypes(
@@ -246,10 +254,19 @@ export class MapService {
         if (
           intersection(implementingMapEntry, menuEntryDef.entryTypes).length > 0
         ) {
+          const mapEntriesTree: MapEntriesTree = (await this.insideRestService.read(
+            this.uriCompleteService.getUri(
+              EntityName.objectTree,
+              mapEntriesNode.id as string,
+              ctx,
+            ),
+            ctx,
+          )) as MapEntriesTree;
+
           const menuTrees: MenuTree[] =
-            mapEntriesTree.menuEntries &&
-            menuEntryDef.entryKey in mapEntriesTree.menuEntries
-              ? mapEntriesTree.menuEntries[menuEntryDef.entryKey].children
+            mapEntriesNode.menuEntriesList &&
+            menuEntryDef.entryKey in mapEntriesNode.menuEntriesList
+              ? mapEntriesNode.menuEntriesList[menuEntryDef.entryKey].children
               : await this.transientWebSiteService.lookForMenuEntries(
                   [mapEntriesTree],
                   menuEntryDef.entryTypes,
@@ -260,7 +277,7 @@ export class MapService {
                     : 'name',
                   !!menuEntryDef.adminEntry,
                 );
-          mapEntriesTree.mapEntries[
+          mapEntriesNode.mapEntriesList[
             menuEntryDef.entryKey
           ] = await this.getMapMenuEntries(
             mapEntriesTree,

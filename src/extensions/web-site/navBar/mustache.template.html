@@ -17,7 +17,7 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      {{#menuEntries}} {{#singleMenu}}
+      {{#menuEntriesList}} {{#singleMenu}}
       <li class="nav-item">
         <a href="{{href}}" class="nav-link{{#disabled}} disabled{{/disabled}}">
           {{menuTitle}}
@@ -40,7 +40,7 @@
           {{> navbarDropdownItems}}
         </div>
       </li>
-      {{/singleMenu}} {{/menuEntries}}
+      {{/singleMenu}} {{/menuEntriesList}}
     </ul>
   </div>
 </nav>

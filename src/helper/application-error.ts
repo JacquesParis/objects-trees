@@ -35,10 +35,10 @@ export class ApplicationError implements IObjectError, HttpErrors.HttpError {
 
   public static forbidden(): ApplicationError {
     return new ApplicationError(
-      new HttpErrors[APPLICATION_ERRORS[ApplicationErrors.FORBIDEN].statusCode](
-        'The access rights do not allow access to this resource.',
-      ),
-      APPLICATION_ERRORS[ApplicationErrors.FORBIDEN].errorCode,
+      new HttpErrors[
+        APPLICATION_ERRORS[ApplicationErrors.FORBIDDEN].statusCode
+      ]('The access rights do not allow access to this resource.'),
+      APPLICATION_ERRORS[ApplicationErrors.FORBIDDEN].errorCode,
       {},
     );
   }
@@ -186,14 +186,14 @@ export class ApplicationError implements IObjectError, HttpErrors.HttpError {
   public static incompatible(fields: {[field: string]: any}): ApplicationError {
     return new ApplicationError(
       new HttpErrors[
-        APPLICATION_ERRORS[ApplicationErrors.INCOMBATIBLE].statusCode
+        APPLICATION_ERRORS[ApplicationErrors.INCOMPATIBLE].statusCode
       ](
-        'Incombatibe with ' +
+        'Incompatible with ' +
           Object.keys(fields)
             .map((key) => key + ' ' + fields[key])
             .join(', '),
       ),
-      APPLICATION_ERRORS[ApplicationErrors.INCOMBATIBLE].errorCode,
+      APPLICATION_ERRORS[ApplicationErrors.INCOMPATIBLE].errorCode,
       fields,
     );
   }

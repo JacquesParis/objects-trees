@@ -20,10 +20,22 @@ export interface TransientEntityInterface {
   ): Promise<void>;
 }
 
+export function onlineDescription(
+  description: string | (() => TreatmentDescription) | TreatmentDescription,
+): string {
+  if (isString(description)) {
+    return description;
+  }
+  if (isFunction(description)) {
+    return onlineDescription(description());
+  }
+  return onlineDescription(description.description);
+}
+
 @injectable({scope: BindingScope.SINGLETON})
 export class TransientEntityService
   implements AbstractEntityInterceptorInterface, ServiceDescription {
-  private transientEntitys: {
+  private transientEntities: {
     [resource in EntityName]?: TransientEntityInterface[];
   } = {};
 
@@ -31,16 +43,16 @@ export class TransientEntityService
     resource: EntityName,
     transientEntity: TransientEntityInterface,
   ) {
-    if (!this.transientEntitys[resource]) {
-      this.transientEntitys[resource] = [];
+    if (!this.transientEntities[resource]) {
+      this.transientEntities[resource] = [];
     }
-    this.transientEntitys[resource]?.push(transientEntity);
+    this.transientEntities[resource]?.push(transientEntity);
   }
 
   getPostTreatmentDescription(): TreatmentDescription[] {
     const treatments: TreatmentDescription[] = [];
-    for (const resource in this.transientEntitys) {
-      for (const transientEntity of this.transientEntitys[
+    for (const resource in this.transientEntities) {
+      for (const transientEntity of this.transientEntities[
         resource as EntityName
       ] as TransientEntityInterface[]) {
         if (isString(transientEntity.description)) {
@@ -125,8 +137,8 @@ export class TransientEntityService
     entity: IRestEntity,
     ctx: CurrentContext,
   ): Promise<void> {
-    if (entityName in this.transientEntitys) {
-      for (const transientEntity of this.transientEntitys[
+    if (entityName in this.transientEntities) {
+      for (const transientEntity of this.transientEntities[
         entityName
       ] as TransientEntityInterface[]) {
         await transientEntity.completeReturnedEntity(entity, ctx);

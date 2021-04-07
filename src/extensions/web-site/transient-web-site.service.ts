@@ -34,6 +34,7 @@ import {
   MenuTree,
   PageTemplateChoice,
   ParagraphTemplateChoice,
+  WebSiteMenuEntries,
   WebSiteMenuEntriesTree,
   WebSiteView,
   WebSiteWitHMenuTemplate,
@@ -68,18 +69,18 @@ export class TransientWebSiteService {
     this.transientEntityService.registerTransientEntityTypeFunction(
       WEB_SITE_PROVIDER,
       TransientWebSiteService.name,
-      'Add menuEntries, tree of site menu entries',
-      EntityName.objectTree,
-      WEB_SITE_MENU_ENTRIES_TYPE.name,
-      this.completeWebSiteMenuEntries.bind(this),
-    );
-    this.transientEntityService.registerTransientEntityTypeFunction(
-      WEB_SITE_PROVIDER,
-      TransientWebSiteService.name,
       'Complete menuEntries json schema definition with menuEntries from referenced template',
       EntityName.objectNode,
       WEB_SITE_MENU_ENTRIES_TYPE.name,
       this.completeWebSiteMenuEntriesNode.bind(this),
+    );
+    this.transientEntityService.registerTransientEntityTypeFunction(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Add menuEntriesList, tree of site menu entries',
+      EntityName.objectNode,
+      WEB_SITE_MENU_ENTRIES_TYPE.name,
+      this.completeWebSiteMenuEntriesNode2.bind(this),
     );
     this.transientEntityService.registerTransientEntityTypeFunction(
       WEB_SITE_PROVIDER,
@@ -202,25 +203,33 @@ export class TransientWebSiteService {
     }
   }
 
-  async completeWebSiteMenuEntries(
-    webSiteMenuEntriesTree: WebSiteMenuEntriesTree,
+  async completeWebSiteMenuEntriesNode2(
+    webSiteMenuEntriesNode: WebSiteMenuEntries,
     ctx: CurrentContext,
   ) {
-    webSiteMenuEntriesTree.menuEntries = {
-      entityCtx: webSiteMenuEntriesTree.treeNode.entityCtx,
-      uri: webSiteMenuEntriesTree.treeNode.uri + '/menuEntries',
-      id: webSiteMenuEntriesTree.treeNode.id + '/menuEntries',
+    webSiteMenuEntriesNode.menuEntriesList = {
+      entityCtx: webSiteMenuEntriesNode.entityCtx,
+      uri: webSiteMenuEntriesNode.uri + '/menuEntries',
+      id: webSiteMenuEntriesNode.id + '/menuEntries',
     };
 
     try {
       const webSiteTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
-        webSiteMenuEntriesTree.treeNode.webSiteObjectTreeUri,
+        webSiteMenuEntriesNode.webSiteObjectTreeUri,
         ctx,
       )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
+      const webSiteMenuEntriesTree: WebSiteMenuEntriesTree<WebSiteMenuEntries> = (await this.insideRestService.read(
+        this.uriCompleteService.getUri(
+          EntityName.objectTree,
+          webSiteMenuEntriesNode.id as string,
+          ctx,
+        ),
+        ctx,
+      )) as WebSiteMenuEntriesTree<WebSiteMenuEntries>;
 
-      if (webSiteMenuEntriesTree.treeNode.menuEntries) {
+      if (webSiteMenuEntriesNode.menuEntries) {
         for (const menuEntry of webSiteTree.treeNode.menuEntries) {
-          if (webSiteMenuEntriesTree.treeNode.menuEntries[menuEntry.entryKey]) {
+          if (webSiteMenuEntriesNode.menuEntries[menuEntry.entryKey]) {
             const children: MenuTree[] = await this.lookForMenuEntries(
               [webSiteMenuEntriesTree],
               menuEntry.entryTypes,
@@ -231,9 +240,12 @@ export class TransientWebSiteService {
                 : 'name',
               !!menuEntry.adminEntry,
             );
-            webSiteMenuEntriesTree.menuEntries[menuEntry.entryKey] = ({
+            webSiteMenuEntriesNode.menuEntriesList[menuEntry.entryKey] = ({
               entityCtx: webSiteMenuEntriesTree.entityCtx,
-              treeNode: webSiteMenuEntriesTree.treeNode,
+              treeNode: {
+                menuTitle: webSiteMenuEntriesNode.menuTitle,
+                name: webSiteMenuEntriesNode.name,
+              },
               id:
                 webSiteMenuEntriesTree.id +
                 '/menuEntries/' +
@@ -251,14 +263,15 @@ export class TransientWebSiteService {
               adminEntry: !!menuEntry.adminEntry,
             } as unknown) as MenuEntryTree;
             if (
-              webSiteMenuEntriesTree.menuEntries[menuEntry.entryKey]
+              webSiteMenuEntriesNode.menuEntriesList[menuEntry.entryKey]
                 .singleMenu &&
-              !webSiteMenuEntriesTree.menuEntries[menuEntry.entryKey].disabled
+              !webSiteMenuEntriesNode.menuEntriesList[menuEntry.entryKey]
+                .disabled
             ) {
-              webSiteMenuEntriesTree.menuEntries[
+              webSiteMenuEntriesNode.menuEntriesList[
                 menuEntry.entryKey
               ].pageTreeId = children[0].pageTreeId;
-              webSiteMenuEntriesTree.menuEntries[
+              webSiteMenuEntriesNode.menuEntriesList[
                 menuEntry.entryKey
               ].pageTreeUri = children[0].pageTreeUri;
             }
@@ -271,7 +284,7 @@ export class TransientWebSiteService {
   public async lookForMenuEntries(
     trees: ObjectTree[],
     entryTypes: string[],
-    webSiteMenuEntriesTree: WebSiteMenuEntriesTree,
+    webSiteMenuEntriesTree: WebSiteMenuEntriesTree<WebSiteMenuEntries>,
     entryKey: string,
     menuEntryLabelKey: string,
     adminEntry: boolean,

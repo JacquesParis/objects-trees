@@ -147,6 +147,7 @@ export class HomePageService {
             ],
           },
         },
+        icon: 'fas fa-globe-europe',
       },
       handlebarsMethodSampling: `[
           {

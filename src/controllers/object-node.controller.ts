@@ -18,6 +18,7 @@ import {isObject} from 'lodash';
 import {ObjectNode} from '../models';
 import {CurrentContext, CURRENT_CONTEXT} from '../services/application.service';
 import {ObjectNodeService} from '../services/object-node/object-node.service';
+import {AccessRightsTreeScope} from './../services/access-rights/access-rights-tree.const';
 import {
   AccessRightsEntity,
   AccessRightsScope,
@@ -208,83 +209,152 @@ export class ObjectNodeController {
     return this.objectNodeService.getNode(id, ctx);
   }
 
-  /*
-  @put('/object-nodes/{id}', {
-    responses: {
-      '204': {
-        description: 'ObjectNode PUT success',
-      },
-    },
+  @authorize({
+    resource: AccessRightsEntity.objectNode,
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchOwner],
   })
-  replaceById(
-    @param.path.string('id') id: string,
-    @requestBody() objectNode: ObjectNode,
-  ): Promise<void> {
-    return this.objectNodeService.replaceById(id, objectNode);
-  }
-*/
-  /*
-@get('/object-nodes/{id}/object-type', {
-  responses: {
-    '200': {
-      description: 'ObjectType belonging to ObjectNode',
-      content: {
-        'application/json': {
-          schema: {type: 'array', items: getModelSchemaRef(ObjectType)},
-        },
-      },
-    },
-  },
-})
-async getObjectType(
-  @param.path.string('id') id: typeof ObjectNode.prototype.id,
-): Promise<ObjectType> {
-  return this.objectNodeRepository.objectType(id);
-}
-*/
-
-  /*
-  @patch('/object-nodes', {
+  @get('/object-nodes/owner/{ownerType}/{ownerName}', {
     responses: {
       '200': {
-        description: 'ObjectNode PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(ObjectNode, {partial: true}),
-        },
-      },
-    })
-    objectNode: ObjectNode,
-    @param.where(ObjectNode) where?: Where<ObjectNode>,
-  ): Promise<Count> {
-    return this.objectNodeService.updateAll(objectNode, where);
-  }
-
-  @get('/object-nodes', {
-    responses: {
-      '200': {
-        description: 'Array of ObjectNode model instances',
+        description: 'ObjectNode model',
         content: {
           'application/json': {
             schema: {
-              type: 'array',
-              items: getModelSchemaRef(ObjectNode, {includeRelations: true}),
+              items: getModelSchemaRef(ObjectNode),
             },
           },
         },
       },
     },
   })
-  async find(
-    @param.filter(ObjectNode) filter?: Filter<ObjectNode>,
-  ): Promise<ObjectNode[]> {
-    return this.objectNodeService.find(filter);
+  async findOwnerTree(
+    @param.path.string('ownerType') ownerType: string,
+    @param.path.string('ownerName') ownerName: string,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    return this.objectNodeService.getOwner(ownerType, ownerName, ctx);
   }
-*/
+
+  @authorize({
+    resource: AccessRightsEntity.objectNode,
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchTree],
+  })
+  @get(
+    '/object-nodes/tree/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/{treeType}/{treeName}',
+    {
+      responses: {
+        '200': {
+          description: 'ObjectNode model',
+          content: {
+            'application/json': {
+              schema: {
+                items: getModelSchemaRef(ObjectNode),
+              },
+            },
+          },
+        },
+      },
+    },
+  )
+  async findTree(
+    @param.path.string('ownerType') ownerType: string,
+    @param.path.string('ownerName') ownerName: string,
+    @param.path.string('namespaceType') namespaceType: string,
+    @param.path.string('namespaceName') namespaceName: string,
+    @param.path.string('treeType') treeType: string,
+    @param.path.string('treeName') treeName: string,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    return this.objectNodeService.getTree(
+      ownerType,
+      ownerName,
+      namespaceType,
+      namespaceName,
+      treeType,
+      treeName,
+      ctx,
+    );
+  }
+
+  @authorize({
+    resource: AccessRightsEntity.objectNode,
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchNamespace],
+  })
+  @get(
+    '/object-nodes/namespace/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}',
+    {
+      responses: {
+        '200': {
+          description: 'ObjectNode model',
+          content: {
+            'application/json': {
+              schema: {
+                items: getModelSchemaRef(ObjectNode),
+              },
+            },
+          },
+        },
+      },
+    },
+  )
+  async findNamespaceTree(
+    @param.path.string('ownerType') ownerType: string,
+    @param.path.string('ownerName') ownerName: string,
+    @param.path.string('namespaceType') namespaceType: string,
+    @param.path.string('namespaceName') namespaceName: string,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    return this.objectNodeService.getNamespace(
+      ownerType,
+      ownerName,
+      namespaceType,
+      namespaceName,
+      ctx,
+    );
+  }
+
+  @authorize({
+    resource: AccessRightsEntity.objectNode,
+    scopes: [AccessRightsScope.read, AccessRightsTreeScope.searchNode],
+  })
+  @get(
+    '/object-nodes/node/{ownerType}/{ownerName}/{namespaceType}/{namespaceName}/{treeType}/{treeName}/{nodeType}/{nodeName}',
+    {
+      responses: {
+        '200': {
+          description: 'ObjectNode model',
+          content: {
+            'application/json': {
+              schema: {
+                items: getModelSchemaRef(ObjectNode),
+              },
+            },
+          },
+        },
+      },
+    },
+  )
+  async findNode(
+    @param.path.string('ownerType') ownerType: string,
+    @param.path.string('ownerName') ownerName: string,
+    @param.path.string('namespaceType') namespaceType: string,
+    @param.path.string('namespaceName') namespaceName: string,
+    @param.path.string('treeType') treeType: string,
+    @param.path.string('treeName') treeName: string,
+    @param.path.string('nodeType') nodeType: string,
+    @param.path.string('nodeName') nodeName: string,
+    @inject(CURRENT_CONTEXT) ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    return this.objectNodeService.getANodeOfTree(
+      ownerType,
+      ownerName,
+      namespaceType,
+      namespaceName,
+      treeType,
+      treeName,
+      nodeType,
+      nodeName,
+      ctx,
+    );
+  }
 }

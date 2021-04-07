@@ -243,7 +243,7 @@ export class AccessRightsService implements ServiceDescription {
     node: ObjectNode,
     ctx: CurrentContext,
   ): Promise<AccessRightsCRUD> {
-    // TODO : disable update for object created during boot ?
+    // TODO: disable update for object created during boot ?
 
     //check if the rights if forced for this Node
     const forcedAccessRights: {

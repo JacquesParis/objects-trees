@@ -17,15 +17,15 @@
       <ng-container *ngFor="let menuEntry of siteTemplateNode?.menuEntries">
         <ng-container
           *ngIf="siteNode.menuEntries && siteNode.menuEntries[menuEntry.entryKey]"
-        >
+          ><!-- // TODO: menuEntries has been rename MenuEntriesTree in the node  -->
           <ng-container
-            *ngIf="siteTree.menuEntries[menuEntry.entryKey].singleMenu; else dropdownMenu"
+            *ngIf="siteNode.menuEntriesList[menuEntry.entryKey].singleMenu; else dropdownMenu"
           >
             <li class="nav-item">
               <a
-                href="{{ctrl.getHref(siteTree.menuEntries[menuEntry.entryKey])}}"
+                href="{{ctrl.getHref(siteNode.menuEntriesList[menuEntry.entryKey])}}"
                 class="nav-link"
-                [class.disabled]="siteTree.menuEntries[menuEntry.entryKey].disabled"
+                [class.disabled]="siteNode.menuEntriesList[menuEntry.entryKey].disabled"
               >
                 {{siteNode.menuEntries[menuEntry.entryKey]}}
               </a>
@@ -37,7 +37,7 @@
             <a
               class="nav-link dropdown-toggle"
               href="#"
-              id="{{siteTree.menuEntries[menuEntry.entryKey].id}}"
+              id="{{siteNode.menuEntriesList[menuEntry.entryKey].id}}"
               role="button"
               data-toggle="dropdown"
               aria-haspopup="true"
@@ -47,11 +47,11 @@
             </a>
             <div
               class="dropdown-menu"
-              aria-labelledby="{{siteTree.menuEntries[menuEntry.entryKey].id}}"
+              aria-labelledby="{{siteNode.menuEntriesList[menuEntry.entryKey].id}}"
             >
               <ng-container
                 *ngTemplateOutlet="navbarDropdownItems;
-                context: { menuEntries: siteTree.menuEntries[menuEntry.entryKey] }
+                context: { menuEntries: siteNode.menuEntriesList[menuEntry.entryKey] }
               "
               ></ng-container>
             </div>

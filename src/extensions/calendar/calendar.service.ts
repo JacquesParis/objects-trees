@@ -28,6 +28,7 @@ import {
 } from './calendar.const';
 import {
   Calendar,
+  CalendarEntries,
   CalendarEntriesTree,
   CalendarEntryDefinition,
   CalendarEntryNode,
@@ -50,10 +51,11 @@ export class CalendarService {
       CALENDAR_PROVIDER,
       CalendarService.name,
       'Build calendar entries',
-      EntityName.objectTree,
+      EntityName.objectNode,
       CALENDAR_ENTRIES_TYPE.name,
-      this.completeCalendarEntriesTree.bind(this),
+      this.completeCalendarEntriesNode.bind(this),
     );
+
     this.transientEntityService.registerTransientEntityTypeFunction(
       CALENDAR_PROVIDER,
       CalendarService.name,
@@ -94,18 +96,28 @@ export class CalendarService {
         ctx,
       );
     }
-    if (objectNode.calendarEntriesObjectTreeUri) {
+    if (objectNode.calendarEntriesObjectTreeId) {
+      objectNode.calendarEntriesObjectNodeUri = this.uriCompleteService.getUri(
+        EntityName.objectNode,
+        objectNode.calendarEntriesObjectTreeId,
+        ctx,
+      );
+    }
+
+    if (objectNode.calendarEntriesObjectNodeUri) {
       try {
-        const calendarEntries = await this.insideRestService.read(
-          objectNode.calendarEntriesObjectTreeUri,
+        const calendarEntriesNode: CalendarEntries = (await this.insideRestService.read(
+          objectNode.calendarEntriesObjectNodeUri,
           ctx,
-        );
-        if (calendarEntries?.calendarEntries) {
+        )) as CalendarEntries;
+        if (calendarEntriesNode?.calendarEntriesList) {
           const oneOf = [];
-          for (const entryKey of Object.keys(calendarEntries.calendarEntries)) {
+          for (const entryKey of Object.keys(
+            calendarEntriesNode.calendarEntriesList,
+          )) {
             oneOf.push({
               enum: [entryKey],
-              title: calendarEntries.calendarEntries[entryKey].title,
+              title: calendarEntriesNode.calendarEntriesList[entryKey].title,
             });
           }
           if (
@@ -122,17 +134,18 @@ export class CalendarService {
     }
 
     if (
-      objectNode.calendarEntriesObjectTreeUri &&
+      objectNode.calendarEntriesObjectNodeUri &&
       objectNode.calendarEntryKey
     ) {
       try {
-        const calendarEntries = await this.insideRestService.read(
-          objectNode.calendarEntriesObjectTreeUri,
+        const calendarEntriesNode: CalendarEntries = (await this.insideRestService.read(
+          objectNode.calendarEntriesObjectNodeUri,
           ctx,
-        );
+        )) as CalendarEntries;
         moment.locale(ctx.uriContext.uri.value.acceptLanguage);
-        const calendar: Calendar =
-          calendarEntries.calendarEntries[objectNode.calendarEntryKey];
+        const calendar: Calendar = calendarEntriesNode.calendarEntriesList[
+          objectNode.calendarEntryKey
+        ] as Calendar;
         const minDate = moment.utc(calendar.minDate);
         const maxDate = moment.utc(calendar.maxDate);
         calendar.months = [];
@@ -201,14 +214,14 @@ export class CalendarService {
     return dates;
   }
 
-  public async completeCalendarEntriesTree(
-    calenderEntriesTree: CalendarEntriesTree,
+  public async completeCalendarEntriesNode(
+    calenderEntriesNode: CalendarEntries,
     ctx: CurrentContext,
   ) {
-    calenderEntriesTree.calendarEntries = {};
+    calenderEntriesNode.calendarEntriesList = {};
     try {
       const webSiteTree: ObjectNodeTree<WebSiteWitHMenuTemplate> = (await this.insideRestService.read(
-        calenderEntriesTree.treeNode.webSiteObjectTreeUri,
+        calenderEntriesNode.webSiteObjectTreeUri,
         ctx,
       )) as ObjectNodeTree<WebSiteWitHMenuTemplate>;
       const implementingCalendarEntry = await this.objectTypeService.getImplementingTypes(
@@ -219,10 +232,20 @@ export class CalendarService {
           intersection(implementingCalendarEntry, menuEntryDef.entryTypes)
             .length > 0
         ) {
+          const calenderEntriesTree: CalendarEntriesTree = (await this.insideRestService.read(
+            this.uriCompleteService.getUri(
+              EntityName.objectTree,
+              calenderEntriesNode.id as string,
+              ctx,
+            ),
+            ctx,
+          )) as CalendarEntriesTree;
+
           const menuTrees: MenuTree[] =
-            calenderEntriesTree.menuEntries &&
-            menuEntryDef.entryKey in calenderEntriesTree.menuEntries
-              ? calenderEntriesTree.menuEntries[menuEntryDef.entryKey].children
+            calenderEntriesNode.menuEntriesList &&
+            menuEntryDef.entryKey in calenderEntriesNode.menuEntriesList
+              ? calenderEntriesNode.menuEntriesList[menuEntryDef.entryKey]
+                  .children
               : await this.transientWebSiteService.lookForMenuEntries(
                   [calenderEntriesTree],
                   menuEntryDef.entryTypes,
@@ -233,7 +256,7 @@ export class CalendarService {
                     : 'name',
                   !!menuEntryDef.adminEntry,
                 );
-          calenderEntriesTree.calendarEntries[
+          calenderEntriesNode.calendarEntriesList[
             menuEntryDef.entryKey
           ] = await this.getCalendarMenuEntries(
             calenderEntriesTree,
@@ -245,6 +268,7 @@ export class CalendarService {
       }
     } catch (error) {}
   }
+
   async buildCalendarDates(
     entriesTree: ObjectTree,
     dates: CalendarEntryDefinition,

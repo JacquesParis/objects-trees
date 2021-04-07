@@ -17,7 +17,7 @@ import {
   IMAGE_GALLERY_REFERRER_TYPE,
   IMAGE_GALLERY_SELECTOR_TYPE,
   IMAGE_GALLERY_TYPE,
-  IMAGE_TYPE,
+  IMAGE_TYPE
 } from './content-image.const';
 import {ContentImageService} from './content-image.definition';
 export class TransientImageService {
@@ -81,7 +81,6 @@ export class TransientImageService {
   public async getImageGalleriesParents(
     objectNode: ObjectNode,
   ): Promise<ObjectNode[]> {
-    // TODO : should look for parent types of IMAGE_GALLERY
     const galleriesType: string[] = await this.objectTypeService.getParentTypesOfImplementingType(
       IMAGE_GALLERY_TYPE.name,
     );
@@ -155,6 +154,7 @@ export class TransientImageService {
             }
           }{{/images}}
           ]`,
+        icon: 'far fa-images',
       });
       const properties =
         objectNode.entityCtx.actions.methods[
@@ -251,6 +251,7 @@ export class TransientImageService {
             }
           }{{#unless @last}},{{/unless}}{{/images}}
         ]`,
+        icon: 'far fa-images',
     });
   }
 

@@ -8,7 +8,7 @@ import {
   repository,
   Where,
 } from '@loopback/repository';
-import {concat, find, isArray, merge, pick, some} from 'lodash';
+import {concat, find, indexOf, isArray, merge, pick, some} from 'lodash';
 import {ApplicationError} from '../../helper/application-error';
 import {EntityName} from '../../models';
 import {ObjectNodeRelations} from '../../models/object-node.model';
@@ -364,6 +364,132 @@ export class ObjectNodeService {
     return ctx.nodeContext.node.getOrSetValue(async () => {
       return this.searchById(id);
     });
+  }
+
+  public async getOwner(
+    ownerType: string,
+    ownerName: string,
+    ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    return ctx.nodeContext.node.getOrSetValue(async () => {
+      return this.searchOwner(ownerType, ownerName);
+    });
+  }
+
+  public async getNamespace(
+    ownerType: string,
+    ownerName: string,
+    namespaceType: string,
+    namespaceName: string,
+    ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    return ctx.nodeContext.node.getOrSetValue(async () => {
+      return this.searchNamespace(
+        ownerType,
+        ownerName,
+        namespaceType,
+        namespaceName,
+      );
+    });
+  }
+
+  public async getTree(
+    ownerType: string,
+    ownerName: string,
+    namespaceType: string,
+    namespaceName: string,
+    treeType: string,
+    treeName: string,
+    ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    return ctx.nodeContext.node.getOrSetValue(async () => {
+      return this.searchTree(
+        ownerType,
+        ownerName,
+        namespaceType,
+        namespaceName,
+        treeType,
+        treeName,
+      );
+    });
+  }
+
+  public async getANodeOfTree(
+    ownerType: string,
+    ownerName: string,
+    namespaceType: string,
+    namespaceName: string,
+    treeType: string,
+    treeName: string,
+    nodeType: string,
+    nodeName: string,
+    ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    return ctx.nodeContext.node.getOrSetValue(async () => {
+      const objectNodes: ObjectNode[] = await this.getTreeNodes(
+        ownerType,
+        ownerName,
+        namespaceType,
+        namespaceName,
+        treeType,
+        treeName,
+        ctx,
+      );
+      const types = await this.objectTypeService.getImplementingTypes(nodeType);
+      const treeNode = find(
+        objectNodes,
+        (node) =>
+          node.name === nodeName && -1 < indexOf(types, node.objectTypeId),
+      );
+      if (!treeNode) {
+        throw ApplicationError.notFound({
+          node: nodeType,
+          nodeName: nodeName,
+          tree: treeType,
+          treeName: treeName,
+          namespace: namespaceType,
+          namespaceName: namespaceName,
+          owner: ownerType,
+          ownerName: ownerName,
+        });
+      }
+      return treeNode;
+    });
+  }
+
+  public async getTreeNodes(
+    ownerType: string,
+    ownerName: string,
+    namespaceType: string,
+    namespaceName: string,
+    treeType: string,
+    treeName: string,
+    ctx: CurrentContext,
+  ): Promise<ObjectNode[]> {
+    const tree: ObjectNode = await ctx.treeContext.treeNode.getOrSetValue(
+      async () => {
+        return this.searchTree(
+          ownerType,
+          ownerName,
+          namespaceType,
+          namespaceName,
+          treeType,
+          treeName,
+        );
+      },
+    );
+    if (!tree) {
+      throw ApplicationError.notFound({
+        tree: treeType,
+        treeName: treeName,
+        namespace: namespaceType,
+        namespaceName: namespaceName,
+        owner: ownerType,
+        ownerName: ownerName,
+      });
+    }
+
+    return concat(tree, await this.searchByParentTreeId(<string>tree.id));
   }
 
   public async getTreeNode(

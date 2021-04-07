@@ -1,6 +1,5 @@
 import {service} from '@loopback/core';
-import * as _ from 'lodash';
-import {find, indexOf} from 'lodash';
+import {concat, find, indexOf, merge} from 'lodash';
 import {ObjectTreeDefinition} from '../../integration/extension.provider';
 import {ObjectNode} from '../../models';
 import {ObjectTree} from '../../models/object-tree.model';
@@ -67,7 +66,7 @@ export class ObjectTreeService {
     ctx: CurrentContext,
   ): Promise<ObjectNode> {
     const treeNode: ObjectNode = await this.objectNodeService.add(
-      _.merge(tree.treeNode, {
+      merge(tree.treeNode, {
         name: treeNodeName,
         objectTypeId: treeNodeTypeId,
         parentNodeId: parentNode.id,
@@ -229,7 +228,7 @@ export class ObjectTreeService {
       throw ApplicationError.notFound({owner: ownerType, ownerName: ownerName});
     }
 
-    return _.concat(
+    return concat(
       tree,
       await this.objectNodeService.searchByParentTreeId(<string>tree.id),
     );
@@ -256,45 +255,6 @@ export class ObjectTreeService {
     return this.buildTreeFromNodes(objectNodes[0], objectNodes, ctx);
   }
 
-  public async getTreeNodes(
-    ownerType: string,
-    ownerName: string,
-    namespaceType: string,
-    namespaceName: string,
-    treeType: string,
-    treeName: string,
-    ctx: CurrentContext,
-  ): Promise<ObjectNode[]> {
-    await this.ready;
-    const tree: ObjectNode = await ctx.treeContext.treeNode.getOrSetValue(
-      async () => {
-        return this.objectNodeService.searchTree(
-          ownerType,
-          ownerName,
-          namespaceType,
-          namespaceName,
-          treeType,
-          treeName,
-        );
-      },
-    );
-    if (!tree) {
-      throw ApplicationError.notFound({
-        tree: treeType,
-        treeName: treeName,
-        namespace: namespaceType,
-        namespaceName: namespaceName,
-        owner: ownerType,
-        ownerName: ownerName,
-      });
-    }
-
-    return _.concat(
-      tree,
-      await this.objectNodeService.searchByParentTreeId(<string>tree.id),
-    );
-  }
-
   public async getTree(
     ownerType: string,
     ownerName: string,
@@ -304,7 +264,7 @@ export class ObjectTreeService {
     treeName: string,
     ctx: CurrentContext,
   ): Promise<ObjectTree> {
-    const objectNodes = await this.getTreeNodes(
+    const objectNodes = await this.objectNodeService.getTreeNodes(
       ownerType,
       ownerName,
       namespaceType,
@@ -327,7 +287,7 @@ export class ObjectTreeService {
     nodeName: string,
     ctx: CurrentContext,
   ): Promise<ObjectTree> {
-    const objectNodes: ObjectNode[] = await this.getTreeNodes(
+    const objectNodes: ObjectNode[] = await this.objectNodeService.getTreeNodes(
       ownerType,
       ownerName,
       namespaceType,
@@ -384,7 +344,7 @@ export class ObjectTreeService {
       });
     }
 
-    return _.concat(
+    return concat(
       namespace,
       await this.objectNodeService.searchByParentTreeId(<string>namespace.id),
     );
