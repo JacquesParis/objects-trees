@@ -135,12 +135,12 @@ export class ContentGenericTemplateService extends ContentExtensionService<
               },
             },
             templatesMustache: {
-              type: 'array',
+              type: 'object',
               title: 'Recursive template Mustache',
-              default: [],
+              default: {},
               required: false,
-              items: {
-                type: 'string',
+              'x-schema-form': {
+                type: 'json',
               },
             },
             css: {
