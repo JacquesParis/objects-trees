@@ -7,6 +7,7 @@ export const ROOT_CONFIG_PROVIDER = 'RootConfigProvider';
 
 export const ROOT_CONFIGURATION_TYPE: ObjectTypeDefinition = {
   name: 'RootConfiguration',
+  iconView: 'fas fa-tools',
 };
 
 export const ROOT_ROOT_CONFIGURATION_SUBTYPE: ObjectSubTypeDefinition = {

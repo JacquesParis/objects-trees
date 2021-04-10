@@ -22,9 +22,9 @@ export const OBJECT_NODE_SCHEMA: IJsonSchema = {
     title: {
       type: 'string',
       title: 'Displayed name',
+      default: '',
       description:
         'The displayed name is the default label to display this object.',
-      required: true,
     },
     name: {
       type: 'string',
@@ -33,7 +33,6 @@ export const OBJECT_NODE_SCHEMA: IJsonSchema = {
       description:
         'The name is used as an identifier, it is not recommended t change its value. All none allowed characters will be replaced (others than alphanumeric, -, _ or .).',
       default: '',
-      minLength: 3,
     },
   },
 };

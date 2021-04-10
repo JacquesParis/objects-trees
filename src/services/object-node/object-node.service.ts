@@ -698,6 +698,16 @@ export class ObjectNodeService {
     //let objectNode = clone(objectNodePosted);
     let objectNodeForUpdate = objectNode;
     let objectType: ObjectType = (null as unknown) as ObjectType;
+    if (!objectNode.name && !objectNode.title && objectNode.objectTypeId) {
+      objectType = await nodeContext.objectType.getOrSetValue(async () => {
+        return this.objectTypeService.searchById(
+          objectNode.objectTypeId as string,
+        );
+      });
+      if (objectType?.title) {
+        objectNode.title = objectType.title;
+      }
+    }
     if (!objectNode.name && objectNode.title) {
       objectNode.name = toKebabCase(objectNode.title);
     }
