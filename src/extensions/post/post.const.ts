@@ -6,6 +6,7 @@ export const POST_NAME = 'PostService';
 
 export const POST_TYPE: ObjectTypeDefinition = {
   name: 'Post',
+  title: 'Article',
   definition: {
     properties: {},
   },

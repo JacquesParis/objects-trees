@@ -24,6 +24,7 @@ export const ADMIN_ENTRY_TYPE: ObjectTypeDefinition = {
 
 export const WEB_SITE_VIEW_TYPE: ObjectTypeDefinition = {
   name: 'WebSiteView',
+  title: 'Web site',
   inheritedTypesIds: [
     TEMPLATE_REFERER_WITH_CONFIGURATION_TYPE.name,
     ADMIN_ENTRY_TYPE.name,
@@ -345,6 +346,7 @@ export const WEB_SITE_WITH_MENU_TEMPLATE_TYPE: ObjectTypeDefinition = {
 
 export const PAGE_TYPE: ObjectTypeDefinition = {
   name: 'Page',
+  title: 'Page',
   inheritedTypesIds: [],
   definition: {
     properties: {
@@ -391,6 +393,7 @@ export const PARAGRAPH_WITH_PAGE_LINK: ObjectTypeDefinition = {
 export const TEXT_PARAGRAPH_TYPE: ObjectTypeDefinition = {
   inheritedTypesIds: [PARAGRAPH_TYPE.name],
   name: 'TextParagraph',
+  title: 'Paragraph',
   definition: {
     properties: {},
   },
@@ -434,6 +437,7 @@ export const PAGE_WITH_SECTION_PARAGRAPH_TYPE: ObjectTypeDefinition = {
 
 export const WELCOME_PAGE_TYPE: ObjectTypeDefinition = {
   name: 'WelcomePage',
+  title: 'Welcome page',
   inheritedTypesIds: [PAGE_TYPE.name],
   definition: {
     properties: {},

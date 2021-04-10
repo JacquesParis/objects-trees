@@ -9,6 +9,7 @@ export const TEMPLATE_VIEW_TYPE: ObjectTypeDefinition = {
   definition: {
     properties: {},
   },
+  iconView: 'far fa-file-code',
 };
 
 export const TEMPLATE_REFERER_WITH_CONFIGURATION_TYPE: ObjectTypeDefinition = {

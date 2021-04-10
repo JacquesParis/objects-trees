@@ -1,6 +1,7 @@
 import {IAccessRightsCRUD} from '@jacquesparis/objects-model';
 import {EntityName} from '../../models/entity-name';
 import {ApplicationService} from '../application.service';
+import {ObjectTypeDefinition} from './../../integration/extension.provider';
 
 export const ACCESS_RIGHT_PROVIDER = 'AccessRightsProvider';
 export const AccessRightsEntity = EntityName;
@@ -81,9 +82,10 @@ export const ACCESS_RIGHT_SUBTYPE = {
   mandatories: [],
 };
 
-export const ACCESS_RIGHTS_DEFINITION_TYPE = {
+export const ACCESS_RIGHTS_DEFINITION_TYPE: ObjectTypeDefinition = {
   name: ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_DEFINITION,
   contentType: ApplicationService.CONTENT_TYPE.JSON,
+  iconView: 'fas fa-shield-alt',
   definition: {
     properties: {
       resetCreate: {
@@ -110,13 +112,15 @@ export const ACCESS_RIGHTS_DEFINITION_TYPE = {
   },
 };
 
-export const ACCESS_RIGHT_OWNERS_NODE = {
+export const ACCESS_RIGHT_OWNERS_NODE: ObjectTypeDefinition = {
   name: 'Owners',
+  iconView: 'fas fa-id-card',
 };
 
-export const ACCESS_RIGHTS_GROUP_TYPE = {
+export const ACCESS_RIGHTS_GROUP_TYPE: ObjectTypeDefinition = {
   name: ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_GROUP,
   contentType: ApplicationService.CONTENT_TYPE.JSON,
+  iconView: 'fas fa-user-lock',
   definition: {
     properties: {
       grantCreate: {
@@ -143,9 +147,10 @@ export const ACCESS_RIGHTS_GROUP_TYPE = {
   },
 };
 
-export const ACCESS_RIGHTS_OWNERS_TYPE = {
+export const ACCESS_RIGHTS_OWNERS_TYPE: ObjectTypeDefinition = {
   name: ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_OWNERS,
   contentType: ApplicationService.CONTENT_TYPE.JSON,
+  iconView: 'fas fa-user-secret',
   definition: {
     properties: {
       resetOwner: {
@@ -157,9 +162,10 @@ export const ACCESS_RIGHTS_OWNERS_TYPE = {
   },
 };
 
-export const ACCESS_RIGHTS_ACCESS_MANAGERS_TYPE = {
+export const ACCESS_RIGHTS_ACCESS_MANAGERS_TYPE: ObjectTypeDefinition = {
   name: ApplicationService.OBJECT_TYPE_NAMES.ACCESS_RIGHT_ACCESS_MANAGERS,
   contentType: ApplicationService.CONTENT_TYPE.JSON,
+  iconView: 'fas fa-user-shield',
   definition: {
     properties: {
       resetAccess: {

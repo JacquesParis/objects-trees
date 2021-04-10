@@ -1,6 +1,8 @@
+import {IJsonSchema} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
 import {DataObject, repository} from '@loopback/repository';
 import _, {indexOf, isArray, omitBy, uniq} from 'lodash';
+import {toStartCase} from '../helper';
 import {ObjectSubType} from '../models';
 import {ObjectTypeRepository} from '../repositories';
 import {ApplicationError} from './../helper/application-error';
@@ -17,6 +19,7 @@ const defaultObjectTypeFilter = {
     inheritedTypesIds: true,
     id: true,
     name: true,
+    title: true,
     contentType: true,
     uri: true,
     iconView: true,
@@ -260,6 +263,7 @@ export class ObjectTypeService {
     const implementedTypes: string[] = [type.name];
     type.extended = true;
     if (isArray(type.inheritedTypesIds)) {
+      let parentTypeDefinition: IJsonSchema = {properties: {}};
       for (const inheritedTypeName of type.inheritedTypesIds) {
         const parentType = allTypes[inheritedTypeName];
         if (!parentType) {
@@ -275,14 +279,17 @@ export class ObjectTypeService {
         if (parentType.entityCtx?.implementedTypes) {
           implementedTypes.push(...parentType.entityCtx.implementedTypes);
         }
+        if (!type.title || '' === type.title) {
+          type.title = parentType.title;
+        }
         if (!type.contentType || '' === type.contentType) {
           type.contentType = parentType.contentType;
         }
-        if (!type.definition) {
-          type.definition = parentType.definition;
-        } else {
-          type.definition = _.merge({}, parentType.definition, type.definition);
-        }
+        parentTypeDefinition = _.merge(
+          {},
+          parentTypeDefinition,
+          parentType.definition,
+        );
         if (!type.iconView || '' === type.iconView) {
           type.iconView = parentType.iconView;
         }
@@ -304,6 +311,12 @@ export class ObjectTypeService {
             }
           }
         }
+      }
+
+      if (!type.definition) {
+        type.definition = parentTypeDefinition;
+      } else {
+        type.definition = _.merge({}, parentTypeDefinition, type.definition);
       }
     }
     if (!type.entityCtx) {
@@ -334,6 +347,27 @@ export class ObjectTypeService {
           objectType.contentType,
         );
       }
+      for (const objectTypeName in allTypes) {
+        if (
+          !allTypes[objectTypeName].title ||
+          '' === allTypes[objectTypeName].title
+        ) {
+          allTypes[objectTypeName].title = toStartCase(
+            allTypes[objectTypeName].name,
+          );
+        }
+      }
+      for (const objectTypeName in allTypes) {
+        if (allTypes[objectTypeName].objectSubTypes) {
+          for (const objectSubType of allTypes[objectTypeName].objectSubTypes) {
+            if (!objectSubType.title || '' === objectSubType.title) {
+              objectSubType.title =
+                allTypes[objectSubType.subObjectTypeId].title;
+            }
+          }
+        }
+      }
+
       return allTypes as {
         [name: string]: ObjectType & ObjectTypeRelations;
       };
@@ -412,6 +446,7 @@ export class ObjectTypeService {
     subObjectTypeId: string,
     defaultValue?: {
       name: string;
+      title?: string;
       acl: boolean;
       owner: boolean;
       namespace: boolean;

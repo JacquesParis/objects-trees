@@ -24,6 +24,7 @@ export const CALENDAR_ENTRIES_TYPE: ObjectTypeDefinition = {
 };
 export const CALENDAR_TYPE: ObjectTypeDefinition = {
   name: 'Calendar',
+  title: 'Calendar',
   inheritedTypesIds: [PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name],
   definition: {
     properties: {
@@ -46,6 +47,7 @@ export const CALENDAR_TYPE: ObjectTypeDefinition = {
 };
 export const CALENDAR_PAGE_TYPE: ObjectTypeDefinition = {
   name: 'CalendarPage',
+  title: 'Calendar page',
   inheritedTypesIds: [PAGE_WITH_PARAGRAPH_TYPE.name],
   iconView: 'fas fa-calendar-alt',
 };

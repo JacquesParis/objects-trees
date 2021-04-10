@@ -1,5 +1,6 @@
 import {IRestEntity} from '@jacquesparis/objects-model';
 import {service} from '@loopback/core';
+import {toStartCase} from '../../helper';
 import {EntityName} from '../../models/entity-name';
 import {ObjectTree} from '../../models/object-tree.model';
 import {CurrentContext} from '../application.service';
@@ -46,20 +47,9 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
     if (!objectTree.entityCtx.preview) {
       objectTree.entityCtx.preview = {
         icon: '',
-        html: `<span class="child-tree-preview">
-        {{#dataNode.menuTitle}}{{dataNode.menuTitle}}{{/dataNode.menuTitle}}
-        {{^dataNode.menuTitle}}
-          {{#dataNode.pageTitle}}{{dataNode.pageTitle}}{{/dataNode.pageTitle}}
-          {{^dataNode.pageTitle}}
-            {{#dataNode.paragraphTitle}}{{dataNode.paragraphTitle}}{{/dataNode.paragraphTitle}}
-            {{^dataNode.paragraphTitle}}
-              {{dataNode.name}}
-            {{/dataNode.paragraphTitle}}
-          {{/dataNode.pageTitle}}
-        {{/dataNode.menuTitle}}</span>`,
+        html: `<span class="child-tree-preview">{{dataNode.title}}</span>`,
       };
     }
-    // _.merge({}, this.entityDefinition, objectType.definition, this.entityDefinition, objectType.contentDefinition),
 
     const treeType = await ctx.treeContext.treeType.getOrSetValue(async () => {
       return this.objectTypeService.searchById(
@@ -72,6 +62,17 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
       '' !== treeType.iconView
     ) {
       objectTree.entityCtx.preview.icon = treeType.iconView;
+    }
+    if (
+      objectTree.entityCtx.preview &&
+      treeType.title &&
+      '' !== treeType.title
+    ) {
+      objectTree.entityCtx.preview.typeTitle = treeType.title;
+    } else {
+      objectTree.entityCtx.preview.typeTitle = toStartCase(
+        objectTree.treeNode.objectTypeId,
+      );
     }
     if (treeType.templateView && '' !== treeType.templateView) {
       objectTree.entityCtx.preview.html = treeType.templateView;
@@ -121,6 +122,7 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
             schema: await this.objectNodeDefinitionService.getObjectNodeDefinition(
               await this.objectTypeService.searchById(subType.subObjectTypeId),
               childContext,
+              true,
             ),
           };
           const objectType: ObjectType = await this.objectTypeService.searchById(
@@ -130,6 +132,15 @@ export class ObjectTreeDefinitionService implements EntityDefinitionInterface {
             objectTree.entityCtx.actions.creations[
               subType.subObjectTypeId
             ].icon = objectType.iconView;
+          }
+          if (objectType.title) {
+            objectTree.entityCtx.actions.creations[
+              subType.subObjectTypeId
+            ].typeTitle = objectType.title;
+          } else {
+            objectTree.entityCtx.actions.creations[
+              subType.subObjectTypeId
+            ].typeTitle = toStartCase(subType.subObjectTypeId);
           }
 
           // eslint-disable-next-line no-empty

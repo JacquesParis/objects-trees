@@ -9,6 +9,7 @@ export const REPOSITORY_TYPE = {
   name: ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY,
   definition: {properties: {}},
   contentType: '',
+  iconView: 'fas fa-folder',
 };
 
 export const ROOT_TYPE: ObjectTypeDefinition = {
@@ -23,6 +24,7 @@ export const FOLDER_TYPE: ObjectTypeDefinition = {
   name: 'Folder',
   definition: {properties: {}},
   contentType: '',
+  iconView: 'far fa-folder',
 };
 
 export const TENANT_TYPE: ObjectTypeDefinition = {
@@ -32,13 +34,14 @@ export const TENANT_TYPE: ObjectTypeDefinition = {
     properties: {},
   },
   contentType: '',
-  iconView: 'far far-user-circle',
+  iconView: 'far fa-user-circle',
 };
 
 export const REPOSITORY_CATEGORY_TYPE = {
   name: ApplicationService.OBJECT_TYPE_NAMES.REPOSITORY_CATEGORY,
   definition: {properties: {}},
   contentType: '',
+  iconView: 'far fa-folder',
 };
 
 export const REPOSITORY_REPOSITORY_SUBTYPE = {

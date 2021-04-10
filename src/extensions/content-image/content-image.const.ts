@@ -7,6 +7,7 @@ export const CONTENT_IMAGE_SERVICE = 'ContentImageService';
 
 export const IMAGE_GALLERIES_TYPE: ObjectTypeDefinition = {
   name: 'ImageGalleries',
+  title: 'Image galleries',
   definition: {
     properties: {},
   },
@@ -16,6 +17,7 @@ export const IMAGE_GALLERIES_TYPE: ObjectTypeDefinition = {
 
 export const IMAGE_GALLERY_TYPE: ObjectTypeDefinition = {
   name: 'ImageGallery',
+  title: 'Image gallery',
   definition: {
     properties: {},
   },
@@ -34,6 +36,7 @@ export const DISPLAYED_IMAGE_GALLERY_TYPE: ObjectTypeDefinition = {
 
 export const IMAGE_GALLERY_REFERRER_TYPE: ObjectTypeDefinition = {
   name: 'ImageGalleryReferrer',
+  title: 'Images referrer',
   definition: {
     properties: {
       imageGalleryObjectTreeId: {

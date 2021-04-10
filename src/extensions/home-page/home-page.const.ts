@@ -5,8 +5,16 @@ export const HOME_PAGE_PROVIDER = 'HomePageProvider';
 
 export const WEB_SITE_VIEW_URL_TYPE: ObjectTypeDefinition = {
   name: 'WebSiteViewUrl',
+  title: 'Web site URL',
   definition: {
     properties: {
+      title: {
+        type: 'string',
+        'x-schema-form': {
+          condition: 'false',
+        },
+        required: false,
+      },
       name: {
         type: 'string',
         'x-schema-form': {
@@ -27,13 +35,12 @@ export const WEB_SITE_VIEW_URL_TYPE: ObjectTypeDefinition = {
       },
     },
   },
-  templateView:
-    '<span class="child-tree-preview">http://{{dataNode.host}}{{#dataNode.path}}/site/{{dataNode.path}}{{/dataNode.path}}</span>',
   iconView: 'fas fa-globe-europe',
 };
 
 export const WEB_SITE_CACHE_LANG_TYPE: ObjectTypeDefinition = {
   name: 'WebSiteCacheLang',
+  title: 'Country language publication',
   templateView: '<span class="child-tree-preview">{{dataNode.name}}</span>',
   iconView: 'far fa-flag',
   forcedAccessRights: {create: false, update: false},
@@ -41,10 +48,18 @@ export const WEB_SITE_CACHE_LANG_TYPE: ObjectTypeDefinition = {
 
 export const PAGE_CACHE_TYPE: ObjectTypeDefinition = {
   name: 'PageCache',
+  title: 'Page cache',
   contentType: 'ContentPageCache',
   forcedAccessRights: {create: false, update: false},
   definition: {
     properties: {
+      title: {
+        type: 'string',
+        'x-schema-form': {
+          condition: 'false',
+        },
+        required: false,
+      },
       name: {
         type: 'string',
         'x-schema-form': {
@@ -58,7 +73,6 @@ export const PAGE_CACHE_TYPE: ObjectTypeDefinition = {
       },
     },
   },
-  templateView: '<span class="child-tree-preview">{{dataNode.pageUrl}}</span>',
   iconView: 'fas fa-database',
 };
 

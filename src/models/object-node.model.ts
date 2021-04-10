@@ -13,6 +13,11 @@ export class ObjectNode extends RestEntity implements IObjectNode {
   name: string;
 
   @property({
+    type: 'string',
+  })
+  title: string;
+
+  @property({
     type: 'boolean',
     default: false,
   })

@@ -1,7 +1,14 @@
 import {IJsonSchema} from '@jacquesparis/objects-model';
 /* eslint-disable no-empty */
 import fs from 'fs';
-import {camelCase, isObject, isString, kebabCase} from 'lodash';
+import {
+  camelCase,
+  capitalize,
+  isObject,
+  isString,
+  kebabCase,
+  startCase,
+} from 'lodash';
 import path from 'path';
 export function toKebabCase(str: string) {
   return kebabCase(str);
@@ -9,6 +16,10 @@ export function toKebabCase(str: string) {
 
 export function toCamelCase(str: string) {
   return camelCase(str);
+}
+
+export function toStartCase(str: string) {
+  return capitalize(startCase(str));
 }
 
 export function contentGenericTemplate(
@@ -141,14 +152,6 @@ export function json(dirName: string, name: string): IJsonSchema {
   );
 }
 
-/*
-export function doesTreeImplementOneOfType(
-  tree: ObjectTree | ObjectNode,
-  types: string[],
-): boolean {
-  return intersection(tree.entityCtx?.implementedTypes, types).length > 0;
-}*/
-
 export function addConditionOldVersion(condition: string, schema: IJsonSchema) {
   if (!schema['x-schema-form']) {
     schema['x-schema-form'] = {};
@@ -208,61 +211,3 @@ export function addCondition(
     }
   }
 }
-
-/*
-export function outputResponse(
-  response: Response,
-  generatedView: GeneratedViewInterface,
-): Response {
-  switch (generatedView.type) {
-    case 'file': {
-      const fileView: {
-        filePath: string;
-        fileName: string;
-      } = generatedView.file as {
-        filePath: string;
-        fileName: string;
-      };
-      response.download(fileView.filePath, fileView.fileName);
-      return response;
-    }
-    case 'base64': {
-      const base64View: {
-        name: string;
-        base64: string;
-        type?: string;
-      } = generatedView.base64 as {
-        name: string;
-        base64: string;
-        type?: string;
-      };
-      response.header(
-        'Content-Disposition',
-        'attachment; filename="' + base64View.name + '"',
-      );
-      if (base64View.type) {
-        response.type(base64View.type);
-      }
-      response.send(Buffer.from(base64View.base64, 'base64'));
-      return response;
-    }
-    case 'json': {
-      response.json(generatedView.json);
-      return response;
-    }
-    case 'text': {
-      const textView: {
-        response: string;
-        contentType?: string;
-      } = generatedView.text as {response: string; contentType?: string};
-      response.set('Content-Type', 'text/html');
-      response.send(textView.response);
-      return response;
-    }
-    default: {
-      response.json(generatedView);
-      return response;
-    }
-  }
-}
-*/

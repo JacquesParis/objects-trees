@@ -24,6 +24,7 @@ export const MAP_ENTRIES_TYPE: ObjectTypeDefinition = {
 };
 export const MAP_TYPE: ObjectTypeDefinition = {
   name: 'Map',
+  title: 'Map',
   inheritedTypesIds: [PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name],
   definition: {
     properties: {
@@ -46,6 +47,7 @@ export const MAP_TYPE: ObjectTypeDefinition = {
 };
 export const MAP_PAGE_TYPE: ObjectTypeDefinition = {
   name: 'MapPage',
+  title: 'Map page',
   inheritedTypesIds: [PAGE_WITH_PARAGRAPH_TYPE.name],
   iconView: 'fas fa-map-marked-alt',
 };

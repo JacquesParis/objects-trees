@@ -260,6 +260,7 @@ export abstract class ExtensionProvider {
         subTypeName,
         _.pick(subType, [
           'name',
+          'title',
           'acl',
           'owner',
           'namespace',

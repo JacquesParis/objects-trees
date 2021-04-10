@@ -19,6 +19,11 @@ export class ObjectType extends RestEntity implements IObjectType {
   name: string;
 
   @property({
+    type: 'string',
+  })
+  title: string;
+
+  @property({
     type: 'boolean',
     default: false,
   })

@@ -11,6 +11,11 @@ export class ObjectSubType extends DataEntity implements IObjectSubType {
   name?: string;
 
   @property({
+    type: 'string',
+  })
+  title?: string;
+
+  @property({
     type: 'number',
     default: 10,
   })

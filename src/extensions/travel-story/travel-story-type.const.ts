@@ -21,6 +21,7 @@ import {POST_TYPE, POST_WITH_GALLERY_TYPE} from '../post/post.const';
 import {
   MENU_ENTRY_TYPE,
   PAGE_TYPE,
+  PARAGRAPH_TYPE,
   PARAGRAPH_WITH_PAGE_LINK,
   TEXT_PARAGRAPH_TYPE,
   WEB_SITE_MENU_ENTRIES_TYPE,
@@ -70,10 +71,11 @@ export const TRAVEL_STORY_TEMPLATE_TYPE = {
 
 export const TRAVEL_STORY_TYPE: ObjectTypeDefinition = {
   name: 'TravelStory',
+  title: 'Travel story web site',
   inheritedTypesIds: [
+    WEB_SITE_MENU_ENTRIES_TYPE.name,
     WEB_SITE_VIEW_TYPE.name,
     WEB_SITE_VIEW_WITH_IMAGE_IN_POPUP.name,
-    WEB_SITE_MENU_ENTRIES_TYPE.name,
     CALENDAR_ENTRIES_TYPE.name,
     MAP_ENTRIES_TYPE.name,
   ],
@@ -150,14 +152,15 @@ export const TRAVEL_STORY_WELCOME_PAGE_TYPE: ObjectTypeDefinition = {
 export const TRAVEL_STORY_POST_TYPE: ObjectTypeDefinition = {
   name: 'TravelStoryPost',
   inheritedTypesIds: [
+    MENU_ENTRY_TYPE.name,
+    PARAGRAPH_TYPE.name,
+    CALENDAR_ENTRY_TYPE.name,
+    MAP_ENTRY_TYPE.name,
+    PAGE_WITH_SUB_PAGE_TYPE.name,
     POST_TYPE.name,
     PAGE_WITH_GALLERY_TEXT_PARAGRAPH_TYPE.name,
     TRAVEL_STORY_IMAGE_GALLERY_REFERRER_TYPE.name,
-    MENU_ENTRY_TYPE.name,
-    CALENDAR_ENTRY_TYPE.name,
-    MAP_ENTRY_TYPE.name,
     POST_WITH_GALLERY_TYPE.name,
-    PAGE_WITH_SUB_PAGE_TYPE.name,
     PARAGRAPH_WITH_TEMPLATE_CHOICE_TYPE.name,
   ],
   definition: {
@@ -168,6 +171,7 @@ export const TRAVEL_STORY_POST_TYPE: ObjectTypeDefinition = {
 
 export const TRAVEL_STORY_POST_ROOT_TYPE: ObjectTypeDefinition = {
   name: 'TravelStoryPostRoot',
+  title: 'Content pages',
   inheritedTypesIds: [TRAVEL_STORY_POST_TYPE.name],
 };
 

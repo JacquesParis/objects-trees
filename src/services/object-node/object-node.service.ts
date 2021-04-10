@@ -9,6 +9,7 @@ import {
   Where,
 } from '@loopback/repository';
 import {concat, find, indexOf, isArray, merge, pick, some} from 'lodash';
+import {toKebabCase, toStartCase} from '../../helper';
 import {ApplicationError} from '../../helper/application-error';
 import {EntityName} from '../../models';
 import {ObjectNodeRelations} from '../../models/object-node.model';
@@ -523,7 +524,9 @@ export class ObjectNodeService {
     }
     if (!name.match(regexpName)) {
       if (generate) {
-        name = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        name = toKebabCase(
+          name.normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
+        );
         name = name.replace(new RegExp('[^' + authorizedChars + ']', 'g'), '_');
       }
       if (!name.match(regexpName)) {
@@ -658,7 +661,9 @@ export class ObjectNodeService {
             try {
               await this.add(
                 {
-                  name: objectSubType.name,
+                  title: objectSubType.title
+                    ? objectSubType.title
+                    : objectSubType.name,
                   objectTypeId: objectSubType.subObjectTypeId,
                   parentNodeId: objectNode.id,
                 },
@@ -693,6 +698,12 @@ export class ObjectNodeService {
     //let objectNode = clone(objectNodePosted);
     let objectNodeForUpdate = objectNode;
     let objectType: ObjectType = (null as unknown) as ObjectType;
+    if (!objectNode.name && objectNode.title) {
+      objectNode.name = toKebabCase(objectNode.title);
+    }
+    if (!objectNode.title && objectNode.name) {
+      objectNode.title = toStartCase(objectNode.name);
+    }
     if (!byPassCheck) {
       if (!objectNode.name) {
         throw ApplicationError.missingParameter('name');
@@ -782,6 +793,7 @@ export class ObjectNodeService {
         objectNode,
         this.getPropertiesKeys(objectType, [
           'name',
+          'title',
           'objectTypeId',
           'parentNodeId',
           'parentACLId',
@@ -819,12 +831,6 @@ export class ObjectNodeService {
     if (autoGenerateChildren) {
       await this.checkSubTypesCondition(result, nodeContext, ctx);
     }
-
-    /*
-    await this.contentEntityService.addTransientContent(
-      objectType?.contentType,
-      result,
-    );*/
 
     return result;
   }

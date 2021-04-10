@@ -266,6 +266,9 @@ export class HomePageService {
     if (requestEntity.name) {
       delete requestEntity.name;
     }
+    if (requestEntity.title) {
+      delete requestEntity.title;
+    }
     const host =
       !!requestEntity.host && '' !== requestEntity.host
         ? requestEntity.host
@@ -273,6 +276,10 @@ export class HomePageService {
     if (!host) {
       return false;
     }
+    requestEntity.title =
+      'http://' +
+      host +
+      (requestEntity.path ? '/site/' + requestEntity.path : '');
     requestEntity.path = requestEntity.path ? requestEntity.path : '';
 
     requestEntity.name = host + '$' + requestEntity.path;
@@ -289,6 +296,9 @@ export class HomePageService {
     if (requestEntity.name) {
       delete requestEntity.name;
     }
+    if (requestEntity.title) {
+      delete requestEntity.title;
+    }
     requestEntity.host =
       !!requestEntity.host && '' !== requestEntity.host
         ? requestEntity.host
@@ -296,6 +306,10 @@ export class HomePageService {
     if (!requestEntity.host) {
       return false;
     }
+    requestEntity.title =
+      'http://' +
+      requestEntity.host +
+      (requestEntity.path ? '/site/' + requestEntity.path : '');
     requestEntity.path = requestEntity.path
       ? requestEntity.path
       : entity.path
@@ -662,6 +676,7 @@ function getPageHref(page) {
           name: getCacheName(pageName),
           objectTypeId: PAGE_CACHE_TYPE.name,
           pageUrl: ctx.uriContext.uri.value.url,
+          title: ctx.uriContext.uri.value.url,
           contentPageCache: ctx.webSiteContext.cachedContent.value,
         },
         CurrentContext.get(ctx, {

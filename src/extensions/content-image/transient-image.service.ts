@@ -17,7 +17,7 @@ import {
   IMAGE_GALLERY_REFERRER_TYPE,
   IMAGE_GALLERY_SELECTOR_TYPE,
   IMAGE_GALLERY_TYPE,
-  IMAGE_TYPE
+  IMAGE_TYPE,
 } from './content-image.const';
 import {ContentImageService} from './content-image.definition';
 export class TransientImageService {
@@ -173,7 +173,7 @@ export class TransientImageService {
       }
       if (
         objectNode.entityCtx?.jsonSchema?.properties.imageGalleryObjectTreeId
-          .oneOf.length > 0
+          ?.oneOf?.length > 0
       ) {
         addCondition('true !== model.useExistingGallery', properties.name);
         if (properties.parentId) {
@@ -251,7 +251,7 @@ export class TransientImageService {
             }
           }{{#unless @last}},{{/unless}}{{/images}}
         ]`,
-        icon: 'far fa-images',
+      icon: 'far fa-images',
     });
   }
 

@@ -51,9 +51,11 @@ export class AccessRightsProvider extends ExtensionProvider {
       {
         name: ApplicationService.OBJECT_TYPE_NAMES.USER,
         contentType: ApplicationService.CONTENT_TYPE.USER,
+        iconView: 'far fa-id-card',
       },
       {
         name: ApplicationService.OBJECT_TYPE_NAMES.ANONYMOUS_USER,
+        iconView: 'fas fa-mask',
       },
       ACCESS_RIGHTS_DEFINITION_TYPE,
       ACCESS_RIGHTS_GROUP_TYPE,
