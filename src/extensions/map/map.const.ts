@@ -65,12 +65,21 @@ export const MAP_ENTRY_TYPE: ObjectTypeDefinition = {
       locationName: {
         title: 'Location name',
         type: 'string',
+        'x-schema-form': {
+          type: 'conditional-text',
+          conditionalValue: {
+            title: 'Localize this event on the map',
+            defaultValue: 'return model.title',
+            dependentValuesReset: {'/locationPosition': ''},
+          },
+        },
       },
       locationPosition: {
         title: 'Location position',
         type: 'string',
         'x-schema-form': {
           type: 'position',
+          condition: {functionBody: 'return !!model.locationName'},
         },
       },
       locationType: {
@@ -78,6 +87,7 @@ export const MAP_ENTRY_TYPE: ObjectTypeDefinition = {
         type: 'string',
         'x-schema-form': {
           type: 'icon',
+          condition: {functionBody: 'return !!model.locationName'},
         },
         oneOf: [
           {

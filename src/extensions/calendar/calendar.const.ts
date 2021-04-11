@@ -66,7 +66,10 @@ export const CALENDAR_ENTRY_TYPE: ObjectTypeDefinition = {
         title: 'Date range',
         type: 'string',
         'x-schema-form': {
-          type: 'date-range',
+          type: 'conditional-date-range',
+          conditionalValue: {
+            title: 'Add this event in the calendar',
+          },
         },
       },
     },

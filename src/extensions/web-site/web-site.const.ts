@@ -353,6 +353,13 @@ export const PAGE_TYPE: ObjectTypeDefinition = {
       pageTitle: {
         title: 'Page title',
         type: 'string',
+        'x-schema-form': {
+          type: 'conditional-text',
+          conditionalValue: {
+            title: 'Specify a specific page title',
+            defaultValue: 'return model.title',
+          },
+        },
       },
     },
   },
@@ -367,6 +374,13 @@ export const PARAGRAPH_TYPE: ObjectTypeDefinition = {
       paragraphTitle: {
         title: 'Paragraph title',
         type: 'string',
+        'x-schema-form': {
+          type: 'conditional-text',
+          conditionalValue: {
+            title: 'Specify a specific paragraph title',
+            defaultValue: 'return model.title',
+          },
+        },
       },
     },
   },
@@ -479,6 +493,13 @@ export const MENU_ENTRY_TYPE: ObjectTypeDefinition = {
       menuTitle: {
         title: 'Menu entry label',
         type: 'string',
+        'x-schema-form': {
+          type: 'conditional-text',
+          conditionalValue: {
+            title: 'Use this page as a menu entry',
+            defaultValue: 'return model.title',
+          },
+        },
       },
     },
   },
