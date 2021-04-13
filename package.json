@@ -1,6 +1,6 @@
 {
   "name": "@jacquesparis/objects-trees",
-  "version": "1.0.72",
+  "version": "1.0.73",
   "description": "manage tree of objects",
   "keywords": [
     "loopback-application",
@@ -49,7 +49,7 @@
   ],
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.2",
-    "@jacquesparis/objects-angular": "^1.0.21",
+    "@jacquesparis/objects-angular": "^1.0.22",
     "@jacquesparis/objects-model": "^1.0.12",
     "@jacquesparis/objects-website": "^1.0.12",
     "@loopback/authentication": "^7.0.6",
