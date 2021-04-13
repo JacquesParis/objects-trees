@@ -202,13 +202,19 @@ export class ActionImageService {
       throw ApplicationError.forbidden();
     }
 
-    let oneOfTreeOptions: OneOfTreeOption[] = refererType.definition.properties.imageGalleryObjectTreeId.oneOfTree.filter(
+    const oneOfTreeOptions: OneOfTreeOption[] = refererType.definition.properties.imageGalleryObjectTreeId.oneOfTree.filter(
       (referencedTree: OneOfTreeOption) => !referencedTree.namespaceType,
     );
     const referredTypes: string[] = oneOfTreeOptions.map(
       (oneOfTree: {treeType: string}) => oneOfTree.treeType,
     );
 
+    let galleryTypes: string[] = [];
+    for (const referredType of referredTypes) {
+      galleryTypes.push(
+        ...(await this.objectTypeService.getImplementingTypes(referredType)),
+      );
+    }
     if (!childTypeId || '' === childTypeId) {
       const parentGalleryTree: ObjectTree = (await this.insideRestService.read(
         this.uriCompleteService.getUri(EntityName.objectTree, parentId, ctx),
@@ -224,13 +230,9 @@ export class ActionImageService {
       const childTypeIds = Object.keys(
         parentGalleryTree.entityCtx.actions.creations,
       );
-      const galleryTypes: string[] = (
-        await this.objectTypeService.getImplementingTypes(
-          IMAGE_GALLERY_TYPE.name,
-        )
-      )
-        .filter((type) => -1 < childTypeIds.indexOf(type))
-        .filter((type) => -1 < referredTypes.indexOf(type));
+      galleryTypes = galleryTypes.filter(
+        (type) => -1 < childTypeIds.indexOf(type),
+      );
       if (0 === childTypeIds.length) {
         throw ApplicationError.missing({
           object: IMAGE_GALLERIES_TYPE.name,
@@ -240,13 +242,22 @@ export class ActionImageService {
       }
       childTypeId = galleryTypes[0];
     }
-    if (-1 === referredTypes.indexOf(childTypeId)) {
+    if (-1 === galleryTypes.indexOf(childTypeId)) {
       throw ApplicationError.unauthorizedValue({childTypeId: childTypeId});
     }
-    oneOfTreeOptions = oneOfTreeOptions.filter(
-      (referencedTree: {treeType: string}) =>
-        referencedTree.treeType === childTypeId,
-    );
+    for (let index = oneOfTreeOptions.length - 1; index--; index >= 0) {
+      if (
+        -1 ===
+        indexOf(
+          await this.objectTypeService.getImplementingTypes(
+            oneOfTreeOptions[index].treeType,
+          ),
+          childTypeId,
+        )
+      ) {
+        oneOfTreeOptions.splice(index, 1);
+      }
+    }
     if (0 === oneOfTreeOptions.length) {
       throw ApplicationError.unauthorizedValue({childTypeId: childTypeId});
     }
