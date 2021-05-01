@@ -9,7 +9,7 @@ import {
 import {juggler} from '@loopback/repository';
 import {getService} from '@loopback/service-proxy';
 import {ServerConfigService} from '../../server-config/server-config.service';
-import {IGeocoderService} from '../geocoder.service';
+import {GeocoderLocation, IGeocoderService} from '../geocoder.service';
 import {CurrentContext} from './../../../services/application.service';
 import {DATASTORE_NAME_GEOCODER_NOMINATIM} from './geocoder-nominatim.const';
 
@@ -114,7 +114,7 @@ export class GeocoderNominatimService implements IGeocoderService {
     address: string,
     isAddressUriEncoded = false,
     ctx: CurrentContext,
-  ): Promise<{latitude: number; longitude: number}> {
+  ): Promise<GeocoderLocation> {
     const addressUriEncoded = isAddressUriEncoded
       ? address
       : encodeURIComponent(address);

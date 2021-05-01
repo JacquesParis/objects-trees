@@ -1,3 +1,4 @@
+import {IMethodResult} from '@jacquesparis/objects-model';
 import {authorize} from '@loopback/authorization';
 import {inject, service} from '@loopback/core';
 import {
@@ -12,13 +13,11 @@ import {
 } from '@loopback/rest';
 import {GeneratedResponse} from '../../helper/generated-response';
 import {EntityName} from '../../models/entity-name';
-import {ObjectNode} from '../../models/object-node.model';
 import {
   AccessRightsEntity,
   AccessRightsScope,
 } from '../access-rights/access-rights.const';
 import {CurrentContext, CURRENT_CONTEXT} from '../application.service';
-import {ObjectTree} from './../../models/object-tree.model';
 import {ActionEntityService} from './action-entity.service';
 
 export class ActionEntityController {
@@ -203,8 +202,8 @@ export class ActionEntityController {
     })
     args: Object,
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
-  ): Promise<ObjectNode> {
-    return this.actionEntityService.runMethod<ObjectNode>(
+  ): Promise<IMethodResult> {
+    return this.actionEntityService.runMethod(
       EntityName.objectNode,
       id,
       methodId,
@@ -239,8 +238,8 @@ export class ActionEntityController {
     })
     args: Object,
     @inject(CURRENT_CONTEXT) ctx: CurrentContext,
-  ): Promise<ObjectTree> {
-    return this.actionEntityService.runMethod<ObjectTree>(
+  ): Promise<IMethodResult> {
+    return this.actionEntityService.runMethod(
       EntityName.objectTree,
       id,
       methodId,

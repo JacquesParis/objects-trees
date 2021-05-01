@@ -9,7 +9,7 @@ import {
 import {juggler} from '@loopback/repository';
 import {getService} from '@loopback/service-proxy';
 import {CurrentContext} from '../../../services';
-import {IGeocoderService} from '../geocoder.service';
+import {GeocoderLocation, IGeocoderService} from '../geocoder.service';
 import {ApplicationError} from './../../../helper/application-error';
 import {ServerConfigService} from './../../server-config/server-config.service';
 import {DATASTORE_NAME_GEOCODER_POSITION_STACK} from './geocoder-position-stack.const';
@@ -121,7 +121,7 @@ export class GeocoderPositionStackService implements IGeocoderService {
     address: string,
     isAddressUriEncoded = false,
     ctx: CurrentContext,
-  ): Promise<{latitude: number; longitude: number}> {
+  ): Promise<GeocoderLocation> {
     const addressUriEncoded = isAddressUriEncoded
       ? address
       : encodeURIComponent(address);

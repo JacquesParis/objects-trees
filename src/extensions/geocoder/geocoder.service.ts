@@ -5,6 +5,7 @@ import {
   GeneratedResponse,
   JsonGeneratedResponse,
 } from '../../helper/generated-response';
+import {SimpleMethodValueResult} from '../../helper/method-value-result';
 import {EntityName} from '../../models/entity-name';
 import {ObjectNode} from '../../models/object-node.model';
 import {ActionEntityService} from '../../services/action-entity/action-entity.service';
@@ -12,17 +13,24 @@ import {CurrentContext} from '../../services/application.service';
 import {TENANT_TYPE} from '../../services/object-tree/object-tree.const';
 import {ServerConfigService} from '../server-config/server-config.service';
 import {ApplicationError} from './../../helper/application-error';
+import {MethodValueSimpleJsonResult} from './../../helper/method-value-result';
 import {TransientEntityService} from './../../services/transient-entity/transient-entity.service';
 import {CachedResultService} from './../cached-result/cached-result.service';
 import {WEB_SITE_VIEW_TYPE} from './../web-site/web-site.const';
 import {GEOCODER_PROVIDER} from './geocoder.const';
+
+export class GeocoderLocation extends MethodValueSimpleJsonResult {
+  latitude: number;
+  longitude: number;
+}
+export class GeocoderResult extends SimpleMethodValueResult<GeocoderLocation> {}
 
 export interface IGeocoderService {
   getAddressLocation(
     addressUriEncoded: string,
     isAddressUriEncoded: boolean,
     ctx: CurrentContext,
-  ): Promise<{latitude: number; longitude: number}>;
+  ): Promise<GeocoderLocation>;
   getName(): string;
 }
 
@@ -70,7 +78,7 @@ export class GeocoderService {
         args: Object,
         ctx: CurrentContext,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ) => Promise<any>,
+      ) => Promise<GeocoderResult>,
       'create',
     );
 
@@ -122,21 +130,16 @@ export class GeocoderService {
     objectNode: ObjectNode,
     args: {address: string},
     ctx: CurrentContext,
-  ): Promise<{latitude: number; longitude: number}> {
-    return this.getAddressLocation(args.address, ctx);
+  ): Promise<GeocoderResult> {
+    const geolocation = await this.getAddressLocation(args.address, ctx);
+    return new GeocoderResult(geolocation);
   }
 
   private async getAddressLocation(
     address: string,
     ctx: CurrentContext,
-  ): Promise<{latitude: number; longitude: number}> {
-    const result: {
-      latitude: number;
-      longitude: number;
-    } = await this.cachedResultService.getResult<{
-      latitude: number;
-      longitude: number;
-    }>(
+  ): Promise<GeocoderLocation> {
+    const result: GeocoderLocation = await this.cachedResultService.getResult<GeocoderLocation>(
       GeocoderService.name,
       {
         address: address

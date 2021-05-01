@@ -1,4 +1,4 @@
-import {IRestEntity} from '@jacquesparis/objects-model';
+import {IMethodResult, IRestEntity} from '@jacquesparis/objects-model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   BindingScope,
@@ -41,12 +41,12 @@ export interface MethodAndViewEntityInterface {
     entity: IRestEntity,
     args: Object,
     ctx: CurrentContext,
-  ): Promise<any>;
+  ): Promise<IMethodResult>;
   generateView?(
     entity: IRestEntity,
     args: {0?: string; 1?: string; 2?: string},
     ctx: CurrentContext,
-  ): Promise<any>;
+  ): Promise<GeneratedResponse>;
 }
 
 @injectable({scope: BindingScope.SINGLETON})
@@ -149,7 +149,7 @@ export class ActionEntityService {
       entity: T,
       args: Object,
       ctx: CurrentContext,
-    ) => Promise<any>,
+    ) => Promise<IMethodResult>,
     functionAccessRightsScope = 'read',
   ) {
     const objectTypeService = this.objectTypeService;
@@ -181,16 +181,28 @@ export class ActionEntityService {
           entity: IRestEntity,
           args: Object,
           ctx: CurrentContext,
-        ): Promise<any> {
+        ): Promise<IMethodResult> {
           if (await this.hasMethod(entity, ctx)) {
             return actionsFunction(entity as T, args, ctx);
           }
+
+          throw ApplicationError.notImplemented({
+            entityType,
+            methodId,
+            entityId: entity.id,
+          });
         }
         async generateView(
           entity: IRestEntity,
           args: {0?: string; 1?: string; 2?: string},
           ctx: CurrentContext,
-        ): Promise<any> {}
+        ): Promise<GeneratedResponse> {
+          throw ApplicationError.notImplemented({
+            entityType,
+            viewId: methodId,
+            entityId: entity.id,
+          });
+        }
         async hasMethod(
           entity: IRestEntity,
           ctx: CurrentContext,
@@ -259,15 +271,27 @@ export class ActionEntityService {
           entity: IRestEntity,
           args: Object,
           ctx: CurrentContext,
-        ): Promise<any> {}
+        ): Promise<IMethodResult> {
+          throw ApplicationError.notImplemented({
+            entityType,
+            methodId,
+            entityId: entity.id,
+          });
+        }
         async generateView(
           entity: IRestEntity,
           args: {0?: string; 1?: string; 2?: string},
           ctx: CurrentContext,
-        ): Promise<any> {
+        ): Promise<GeneratedResponse> {
           if (await this.hasView(entity, ctx)) {
             return viewFunction(entity as T, args, ctx);
           }
+
+          throw ApplicationError.notImplemented({
+            entityType,
+            viewId: methodId,
+            entityId: entity.id,
+          });
         }
         async hasMethod(
           entity: IRestEntity,
@@ -365,13 +389,13 @@ export class ActionEntityService {
     return undefined;
   }
 
-  public async runMethod<T extends IRestEntity>(
+  public async runMethod(
     entityType: EntityName,
     id: string,
     methodId: string,
     args: Object,
     ctx: CurrentContext,
-  ): Promise<T> {
+  ): Promise<IMethodResult> {
     const method = await this.getMethod(entityType, id, methodId, ctx);
     if (!method) {
       throw ApplicationError.notImplemented({
@@ -389,7 +413,7 @@ export class ActionEntityService {
     if (method.runMethod) {
       methodResult = await method.runMethod(entity, args, ctx);
     }
-    return methodResult ? methodResult : this.getEntity<T>(entityType, id, ctx);
+    return methodResult ? methodResult : this.getEntity(entityType, id, ctx);
   }
 
   public async generateView(
