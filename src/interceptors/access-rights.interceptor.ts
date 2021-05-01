@@ -11,6 +11,7 @@ import {ApplicationError} from '../helper/application-error';
 import {RestEntity} from '../models';
 import {AccessRightsService} from '../services/access-rights/access-rights.service';
 import {CurrentContext, CURRENT_CONTEXT} from '../services/application.service';
+import {ValueResult} from './../helper/method-value-result';
 import {AbstractInterceptor} from './abstract.interceptor';
 
 /**
@@ -102,7 +103,11 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
             }
           }
         }
-      } else if (isObject(result) && !(result instanceof ServerResponse)) {
+      } else if (
+        isObject(result) &&
+        !(result instanceof ServerResponse) &&
+        !(result instanceof ValueResult)
+      ) {
         const entity: RestEntity = result as RestEntity;
         if (entity?.uri) {
           const uriParts = await this.getUriParts(invocationCtx, this.ctx);
@@ -115,10 +120,7 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
           );
         } else {
           const uriParts = await this.getUriParts(invocationCtx, this.ctx);
-          if (
-            -1 === ['/explorer/openapi.json/'].indexOf(uriParts.objectUri) &&
-            -1 === uriParts.objectUri.indexOf('/method/')
-          ) {
+          if (-1 === ['/explorer/openapi.json/'].indexOf(uriParts.objectUri)) {
             throw ApplicationError.forbidden();
           }
         }
