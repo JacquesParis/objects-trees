@@ -121,6 +121,7 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
         } else {
           const uriParts = await this.getUriParts(invocationCtx, this.ctx);
           if (-1 === ['/explorer/openapi.json/'].indexOf(uriParts.objectUri)) {
+            console.trace('missing rights', uriParts);
             throw ApplicationError.forbidden();
           }
         }
