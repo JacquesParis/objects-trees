@@ -1,6 +1,7 @@
 import {ObjectTreesApplicationInterface} from '../../application.interface';
 import {contentGenericTemplate} from '../../helper';
 import {ExtensionProvider} from '../../integration/extension.provider';
+import {GeocoderProvider} from '../geocoder/geocoder.provider';
 import {WebSiteProvider} from './../web-site/web-site.provider';
 import {
   CATEGORY_MAP_TEMPLATE_SUBTYPE,
@@ -23,7 +24,7 @@ export class MapProvider extends ExtensionProvider {
       'node_modules/leaflet.markercluster/dist',
     );
 
-    this.requiredProviders.push(WebSiteProvider);
+    this.requiredProviders.push(WebSiteProvider, GeocoderProvider);
     this.services.push({cls: MapService});
     this.objectTypes.push(
       MAP_TEMPLATE_TYPE,

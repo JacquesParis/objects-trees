@@ -115,7 +115,10 @@ export class AccessRightsInterceptor extends AbstractInterceptor {
           );
         } else {
           const uriParts = await this.getUriParts(invocationCtx, this.ctx);
-          if (-1 === ['/explorer/openapi.json/'].indexOf(uriParts.objectUri)) {
+          if (
+            -1 === ['/explorer/openapi.json/'].indexOf(uriParts.objectUri) &&
+            -1 === uriParts.objectUri.indexOf('/method/')
+          ) {
             throw ApplicationError.forbidden();
           }
         }

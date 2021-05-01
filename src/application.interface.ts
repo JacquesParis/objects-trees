@@ -13,10 +13,12 @@ import {
   InterceptorDescription,
   RunnerTreatmentDescription,
 } from './integration/extension-description';
+import {ObjectTreesApplicationConfig} from './integration/object-trees-application.config';
 
 export abstract class ObjectTreesApplicationInterface extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
 ) {
+  public abstract config: ObjectTreesApplicationConfig;
   public abstract rootDirectory: string;
   public abstract addInterceptor(
     providerId: string,

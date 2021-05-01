@@ -21,6 +21,7 @@ if (require.main === module) {
       // Use the LB4 application as a route. It should not be listening.
       listenOnStart: false,
     },
+    serverSecretKey: process.env.SECRET || 'please change secret key',
   };
   application.main(config).catch((err) => {
     console.trace('Cannot start the application.', err);

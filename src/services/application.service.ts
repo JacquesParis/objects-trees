@@ -4,6 +4,7 @@ import {Principal} from '@loopback/security';
 import {IncomingHttpHeaders} from 'http';
 import * as _ from 'lodash';
 import {ObjectTreesApplicationInterface} from '../application.interface';
+import {ObjectTreesApplicationConfig} from '../integration/object-trees-application.config';
 import {ObjectNode} from '../models/object-node.model';
 import {ObjectSubType} from '../models/object-sub-type.model';
 import {ObjectType} from '../models/object-type.model';
@@ -321,6 +322,10 @@ export class ApplicationService {
   public get accessRightsAccessManagersType(): ExpectedValue<ObjectType> {
     return this.extensions.AccessRightsProvider.types
       .accessRightsAccessManagers;
+  }
+
+  public get config(): ObjectTreesApplicationConfig {
+    return this.app.config;
   }
 
   public entityActions: EntityActions = {};

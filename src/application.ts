@@ -97,6 +97,7 @@ export class ObjectTreesApplication extends RestApplication {
 
   protected extensionProviders: ExtensionProvider[] = [];
   protected staticDir: {[basePath: string]: string} = {};
+  public config: ObjectTreesApplicationConfig;
   constructor(config?: ObjectTreesApplicationConfig, parent?: Context) {
     super(config, parent);
     const app = (this as unknown) as ObjectTreesApplicationInterface;
@@ -204,6 +205,7 @@ export class ObjectTreesApplication extends RestApplication {
     config.extensions.push(TransientUriReferenceProvider);
 
     this.addProviders(app, config.extensions);
+    this.config = config;
 
     console.log('Application initialized !');
   }

@@ -527,7 +527,9 @@ export class ObjectNodeService {
         name = toKebabCase(
           name.normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
         );
-        name = name.replace(new RegExp('[^' + authorizedChars + ']', 'g'), '_');
+        name = name
+          .replace(new RegExp('[^' + authorizedChars + ']', 'g'), '_')
+          .replace(/__+/g, '_');
       }
       if (!name.match(regexpName)) {
         throw ApplicationError.format('alphanumeric or - or _ or . or $', {
