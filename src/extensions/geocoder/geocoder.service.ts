@@ -23,7 +23,27 @@ export class GeocoderLocation extends MethodValueSimpleJsonResult {
   latitude: number;
   longitude: number;
 }
-export class GeocoderResult extends SimpleMethodValueResult<GeocoderLocation> {}
+export class GeocoderResult extends SimpleMethodValueResult<GeocoderLocation> {
+  protected buildDisplayedValue(jsonResult: GeocoderLocation): string {
+    let lines = super.buildDisplayedValue(jsonResult);
+
+    lines += `
+    <div class="mapouter">
+      <div class="gmap_canvas">
+        <iframe width="100%" height="318" id="gmap_canvas" src="https://maps.google.com/maps?q=${jsonResult.latitude},${jsonResult.longitude}&t=&z=15&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0">
+        </iframe>
+        <style>
+          .mapouter{position:relative;text-align:right;height:318px;width:100%px;}
+        </style>
+        <style>
+          .gmap_canvas {overflow:hidden;background:none!important;height:318px;width:100%px;}
+        </style>
+      </div>
+    </div>
+    `;
+    return lines;
+  }
+}
 
 export interface IGeocoderService {
   getAddressLocation(
