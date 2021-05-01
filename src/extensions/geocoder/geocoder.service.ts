@@ -121,8 +121,8 @@ export class GeocoderService {
             required: true,
           },
         },
-        icon: 'fas fa-search-location',
       },
+      icon: 'fas fa-search-location',
     });
   }
 

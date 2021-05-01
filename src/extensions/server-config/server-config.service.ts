@@ -46,11 +46,11 @@ export class ServerConfigService {
     }
   }
 
-  public async getConfig(): Promise<any> {
+  public async getConfig(): Promise<{[key: string]: any}> {
     const config = this.appCtx.getExtensionContext(SERVER_CONFIG_PROVIDER).nodes
       .serverConfiguration.value;
     if (!config) {
-      return undefined;
+      return {};
     }
     const configObj: ObjectNode = await this.objectNodeService.searchById(
       config.id as string,
@@ -62,14 +62,14 @@ export class ServerConfigService {
     ) {
       return configObj.contentEncryptedObject.value;
     }
-    return undefined;
+    return {};
   }
 
   public async setConfig(configValue: any): Promise<void> {
     const config = this.appCtx.getExtensionContext(SERVER_CONFIG_PROVIDER).nodes
       .serverConfiguration.value;
     if (!config) {
-      return undefined;
+      return;
     }
     const configObj: ObjectNode = await this.objectNodeService.searchById(
       config.id as string,
@@ -90,8 +90,9 @@ export class ServerConfigService {
     if (undefined !== defaultValue) {
       config[key] = await defaultValue();
       await this.setConfig(config);
+      return config[key];
     }
-    return defaultValue;
+    return undefined;
   }
 
   public registerNewConfigurationKey(key: string, type: any) {

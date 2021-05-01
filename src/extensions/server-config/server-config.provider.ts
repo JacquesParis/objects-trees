@@ -30,4 +30,17 @@ export class ServerConfigProvider extends ExtensionProvider {
       tree: {treeNode: {}, children: {}},
     };
   }
+
+  async boot(): Promise<void> {
+    await super.boot();
+    const service: ServerConfigService = await this.app.getService<ServerConfigService>(
+      ServerConfigService,
+    );
+    try {
+      await service.getConfig();
+    } catch (error) {
+      // encryption key may have changed
+      await service.setConfig({});
+    }
+  }
 }
