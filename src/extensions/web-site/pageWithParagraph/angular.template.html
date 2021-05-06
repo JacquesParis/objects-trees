@@ -8,10 +8,10 @@
     </h1>
     <p class="card-text">
       <ng-container
-        *ngTemplateOutlet="paragraphs;context:{paragraphTrees:[dataTree]}"
+        *ngTemplateOutlet="paragraphs;context:{paragraphNodes:[dataTree]}"
       ></ng-container>
       <ng-container
-        *ngIf="!dataTree.paragraphTrees && dataTree.pageTrees && 0<dataTree.pageTrees.length"
+        *ngIf="!dataTree.paragraphNodes && dataTree.pageNodes && 0<dataTree.pageNodes.length"
       >
         <ng-container
           *ngTemplateOutlet="subPages;context:dataTree"
@@ -21,33 +21,33 @@
   </div>
 </div>
 
-<ng-template #subPages let-pageTrees="pageTrees">
-  <ng-container *ngFor="let childTree of pageTrees">
+<ng-template #subPages let-pageNodes="pageNodes">
+  <ng-container *ngFor="let childTree of pageNodes">
     <div
       *ngIf="ctrl.getPageTreeTemplate(childTree.treeNode, templateNode, siteTemplateNode) as pageTreeTemplate"
       template
       [dataTree]="childTree"
       [templateTree]="pageTreeTemplate"
     ></div>
-    <ng-container *ngIf="childTree.pageTrees">
+    <ng-container *ngIf="childTree.pageNodes">
       <ng-container
-        *ngTemplateOutlet="subPages; context: {pageTrees:childTree.pageTrees}"
+        *ngTemplateOutlet="subPages; context: {pageNodes:childTree.pageNodes}"
       ></ng-container>
     </ng-container>
   </ng-container>
 </ng-template>
 
-<ng-template #paragraphs let-paragraphTrees="paragraphTrees">
-  <ng-container *ngFor="let childTree of paragraphTrees">
+<ng-template #paragraphs let-paragraphNodes="paragraphNodes">
+  <ng-container *ngFor="let childTree of paragraphNodes">
     <div
       *ngIf="ctrl.getParagraphTreeTemplate(childTree.treeNode, templateNode, siteTemplateNode) as paragraphTreeTemplate"
       template
       [dataTree]="childTree"
       [templateTree]="paragraphTreeTemplate"
     ></div>
-    <ng-container *ngIf="childTree.paragraphTrees">
+    <ng-container *ngIf="childTree.paragraphNodes">
       <ng-container
-        *ngTemplateOutlet="paragraphs; context: {paragraphTrees:childTree.paragraphTrees}"
+        *ngTemplateOutlet="paragraphs; context: {paragraphNodes:childTree.paragraphNodes}"
       ></ng-container>
     </ng-container>
   </ng-container>

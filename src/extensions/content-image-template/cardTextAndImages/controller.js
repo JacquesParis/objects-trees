@@ -67,7 +67,6 @@ function newFunction() {
         this.ctrl.siteTemplateNode,
       );
       this.ctrl.parentPageTitle = this.displayParentPageTitle(
-        this.ctrl.dataTree,
         this.ctrl.dataNode,
         this.ctrl.templateNode,
         this.ctrl.siteTemplateNode,
@@ -221,16 +220,16 @@ function newFunction() {
       );
     },
 
-    displayParentPageTitle(dataTree, dataNode, templateNode, siteTemplateNode) {
-      return dataTree.parentPageTitle &&
-        dataTree.parentPageTitle !== dataNode.paragraphTitle &&
+    displayParentPageTitle(dataNode, templateNode, siteTemplateNode) {
+      return dataNode.parentPageTitle &&
+        dataNode.parentPageTitle !== dataNode.paragraphTitle &&
         this.searchConfig(
           [dataNode, templateNode, siteTemplateNode],
           'cardTextAndImages',
           'displayParentPageTitle',
           true,
         )
-        ? dataTree.parentPageTitle
+        ? dataNode.parentPageTitle
         : false;
     },
 

@@ -24,7 +24,7 @@ function newFunction() {
         this.ctrl.dataNode.paragraphTitle ||
         this.ctrl.dataNode.pageTitle ||
         this.ctrl.dataNode.menuTitle ||
-        this.ctrl.dataTree.parentPageTitle ||
+        this.ctrl.dataNode.parentPageTitle ||
         '';
       if (imageTree.original) {
         //  await imageTree.original.waitForReady();
@@ -67,7 +67,7 @@ function newFunction() {
             this.ctrl.dataNode.paragraphTitle ||
             this.ctrl.dataNode.pageTitle ||
             this.ctrl.dataNode.menuTitle ||
-            this.ctrl.dataTree.parentPageTitle ||
+            this.ctrl.dataNode.parentPageTitle ||
             '';
         }
       }

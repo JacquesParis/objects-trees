@@ -19,12 +19,12 @@ import {InsideRestDataSource} from './inside-rest.datasource';
 import {InsideRestProvider} from './inside-rest.provider';
 
 export interface InsideRestRepository {
-  read(
+  read<T extends IRestEntity>(
     uri: string,
     authorization: string,
     acceptLanguage: string,
     sessionid: string | undefined,
-  ): Promise<IRestEntity>;
+  ): Promise<T>;
 }
 
 export class InsideRestRepositoryProvider
@@ -142,40 +142,40 @@ export class InsideRestService {
     return ctx.insideRestContext;
   }
 
-  getLoadedEntity(
+  getLoadedEntity<T extends IRestEntity>(
     uriId: string,
     insideRestCtx: InsideRestContext,
-  ): IRestEntity {
+  ): T {
     if (uriId in insideRestCtx.loadedUris) {
-      return insideRestCtx.loadedUris[uriId];
+      return insideRestCtx.loadedUris[uriId] as T;
     }
     for (const runningRequest of Object.keys(this.runningRequestLoadedUris)) {
       if (uriId in this.runningRequestLoadedUris[runningRequest]) {
-        return this.runningRequestLoadedUris[runningRequest][uriId];
+        return this.runningRequestLoadedUris[runningRequest][uriId] as T;
       }
     }
-    return (undefined as unknown) as IRestEntity;
+    return (undefined as unknown) as T;
   }
 
-  setLoadedEntity(
-    entity: IRestEntity,
+  setLoadedEntity<T extends IRestEntity>(
+    entity: T,
     uriId: string,
     insideRestCtx: InsideRestContext,
-  ): IRestEntity {
+  ): T {
     for (const runningRequest of Object.keys(this.runningRequestLoadedUris)) {
       if (uriId in this.runningRequestLoadedUris[runningRequest]) {
         this.runningRequestLoadedUris[runningRequest][uriId] = entity;
       }
     }
     insideRestCtx.loadedUris[uriId] = entity;
-    return insideRestCtx.loadedUris[uriId];
+    return insideRestCtx.loadedUris[uriId] as T;
   }
 
-  async read(
+  async read<T extends IRestEntity>(
     uri: string,
     ctx: CurrentContext,
     forceNewRead = false,
-  ): Promise<IRestEntity> {
+  ): Promise<T> {
     const uriId: string =
       uri +
       '-' +
@@ -186,14 +186,14 @@ export class InsideRestService {
       ctx.uriContext.uri.value.acceptLanguage;
     const insideRestCtx: InsideRestContext = this.getCtx(ctx);
     if (!forceNewRead) {
-      const result = this.getLoadedEntity(uriId, insideRestCtx);
+      const result = this.getLoadedEntity<T>(uriId, insideRestCtx);
       if (result) {
         return result;
       }
     }
     try {
-      return this.setLoadedEntity(
-        await this.insideRestRepository.read(
+      return this.setLoadedEntity<T>(
+        await this.insideRestRepository.read<T>(
           uri,
           ctx.accessRightsContext.authorization.value,
           ctx.uriContext.uri.value.acceptLanguage,

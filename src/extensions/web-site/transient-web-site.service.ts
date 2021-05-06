@@ -115,29 +115,29 @@ export class TransientWebSiteService {
       this.completeWebSiteWithParagraphsTemplateNode.bind(this),
     );
 
-    this.transientEntityService.registerTransientEntityTypeFunction<ObjectTree>(
+    this.transientEntityService.registerTransientEntityTypeFunction<ObjectNode>(
       WEB_SITE_PROVIDER,
       TransientWebSiteService.name,
-      'Add pageTrees field, list of sub-pages',
-      EntityName.objectTree,
+      'Add pageNodes field, list of sub-pages',
+      EntityName.objectNode,
       PAGE_WITH_SUB_PAGE_TYPE.name,
       this.completePageWithSubPageTree.bind(this),
     );
 
-    this.transientEntityService.registerTransientEntityTypeFunction<ObjectTree>(
+    this.transientEntityService.registerTransientEntityTypeFunction<ObjectNode>(
       WEB_SITE_PROVIDER,
       TransientWebSiteService.name,
-      'Add paragraphTrees field, list of paragraphs',
-      EntityName.objectTree,
+      'Add paragraphNodes field, list of paragraphs',
+      EntityName.objectNode,
       PAGE_WITH_PARAGRAPH_TYPE.name,
       this.completePageWithParagraphTree.bind(this),
     );
 
-    this.transientEntityService.registerTransientEntityTypeFunction<ObjectTree>(
+    this.transientEntityService.registerTransientEntityTypeFunction<ObjectNode>(
       WEB_SITE_PROVIDER,
       TransientWebSiteService.name,
-      'Add paragraphTrees field, list of paragraphs',
-      EntityName.objectTree,
+      'Add paragraphNodes field, list of paragraphs',
+      EntityName.objectNode,
       PARAGRAPH_CONTAINER_TYPE.name,
       this.completeParagraphContainerTree.bind(this),
     );
@@ -571,37 +571,58 @@ export class TransientWebSiteService {
   }
 
   async completePageWithSubPageTree(
-    entity: ObjectTree,
+    objectNode: ObjectNode,
     ctx: CurrentContext,
   ): Promise<void> {
-    const pageTrees: ObjectTree[] = (
-      await this.objectTreeService.getChildrenByImplementedTypeId(entity)
+    const objectTree: ObjectTree = await this.insideRestService.read<ObjectTree>(
+      this.uriCompleteService.getUri(
+        EntityName.objectTree,
+        objectNode.id as string,
+        ctx,
+      ),
+      ctx,
+    );
+    const pageNodes: ObjectTree[] = (
+      await this.objectTreeService.getChildrenByImplementedTypeId(objectTree)
     )[PAGE_TYPE.name];
-    entity.pageTrees = pageTrees ? pageTrees : [];
+    objectNode.pageNodes = pageNodes
+      ? pageNodes.map((tree) => tree.treeNode)
+      : [];
   }
 
   async completePageWithParagraphTree(
-    entity: ObjectTree,
+    objectNode: ObjectNode,
     ctx: CurrentContext,
   ): Promise<void> {
-    const paragraphTrees: ObjectTree[] = (
-      await this.objectTreeService.getChildrenByImplementedTypeId(entity)
+    const objectTree: ObjectTree = await this.insideRestService.read<ObjectTree>(
+      this.uriCompleteService.getUri(
+        EntityName.objectTree,
+        objectNode.id as string,
+        ctx,
+      ),
+      ctx,
+    );
+    const paragraphNodes: ObjectTree[] = (
+      await this.objectTreeService.getChildrenByImplementedTypeId(objectTree)
     )[PARAGRAPH_TYPE.name];
-    entity.paragraphTrees = paragraphTrees ? paragraphTrees : [];
-    entity.parentPageTitle = entity.treeNode.pageTitle
-      ? entity.treeNode.pageTitle
-      : entity.parentPageTitle;
-    for (const paragraphTree of entity.paragraphTrees) {
+    objectNode.paragraphNodes = paragraphNodes
+      ? paragraphNodes.map((tree) => tree.treeNode)
+      : [];
+    /*
+    objectTree.parentPageTitle = objectTree.treeNode.pageTitle
+      ? objectTree.treeNode.pageTitle
+      : objectTree.parentPageTitle;
+    for (const paragraphTree of objectTree.paragraphNodes) {
       paragraphTree.parentPageTitle = paragraphTree.treeNode.pageTitle
         ? paragraphTree.treeNode.pageTitle
-        : entity.parentPageTitle;
-    }
+        : objectTree.parentPageTitle;
+    }*/
   }
 
   async completeParagraphContainerTree(
-    entity: ObjectTree,
+    objectNode: ObjectNode,
     ctx: CurrentContext,
   ): Promise<void> {
-    return this.completePageWithParagraphTree(entity, ctx);
+    return this.completePageWithParagraphTree(objectNode, ctx);
   }
 }

@@ -4,8 +4,8 @@
     <h1 class="card-title">{{pageTitle}}</h1>
     {{/pageTitle}}
     <p class="card-text">
-      {{> paragraphs}} {{#hasPageTrees}} {{#dataTree}}{{> pages}} {{/dataTree}}
-      {{/hasPageTrees}}
+      {{> paragraphs}} {{#hasPageNodes}} {{#dataNode}}{{> pages}} {{/dataNode}}
+      {{/hasPageNodes}}
     </p>
   </div>
 </div>
