@@ -14,6 +14,7 @@ import {TENANT_TYPE} from '../../services/object-tree/object-tree.const';
 import {ServerConfigService} from '../server-config/server-config.service';
 import {ApplicationError} from './../../helper/application-error';
 import {MethodValueSimpleJsonResult} from './../../helper/method-value-result';
+import {ObjectTree} from './../../models/object-tree.model';
 import {TransientEntityService} from './../../services/transient-entity/transient-entity.service';
 import {CachedResultService} from './../cached-result/cached-result.service';
 import {WEB_SITE_VIEW_TYPE} from './../web-site/web-site.const';
@@ -86,18 +87,31 @@ export class GeocoderService {
       this.geocodeTenantNode.bind(this),
       'create',
     );
-    this.actionEntityService.registerNewMethodFunction(
+    this.actionEntityService.registerNewMethodFunction<ObjectNode>(
       GEOCODER_PROVIDER,
       GeocoderService.name,
       'Geocoder an address',
       EntityName.objectNode,
       'geocode',
       WEB_SITE_VIEW_TYPE.name,
-      this.geocodeTenantNodeFromPost.bind(this) as (
+      this.geocodeTenantNodeFromPostOrTree.bind(this) as (
         entity: ObjectNode,
         args: Object,
         ctx: CurrentContext,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ) => Promise<GeocoderResult>,
+      'create',
+    );
+    this.actionEntityService.registerNewMethodFunction<ObjectTree>(
+      GEOCODER_PROVIDER,
+      GeocoderService.name,
+      'Geocoder an address',
+      EntityName.objectTree,
+      'geocode',
+      WEB_SITE_VIEW_TYPE.name,
+      this.geocodeTenantNodeFromPostOrTree.bind(this) as (
+        entity: ObjectTree,
+        args: Object,
+        ctx: CurrentContext,
       ) => Promise<GeocoderResult>,
       'create',
     );
@@ -107,6 +121,15 @@ export class GeocoderService {
       GeocoderService.name,
       'Add geocode method definition to get latitude and longitude from address',
       EntityName.objectNode,
+      WEB_SITE_VIEW_TYPE.name,
+      this.completeWebSiteViewTypeNode.bind(this),
+    );
+
+    this.transientEntityService.registerTransientEntityTypeFunction(
+      GEOCODER_PROVIDER,
+      GeocoderService.name,
+      'Add geocode method definition to get latitude and longitude from address',
+      EntityName.objectTree,
       WEB_SITE_VIEW_TYPE.name,
       this.completeWebSiteViewTypeNode.bind(this),
     );
@@ -146,8 +169,8 @@ export class GeocoderService {
     });
   }
 
-  public async geocodeTenantNodeFromPost(
-    objectNode: ObjectNode,
+  public async geocodeTenantNodeFromPostOrTree(
+    objectNode: ObjectNode | ObjectTree,
     args: {address: string},
     ctx: CurrentContext,
   ): Promise<GeocoderResult> {
