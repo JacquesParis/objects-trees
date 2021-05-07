@@ -121,7 +121,16 @@ export class TransientWebSiteService {
       'Add pageNodes field, list of sub-pages',
       EntityName.objectNode,
       PAGE_WITH_SUB_PAGE_TYPE.name,
-      this.completePageWithSubPageTree.bind(this),
+      this.completePageWithSubPageNode.bind(this),
+    );
+
+    this.transientEntityService.registerTransientEntityTypeFunction<ObjectNode>(
+      WEB_SITE_PROVIDER,
+      TransientWebSiteService.name,
+      'Add pageId and siteId',
+      EntityName.objectNode,
+      PAGE_TYPE.name,
+      this.completePageNode.bind(this),
     );
 
     this.transientEntityService.registerTransientEntityTypeFunction<ObjectNode>(
@@ -130,7 +139,7 @@ export class TransientWebSiteService {
       'Add paragraphNodes field, list of paragraphs',
       EntityName.objectNode,
       PAGE_WITH_PARAGRAPH_TYPE.name,
-      this.completePageWithParagraphTree.bind(this),
+      this.completePageWithParagraphNode.bind(this),
     );
 
     this.transientEntityService.registerTransientEntityTypeFunction<ObjectNode>(
@@ -139,10 +148,9 @@ export class TransientWebSiteService {
       'Add paragraphNodes field, list of paragraphs',
       EntityName.objectNode,
       PARAGRAPH_CONTAINER_TYPE.name,
-      this.completeParagraphContainerTree.bind(this),
+      this.completeParagraphContainerNode.bind(this),
     );
   }
-
   addTemplatesConfigurationsReferences(objectNode: ObjectNode) {
     if (objectNode.templatesConfigurations) {
       if (!objectNode.templatesConfigurations.id) {
@@ -570,7 +578,7 @@ export class TransientWebSiteService {
     this.addTemplatesConfigurationsReferences(objectNode);
   }
 
-  async completePageWithSubPageTree(
+  async completePageWithSubPageNode(
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ): Promise<void> {
@@ -590,7 +598,15 @@ export class TransientWebSiteService {
       : [];
   }
 
-  async completePageWithParagraphTree(
+  async completePageNode(
+    objectNode: ObjectNode,
+    ctx: CurrentContext,
+  ): Promise<void> {
+    objectNode.pageId = objectNode.id;
+    objectNode.siteId = objectNode.parentNamespaceId;
+  }
+
+  async completePageWithParagraphNode(
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ): Promise<void> {
@@ -619,10 +635,10 @@ export class TransientWebSiteService {
     }*/
   }
 
-  async completeParagraphContainerTree(
+  async completeParagraphContainerNode(
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ): Promise<void> {
-    return this.completePageWithParagraphTree(objectNode, ctx);
+    return this.completePageWithParagraphNode(objectNode, ctx);
   }
 }
