@@ -1,7 +1,8 @@
-import {IEntityContext, IObjectTree} from '@jacquesparis/objects-model';
+import {IObjectTree} from '@jacquesparis/objects-model';
 import {AccessRightsScope} from './../services/access-rights/access-rights.const';
 import {EntityName} from './entity-name';
 import {ObjectNode} from './object-node.model';
+import {IEntityServerContext} from './rest-entity.model';
 
 export class ObjectTree implements IObjectTree {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,7 +28,7 @@ export class ObjectTree implements IObjectTree {
   parentTreeId?: string;
   parentTreeUri?: string;
   entityName: EntityName = EntityName.objectTree;
-  entityCtx?: IEntityContext;
+  entityCtx?: IEntityServerContext;
 
   constructor(public treeNode: ObjectNode) {}
 

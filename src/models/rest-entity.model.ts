@@ -1,12 +1,20 @@
-import {IEntityContext} from '@jacquesparis/objects-model';
+import {IEntityContext, IRestEntity} from '@jacquesparis/objects-model';
 import {model, property} from '@loopback/repository';
 import {DataEntity} from './data-entity.model';
 import {EntityName} from './entity-name';
 
+export interface IEntityServerContext extends IEntityContext {
+  implementedTypes?: string[];
+}
+
+export interface IRestEntityServer extends IRestEntity {
+  entityCtx?: IEntityServerContext;
+}
+
 @model({settings: {strict: false}})
 export abstract class RestEntity extends DataEntity {
   public abstract entityName: EntityName;
-  entityCtx?: IEntityContext;
+  entityCtx?: IEntityServerContext;
 
   @property({
     type: 'string',

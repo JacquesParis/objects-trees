@@ -1,7 +1,7 @@
 import {IRestEntity} from '@jacquesparis/objects-model';
 import {BindingScope, injectable, service} from '@loopback/core';
 import {indexOf, isFunction, isString} from 'lodash';
-import {EntityName} from '../../models';
+import {EntityName, IRestEntityServer} from '../../models';
 import {ApplicationService, CurrentContext} from '../application.service';
 import {
   ServiceDescription,
@@ -108,7 +108,7 @@ export class TransientEntityService
         public serviceId: string;
         public description: TreatmentDescription;
         async completeReturnedEntity(
-          entity: IRestEntity,
+          entity: IRestEntityServer,
           ctx: CurrentContext,
         ): Promise<void> {
           if (0 < methods.length) {
