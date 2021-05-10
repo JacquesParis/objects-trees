@@ -62,6 +62,7 @@ import {AccessRightsProvider} from './services/access-rights/access-rights.provi
 import {ActionEntityProvider} from './services/action-entity/action-entity.provider';
 import {AppAuthorizationProvider} from './services/app-authorization.service';
 import {ApplicationService} from './services/application.service';
+import {CleanEntityProvider} from './services/clean-entity/clean-entity.provider';
 import {ContentEntityCoreProvider} from './services/content-entity/content-entity.provider';
 import {ContentEntityService} from './services/content-entity/content-entity.service';
 import {EntityDefinitionProvider} from './services/entity-definition/entity-definition.provider';
@@ -203,6 +204,8 @@ export class ObjectTreesApplication extends RestApplication {
     config.extensions.push(UriCompleteProvider);
     config.extensions.push(RootConfigProvider);
     config.extensions.push(TransientUriReferenceProvider);
+
+    config.extensions.push(CleanEntityProvider);
 
     this.addProviders(app, config.extensions);
     this.config = config;
