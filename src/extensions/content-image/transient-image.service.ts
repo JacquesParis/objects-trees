@@ -1,6 +1,7 @@
 /* eslint-disable no-empty */
 import {service} from '@loopback/core';
-import {cloneDeep, filter, indexOf} from 'lodash';
+import exifr from 'exifr';
+import {cloneDeep, filter, indexOf, isObject} from 'lodash';
 import {addCondition} from '../../helper';
 import {ObjectTreeService} from '../../services';
 import {EntityName} from './../../models/entity-name';
@@ -20,6 +21,44 @@ import {
   IMAGE_TYPE,
 } from './content-image.const';
 import {ContentImageService} from './content-image.definition';
+import {Image} from './content-image.interface';
+
+const exifrOptions: {
+  translateKeys?: boolean;
+  translateValues?: boolean;
+  reviveValues?: boolean;
+
+  // TIFF segment
+  tiff?: boolean;
+  ifd1?: boolean;
+  exif?: boolean;
+  gps?: boolean;
+  interop?: boolean;
+  // Other segments
+  jfif?: boolean;
+  iptc?: boolean;
+  xmp?: boolean;
+  icc?: boolean;
+  makerNote?: boolean;
+  userComment?: boolean;
+  // other options
+  sanitize?: boolean;
+  mergeOutput?: boolean;
+  firstChunkSize?: number;
+  chunkSize?: number;
+  chunkLimit?: number;
+} = {
+  translateKeys: true,
+  translateValues: true,
+  xmp: true,
+  icc: true,
+  iptc: true,
+  jfif: true, // (jpeg only)
+  ifd1: true, // aka thumbnail
+  // Other TIFF tags
+  makerNote: true,
+  userComment: true,
+};
 export class TransientImageService {
   constructor(
     @service(TransientEntityService)
@@ -59,6 +98,52 @@ export class TransientImageService {
       DISPLAYED_IMAGE_GALLERY_TYPE.name,
       this.completeDisplayedImageGalleryTree.bind(this),
     );
+    this.transientEntityService.registerTransientEntityTypeFunction(
+      CONTENT_IMAGE_PROVIDER,
+      TransientEntityService.name,
+      'Add image EXIF info',
+      EntityName.objectNode,
+      IMAGE_TYPE.name,
+      this.completeImageTypeNode.bind(this),
+    );
+  }
+
+  public async getImageExif(image: Image): Promise<unknown> {
+    let result = {};
+    if (image.contentImage?.base64) {
+      try {
+        result = await exifr.parse(
+          Buffer.from(image.contentImage.base64, 'base64'),
+          exifrOptions,
+        );
+      } finally {
+        if (!result) {
+          result = {};
+        }
+      }
+    }
+    return result;
+  }
+
+  public async completeImageTypeNode(image: Image, ctx: CurrentContext) {
+    if (image.contentImage?.base64 && image.entityCtx?.jsonSchema?.properties) {
+      image.exif = await this.getImageExif(image);
+      for (const key of Object.keys(image.exif)) {
+        if (isObject(image.exif[key])) {
+          delete image.exif[key];
+        }
+      }
+
+      image.entityCtx.jsonSchema.properties.exif = {
+        title: 'EXIF image info',
+        type: 'object',
+        'x-schema-form': {
+          type: 'json',
+          readonly: true,
+          disabled: true,
+        },
+      };
+    }
   }
 
   public async completeDisplayedImageGalleryTree(
