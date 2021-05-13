@@ -2,6 +2,7 @@
 import {service} from '@loopback/core';
 import exifr from 'exifr';
 import {cloneDeep, filter, indexOf, isObject} from 'lodash';
+import sharp, {Sharp} from 'sharp';
 import {addCondition} from '../../helper';
 import {ObjectTreeService} from '../../services';
 import {EntityName} from './../../models/entity-name';
@@ -125,11 +126,49 @@ export class TransientImageService {
     return result;
   }
 
+  public async getImageMetadata(image: Image): Promise<unknown> {
+    let result = {};
+    if (image.contentImage?.base64) {
+      try {
+        const img: Sharp = sharp(
+          Buffer.from(image.contentImage.base64, 'base64'),
+        );
+
+        result = await img.metadata();
+      } finally {
+        if (!result) {
+          result = {};
+        }
+      }
+    }
+    return result;
+  }
+
   public async completeImageTypeNode(image: Image, ctx: CurrentContext) {
     if (image.contentImage?.base64 && image.entityCtx?.jsonSchema?.properties) {
+      image.metadata = await this.getImageMetadata(image);
+      for (const key of Object.keys(image.metadata)) {
+        if (
+          isObject(image.metadata[key]) &&
+          !(image.metadata[key] instanceof Date)
+        ) {
+          delete image.metadata[key];
+        }
+      }
+
+      image.entityCtx.jsonSchema.properties.metadata = {
+        title: 'Metadata image info',
+        type: 'object',
+        'x-schema-form': {
+          type: 'json',
+          readonly: true,
+          disabled: true,
+        },
+      };
+
       image.exif = await this.getImageExif(image);
       for (const key of Object.keys(image.exif)) {
-        if (isObject(image.exif[key])) {
+        if (isObject(image.exif[key]) && !(image.exif[key] instanceof Date)) {
           delete image.exif[key];
         }
       }

@@ -76,7 +76,19 @@ export const IMAGE_GALLERY_SELECTOR_TYPE: ObjectTypeDefinition = {
 export const IMAGE_TYPE: ObjectTypeDefinition = {
   name: 'Image',
   definition: {
-    properties: {},
+    properties: {
+      imagePosition: {
+        title: 'Image position',
+        type: 'string',
+        'x-schema-form': {
+          type: 'position',
+        },
+      },
+      imageDate: {
+        title: 'Shooting date',
+        type: 'string',
+      },
+    },
   },
   contentType: 'ContentImage',
   iconView: 'far fa-image',
