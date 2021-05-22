@@ -8,11 +8,16 @@ import {ObjectTreeService} from '../../services';
 import {EntityName} from './../../models/entity-name';
 import {ObjectNode} from './../../models/object-node.model';
 import {ObjectTree} from './../../models/object-tree.model';
-import {CurrentContext} from './../../services/application.service';
+import {
+  CurrentContext,
+  EntityActionType,
+} from './../../services/application.service';
+import {NodeInterceptService} from './../../services/entity-intercept/node-intercept.service';
 import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
 import {ObjectNodeService} from './../../services/object-node/object-node.service';
 import {ObjectTypeService} from './../../services/object-type.service';
 import {TransientEntityService} from './../../services/transient-entity/transient-entity.service';
+import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {
   CONTENT_IMAGE_PROVIDER,
   DISPLAYED_IMAGE_GALLERY_TYPE,
@@ -64,8 +69,12 @@ export class TransientImageService {
   constructor(
     @service(TransientEntityService)
     private transientEntityService: TransientEntityService,
+    @service(NodeInterceptService)
+    private nodeInterceptService: NodeInterceptService,
     @service(InsideRestService)
     private insideRestService: InsideRestService,
+    @service(UriCompleteService)
+    private uriCompleteService: UriCompleteService,
     @service(ContentImageService)
     private contentImageService: ContentImageService,
     @service(ObjectTreeService)
@@ -75,6 +84,14 @@ export class TransientImageService {
     @service(ObjectTypeService)
     private objectTypeService: ObjectTypeService,
   ) {
+    this.nodeInterceptService.registerEntityInterceptorService(
+      CONTENT_IMAGE_PROVIDER,
+      TransientImageService.name,
+      'Set position and date from Exif image data',
+      IMAGE_TYPE.name,
+      EntityActionType.create,
+      this.interceptImageNodeCreate.bind(this),
+    );
     this.transientEntityService.registerTransientEntityTypeFunction(
       CONTENT_IMAGE_PROVIDER,
       TransientImageService.name,
@@ -86,7 +103,7 @@ export class TransientImageService {
     this.transientEntityService.registerTransientEntityTypeFunction(
       CONTENT_IMAGE_PROVIDER,
       TransientImageService.name,
-      'Add load Images method definition to load several images in one operation',
+      'Add load Images method definition to load several images in one operation and reset images position and date info method',
       EntityName.objectNode,
       IMAGE_GALLERY_TYPE.name,
       this.completeImageGalleryTypeNode.bind(this),
@@ -102,16 +119,56 @@ export class TransientImageService {
     this.transientEntityService.registerTransientEntityTypeFunction(
       CONTENT_IMAGE_PROVIDER,
       TransientEntityService.name,
-      'Add image EXIF info',
+      'Add image EXIF info and reset info method',
       EntityName.objectNode,
       IMAGE_TYPE.name,
       this.completeImageTypeNode.bind(this),
     );
   }
 
-  public async getImageExif(image: Image): Promise<unknown> {
+  public async interceptImageNodeCreate(
+    entityId: string | undefined,
+    image: ObjectNode,
+    requestEntity: Partial<ObjectNode>,
+    ctx: CurrentContext,
+  ): Promise<boolean> {
+    try {
+      if (!requestEntity.imagePosition || !requestEntity.imageDate) {
+        const exif: {
+          latitude?: number;
+          longitude?: number;
+          CreateDate?: Date;
+          DateTimeOriginal?: Date;
+          ModifyDate?: Date;
+        } = (await this.getImageExif(requestEntity as Image)) as {
+          latitude?: number;
+          longitude?: number;
+          CreateDate?: Date;
+          DateTimeOriginal?: Date;
+          ModifyDate?: Date;
+        };
+        if (!requestEntity.imagePosition) {
+          const position = this.getPositionFromExif(exif);
+          if (position) {
+            requestEntity.imagePosition = position;
+          }
+        }
+        if (!requestEntity.imageDate) {
+          const date = this.getImageDateFromExif(exif);
+          if (date) {
+            requestEntity.imageDate = date;
+          }
+        }
+      }
+    } catch (error) {}
+    return true;
+  }
+
+  public async getImageExif(image: {
+    contentImage?: {base64?: string};
+  }): Promise<unknown> {
     let result = {};
-    if (image.contentImage?.base64) {
+    if (image?.contentImage?.base64) {
       try {
         result = await exifr.parse(
           Buffer.from(image.contentImage.base64, 'base64'),
@@ -144,19 +201,46 @@ export class TransientImageService {
     return result;
   }
 
-  public async completeImageTypeNode(image: Image, ctx: CurrentContext) {
-    if (image.contentImage?.base64 && image.entityCtx?.jsonSchema?.properties) {
-      image.metadata = await this.getImageMetadata(image);
-      for (const key of Object.keys(image.metadata)) {
+  public getImageDateFromExif(exifData: {
+    CreateDate?: Date;
+    DateTimeOriginal?: Date;
+    ModifyDate?: Date;
+  }): string | undefined {
+    const imageDate: Date | undefined = exifData.CreateDate
+      ? exifData.CreateDate
+      : exifData.DateTimeOriginal
+      ? exifData.DateTimeOriginal
+      : exifData.ModifyDate
+      ? exifData.ModifyDate
+      : undefined;
+    return imageDate ? imageDate.toISOString() : undefined;
+  }
+
+  public getPositionFromExif(exifData: {
+    latitude?: number;
+    longitude?: number;
+  }): string | undefined {
+    return exifData.latitude && exifData.longitude
+      ? `${exifData.latitude},${exifData.longitude}`
+      : undefined;
+  }
+
+  public async completeImageTypeNode(imageNode: Image, ctx: CurrentContext) {
+    if (
+      imageNode.contentImage?.base64 &&
+      imageNode.entityCtx?.jsonSchema?.properties
+    ) {
+      imageNode.metadata = await this.getImageMetadata(imageNode);
+      for (const key of Object.keys(imageNode.metadata)) {
         if (
-          isObject(image.metadata[key]) &&
-          !(image.metadata[key] instanceof Date)
+          isObject(imageNode.metadata[key]) &&
+          !(imageNode.metadata[key] instanceof Date)
         ) {
-          delete image.metadata[key];
+          delete imageNode.metadata[key];
         }
       }
 
-      image.entityCtx.jsonSchema.properties.metadata = {
+      imageNode.entityCtx.jsonSchema.properties.metadata = {
         title: 'Metadata image info',
         type: 'object',
         'x-schema-form': {
@@ -166,14 +250,45 @@ export class TransientImageService {
         },
       };
 
-      image.exif = await this.getImageExif(image);
-      for (const key of Object.keys(image.exif)) {
-        if (isObject(image.exif[key]) && !(image.exif[key] instanceof Date)) {
-          delete image.exif[key];
+      imageNode.exif = await this.getImageExif(imageNode);
+      for (const key of Object.keys(imageNode.exif)) {
+        if (
+          isObject(imageNode.exif[key]) &&
+          !(imageNode.exif[key] instanceof Date)
+        ) {
+          delete imageNode.exif[key];
         }
       }
+      const imageDate: string | undefined = this.getImageDateFromExif(
+        imageNode.exif,
+      );
+      if (
+        imageDate &&
+        imageNode.entityCtx?.jsonSchema?.properties?.imageDate?.[
+          'x-schema-form'
+        ]?.conditionalValue
+      ) {
+        imageNode.entityCtx.jsonSchema.properties.imageDate[
+          'x-schema-form'
+        ].conditionalValue.defaultValue = `return ${JSON.stringify(imageDate)}`;
+      }
+      const imagePosition: string | undefined = this.getPositionFromExif(
+        imageNode.exif,
+      );
+      if (
+        imagePosition &&
+        imageNode.entityCtx?.jsonSchema?.properties?.imagePosition?.[
+          'x-schema-form'
+        ]?.conditionalValue
+      ) {
+        imageNode.entityCtx.jsonSchema.properties.imagePosition[
+          'x-schema-form'
+        ].conditionalValue.defaultValue = `return ${JSON.stringify(
+          imagePosition,
+        )}`;
+      }
 
-      image.entityCtx.jsonSchema.properties.exif = {
+      imageNode.entityCtx.jsonSchema.properties.exif = {
         title: 'EXIF image info',
         type: 'object',
         'x-schema-form': {
@@ -182,6 +297,43 @@ export class TransientImageService {
           disabled: true,
         },
       };
+
+      if (imageDate || imagePosition) {
+        if (!imageNode.entityCtx?.actions) {
+          imageNode.entityCtx.actions = {};
+        }
+        if (!imageNode.entityCtx.actions.methods) {
+          imageNode.entityCtx.actions.methods = [];
+        }
+        imageNode.entityCtx.actions.methods.push({
+          methodId: 'resetInfo',
+          methodName: 'Reset information',
+          actionName: 'Reset information from image',
+          parameters: {
+            type: 'object',
+            properties: {},
+          },
+          icon: 'fas fa-undo',
+        });
+        if (imagePosition) {
+          imageNode.entityCtx.actions.methods[
+            imageNode.entityCtx.actions.methods.length - 1
+          ].parameters.properties.position = {
+            type: 'boolean',
+            title: `Reset position (to <a href="https://maps.google.com/maps?q=${imagePosition}&t=&z=15&ie=UTF8" target="_new">${imagePosition}</a>)`,
+            default: true,
+          };
+        }
+        if (imageDate) {
+          imageNode.entityCtx.actions.methods[
+            imageNode.entityCtx.actions.methods.length - 1
+          ].parameters.properties.date = {
+            type: 'boolean',
+            title: `Reset date (to ${imageDate})`,
+            default: true,
+          };
+        }
+      }
     }
   }
 
@@ -199,7 +351,77 @@ export class TransientImageService {
     objectNode: ObjectNode,
     ctx: CurrentContext,
   ) {
+    if (!objectNode.entityCtx) {
+      objectNode.entityCtx = {entityType: EntityName.objectNode};
+    }
+    if (!objectNode.entityCtx?.actions) {
+      objectNode.entityCtx.actions = {};
+    }
+    if (!objectNode.entityCtx.actions.methods) {
+      objectNode.entityCtx.actions.methods = [];
+    }
     await this.addLoadImagesJsonSchemaMethod(objectNode, ctx);
+
+    const galleryTree: ObjectTree = await this.insideRestService.read<ObjectTree>(
+      this.uriCompleteService.getUri(
+        EntityName.objectTree,
+        objectNode.id as string,
+        ctx,
+      ),
+      ctx,
+    );
+    if (0 < galleryTree.children.length) {
+      let handlebarsMethodSampling = '[';
+      for (const imageTree of galleryTree.children) {
+        handlebarsMethodSampling +=
+          ('[' === handlebarsMethodSampling ? '' : ',') +
+          `
+        {
+          "uri":${JSON.stringify(imageTree.treeNode.uri)},
+          "methodId": "resetInfo",
+          "parameters":{
+            "position": {{&json position}},
+            "date": {{&json date}}
+          }
+        }`;
+      }
+      handlebarsMethodSampling += `
+         {{#order}},
+            {
+              "methodId":"resetOrder",
+              "parameters":{ }
+            }
+         {{/order}}
+      `;
+      handlebarsMethodSampling += ']';
+      objectNode.entityCtx.actions.methods.push({
+        methodId: 'resetInfo',
+        methodName: 'Reset images information and order',
+        actionName: 'Reset information from images and order them',
+        parameters: {
+          type: 'object',
+          properties: {
+            position: {
+              type: 'boolean',
+              title: `Reset images position`,
+              default: true,
+            },
+            date: {
+              type: 'boolean',
+              title: `Reset images date`,
+              default: true,
+            },
+            order: {
+              type: 'boolean',
+              title: `Reset images order`,
+              default: true,
+            },
+          },
+        },
+        icon: 'fas fa-undo',
+        handlebarsMethodSampling: handlebarsMethodSampling,
+      });
+    }
   }
 
   public async getImageGalleriesParents(
@@ -247,6 +469,13 @@ export class TransientImageService {
             name: {
               type: 'string',
               title: 'Gallery name',
+              'x-schema-form': {
+                type: 'conditional-text',
+                conditionalValue: {
+                  title: 'Specify a gallery name',
+                  defaultValue: `return ${JSON.stringify(objectNode.title)}`,
+                },
+              },
             },
           },
         },
@@ -272,6 +501,7 @@ export class TransientImageService {
           {
             "methodId":"load",
             "parameters": {
+              "title": {{&json ../title}},
               "images": [
                 {{&json this}}
               ]
@@ -318,6 +548,23 @@ export class TransientImageService {
         delete properties.useExistingGallery;
       }
 
+      properties.title = {
+        type: 'string',
+        title: 'Displayed name',
+        'x-schema-form': {
+          type: 'conditional-text',
+          conditionalValue: {
+            title: 'Specify a label for images',
+            defaultValue: `return ${JSON.stringify(objectNode.title)}`,
+          },
+        },
+        default: objectNode.title,
+      };
+      addCondition(
+        '(true === model.useExistingGallery && model.imageGalleryObjectTreeId) || !model.useExistingGallery',
+        properties.title,
+      );
+
       properties.images = {
         type: 'array',
         'x-schema-form': {
@@ -353,6 +600,18 @@ export class TransientImageService {
       parameters: {
         type: 'object',
         properties: {
+          title: {
+            type: 'string',
+            title: 'Displayed name',
+            'x-schema-form': {
+              type: 'conditional-text',
+              conditionalValue: {
+                title: 'Specify a label for images',
+                defaultValue: `return ${JSON.stringify(objectNode.title)}`,
+              },
+            },
+            default: objectNode.title,
+          },
           images: {
             type: 'array',
 
@@ -369,6 +628,7 @@ export class TransientImageService {
           {
             "methodId":"load",
             "parameters": {
+              "title": {{&json ../title}},
               "images": [
                 {{&json this}}
               ]

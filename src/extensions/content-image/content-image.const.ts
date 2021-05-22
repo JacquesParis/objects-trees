@@ -82,18 +82,27 @@ export const IMAGE_TYPE: ObjectTypeDefinition = {
         type: 'string',
         'x-schema-form': {
           type: 'position',
+          conditionalValue: {
+            title: 'Set the image position',
+          },
         },
       },
       imageDate: {
         title: 'Shooting date',
         type: 'string',
+        'x-schema-form': {
+          type: 'date-time',
+          conditionalValue: {
+            title: 'Set a shooting date',
+          },
+        },
       },
     },
   },
   contentType: 'ContentImage',
   iconView: 'far fa-image',
   templateView:
-    '<span class="child-tree-preview"><span class="child-image-name">{{dataNode.name}}</span><img style="padding-left: 10px;height: 50px;" src="{{dataNode.contentImageUri}}"/></span>',
+    '<span class="child-tree-preview"><span class="child-image-name">{{dataNode.title}}</span><img style="padding-left: 10px;height: 50px;" src="{{dataNode.contentImageUri}}"/></span>',
 };
 
 export const IMAGE_GALLERIES_IMAGE_GALLERY_SUBTYPE: ObjectSubTypeDefinition = {

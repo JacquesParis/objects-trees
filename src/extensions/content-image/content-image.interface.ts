@@ -10,6 +10,8 @@ export interface Image extends ObjectNode {
     id: string;
     uri: string;
   };
+  imagePosition?: string;
+  imageDate?: string;
 }
 export interface ImageTree extends ObjectNodeTree<Image> {
   treeNode: Image;

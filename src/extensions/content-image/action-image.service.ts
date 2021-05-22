@@ -16,7 +16,9 @@ import {
   OneOfTreeOption,
 } from './../../services/entity-definition/object-node-definition.service';
 import {InsideRestService} from './../../services/inside-rest/inside-rest.service';
+import {SortMethod} from './../../services/object-tree/action-tree.service';
 import {ObjectTypeService} from './../../services/object-type.service';
+import {TransientNodeService} from './../../services/transient-entity/transient-node.service';
 import {UriCompleteService} from './../../services/uri-complete/uri-complete.service';
 import {
   CONTENT_IMAGE_PROVIDER,
@@ -43,6 +45,8 @@ export class ActionImageService {
     private objectNodeDefinitionService: ObjectNodeDefinitionService,
     @service(TransientImageService)
     private transientImageService: TransientImageService,
+    @service(TransientNodeService)
+    private transientNodeService: TransientNodeService,
   ) {
     this.actionEntityService.registerNewMethodFunction(
       CONTENT_IMAGE_PROVIDER,
@@ -84,13 +88,127 @@ export class ActionImageService {
       this.configureGalleryImageGalleryReferrerNode.bind(this),
       'update',
     );
+    this.actionEntityService.registerNewMethodFunction<ObjectNode>(
+      CONTENT_IMAGE_PROVIDER,
+      ActionImageService.name,
+      'Reset image position and/or date',
+      EntityName.objectNode,
+      'resetInfo',
+      IMAGE_TYPE.name,
+      this.resetInfoImageNode.bind(this),
+      'update',
+    );
+    this.actionEntityService.registerNewMethodFunction<ObjectNode>(
+      CONTENT_IMAGE_PROVIDER,
+      ActionImageService.name,
+      'Reset images order',
+      EntityName.objectNode,
+      'resetOrder',
+      IMAGE_GALLERY_TYPE.name,
+      this.resetOrderImageGalleryNode.bind(this),
+      'update',
+    );
   }
 
-  protected createImage(
+  public async resetOrderImageGalleryNode(
+    entity: ObjectNode,
+    args: Object,
+    ctx: CurrentContext,
+  ): Promise<ObjectTree> {
+    const galleryTree: ObjectTree = await this.insideRestService.read<ObjectTree>(
+      this.uriCompleteService.getUri(
+        EntityName.objectTree,
+        entity.id as string,
+        ctx,
+      ),
+      ctx,
+    );
+    await new SortMethod(this.objectNodeService).runMethod(
+      galleryTree,
+      galleryTree.children
+        .sort((a, b) => {
+          if (!a.treeNode.imageDate && !b.treeNode.imageDate) {
+            return (a.treeNode.index as number) - (b.treeNode.index as number);
+          }
+          if (!a.treeNode.imageDate || !b.treeNode.imageDate) {
+            return !a.treeNode.imageDate ? 1 : -1;
+          }
+          return Date.parse(a.treeNode.imageDate) < Date.parse(b.treeNode.imageDate) ? -1 : 1;
+        })
+        .map((tree) => tree.treeNode.id as string),
+      ctx,
+    );
+
+    return this.actionEntityService.getEntity<ObjectTree>(
+      EntityName.objectTree,
+      entity.id as string,
+      CurrentContext.get(ctx, {}),
+    );
+  }
+
+  public async resetInfoImageNode(
+    entity: ObjectNode,
+    args: {position?: boolean; date?: boolean},
+    ctx: CurrentContext,
+  ): Promise<ObjectNode> {
+    if (args.position || args.date) {
+      const update: Partial<ObjectNode> = {};
+      if (entity.contentImageId && !entity.contentImage) {
+        await this.transientNodeService.completeReturnedEntity(entity, ctx);
+      }
+      const exif: {
+        latitude?: number;
+        longitude?: number;
+        CreateDate?: Date;
+        DateTimeOriginal?: Date;
+        ModifyDate?: Date;
+      } = (await this.transientImageService.getImageExif(
+        entity as {
+          contentImage?: {base64?: string};
+        },
+      )) as {
+        latitude?: number;
+        longitude?: number;
+        CreateDate?: Date;
+        DateTimeOriginal?: Date;
+        ModifyDate?: Date;
+      };
+
+      if (args.position) {
+        const imagePosition = this.transientImageService.getPositionFromExif(
+          exif,
+        );
+        if (imagePosition) {
+          update.imagePosition = imagePosition;
+        }
+      }
+      if (args.date) {
+        const imageDate = this.transientImageService.getImageDateFromExif(exif);
+        if (imageDate) {
+          update.imageDate = imageDate;
+        }
+      }
+      if (0 < Object.keys(update).length) {
+        await this.objectNodeService.modifyById(
+          entity.id as string,
+          update,
+          ctx,
+        );
+      }
+    }
+    return this.actionEntityService.getEntity<ObjectNode>(
+      EntityName.objectNode,
+      entity.id as string,
+      CurrentContext.get(ctx, {}),
+    );
+  }
+
+  protected async createImage(
     image: Image,
     parent: ObjectNode,
     ctx: CurrentContext,
     parentType?: ObjectType,
+    title?: string,
   ): Promise<ObjectNode> {
     const childCtx: CurrentContext = CurrentContext.get(ctx, {
       nodeContext: {
@@ -103,9 +221,30 @@ export class ActionImageService {
       nameParts.pop();
     }
 
+    const exif: {
+      latitude?: number;
+      longitude?: number;
+      CreateDate?: Date;
+      DateTimeOriginal?: Date;
+      ModifyDate?: Date;
+    } = (await this.transientImageService.getImageExif({
+      contentImage: image,
+    })) as {
+      latitude?: number;
+      longitude?: number;
+      CreateDate?: Date;
+      DateTimeOriginal?: Date;
+      ModifyDate?: Date;
+    };
+    const position = this.transientImageService.getPositionFromExif(exif);
+
+    const date = this.transientImageService.getImageDateFromExif(exif);
+
     return this.objectNodeService.add(
       {
-        name: nameParts.join('.'),
+        name: title ? title : nameParts.join('.'),
+        imagePosition: position,
+        imageDate: date,
         parentNodeId: parent.id,
         objectTypeId: IMAGE_TYPE.name,
         contentImage: image,
@@ -122,13 +261,17 @@ export class ActionImageService {
     args: Object,
     ctx: CurrentContext,
   ): Promise<ObjectTree> {
-    const images: {images: Image[]} = args as {images: Image[]};
+    const images: {images: Image[]; title?: string} = args as {
+      images: Image[];
+      title?: string;
+    };
     for (const image of images.images) {
       await this.createImage(
         image,
         ctx.nodeContext.node.value,
         ctx,
         ctx.nodeContext.objectType.value,
+        images.title,
       );
     }
     return this.actionEntityService.getEntity<ObjectTree>(
@@ -180,7 +323,7 @@ export class ActionImageService {
     } = args as any;
     let name: string | undefined = creationArguments.name;
     if (!name || '' === name) {
-      name = objectNode.name;
+      name = objectNode.title || objectNode.name;
     }
     let parentId: string | undefined = creationArguments.parentId;
     if (!parentId || '' === parentId) {
@@ -333,12 +476,17 @@ export class ActionImageService {
           initialSelectedImagesCount = (selectedImages as string[]).length;
         }
 
-        const images: {images: Image[]} = args as {images: Image[]};
+        const images: {images: Image[]; title?: string} = args as {
+          images: Image[];
+          title?: string;
+        };
         for (const image of images.images) {
           const imageObject = await this.createImage(
             image,
             imageGalleryNode,
             ctx,
+            undefined,
+            images.title,
           );
           if (imageObject && selectedImages) {
             selectedImages.push(imageObject.name);

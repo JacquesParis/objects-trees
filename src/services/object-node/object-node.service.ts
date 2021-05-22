@@ -601,7 +601,17 @@ export class ObjectNodeService {
     if (!generate) {
       throw ApplicationError.conflict({name: name});
     }
-    objectNode.name = name + '_2';
+    const nameParts = name.split('_');
+    if (
+      1 < nameParts.length &&
+      Number.isInteger(Number.parseInt(nameParts[nameParts.length - 1]))
+    ) {
+      nameParts[nameParts.length - 1] =
+        '' + (Number.parseInt(nameParts[nameParts.length - 1]) + 1);
+      objectNode.name = nameParts.join('_');
+    } else {
+      objectNode.name = name + '_2';
+    }
     return this.checkNameAvailability(objectNode, objectNode.name, generate);
   }
 

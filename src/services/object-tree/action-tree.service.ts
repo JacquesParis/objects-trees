@@ -10,7 +10,7 @@ import {InsideRestService} from './../inside-rest/inside-rest.service';
 import {ObjectNodeService} from './../object-node/object-node.service';
 import {OBJECT_TREE_PROVIDER} from './object-tree.const';
 
-class SortMethod implements MethodAndViewEntityInterface {
+export class SortMethod implements MethodAndViewEntityInterface {
   providerId: string = OBJECT_TREE_PROVIDER;
   serviceId: string = ActionTreeService.name;
   description = 'Sort tree children nodes';
