@@ -1,7 +1,7 @@
 <div class="card">
   <div class="card-body">
     {{#pageTitle}}
-    <h1 class="card-title">{{pageTitle}}</h1>
+    <h1 class="card-title" id="{{dataNode.name}}">{{pageTitle}}</h1>
     {{/pageTitle}}
     <p class="card-text">
       {{> paragraphs}} {{#hasPageNodes}} {{#dataNode}}{{> pages}} {{/dataNode}}
