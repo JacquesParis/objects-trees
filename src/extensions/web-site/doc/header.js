@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function loadStyle(url) {
   // eslint-disable-next-line no-undef
@@ -26,27 +27,46 @@ function loadStyle(url) {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function loadScript(url) {
-  // eslint-disable-next-line no-undef
   if (document.querySelector('script[src="' + url + '"]')) {
-    return true;
+    if (
+      'true' ===
+      document
+        .querySelector('script[src="' + url + '"]')
+        .getAttribute('data-loading')
+    ) {
+      return new Promise((resolve, reject) => {
+        document.querySelector('script[src="' + url + '"]').addEventListener(
+          'load',
+          () => {
+            window.setTimeout(() => {
+              resolve(true);
+            });
+          },
+          false,
+        );
+      });
+    } else {
+      return true;
+    }
   }
   return new Promise((resolve) => {
-    // eslint-disable-next-line no-undef
     const script = document.createElement('script');
     script.setAttribute('src', url);
     script.setAttribute('type', 'text/javascript');
+    script.setAttribute('data-loading', 'true');
 
     script.addEventListener(
       'load',
       () => {
-        // eslint-disable-next-line no-undef
+        document
+          .querySelector('script[src="' + url + '"]')
+          .setAttribute('data-loading', 'false');
         window.setTimeout(() => {
           resolve(true);
         });
       },
       false,
     );
-    // eslint-disable-next-line no-undef
     document.head.appendChild(script);
   });
 }
