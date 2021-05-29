@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable no-undef */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function thumbsShowImg(document, dataNodeId, imageIndex) {
   const images = document.querySelectorAll(
@@ -68,18 +70,12 @@ function thumbsShowImage(document, dataNodeId) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function displayImageMap(document, dataNodeId, display) {
   const id = 'map_' + dataNodeId;
-  // eslint-disable-next-line no-undef
-  await loadStyle('/popup/popup.css');
-  // eslint-disable-next-line no-undef
-  await loadStyle('/leaflet/leaflet.css');
-  // eslint-disable-next-line no-undef
+  loadStyle('/popup/popup.css');
+  loadStyle('/leaflet/leaflet.css');
   await loadScript('/leaflet/leaflet.js');
 
-  // eslint-disable-next-line no-undef
-  await loadStyle('/markercluster/MarkerCluster.css');
-  // eslint-disable-next-line no-undef
-  await loadStyle('/markercluster/MarkerCluster.Default.css');
-  // eslint-disable-next-line no-undef
+  loadStyle('/markercluster/MarkerCluster.css');
+  loadStyle('/markercluster/MarkerCluster.Default.css');
   await loadScript('/markercluster/leaflet.markercluster.js');
 
   const map = L.map(id).setView([51.505, -0.09], 13);
