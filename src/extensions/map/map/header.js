@@ -1,16 +1,16 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function displayMap(id, display) {
   // eslint-disable-next-line no-undef
-  await loadStyle('/popup/popup.css');
+  loadStyle('/popup/popup.css');
   // eslint-disable-next-line no-undef
-  await loadStyle('/leaflet/leaflet.css');
+  loadStyle('/leaflet/leaflet.css');
   // eslint-disable-next-line no-undef
   await loadScript('/leaflet/leaflet.js');
 
   // eslint-disable-next-line no-undef
-  await loadStyle('/markercluster/MarkerCluster.css');
+  loadStyle('/markercluster/MarkerCluster.css');
   // eslint-disable-next-line no-undef
-  await loadStyle('/markercluster/MarkerCluster.Default.css');
+  loadStyle('/markercluster/MarkerCluster.Default.css');
   // eslint-disable-next-line no-undef
   await loadScript('/markercluster/leaflet.markercluster.js');
 
