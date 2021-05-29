@@ -1,20 +1,15 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function displayMap(id, display) {
-  // eslint-disable-next-line no-undef
   loadStyle('/popup/popup.css');
-  // eslint-disable-next-line no-undef
   loadStyle('/leaflet/leaflet.css');
-  // eslint-disable-next-line no-undef
   await loadScript('/leaflet/leaflet.js');
 
-  // eslint-disable-next-line no-undef
   loadStyle('/markercluster/MarkerCluster.css');
-  // eslint-disable-next-line no-undef
   loadStyle('/markercluster/MarkerCluster.Default.css');
-  // eslint-disable-next-line no-undef
   await loadScript('/markercluster/leaflet.markercluster.js');
 
-  // eslint-disable-next-line no-undef
   window.setTimeout(() => {
     const map = L.map(id).setView([51.505, -0.09], 13);
 
@@ -43,7 +38,6 @@ async function displayMap(id, display) {
       });
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       (async function () {
-        // eslint-disable-next-line no-undef
         const popup = await loadPopup(position.popupHref);
         marker.bindPopup(popup, {className: 'map-popup'});
       })();
