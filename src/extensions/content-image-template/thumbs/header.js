@@ -20,7 +20,22 @@ async function thumbsShowImg(document, dataNodeId, imageIndex) {
   document.querySelector('#modalImgGal' + dataNodeId + ' .imgFullScreen').style[
     'background-image'
   ] = images[imageIndex].getAttribute('data-thumbs-imgBackground');
+
+  const hasPosition = document.querySelector(
+    `#thumb_${dataNodeId}_${imageIndex}`,
+  )._popup;
+  if (hasPosition) {
+    document
+      .querySelector('#modalImgGal' + dataNodeId + ' .switch-map-image')
+      .classList.remove('d-none');
+  } else {
+    document
+      .querySelector('#modalImgGal' + dataNodeId + ' .switch-map-image')
+      .classList.add('d-none');
+  }
+
   if (
+    !hasPosition ||
     document
       .querySelector('#modalImgGal' + dataNodeId + ' .mapFullScreen')
       .classList.contains('modal-body-hidden')
@@ -99,14 +114,6 @@ async function displayImageMap(document, dataNodeId, display) {
         iconAnchor: [18, 18],
       }),
     });
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    /*
-    (async function () {
-      // eslint-disable-next-line no-undef
-      const popup = await loadPopup(position.popupHref);
-      marker.bindPopup(popup, {className: 'map-popup'});
-    })();
-    */
     const popup = L.popup().setLatLng(position.position).setContent(`
     <a onclick="thumbsShowImage(document, '${dataNodeId}');thumbsShowImg(document, '${dataNodeId}', ${position.index})">
      <img src="${position.src}">
