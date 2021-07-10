@@ -859,7 +859,7 @@ export class ObjectNodeService {
 
   protected getPropertiesKeys(
     objectType: ObjectType,
-    objectKeys = ['name'],
+    objectKeys = ['name', 'title'],
   ): string[] {
     let finalObjectKeys = objectKeys;
     if (objectType.definition?.properties) {
